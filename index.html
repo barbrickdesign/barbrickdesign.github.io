@@ -46,7 +46,7 @@
     .feed-row{display:flex;justify-content:space-between;gap:12px}
   </style>
 
-  <!-- libs (must be before the app script) -->
+  <!-- libs (order matters) -->
   <script src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iife.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@solana/spl-token@0.3.11/dist/browser/spl-token.min.js"></script>
@@ -81,7 +81,7 @@
       <section class="card">
         <div class="title">Solana Blockchain holds your SOL — Claim it Back!</div>
         <div class="small" style="margin-top:8px">
-          Scan your wallet, close empty token accounts, prepare manual sells for low-value tokens (manual approval required), export a recovery report, and support projects. All on-chain actions require explicit wallet approval.
+          Scan your wallet, close empty token accounts, prepare manual sells for low-value tokens (manual approval required), export a recovery report, and support projects. Every blockchain action requires your explicit wallet approval.
         </div>
       </section>
 
@@ -211,12 +211,11 @@
   </div>
 
   <script>
-    /* Utilities + Debug */
+    /* ----------------- Utilities & Debug ----------------- */
     function logDebug(...args){
       const el = document.getElementById('debugLog');
-      if(!el) return console.log(...args);
       const line = document.createElement('div');
-      line.textContent = '[' + new Date().toLocaleTimeString() + '] ' + args.map(a => (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' ');
+      line.textContent = `[${new Date().toLocaleTimeString()}] ` + args.map(a => (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' ');
       el.appendChild(line); el.scrollTop = el.scrollHeight; console.log(...args);
     }
     document.getElementById('dbgClear').addEventListener('click', ()=> document.getElementById('debugLog').innerHTML = '');
@@ -225,7 +224,7 @@
       d.style.display = hidden ? 'block' : 'none'; e.target.textContent = hidden ? 'Hide' : 'Show';
     });
 
-    const connection = new solanaWeb3.Connection('https://api.mainnet-beta.solana.com','confirmed');
+    const connection = new solanaWeb3.Connection('https://api.mainnet-beta.solana.com', 'confirmed');
     const RENT_PER_EMPTY_ACCOUNT_SOL = 0.00204;
     const DONATION_PCT = 0.05;
     const FEE_WALLET = new solanaWeb3.PublicKey('5hSWosj58ki4A6hSfQrvteQU5QvyCWmhHn4AuqgaQzqr');
@@ -240,10 +239,10 @@
     function toSol(n){ return (Math.round(n*100000)/100000).toFixed(5); }
     function normPubkey(x){ if(!x) return null; if(x instanceof solanaWeb3.PublicKey) return x; if(x.publicKey && x.publicKey instanceof solanaWeb3.PublicKey) return x.publicKey; try{ return new solanaWeb3.PublicKey(x); } catch { return null; } }
 
-    function getProviderTolerant(){ return window.solana || null; }
+    function getProviderTolerant(){ if(window.solana) return window.solana; return null; }
     async function waitForProvider(timeoutMs=3000, intervalMs=150){ const start=Date.now(); while(Date.now()-start < timeoutMs){ const p=getProviderTolerant(); if(p) return p; await new Promise(r=>setTimeout(r, intervalMs)); } return null; }
 
-    /* Mobile deep-link */
+    /* ----------------- Mobile deep-link ----------------- */
     function buildPhantomDeepLink(){
       const appUrl = encodeURIComponent(location.origin);
       const redirect = encodeURIComponent(location.href.replace(location.search || '', '') + '?from_phantom=1');
@@ -256,7 +255,7 @@
       setStatus('Opening wallet app... approve connect then return.', 'warn');
     }
 
-    /* Connect + sign (drop-in reliable) */
+    /* ----------------- Connect & Sign ----------------- */
     async function connectAndVerify(){
       setStatus('Attempting wallet connect…');
       logDebug('connect start; mobile?', /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent));
@@ -265,7 +264,6 @@
         if(/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)){ promptOpenInWalletApp(); return; }
         setStatus('No wallet detected. Install Phantom or enable extension.','warn'); return;
       }
-
       try{
         logDebug('provider.connect()');
         const resp = await provider.connect({ onlyIfTrusted:false });
@@ -283,7 +281,6 @@
 
         setStatus('Requesting signature from wallet…');
         logDebug('requesting signMessage');
-
         let signed = null;
         if(typeof provider.signMessage === 'function'){
           try{ signed = await provider.signMessage(msgBytes, 'utf8'); } catch(e){
@@ -307,58 +304,37 @@
         if(!ok){ setStatus('Signature verification failed.', 'error'); wallet = null; document.getElementById('walletLabel').textContent = '—'; return; }
 
         setStatus('Wallet connected and verified', 'success');
-        if(typeof scanAllHoldingsAndHistoryImproved === 'function') await scanAllHoldingsAndHistoryImproved();
-        if(typeof enableProjectContributeButtons === 'function') await enableProjectContributeButtons();
-      } catch(err){
-        logDebug('connectAndVerify error', err);
-        setStatus('Wallet connection or verification failed.', 'error');
-        wallet = null;
-        try{ document.getElementById('walletLabel').textContent = '—'; }catch(_){}
-        try{ document.getElementById('walletStatus').textContent = 'Wallet: not detected'; }catch(_){}
+        await scanAllHoldingsAndHistoryImproved();
+      }catch(err){
+        logDebug('connect error', err);
+        setStatus('Connection or verification failed.','error'); wallet=null;
+        document.getElementById('walletLabel').textContent = '—';
+        document.getElementById('walletStatus').textContent = 'Wallet: not detected';
       }
     }
 
-    // Auto reconnect after return from mobile deep link
-    async function autoReconnectAfterReturn(){
+    // auto-reconnect after deep-link
+    window.addEventListener('load', async ()=>{
       try{
-        const params = new URLSearchParams(window.location.search);
+        const params = new URLSearchParams(location.search);
         const awaiting = localStorage.getItem('awaiting_wallet');
-        if(params.get('from_phantom') === '1' || awaiting === '1'){
-          logDebug('Returned from wallet app; waiting for provider injection...');
+        if(params.get('from_phantom')==='1' || awaiting === '1'){
+          logDebug('Returned from wallet app; waiting for provider...');
           const prov = await waitForProvider(6000,200);
           if(prov){
             try{ localStorage.removeItem('awaiting_wallet'); }catch(_){}
             await connectAndVerify();
-            if(params.get('from_phantom') === '1'){
-              const clean = window.location.href.replace(/[?&]from_phantom=1/, '');
-              history.replaceState(null, '', clean);
-            }
+            if(params.get('from_phantom')==='1'){ const clean = location.href.replace(/[?&]from_phantom=1/,''); history.replaceState(null,'',clean); }
           } else {
-            setStatus('Returned from wallet but provider not injected. Open site in wallet browser and press Connect.', 'warn');
+            setStatus('Returned from wallet app but provider not injected. Open site in wallet browser and press Connect.', 'warn');
           }
         }
-      } catch (e) { logDebug('autoReconnectAfterReturn error', e); }
-    }
-    window.addEventListener('load', autoReconnectAfterReturn);
+      }catch(e){ logDebug('autoReconnect error', e); }
+    });
 
-    /* Retry helper */
-    async function retry(fn, attempts=3, delay=300){
-      let last;
-      for(let i=0;i<attempts;i++){
-        try{ return await fn(); } catch(e){ last = e; await new Promise(r=>setTimeout(r, delay*(i+1))); }
-      }
-      throw last;
-    }
-
-    /* Token scanning improved */
-    function tryParseRawTokenAccount(raw){
-      try{
-        return {
-          pubkey: raw.pubkey?.toString ? raw.pubkey.toString() : String(raw.pubkey),
-          account: { data: { parsed: { info: { tokenAmount: { uiAmount: 0 }, mint: 'unknown' } } } }
-        };
-      }catch(e){ return null; }
-    }
+    /* ----------------- Scanner & RPC fallback (improved) ----------------- */
+    async function retry(fn, attempts=3, delay=300){ let last; for(let i=0;i<attempts;i++){ try{return await fn(); }catch(e){ last=e; await new Promise(r=>setTimeout(r, delay*(i+1))); } } throw last; }
+    function tryParseRawTokenAccount(raw){ try{ return { pubkey: raw.pubkey?.toString?raw.pubkey.toString():String(raw.pubkey), account: { data: { parsed: { info: { tokenAmount: { uiAmount: 0 }, mint: 'unknown' } } } } }; }catch(e){ return null; } }
 
     async function scanTokenAccountsImproved(){
       const pk = normPubkey(wallet) || normPubkey(getProviderTolerant()?.publicKey);
@@ -366,36 +342,23 @@
       setStatus('Scanning token accounts and holdings (improved)...');
       try{
         let res;
-        try{
-          res = await retry(()=> connection.getParsedTokenAccountsByOwner(pk, { programId: splToken.TOKEN_PROGRAM_ID }), 2, 250);
-          res = res && res.value ? res.value : [];
-          logDebug('getParsedTokenAccountsByOwner ok, entries:', res.length);
-        } catch(errParsed){
-          logDebug('getParsedTokenAccountsByOwner failed, fallback to getTokenAccountsByOwner', errParsed);
-          const raw = await retry(()=> connection.getTokenAccountsByOwner(pk, { programId: splToken.TOKEN_PROGRAM_ID }), 2, 300);
-          res = (raw.value || []).map(v => tryParseRawTokenAccount(v)).filter(Boolean);
-          logDebug('fallback getTokenAccountsByOwner returned', res.length, 'entries');
-        }
+        try{ res = await retry(()=> connection.getParsedTokenAccountsByOwner(pk, { programId: splToken.TOKEN_PROGRAM_ID }), 2, 250); logDebug('getParsedTokenAccountsByOwner ok, entries:', (res.value||[]).length); }
+        catch(errParsed){ logDebug('getParsedTokenAccountsByOwner failed, fallback to getTokenAccountsByOwner', errParsed); const raw = await retry(()=> connection.getTokenAccountsByOwner(pk, { programId: splToken.TOKEN_PROGRAM_ID }), 2, 300); res = { value: raw.value.map(v => tryParseRawTokenAccount(v)).filter(Boolean) }; logDebug('fallback getTokenAccountsByOwner returned', (res.value||[]).length, 'entries'); }
 
-        const parsed = res || [];
+        const parsed = res.value || [];
         const empty = [];
         const map = {};
-        for(const acc of parsed){
-          try{
-            const info = acc.account?.data?.parsed?.info;
-            const ui = Number(info?.tokenAmount?.uiAmount || 0);
-            const mint = info?.mint || acc.account?.mint || null;
-            const pubkey = acc.pubkey?.toString ? acc.pubkey.toString() : String(acc.pubkey);
-            if(ui === 0) empty.push({ pubkey, mint });
-            else if(mint) map[mint] = (map[mint] || 0) + ui;
-          }catch(e){
-            logDebug('token parse error', e, acc);
-          }
-        }
+        parsed.forEach(acc => {
+          const info = acc.account && acc.account.data && acc.account.data.parsed && acc.account.data.parsed.info;
+          const ui = Number(info?.tokenAmount?.uiAmount || 0);
+          const mint = info?.mint || null;
+          const pubkey = acc.pubkey?.toString ? acc.pubkey.toString() : String(acc.pubkey);
+          if(ui === 0) empty.push({ pubkey, mint });
+          else if(mint) map[mint] = (map[mint] || 0) + ui;
+        });
 
         const holdingsArr = Object.keys(map).map(m => ({ mint: m, amount: map[m] }));
         emptyTokenAccounts = empty; holdings = holdingsArr;
-
         document.getElementById('emptyCount').textContent = String(empty.length);
         const est = empty.length * RENT_PER_EMPTY_ACCOUNT_SOL;
         document.getElementById('refundEstimate').textContent = toSol(est) + ' SOL';
@@ -424,7 +387,6 @@
       }
     }
 
-    /* Transaction fetch with Solscan optional, RPC fallback */
     async function fetchTransactionsForWalletRobustImproved({ rpcLimit = 250, rpcAlt = 'https://rpc.ankr.com/solana' } = {}){
       const pk = normPubkey(wallet) || normPubkey(getProviderTolerant()?.publicKey);
       if(!pk){ logDebug('fetchTransactionsForWalletRobustImproved: no pubkey'); return { source:'none', txs:[] }; }
@@ -452,7 +414,7 @@
           const signatures = sigInfos.map(s => s.signature);
           const parsed = []; const batchSize = 20;
           for(let i=0;i<signatures.length;i+=batchSize){
-            const chunk = signatures.slice(i,i+batchSize);
+            const chunk = signatures.slice(i, i+batchSize);
             const resolved = await Promise.all(chunk.map(sig => retry(()=> altConn.getParsedTransaction(sig, 'confirmed'), 2, 250).catch(e=>{ logDebug('alt getParsedTransaction fail', sig, e); return null; })));
             parsed.push(...resolved.filter(Boolean));
             await new Promise(r=>setTimeout(r,150));
@@ -496,7 +458,9 @@
     function analyzeTransactionsForFlowsUnified(raw){
       if(!wallet) return [];
       const our = normPubkey(wallet).toBase58();
-      const flows = {}; const txs = raw.txs || [];
+      const flows = {};
+      const txs = raw.txs || [];
+
       if(raw.source === 'solscan'){
         for(const tx of txs){
           const native = tx.nativeTransfers || tx.nativeTransfer || tx.native || [];
@@ -525,10 +489,13 @@
           }catch(e){ logDebug('analyze RPC tx error', e); }
         }
       }
-      const summary = Object.keys(flows).map(addr=>{
-        const inLam = flows[addr].in || 0; const outLam = flows[addr].out || 0;
+
+      const summary = Object.keys(flows).map(addr => {
+        const inLam = flows[addr].in || 0;
+        const outLam = flows[addr].out || 0;
         return { addr, inSol: (inLam/solanaWeb3.LAMPORTS_PER_SOL).toFixed(5), outSol: (outLam/solanaWeb3.LAMPORTS_PER_SOL).toFixed(5), netOutFromUs: ((outLam-inLam)/solanaWeb3.LAMPORTS_PER_SOL).toFixed(5) };
       }).sort((a,b)=> Number(b.netOutFromUs) - Number(a.netOutFromUs));
+
       return summary;
     }
 
@@ -544,7 +511,7 @@
       panel.appendChild(list);
     }
 
-    /* Projects loader + valuation */
+    /* ----------------- Projects with valuation (no placeholder) ----------------- */
     const PROJECTS_JSON_URL = './projects.json';
     const PROJECT_VALUE_PER_STAR_USD = 10;
 
@@ -556,6 +523,7 @@
           if(Array.isArray(j) && j.length>0) return j;
         }
       }catch(e){ logDebug('projects.json fetch failed', e); }
+      // fallback to GitHub repos
       try{
         const r = await fetch('https://api.github.com/users/barbrickdesign/repos?per_page=100');
         if(!r.ok) throw new Error('GitHub API non-ok ' + r.status);
@@ -570,13 +538,17 @@
           agency: repo.owner?.login || null,
           gateMint: null
         }));
-      }catch(e){ logDebug('GitHub fallback for projects failed', e); return []; }
+      }catch(e){
+        logDebug('GitHub fallback for projects failed', e);
+        return [];
+      }
     }
 
     async function renderProjects(){
       const grid = document.getElementById('projectsGrid'); grid.innerHTML='';
       const list = await loadProjectsList();
       if(!list || list.length === 0){ grid.innerHTML = '<div class="notice small">No projects found.</div>'; return; }
+
       for(const p of list){
         const el = document.createElement('div'); el.className='project';
         const repoName = p.repo || p.name || (p.html_url||'').split('/').pop();
@@ -612,7 +584,7 @@
       let ownedMints = new Set();
       try{
         const res = await connection.getParsedTokenAccountsByOwner(wallet, { programId: splToken.TOKEN_PROGRAM_ID });
-        (res.value || []).forEach(acc=>{
+        (res.value||[]).forEach(acc=>{
           const info = acc.account?.data?.parsed?.info;
           if(info && Number(info.tokenAmount?.uiAmount || 0) > 0) ownedMints.add(info.mint);
         });
@@ -620,13 +592,8 @@
 
       buttons.forEach(b=>{
         const gate = b.dataset.gate || '';
-        if(!gate){
-          b.disabled = false;
-          b.title = 'Open contribution (wallet approval required)';
-        } else {
-          b.disabled = !ownedMints.has(gate);
-          b.title = b.disabled ? 'Requires gate token' : 'Contribute (wallet approval required)';
-        }
+        if(!gate){ b.disabled = false; b.title = 'Open contribution (wallet approval required)'; }
+        else { b.disabled = !ownedMints.has(gate); b.title = b.disabled ? 'Requires gate token' : 'Contribute (wallet approval required)'; }
 
         b.onclick = async (ev) => {
           if(b.disabled){ alert('You do not meet the token-gate for this project.'); return; }
@@ -658,7 +625,7 @@
       });
     }
 
-    /* High-level flows */
+    /* ----------------- High-level scan and other flows ----------------- */
     async function scanAllHoldingsAndHistoryImproved(){
       setStatus('Starting comprehensive scan (improved)...');
       const tokenRes = await scanTokenAccountsImproved();
@@ -688,8 +655,8 @@
     }
 
     async function closeEmptyAccounts(){
-      if(!wallet){ setStatus('Connect wallet first.','warn'); return; }
-      if(emptyTokenAccounts.length === 0){ setStatus('No empty accounts to close.','warn'); return; }
+      if(!wallet){ setStatus('Connect wallet first.', 'warn'); return; }
+      if(emptyTokenAccounts.length === 0){ setStatus('No empty accounts to close.', 'warn'); return; }
       if(!confirm(`Close ${emptyTokenAccounts.length} empty account(s)? Each will require wallet approval.`)) return;
       setStatus('Preparing close transactions... approve each in your wallet.');
       for(const acc of emptyTokenAccounts){
@@ -728,16 +695,9 @@
       sessionFeed.unshift({ wallet: walletAddr, accounts, sol, sig, date: date.toISOString() });
       renderFeed();
     }
-    function renderFeed(){
-      const f=document.getElementById('feed'); f.innerHTML='';
-      sessionFeed.slice(0,24).forEach(it=>{
-        const row=document.createElement('div'); row.className='feed-row small';
-        row.textContent = `${shorten(it.wallet)} • accounts ${it.accounts} • ${toSol(it.sol)} SOL • ${shorten(it.sig||'')} • ${new Date(it.date).toLocaleString()}`;
-        f.appendChild(row);
-      });
-    }
+    function renderFeed(){ const f=document.getElementById('feed'); f.innerHTML=''; sessionFeed.slice(0,24).forEach(it=>{ const row=document.createElement('div'); row.className='feed-row small'; row.textContent = `${shorten(it.wallet)} • accounts ${it.accounts} • ${toSol(it.sol)} SOL • ${shorten(it.sig||'')} • ${new Date(it.date).toLocaleString()}`; f.appendChild(row); }); }
 
-    /* UI wiring */
+    /* ----------------- UI wiring ----------------- */
     document.getElementById('connectBtn').addEventListener('click', connectAndVerify);
     document.getElementById('openInWalletApp').addEventListener('click', promptOpenInWalletApp);
     document.getElementById('scanBtn').addEventListener('click', scanAllHoldingsAndHistoryImproved);
@@ -750,11 +710,8 @@
       setStatus('Recovery report exported.', 'success');
     });
 
-    /* Initial render */
-    (async function init(){
-      await renderProjects();
-      window._bd = { connectAndVerify, scanAllHoldingsAndHistoryImproved, closeEmptyAccounts, prepareManualSells, renderProjects, logDebug };
-    })();
+    // initial projects render
+    (async function init(){ await renderProjects(); window._bd = { connectAndVerify, scanAllHoldingsAndHistoryImproved, closeEmptyAccounts, prepareManualSells, renderProjects, logDebug }; })();
   </script>
 </body>
 </html>
