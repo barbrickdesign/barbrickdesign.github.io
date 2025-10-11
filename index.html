@@ -600,10 +600,19 @@ async function scanReposForIndex() {
   const repos = await res.json();
   const container = document.querySelector(".modules .card:nth-of-type(2) .list");
 
+  // Add project count
+  const countDiv = document.createElement("div");
+  countDiv.style.margin = "10px 0";
+  countDiv.style.fontWeight = "bold";
+  countDiv.style.color = "#66fcf1";
+  countDiv.textContent = `📦 Total Projects: ${repos.length}`;
+  container.appendChild(countDiv);
+
   for (const repo of repos) {
     const repoName = repo.name;
     const repoURL = repo.html_url;
     const indexURL = `https://barbrickdesign.github.io/${repoName}/index.html`;
+    const updatedAt = new Date(repo.updated_at).toLocaleDateString();
 
     let indexExists = false;
     try {
@@ -614,13 +623,36 @@ async function scanReposForIndex() {
     }
 
     const div = document.createElement("div");
+    div.style.marginBottom = "12px";
     div.innerHTML = `
-      <a class="link" href="${repoURL}" target="_blank">${repoName}</a> —
-      ${indexExists
-        ? `<a class="link" href="${indexURL}" target="_blank">🌐 Live index.html</a>`
-        : `<span style="color:#f66;">⚠️ Missing or broken index.html</span>`}
+      <div style="padding: 10px; border: 1px solid #333; border-radius: 8px; background: #111;">
+        <div style="font-size: 1.1em; font-weight: bold;">
+          <a class="link" href="${repoURL}" target="_blank">${repoName}</a>
+        </div>
+        <div style="font-size: 0.9em; color: #aaa;">🗓️ Updated: ${updatedAt}</div>
+        <div style="margin-top: 4px;">
+          ${indexExists
+            ? `<a class="link" href="${indexURL}" target="_blank">🌐 Live index.html</a>`
+            : `<span style="color:#f66;">⚠️ Missing or broken index.html</span>`}
+        </div>
+      </div>
     `;
     container.appendChild(div);
+  }
+
+  // Track usage
+  try {
+    await fetch("https://script-usage.barbrickdesign.com/track", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        script: "scanReposForIndex",
+        origin: window.location.hostname,
+        timestamp: new Date().toISOString()
+      })
+    });
+  } catch (e) {
+    console.warn("Usage tracking failed:", e);
   }
 }
 scanReposForIndex();
