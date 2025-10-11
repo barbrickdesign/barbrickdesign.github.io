@@ -55,7 +55,6 @@
     #commitViewer{display:none;position:fixed;top:10px;right:10px;background:#111;padding:10px;border-radius:8px;max-height:90vh;overflow:auto;width:min(640px,92vw);z-index:9999}
     #debugPanel{position:fixed;bottom:0;left:0;width:100%;max-height:260px;overflow:auto;background:#081018;border-top:1px solid #222;font-family:ui-monospace,Menlo,Consolas;z-index:99999;color:#9bd;padding:8px}
     @media(max-width:600px){#debugPanel{font-size:11px}}
-    /* mobile hint */
     #openInWalletApp { display:none; }
     #mobileWalletHint { display:none; color:var(--muted); font-size:12px; margin-left:6px; }
   </style>
@@ -75,7 +74,7 @@
         <div style="display:flex;gap:8px;align-items:center;">
           <button id="connectBtn" class="btn primary">Connect Wallet</button>
           <button id="openInWalletApp" class="btn ghost">Open in Wallet App</button>
-          <div id="mobileWalletHint" class="small">If on mobile, open in your wallet's browser if connect doesn't work.</div>
+          <div id="mobileWalletHint" class="small">If on mobile, open in your wallet's in-app browser if connect doesn't work.</div>
         </div>
         <div style="display:flex;gap:8px;align-items:center;">
           <button id="resetBtn" class="btn">Reset</button>
@@ -149,7 +148,6 @@
     <section class="modules">
       <div class="card">
         <div style="font-weight:800;margin-bottom:8px">Income modules</div>
-
         <div class="list">
           <div class="item">
             <div>
@@ -159,7 +157,6 @@
             <a class="btn ghost" href="https://barbrickdesign.github.io/SOLRecovery/" target="_blank" rel="noopener">Open</a>
             <button id="recoverInlineBtn" class="btn">Recover here</button>
           </div>
-
           <div class="item">
             <div>
               <div class="link">NFT Minting Portal</div>
@@ -241,7 +238,7 @@
   <script src="./projects.js"></script>
 
   <script>
-    /* ========== Debug Panel ========== */
+    /* Debug panel */
     const debugPanel = document.createElement('div');
     debugPanel.id = 'debugPanel';
     debugPanel.innerHTML = `
@@ -261,13 +258,12 @@
       const d = document.createElement('div'); d.textContent = t; el.appendChild(d); el.scrollTop = el.scrollHeight;
       console.log(...args);
     }
-    document.addEventListener('click', ()=>{}); // keeps event plumbing stable
     document.getElementById('clearDebug').addEventListener('click', ()=> document.getElementById('debugLog').innerHTML = '');
     document.getElementById('toggleDebug').addEventListener('click', (e)=> {
       const log = document.getElementById('debugLog'); const hidden = log.style.display === 'none'; log.style.display = hidden ? 'block' : 'none'; e.target.textContent = hidden ? 'Hide' : 'Show';
     });
 
-    /* ========== Elements & State ========== */
+    /* Elements & state */
     const walletLabel = document.getElementById('walletLabel');
     const statusEl = document.getElementById('status');
     const connectBtn = document.getElementById('connectBtn');
@@ -348,18 +344,22 @@
     }
     function buildPhantomDeepLink() {
       const appUrl = encodeURIComponent(window.location.origin);
-      const redirect = encodeURIComponent(window.location.href);
+      // include a param so we can detect return
+      const redirect = encodeURIComponent(window.location.href.replace(window.location.search || '', '') + '?from_phantom=1');
       return `https://phantom.app/ul/v1/connect?app_url=${appUrl}&redirect_url=${redirect}`;
     }
     function promptOpenInWalletApp() {
+      try {
+        localStorage.setItem('awaiting_wallet', '1');
+      } catch (e) { logDebug('localStorage set failed', e); }
       const link = buildPhantomDeepLink();
       logDebug('Opening wallet app via deep link:', link);
-      // user gesture recommended
       window.open(link, '_blank');
-      setStatus('If your wallet app did not open, open this site inside your wallet app browser.', 'warn');
+      setStatus('Opening wallet app... approve connect inside the app, then return to this page.', 'warn');
     }
 
-    window.addEventListener('load', () => {
+    window.addEventListener('load', async () => {
+      // detect provider briefly
       if(window.solana && window.solana.isPhantom){
         walletStatusBadge.textContent = 'Wallet: Phantom detected';
         logDebug('Provider detected: Phantom');
@@ -370,15 +370,56 @@
         walletStatusBadge.textContent = 'Wallet: not detected';
         logDebug('No provider detected');
       }
+
       const params = new URLSearchParams(window.location.search);
       const refFromUrl = params.get('ref') || params.get('summoner');
       if(refFromUrl) refInput.value = refFromUrl;
       updateReferralPreview();
 
-      // show mobile hint if no provider and mobile
+      // Show mobile hint UI if relevant and detect provider injection over a few seconds
       updateWalletUIHints();
       setInterval(updateWalletUIHints, 3000);
 
+      // If user returned from wallet deep link or localStorage flagged, wait longer and auto-connect
+      const awaiting = localStorage.getItem('awaiting_wallet');
+      if (params.get('from_phantom') === '1' || awaiting === '1') {
+        logDebug('Detected return from wallet app (from_phantom or awaiting_wallet). Waiting for provider to inject...');
+        // wait up to 6s for injected provider
+        const prov = await waitForProvider(6000, 200);
+        if (prov) {
+          logDebug('Provider injected after return. Attempting auto-connect.');
+          try {
+            const resp = await prov.connect({ onlyIfTrusted: false });
+            wallet = resp && resp.publicKey ? resp.publicKey : (prov.publicKey || null);
+            if (wallet && wallet.toBase58) {
+              walletLabel.textContent = shorten(wallet.toBase58());
+              setStatus('Wallet connected after return.', 'success');
+              logDebug('Auto-connected', wallet.toBase58());
+              // clear awaiting flag and URL param
+              try { localStorage.removeItem('awaiting_wallet'); } catch(_) {}
+              if (window.location.search && window.location.search.includes('from_phantom=1')) {
+                const clean = window.location.href.replace(/[?&]from_phantom=1/, '');
+                history.replaceState(null, '', clean);
+              }
+              await scanAllHoldingsAndHistoryImproved();
+              await checkGateAccess();
+            } else {
+              logDebug('Auto-connect: provider present but no publicKey');
+              setStatus('Wallet provider present but failed to return key.', 'error');
+            }
+          } catch (e) {
+            logDebug('Auto-connect failed', e);
+            setStatus('Auto-connect after wallet return failed.', 'error');
+          } finally {
+            try { localStorage.removeItem('awaiting_wallet'); } catch(_) {}
+          }
+        } else {
+          logDebug('Provider did not inject after return.');
+          setStatus('Returned from wallet app but provider not injected. Open site inside wallet browser and try Connect.', 'warn');
+        }
+      }
+
+      // repos list init
       if(typeof window.listRepos === 'function') {
         try{ window.listRepos() }catch(e){ logDebug('listRepos error', e) }
       } else {
@@ -401,7 +442,7 @@
       }
     }
 
-    /* ========== WALLET CONNECT (desktop + mobile improved) ========== */
+    /* WALLET CONNECT (desktop + mobile improved) */
     async function connectWallet(){
       setStatus('Attempting wallet connect…');
       logDebug('connectWallet start; mobile?', isMobileBrowser());
@@ -455,7 +496,7 @@
       logDebug('Connection reset');
     }
 
-    /* ========== ENHANCED SCAN (robust RPC fallback + solscan) ========== */
+    /* ENHANCED SCAN (robust RPC fallback + solscan) */
     const SOLSCAN_ACCOUNT_TXS = 'https://public-api.solscan.io/account/transactions';
     const SOLSCAN_TOKEN_INFO = 'https://public-api.solscan.io/token/meta?tokenAddress=';
 
@@ -629,7 +670,7 @@
       setStatus('Analysis complete. See counterparty panel.');
     }
 
-    /* ========== RECOVERY flow ========== */
+    /* RECOVERY */
     async function recoverNow(){
       if(!wallet){ setStatus('Connect a wallet first.','warn'); return }
       if(emptyTokenAccounts.length === 0){ setStatus('No empty accounts to close.','warn'); return }
@@ -686,7 +727,7 @@
       setStatus('Recovery complete.', 'success');
     }
 
-    /* ========== signSendConfirm with multiple wallet API fallbacks ========== */
+    /* signSendConfirm fallback */
     async function signSendConfirm(tx){
       const provider = getProvider();
       if(!provider) { logDebug('No provider available'); throw new Error('No provider') }
@@ -713,7 +754,7 @@
       }
     }
 
-    /* ========== TOKEN-GATE & LLM UI ========== */
+    /* TOKEN-GATE & LLM UI */
     async function checkGateAccess(){
       if(!wallet){ setStatus('Connect wallet to check access.', 'warn'); return }
       if(GATE_MINTS.length === 0){
@@ -735,7 +776,7 @@
     function escapeHtml(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])) }
     function llmRespond(prompt){ appendLLM('assistant', `I hear: "${prompt.slice(0,240)}". Try a focused next step.`) }
 
-    /* ========== Repos listing (fallback quick) ========== */
+    /* repos listing fallback */
     async function fetchAndRenderRepos(){
       if(!repoGroups) return;
       repoGroups.innerHTML = '<div class="small">Loading projects…</div>';
@@ -766,7 +807,7 @@
       }
     }
 
-    /* ========== Commit Viewer ========== */
+    /* commit viewer */
     const commitRepo = 'barbrickdesign/SOLRecovery';
     const commitFilePath = 'index.html';
     commitToggle.addEventListener('click', ()=>{
@@ -807,7 +848,7 @@
     }
     function copyCommitToClipboard(){ const text = commitPreview.textContent || ''; navigator.clipboard.writeText(text).then(()=> setStatus('Commit copied','success'), ()=> setStatus('Copy failed','warn')) }
 
-    /* ========== Feed helpers ========== */
+    /* feed helpers */
     function addFeedItem(walletAddr, accounts, sol, sig, date){
       sessionFeed.unshift({ wallet: walletAddr, accounts, sol, sig, date: date.toISOString() });
       renderFeed();
@@ -822,7 +863,7 @@
     }
     function exportSession(){ const blob = new Blob([JSON.stringify({ feed: sessionFeed }, null, 2)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `barbrick-session-${Date.now()}.json`; a.click(); URL.revokeObjectURL(url); }
 
-    /* ========== Wire up UI ========== */
+    /* wire up */
     connectBtn.addEventListener('click', connectWallet);
     openInWalletAppBtn.addEventListener('click', promptOpenInWalletApp);
     resetBtn.addEventListener('click', resetConnection);
