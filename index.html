@@ -1,3 +1,4 @@
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -27,7 +28,6 @@
     header{display:flex;flex-direction:column;gap:12px}
     .header-row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
     .brand{display:flex;gap:12px;align-items:center}
-    .glyph{width:40px;height:40px;border-radius:8px;background:conic-gradient(from 200deg,var(--accent),#9b7bff);box-shadow:0 6px 30px rgba(102,252,241,0.08)}
     .wallet-status{padding:6px 10px;border-radius:10px;background:transparent;color:var(--muted);font-size:13px}
     @media(min-width:900px){ header{flex-direction:row} }
     .grid{display:grid;gap:12px}
@@ -44,19 +44,27 @@
     .muted{color:var(--muted);font-size:13px}
     .list{display:grid;gap:8px}
     .feed-row{display:flex;justify-content:space-between;gap:12px}
+    /* 3D glyph container style */
+    .glyph-canvas { width:40px; height:40px; border-radius:8px; display:block; cursor:pointer; -webkit-tap-highlight-color: transparent; }
+    .glyph-fallback { width:40px; height:40px; border-radius:8px; background-size:cover; background-position:center; display:inline-block; }
   </style>
 
-  <!-- libs (must be before the app script) -->
+  <!-- libs (order matters) -->
   <script src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iife.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@solana/spl-token@0.3.11/dist/browser/spl-token.min.js"></script>
+  <!-- three.js (for 3D glyph) -->
+  <script src="https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.155.0/examples/js/loaders/GLTFLoader.js"></script>
 </head>
 <body>
   <div class="wrap">
     <header>
       <div class="header-row">
         <div class="brand">
-          <div class="glyph" aria-hidden="true"></div>
+          <!-- 3D glyph container (click to open 3D world) -->
+          <div id="glyphContainer" title="Enter the 3D world" role="link" aria-label="Barbrick 3D logo" style="width:40px;height:40px;border-radius:8px;display:inline-block;margin-right:8px"></div>
+
           <div>
             <div class="title mono">BarbrickDesign</div>
             <div class="small">Claim your SOL — close unused SPL accounts and recover rent.</div>
@@ -211,12 +219,11 @@
   </div>
 
   <script>
-    /* Utilities + Debug */
+    // ---------- Utilities & Debug ----------
     function logDebug(...args){
       const el = document.getElementById('debugLog');
-      if(!el) return console.log(...args);
       const line = document.createElement('div');
-      line.textContent = '[' + new Date().toLocaleTimeString() + '] ' + args.map(a => (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' ');
+      line.textContent = `[${new Date().toLocaleTimeString()}] ` + args.map(a => (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' ');
       el.appendChild(line); el.scrollTop = el.scrollHeight; console.log(...args);
     }
     document.getElementById('dbgClear').addEventListener('click', ()=> document.getElementById('debugLog').innerHTML = '');
@@ -243,20 +250,136 @@
     function getProviderTolerant(){ return window.solana || null; }
     async function waitForProvider(timeoutMs=3000, intervalMs=150){ const start=Date.now(); while(Date.now()-start < timeoutMs){ const p=getProviderTolerant(); if(p) return p; await new Promise(r=>setTimeout(r, intervalMs)); } return null; }
 
-    /* Mobile deep-link */
+    // ---------- 3D rotating glyph ----------
+    (function initGlyph(){
+      const CONTAINER_ID = 'glyphContainer';
+      const NAV_TARGET = 'https://barbrickdesign.com';
+      const FALLBACK_IMAGE = 'city-3d header.jpg';
+      const LOAD_MODEL = null; // set to '/assets/logo.glb' if you add a GLB to the repo
+
+      const container = document.getElementById(CONTAINER_ID);
+      if(!container) return;
+      container.addEventListener('click', ()=> location.href = NAV_TARGET);
+
+      function hasWebGL(){
+        try { const c = document.createElement('canvas'); return !!(window.WebGLRenderingContext && (c.getContext('webgl') || c.getContext('experimental-webgl'))); } catch { return false; }
+      }
+      if(!hasWebGL()){
+        const img = document.createElement('div');
+        img.className = 'glyph-fallback';
+        img.style.backgroundImage = `url("${FALLBACK_IMAGE}")`;
+        container.appendChild(img);
+        return;
+      }
+
+      // create small three.js scene
+      const width = 40, height = 40;
+      const canvas = document.createElement('canvas');
+      canvas.className = 'glyph-canvas';
+      canvas.width = width * devicePixelRatio;
+      canvas.height = height * devicePixelRatio;
+      canvas.style.width = width + 'px';
+      canvas.style.height = height + 'px';
+      container.appendChild(canvas);
+
+      const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+      renderer.setPixelRatio(window.devicePixelRatio || 1);
+      renderer.setSize(width, height, false);
+      renderer.outputEncoding = THREE.sRGBEncoding;
+
+      const scene = new THREE.Scene();
+      const hemi = new THREE.HemisphereLight(0xffffff, 0x444444, 0.6); scene.add(hemi);
+      const dir = new THREE.DirectionalLight(0xffffff, 0.7); dir.position.set(5,10,7.5); scene.add(dir);
+
+      const camera = new THREE.PerspectiveCamera(45, width/height, 0.1, 50);
+      camera.position.set(0,0,6);
+
+      let mesh;
+      async function loadModelOrProcedural(){
+        if(LOAD_MODEL && THREE.GLTFLoader){
+          try{
+            const loader = new THREE.GLTFLoader();
+            const gltf = await new Promise((res, rej)=> loader.load(LOAD_MODEL, res, null, rej));
+            mesh = gltf.scene || gltf.scenes?.[0];
+            mesh.scale.setScalar(0.9);
+            scene.add(mesh);
+            return;
+          }catch(e){
+            console.warn('GLB load failed, fallback to procedural', e);
+          }
+        }
+        const geom = new THREE.IcosahedronGeometry(1.05, 2);
+        const mat = new THREE.MeshStandardMaterial({ color: 0x66fcf1, metalness: 0.25, roughness: 0.18, emissive: 0x0a0f12, emissiveIntensity: 0.05 });
+        mesh = new THREE.Mesh(geom, mat);
+        scene.add(mesh);
+        const rim = new THREE.Mesh(geom.clone(), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent:true, opacity:0.06, blending: THREE.AdditiveBlending }));
+        rim.scale.setScalar(1.03);
+        scene.add(rim);
+      }
+      loadModelOrProcedural().then(()=>{ /* ready */ });
+
+      let rotY = 0, hover=false, lastT = performance.now();
+      container.addEventListener('pointerenter', ()=> hover=true);
+      container.addEventListener('pointerleave', ()=> hover=false);
+      container.addEventListener('pointermove', (ev)=>{
+        const r = container.getBoundingClientRect();
+        const nx = ((ev.clientX - r.left) / r.width) * 2 - 1;
+        const ny = -(((ev.clientY - r.top) / r.height) * 2 - 1);
+        const tilt = 0.15;
+        if(mesh){ mesh.rotation.x = ny * tilt; mesh.rotation.z = nx * tilt * 0.35; }
+      });
+
+      function animate(now){
+        const dt = Math.min(100, now - lastT) / 1000; lastT = now;
+        const speed = 0.6 + (hover ? 1.2 : 0);
+        rotY += dt * speed;
+        if(mesh) mesh.rotation.y = rotY;
+        if(mesh) mesh.position.y = Math.sin(now/1200) * 0.03;
+        renderer.render(scene, camera);
+        requestAnimationFrame(animate);
+      }
+      requestAnimationFrame(animate);
+
+      container.tabIndex = 0;
+      container.addEventListener('keydown', (e)=> { if(e.key === 'Enter' || e.key === ' ') location.href = NAV_TARGET; });
+
+      try {
+        const obs = new ResizeObserver(()=> {
+          const r = container.getBoundingClientRect();
+          const w = Math.max(1, Math.round(r.width));
+          const h = Math.max(1, Math.round(r.height));
+          renderer.setSize(w, h, false);
+          camera.aspect = w / h;
+          camera.updateProjectionMatrix();
+        });
+        obs.observe(container);
+      } catch(e){ /* ignore */ }
+    })();
+
+    // ---------- Connect/Sign/Auto-reconnect (stable) ----------
+    function getProviderTolerant(){ return window.solana || null; }
+    async function waitForProvider(timeoutMs = 1500, intervalMs = 120){
+      const start = Date.now();
+      while(Date.now() - start < timeoutMs){
+        const p = getProviderTolerant();
+        if(p) return p;
+        await new Promise(r=>setTimeout(r, intervalMs));
+      }
+      return null;
+    }
     function buildPhantomDeepLink(){
-      const appUrl = encodeURIComponent(location.origin);
-      const redirect = encodeURIComponent(location.href.replace(location.search || '', '') + '?from_phantom=1');
+      const appUrl = encodeURIComponent(window.location.origin);
+      const redirect = encodeURIComponent(window.location.href.replace(window.location.search || '', '') + '?from_phantom=1');
       return `https://phantom.app/ul/v1/connect?app_url=${appUrl}&redirect_url=${redirect}`;
     }
     function promptOpenInWalletApp(){
-      try{ localStorage.setItem('awaiting_wallet','1'); }catch(e){ logDebug('localStorage set failed', e) }
-      const link = buildPhantomDeepLink(); logDebug('Opening deep link', link);
-      try{ location.href = link; }catch(e){ window.open(link, '_blank') }
-      setStatus('Opening wallet app... approve connect then return.', 'warn');
+      try{ localStorage.setItem('awaiting_wallet','1'); }catch(e){ logDebug('localStorage set failed', e); }
+      const link = buildPhantomDeepLink();
+      logDebug('Opening wallet app via deep link:', link);
+      try{ location.href = link; }catch(e){ window.open(link, '_blank'); }
+      setStatus('Opening wallet app... approve connect then return to this page.', 'warn');
     }
 
-    /* Connect + sign (drop-in reliable) */
     async function connectAndVerify(){
       setStatus('Attempting wallet connect…');
       logDebug('connect start; mobile?', /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent));
@@ -318,7 +441,6 @@
       }
     }
 
-    // Auto reconnect after return from mobile deep link
     async function autoReconnectAfterReturn(){
       try{
         const params = new URLSearchParams(window.location.search);
@@ -341,7 +463,7 @@
     }
     window.addEventListener('load', autoReconnectAfterReturn);
 
-    /* Retry helper */
+    // ---------- Retry helper ----------
     async function retry(fn, attempts=3, delay=300){
       let last;
       for(let i=0;i<attempts;i++){
@@ -350,13 +472,10 @@
       throw last;
     }
 
-    /* Token scanning improved */
+    // ---------- Token scanning (robust) ----------
     function tryParseRawTokenAccount(raw){
       try{
-        return {
-          pubkey: raw.pubkey?.toString ? raw.pubkey.toString() : String(raw.pubkey),
-          account: { data: { parsed: { info: { tokenAmount: { uiAmount: 0 }, mint: 'unknown' } } } }
-        };
+        return { pubkey: raw.pubkey?.toString ? raw.pubkey.toString() : String(raw.pubkey), account: { data: { parsed: { info: { tokenAmount: { uiAmount: 0 }, mint: 'unknown' } } } } };
       }catch(e){ return null; }
     }
 
@@ -378,8 +497,7 @@
         }
 
         const parsed = res || [];
-        const empty = [];
-        const map = {};
+        const empty = []; const map = {};
         for(const acc of parsed){
           try{
             const info = acc.account?.data?.parsed?.info;
@@ -388,9 +506,7 @@
             const pubkey = acc.pubkey?.toString ? acc.pubkey.toString() : String(acc.pubkey);
             if(ui === 0) empty.push({ pubkey, mint });
             else if(mint) map[mint] = (map[mint] || 0) + ui;
-          }catch(e){
-            logDebug('token parse error', e, acc);
-          }
+          }catch(e){ logDebug('token parse error', e, acc); }
         }
 
         const holdingsArr = Object.keys(map).map(m => ({ mint: m, amount: map[m] }));
@@ -424,7 +540,7 @@
       }
     }
 
-    /* Transaction fetch with Solscan optional, RPC fallback */
+    // ---------- Transactions fetch ----------
     async function fetchTransactionsForWalletRobustImproved({ rpcLimit = 250, rpcAlt = 'https://rpc.ankr.com/solana' } = {}){
       const pk = normPubkey(wallet) || normPubkey(getProviderTolerant()?.publicKey);
       if(!pk){ logDebug('fetchTransactionsForWalletRobustImproved: no pubkey'); return { source:'none', txs:[] }; }
@@ -544,7 +660,7 @@
       panel.appendChild(list);
     }
 
-    /* Projects loader + valuation */
+    // Projects + valuation
     const PROJECTS_JSON_URL = './projects.json';
     const PROJECT_VALUE_PER_STAR_USD = 10;
 
@@ -658,7 +774,7 @@
       });
     }
 
-    /* High-level flows */
+    // High-level flows & UI wiring
     async function scanAllHoldingsAndHistoryImproved(){
       setStatus('Starting comprehensive scan (improved)...');
       const tokenRes = await scanTokenAccountsImproved();
@@ -737,7 +853,7 @@
       });
     }
 
-    /* UI wiring */
+    // UI wiring
     document.getElementById('connectBtn').addEventListener('click', connectAndVerify);
     document.getElementById('openInWalletApp').addEventListener('click', promptOpenInWalletApp);
     document.getElementById('scanBtn').addEventListener('click', scanAllHoldingsAndHistoryImproved);
@@ -750,7 +866,7 @@
       setStatus('Recovery report exported.', 'success');
     });
 
-    /* Initial render */
+    // Initial render
     (async function init(){
       await renderProjects();
       window._bd = { connectAndVerify, scanAllHoldingsAndHistoryImproved, closeEmptyAccounts, prepareManualSells, renderProjects, logDebug };
@@ -758,3 +874,4 @@
   </script>
 </body>
 </html>
+```
