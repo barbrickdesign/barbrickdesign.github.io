@@ -4,250 +4,485 @@
   <meta charset="utf-8" />
   <title>BarbrickDesign — Claim Your SOL</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <meta name="description" content="BarbrickDesign — recover SOL, inspect holdings, and showcase projects with initial valuations." />
+  <meta name="description" content="Close unused SPL accounts, reclaim rent, prepare manual sells (user-approved), export recovery reports, and support projects." />
   <style>
     :root{
-      --bg:#071018; --panel:#0f131a; --muted:#9fb6c8; --text:#eaf1fb;
+      --bg:#0a0c11; --panel:#0f131a; --muted:#a8b3c7; --text:#eaf1fb;
       --accent:#66fcf1; --good:#3be477; --warn:#fbbf24; --bad:#ff6b6b;
-      --stroke:rgba(255,255,255,0.06);
+      --stroke:rgba(255,255,255,0.12);
     }
     *{box-sizing:border-box}
-    html,body{margin:0;height:100%;font-family:Inter,system-ui,Roboto,Arial;background:radial-gradient(1200px 600px at 20% -20%, rgba(102,252,241,0.03), transparent),var(--bg);color:var(--text)}
+    html,body{margin:0;height:100%;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:radial-gradient(1200px 600px at 20% -20%, rgba(102,252,241,0.06), transparent),var(--bg);color:var(--text)}
     a{color:var(--accent);text-decoration:none}
-    .wrap{max-width:1150px;margin:0 auto;padding:18px}
+    .wrap{max-width:1200px;margin:0 auto;padding:16px}
     .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-    .card{background:linear-gradient(180deg,#0f131a,#0d1114);border:1px solid var(--stroke);border-radius:12px;padding:14px}
-    .btn{background:#121827;color:var(--text);border:1px solid rgba(255,255,255,0.04);padding:8px 12px;border-radius:10px;cursor:pointer;font-weight:700}
+    .card{background:var(--panel);border:1px solid var(--stroke);border-radius:12px;padding:14px}
+    .btn{background:#121827;color:var(--text);border:1px solid #223149;padding:10px 12px;border-radius:10px;cursor:pointer;font-weight:700}
     .btn.ghost{background:transparent;border-color:var(--stroke)}
+    .btn.primary{background:linear-gradient(135deg,#121a2b,#172238)}
     .mono{font-family:ui-monospace,Menlo,Consolas}
     .small{font-size:13px;color:var(--muted)}
-    .title{font-size:18px;font-weight:800}
-    .project{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.03)}
-    #projectsGrid{display:grid;gap:10px}
-    @media(min-width:900px){ #projectsGrid{grid-template-columns:repeat(2,1fr)} }
+    .title{font-size:20px;font-weight:800}
+    .big{font-size:28px;font-weight:800}
+    header{display:flex;flex-direction:column;gap:12px}
+    .header-row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+    .brand{display:flex;gap:12px;align-items:center}
+    .wallet-status{padding:6px 10px;border-radius:10px;background:transparent;color:var(--muted);font-size:13px}
+    @media(min-width:900px){ header{flex-direction:row} }
+    .grid{display:grid;gap:12px}
+    @media(min-width:980px){ .grid.two {grid-template-columns:1.4fr .7fr} }
+    .stats{display:grid;gap:10px}
+    @media(min-width:650px){ .stats{grid-template-columns:repeat(3,1fr)} }
+    #debugPanel{position:fixed;bottom:0;left:0;width:100%;max-height:300px;overflow:auto;background:#081018;border-top:1px solid #222;font-family:ui-monospace,Menlo,Consolas;color:#9bd;padding:8px;z-index:99999}
+    .notice{padding:10px;border-radius:10px;background:linear-gradient(180deg,rgba(102,252,241,0.03),transparent);border:1px solid var(--stroke);font-size:13px}
+    .projects-grid{display:grid;gap:10px}
+    @media(min-width:900px){ .projects-grid{grid-template-columns:repeat(2,1fr)} }
+    .project{display:flex;justify-content:space-between;gap:8px;align-items:center;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.03)}
     .value-pill{padding:6px 8px;border-radius:8px;background:rgba(255,255,255,0.02);font-weight:700}
-    #debugPanel{position:fixed;bottom:0;left:0;right:0;background:#061218;border-top:1px solid #0b2130;color:#9bd;font-family:ui-monospace,Menlo,Consolas;padding:8px;max-height:340px;overflow:auto;z-index:9999}
-    #debugLog{white-space:pre-wrap}
-    .timestamp{font-size:12px;color:var(--muted);margin-top:6px}
-    .meta { display:flex;flex-direction:column;gap:4px; }
-    .links { display:flex;gap:8px;align-items:center }
-    .spinner{display:inline-block;width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,0.06);border-top-color:var(--accent);animation:spin 1s linear infinite}
-    @keyframes spin{to{transform:rotate(360deg)}}
+    .muted{color:var(--muted);font-size:13px}
+    .list{display:grid;gap:8px}
+    .leaderboard, .tx-history { max-height:220px; overflow:auto; }
+    .feed-row{display:flex;justify-content:space-between;gap:12px}
+    /* 3D glyph */
+    #glyphContainer { width:80px; height:80px; border-radius:14px; overflow:visible; display:inline-block; cursor:pointer; margin-right:10px; }
+    .glyph-canvas { width:80px; height:80px; border-radius:14px; display:block; }
+    .glyph-fallback { width:80px; height:80px; border-radius:14px; background-size:cover; background-position:center; display:inline-block; }
   </style>
 
+  <!-- libs (order matters) -->
   <script src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iife.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@solana/spl-token@0.3.11/dist/browser/spl-token.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.155.0/examples/js/loaders/GLTFLoader.js"></script>
 </head>
 <body>
   <div class="wrap">
-    <header style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
-      <div style="display:flex;align-items:center;gap:12px">
-        <div id="glyphContainer" title="Open 3D world" style="width:72px;height:72px;border-radius:12px;"></div>
-        <div>
-          <div class="title mono">BarbrickDesign</div>
-          <div class="small">Recover SOL, map project value, and empower contributors</div>
+    <header>
+      <div class="header-row">
+        <div class="brand">
+          <div id="glyphContainer" title="Enter the 3D world" role="link" aria-label="Barbrick 3D logo"></div>
+          <div>
+            <div class="title mono">BarbrickDesign</div>
+            <div class="small">Claim your SOL — close unused SPL accounts and recover rent.</div>
+          </div>
+        </div>
+
+        <div class="row" role="toolbar" aria-label="Primary actions">
+          <button id="connectBtn" class="btn primary">Connect Wallet</button>
+          <button id="openInWalletApp" class="btn ghost" style="display:none">Open in Wallet App</button>
+          <span id="walletStatus" class="wallet-status mono">Wallet: not detected</span>
+          <a class="btn ghost" href="https://github.com/barbrickdesign" target="_blank" rel="noopener">GitHub</a>
         </div>
       </div>
 
-      <div style="display:flex;align-items:flex-end;gap:16px">
-        <div style="text-align:right">
-          <div class="small">Total Projects Value</div>
-          <div id="projectsTotal" style="font-weight:800">$0</div>
-        </div>
-
-        <div style="display:flex;flex-direction:column;align-items:flex-end">
-          <button id="connectBtn" class="btn">Connect Wallet</button>
-          <div id="walletStatus" class="mono small" style="margin-top:6px">Wallet: not connected</div>
-        </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+        <div id="status" class="small">Close unused token accounts to reclaim SOL rent fees safely and securely.</div>
+        <div id="refPreview" class="small mono" style="opacity:.85">—</div>
       </div>
     </header>
 
-    <main style="margin-top:14px">
-      <section class="card" aria-live="polite">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <div>
-            <div style="font-weight:800">Recover SOL</div>
-            <div class="small">Scan wallet, close empty token accounts, prepare manual sells, and export a recovery report. All on-chain actions require your wallet approval.</div>
-          </div>
-          <div style="text-align:right">
-            <div class="small">Estimated refund</div>
-            <div id="refundEstimateBig" style="font-weight:800">0.00000 SOL</div>
-          </div>
+    <main style="margin-top:12px">
+      <section class="card">
+        <div class="title">Solana Blockchain holds your SOL — Claim it Back!</div>
+        <div class="small" style="margin-top:8px">
+          Scan your wallet, close unused token accounts, prepare manual sells for low-value tokens (manual approval required), export a recovery report, and support projects. All on-chain actions require explicit wallet approval.
         </div>
       </section>
 
-      <div style="display:grid;grid-template-columns:1fr 420px;gap:12px;margin-top:12px">
+      <div class="grid two" style="margin-top:12px">
         <div class="card">
-          <div style="display:flex;gap:8px;align-items:center">
-            <button id="scanBtn" class="btn">Scan & Analyze</button>
-            <button id="recoverBtn" class="btn">Close Empty Accounts</button>
-            <button id="exportReport" class="btn">Export Recovery Report</button>
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+            <div>
+              <div class="small">Connected wallet</div>
+              <div id="walletLabel" class="mono big">—</div>
+            </div>
+            <div style="text-align:right">
+              <div class="small">Estimated refund</div>
+              <div id="refundEstimateBig" class="big">0.00000 SOL</div>
+            </div>
           </div>
 
-          <div id="holdingsPanel" style="margin-top:12px" class="small"><div class="small">No wallet connected.</div></div>
+          <div style="margin-top:12px" class="row">
+            <button id="scanBtn" class="btn">Scan & Analyze</button>
+            <button id="recoverBtn" class="btn ghost">Close Empty Accounts</button>
+            <button id="prepareSellBtn" class="btn ghost">Prepare Manual Sells</button>
+          </div>
+
+          <div style="margin-top:12px" class="row">
+            <input id="refAddress" class="btn mono" style="flex:1;background:transparent;border-radius:10px" placeholder="Optional referrer wallet (?ref=)" />
+            <label class="small row" style="gap:8px;align-items:center">
+              <input id="donationToggle" type="checkbox" checked />
+              <span class="small">Include 5% support</span>
+            </label>
+          </div>
+
+          <hr style="border:none;height:1px;background:var(--stroke);margin:12px 0" />
+
+          <div class="stats">
+            <div class="card" style="text-align:center">
+              <div class="small">Empty accounts</div>
+              <div id="emptyCount" class="big">0</div>
+            </div>
+            <div class="card" style="text-align:center">
+              <div class="small">Estimated refund</div>
+              <div id="refundEstimate" class="big">0.00000 SOL</div>
+            </div>
+            <div class="card" style="text-align:center">
+              <div class="small">Session actions</div>
+              <div id="sessionActions" class="big">0</div>
+            </div>
+          </div>
+
+          <div style="margin-top:10px;display:flex;gap:8px">
+            <button id="exportReport" class="btn ghost">Export Recovery Report</button>
+            <button id="copySummary" class="btn ghost">Copy Summary</button>
+          </div>
+
+          <div style="margin-top:12px" class="card">
+            <div style="display:flex;justify-content:space-between;align-items:center">
+              <div class="small" style="font-weight:800">Referral</div>
+              <div class="small">Earn 5% by referring others</div>
+            </div>
+            <div style="margin-top:8px" class="small">
+              <div id="refLink" class="mono">—</div>
+              <div style="margin-top:8px"><button id="copyRef" class="btn ghost small">Copy Referral Link</button></div>
+            </div>
+          </div>
         </div>
 
         <div class="card">
-          <div style="display:flex;justify-content:space-between;align-items:center">
-            <div style="font-weight:800">Projects</div>
-            <div class="small">Full GitHub repo list with timestamps and initial USD proxy values</div>
-          </div>
-
-          <div id="projectsArea" style="margin-top:10px">
-            <div id="projectsGrid"><div class="small">Loading projects…</div></div>
+          <div class="small" style="font-weight:800;margin-bottom:8px">Holdings & Recovery Assist</div>
+          <div id="holdingsPanel" class="small" style="max-height:360px;overflow:auto">
+            <div class="notice">Connect a wallet then run Scan & Analyze to list holdings, empty accounts, and suggested manual sells (each sale requires your approval).</div>
           </div>
         </div>
       </div>
 
       <section class="card" style="margin-top:12px">
         <div style="display:flex;justify-content:space-between;align-items:center">
-          <div style="font-weight:800">Counterparty Flow</div>
-          <div class="small">Top receivers from recent parsed transactions</div>
+          <div class="small" style="font-weight:800">Income modules</div>
+          <div class="small">Recover, mint, and contribute (token-gated)</div>
         </div>
-        <div id="counterpartyPanel" style="margin-top:10px" class="small">No data yet.</div>
+
+        <div style="margin-top:10px" class="row">
+          <div class="card" style="flex:1">
+            <div style="font-weight:800">SOL Recovery Portal</div>
+            <div class="small">Close empty SPL token accounts and reclaim rent in bulk with per-transaction approvals.</div>
+            <div style="margin-top:8px"><button id="recoverInlineBtn" class="btn">Recover here</button> <a class="btn ghost" href="https://barbrickdesign.github.io/SOLRecovery/" target="_blank">Open</a></div>
+          </div>
+
+          <div class="card" style="flex:1">
+            <div style="font-weight:800">NFT Minting Portal</div>
+            <div class="small">Mint lore-infused sigils and configure creator splits.</div>
+            <div style="margin-top:8px"><a class="btn ghost" href="https://barbrickdesign.github.io/NFTMint/" target="_blank">Open</a> <button id="mintSigil" class="btn ghost">Mint (demo)</button></div>
+          </div>
+        </div>
       </section>
 
       <section class="card" style="margin-top:12px">
-        <div style="font-weight:800">Session Feed</div>
-        <div id="feed" style="margin-top:8px" class="small"></div>
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div class="small" style="font-weight:800">Projects</div>
+          <div class="small">Analyze repos, show accurate USD value, and enable investments</div>
+        </div>
+
+        <div id="projectsArea" style="margin-top:10px">
+          <div class="projects-grid" id="projectsGrid">
+            <div class="notice small">Loading projects…</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="card" style="margin-top:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div class="small" style="font-weight:800">Leaderboard</div>
+          <div class="small">Top referrers & contributors</div>
+        </div>
+        <div class="leaderboard" id="leaderboard" style="margin-top:8px">
+          <div class="notice small">Loading leaderboard…</div>
+        </div>
+      </section>
+
+      <section class="card" style="margin-top:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div class="small" style="font-weight:800">Global Transaction History</div>
+          <div class="small">Recent refunds & contributions</div>
+        </div>
+        <div class="tx-history" id="txHistory" style="margin-top:8px">
+          <div class="notice small">Loading history…</div>
+        </div>
+      </section>
+
+      <section class="card" style="margin-top:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div class="small" style="font-weight:800">Counterparty Flow (top receivers)</div>
+          <div class="small">Helps you see where SOL moved (best-effort; proxy & RPC)</div>
+        </div>
+        <div id="counterpartyPanel" style="margin-top:8px"></div>
+      </section>
+
+      <section class="card" style="margin-top:12px">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div class="small" style="font-weight:800">Session Feed</div>
+          <div class="small">Recent actions</div>
+        </div>
+        <div id="feed" style="margin-top:8px;max-height:200px;overflow:auto"></div>
       </section>
     </main>
 
-    <footer style="margin-top:14px" class="small">© BarbrickDesign 2025 · All actions require explicit wallet approval.</footer>
+    <footer style="margin-top:12px" class="small">
+      © BarbrickDesign 2025 · All actions require explicit wallet approval.
+    </footer>
   </div>
 
-  <div id="debugPanel" role="region" aria-label="Debug Log">
+  <div id="debugPanel">
     <div style="display:flex;justify-content:space-between;align-items:center">
       <strong>🔍 Debug Log</strong>
-      <div>
-        <button id="dbgClear" class="btn" style="margin-right:8px">Clear</button>
-        <button id="dbgHide" class="btn">Hide</button>
+      <div style="display:flex;gap:8px">
+        <button id="dbgHide" class="btn ghost small">Hide</button>
+        <button id="dbgClear" class="btn ghost small">Clear</button>
       </div>
     </div>
-    <div id="debugLog" style="margin-top:8px"></div>
+    <div id="debugLog" style="margin-top:8px;white-space:pre-wrap;max-height:260px;overflow:auto"></div>
   </div>
 
   <script>
-    /* ================= Utilities & State ================= */
-    function logDebug(...parts){
-      const el=document.getElementById('debugLog');
-      const t=new Date().toLocaleTimeString();
-      const line=document.createElement('div');
-      line.textContent='['+t+'] '+parts.map(p=> typeof p==='object' ? JSON.stringify(p) : String(p)).join(' ');
-      if(el){ el.appendChild(line); el.scrollTop = el.scrollHeight; }
-      console.log(...parts);
-    }
-    document.getElementById('dbgClear').addEventListener('click', ()=> document.getElementById('debugLog').innerHTML='');
-    document.getElementById('dbgHide').addEventListener('click', (e)=>{ const d=document.getElementById('debugLog'); const hidden=d.style.display==='none'; d.style.display = hidden ? 'block' : 'none'; e.target.textContent = hidden ? 'Hide' : 'Show'; });
-
+    /* ================== Config ================== */
+    // If you deploy the Netlify/Azure serverless functions from earlier, set these URLs:
+    const SCAN_PROXY_URL = null; // e.g. 'https://your-site.netlify.app/.netlify/functions/scan'
+    const VAL_PROXY_URL = null;  // e.g. 'https://your-site.netlify.app/.netlify/functions/valuation'
+    // For immediate testing without serverless, client will fallback to public RPC but may be rate-limited.
     const DEFAULT_RPC = 'https://rpc.ankr.com/solana';
-    let connection = new solanaWeb3.Connection(DEFAULT_RPC, 'confirmed');
+    const GITHUB_USER = 'barbrickdesign';
 
+    /* ================== Utilities & State ================== */
+    function logDebug(...args){ const el=document.getElementById('debugLog'); if(!el) return console.log(...args); const d=document.createElement('div'); d.textContent = '[' + new Date().toLocaleTimeString() + '] ' + args.map(a=> typeof a==='object' ? JSON.stringify(a) : String(a)).join(' '); el.appendChild(d); el.scrollTop = el.scrollHeight; console.log(...args); }
+    document.getElementById('dbgClear').addEventListener('click', ()=> document.getElementById('debugLog').innerHTML='');
+    document.getElementById('dbgHide').addEventListener('click', (e)=>{ const d=document.getElementById('debugLog'); const hidden = d.style.display==='none'; d.style.display = hidden ? 'block' : 'none'; e.target.textContent = hidden ? 'Hide' : 'Show'; });
+
+    let connection = new solanaWeb3.Connection(DEFAULT_RPC, 'confirmed');
     const RENT_PER_EMPTY_ACCOUNT_SOL = 0.00204;
     const FEE_WALLET = new solanaWeb3.PublicKey('5hSWosj58ki4A6hSfQrvteQU5QvyCWmhHn4AuqgaQzqr');
-    const STARS_USD_MULT = 12;
 
     let wallet = null;
     let holdings = [];
     let emptyTokenAccounts = [];
     let sessionFeed = [];
+    let leaderboard = [];
+    let txHistory = [];
 
-    function setStatus(msg, kind='info'){
-      const el=document.getElementById('walletStatus');
-      if(!el) return;
-      el.textContent = wallet ? (wallet.toBase58 ? wallet.toBase58().slice(0,8)+'...' : String(wallet)) : msg;
-      el.style.color = kind==='error' ? 'var(--bad)' : kind==='warn' ? 'var(--warn)' : 'var(--muted)';
-    }
-
+    function setStatus(msg, kind='info'){ const el=document.getElementById('status'); if(!el) return; el.textContent = msg; el.style.color = kind==='error' ? 'var(--bad)' : kind==='warn' ? 'var(--warn)' : kind==='success' ? 'var(--good)' : 'var(--muted)'; }
+    function shorten(s){ return s ? (s.slice(0,4) + '...' + s.slice(-4)) : '—'; }
     function toSol(n){ return (Math.round(n*100000)/100000).toFixed(5); }
-    function safePubkey(p){ try{ if(!p) return null; if(p instanceof solanaWeb3.PublicKey) return p; if(p.publicKey && p.publicKey instanceof solanaWeb3.PublicKey) return p.publicKey; return new solanaWeb3.PublicKey(p); }catch{return null;} }
+    function normPubkey(x){ if(!x) return null; if(x instanceof solanaWeb3.PublicKey) return x; if(x.publicKey && x.publicKey instanceof solanaWeb3.PublicKey) return x.publicKey; try{ return new solanaWeb3.PublicKey(x); }catch{ return null; } }
+    function getProviderTolerant(){ return window.solana || null; }
 
-    /* ================= Glyph (nonblocking) ================= */
+    /* ================== 3D glyph (kept & enhanced) ================== */
     (function initGlyph(){
-      const container=document.getElementById('glyphContainer');
-      if(!container) return;
-      container.addEventListener('click', ()=> window.open('https://barbrickdesign.github.io/city-3d/dist/index.html','_blank'));
-      try{
-        const w=72,h=72; const canvas=document.createElement('canvas'); canvas.width=w*devicePixelRatio; canvas.height=h*devicePixelRatio; canvas.style.width=w+'px'; canvas.style.height=h+'px'; container.appendChild(canvas);
-        const renderer=new THREE.WebGLRenderer({ canvas, alpha:true, antialias:true }); renderer.setPixelRatio(devicePixelRatio||1); renderer.setSize(w,h,false);
-        const scene=new THREE.Scene(); scene.add(new THREE.HemisphereLight(0xffffff,0x444444,0.6)); const dir=new THREE.DirectionalLight(0xffffff,0.9); dir.position.set(5,10,7.5); scene.add(dir);
-        const camera=new THREE.PerspectiveCamera(45,w/h,0.1,50); camera.position.set(0,0,6);
-        const geom=new THREE.IcosahedronGeometry(1.2,1); const mat=new THREE.MeshStandardMaterial({ color:0x66fcf1, metalness:0.25, roughness:0.18 });
-        const mesh=new THREE.Mesh(geom,mat); scene.add(mesh);
-        (function animate(){ mesh.rotation.y += 0.012; renderer.render(scene,camera); requestAnimationFrame(animate); })();
-      }catch(e){ container.textContent='3D'; logDebug('glyph init failed', e); }
+      const NAV_TARGET = 'https://barbrickdesign.github.io/city-3d/dist/index.html';
+      const container = document.getElementById('glyphContainer'); if(!container) return;
+      container.addEventListener('click', ()=> window.location.href = NAV_TARGET);
+      function hasWebGL(){ try{ const c=document.createElement('canvas'); return !!(window.WebGLRenderingContext && (c.getContext('webgl') || c.getContext('experimental-webgl'))); }catch{ return false; } }
+      if(!hasWebGL()){ const img=document.createElement('div'); img.className='glyph-fallback'; img.style.backgroundImage='url("city-3d header.jpg")'; container.appendChild(img); return; }
+      const width=80,height=80; const canvas=document.createElement('canvas'); canvas.className='glyph-canvas'; canvas.width=width*devicePixelRatio; canvas.height=height*devicePixelRatio; canvas.style.width=width+'px'; canvas.style.height=height+'px'; container.appendChild(canvas);
+      const renderer = new THREE.WebGLRenderer({ canvas, alpha:true, antialias:true }); renderer.setPixelRatio(window.devicePixelRatio||1); renderer.setSize(width,height,false); renderer.outputEncoding = THREE.sRGBEncoding;
+      const scene = new THREE.Scene(); const hemi=new THREE.HemisphereLight(0xffffff,0x444444,0.6); scene.add(hemi); const dir=new THREE.DirectionalLight(0xffffff,0.9); dir.position.set(5,10,7.5); scene.add(dir);
+      const camera = new THREE.PerspectiveCamera(45,width/height,0.1,50); camera.position.set(0,0,7);
+      let central; const coins=[];
+      function createCentral(){ const geom=new THREE.IcosahedronGeometry(1.8,2); const mat=new THREE.MeshStandardMaterial({ color:0x66fcf1, metalness:0.3, roughness:0.12, emissive:0x071018, emissiveIntensity:0.06 }); central=new THREE.Mesh(geom,mat); scene.add(central); const rim=new THREE.Mesh(geom.clone(), new THREE.MeshBasicMaterial({ color:0xffffff, transparent:true, opacity:0.06, blending: THREE.AdditiveBlending })); rim.scale.setScalar(1.03); scene.add(rim); }
+      function createCoins(){ const g=new THREE.SphereGeometry(0.16,12,10); const m=new THREE.MeshStandardMaterial({ color:0xffd86b, metalness:1.0, roughness:0.18 }); const cfgs=[{r:2.6,s:1.2,t:0.25,c:6},{r:3.4,s:0.9,t:-0.18,c:5},{r:4.4,s:0.6,t:0.1,c:4}]; cfgs.forEach(cfg=>{ for(let i=0;i<cfg.c;i++){ const coin=new THREE.Mesh(g,m); const angle=(i/cfg.c)*Math.PI*2; coin.userData={radius:cfg.r,angle,speed:cfg.s*(0.8+Math.random()*0.8),tilt:cfg.t+(Math.random()-0.5)*0.12,phase:Math.random()*Math.PI*2}; coin.scale.setScalar(0.9+Math.random()*0.5); scene.add(coin); coins.push(coin); } }); }
+      createCentral(); createCoins();
+      let rot=0, hover=false, last=performance.now();
+      container.addEventListener('pointerenter', ()=> hover=true); container.addEventListener('pointerleave', ()=> hover=false);
+      container.addEventListener('pointermove', (ev)=>{ try{ const r=container.getBoundingClientRect(); const nx=((ev.clientX-r.left)/r.width)*2-1; const ny=-(((ev.clientY-r.top)/r.height)*2-1); const tilt=0.18; if(central){ central.rotation.x=ny*tilt; central.rotation.z=nx*tilt*0.35; } }catch(e){} });
+      function animate(now){ const dt=Math.min(100, now-last)/1000; last=now; const speed=0.9+(hover?1.8:0); rot += dt*speed; if(central) central.rotation.y=rot; coins.forEach((coin, idx)=>{ const ud=coin.userData; ud.angle += dt*ud.speed; const x=Math.cos(ud.angle+ud.phase)*ud.radius; const z=Math.sin(ud.angle+ud.phase)*ud.radius*(0.85+Math.sin(ud.phase)*0.05); const y=Math.sin((ud.angle+ud.phase)*0.7)*0.25 + Math.sin(idx+now/900)*0.02; coin.position.set(x, y*(0.6+ud.tilt*0.2), z); coin.lookAt(0,0,0); }); renderer.render(scene,camera); requestAnimationFrame(animate); }
+      requestAnimationFrame(animate);
+      container.tabIndex=0;
+      container.addEventListener('keydown', e=>{ if(e.key==='Enter' || e.key===' ') window.location.href = NAV_TARGET; });
+      try{ const obs=new ResizeObserver(()=>{ const r=container.getBoundingClientRect(); const w=Math.max(1,Math.round(r.width)), h=Math.max(1,Math.round(r.height)); renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix(); }); obs.observe(container);}catch(e){}
     })();
 
-    /* ================= Robust connect flow ================= */
+    /* ================== Guarded Connect Flow ================== */
     (function connectGuard(){
-      let connecting=false, lastClick=0;
-      async function waitProvider(timeout=2500){
-        const start=Date.now();
-        while(Date.now()-start < timeout){ if(window.solana) return window.solana; await new Promise(r=>setTimeout(r,120)); }
-        return window.solana || null;
-      }
-      async function providerConnectTolerant(provider){
-        if(typeof provider.connect === 'function'){
-          try{ return await provider.connect({ onlyIfTrusted:false }); }catch(e){ logDebug('provider.connect error', e); }
-        }
-        if(typeof provider.request === 'function'){
-          try{ return await provider.request({ method:'connect' }); }catch(e){ logDebug('provider.request(connect) error', e); }
-        }
-        throw new Error('Provider has no connect method');
-      }
-      async function connect(){
-        const now=Date.now(); if(now - lastClick < 600){ logDebug('connect suppressed: debounce'); return; } lastClick = now;
-        if(connecting){ logDebug('connect suppressed: in-flight'); return; }
-        connecting=true;
-        const btn=document.getElementById('connectBtn'); btn.disabled=true; btn.textContent='Connecting…'; setStatus('connecting','info');
+      let connecting=false;
+      function setConnecting(on){ const btn=document.getElementById('connectBtn'); if(!btn) return; btn.disabled=!!on; btn.textContent = on ? 'Connecting…' : 'Connect Wallet'; }
+      async function waitForProvider(timeout=1500, interval=120){ const start=Date.now(); while(Date.now()-start < timeout){ if(window.solana) return window.solana; await new Promise(r=>setTimeout(r, interval)); } return null; }
+
+      async function connectAndVerify(){
+        if(connecting){ logDebug('connect suppressed: already connecting'); return; }
+        connecting=true; setConnecting(true);
         try{
-          const provider = await waitProvider();
-          if(!provider){ setStatus('No wallet injected','warn'); logDebug('no provider'); connecting=false; btn.disabled=false; btn.textContent='Connect Wallet'; return; }
-          logDebug('calling provider connect');
-          const resp = await providerConnectTolerant(provider);
-          const pub = (resp && resp.publicKey) ? resp.publicKey : (provider.publicKey || null);
-          if(!pub) throw new Error('No publicKey returned');
-          wallet = pub;
-          document.getElementById('walletStatus').textContent = 'Wallet: ' + wallet.toBase58().slice(0,8) + '...';
+          const provider = await waitForProvider(1500,120) || getProviderTolerant();
+          if(!provider){ if(/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)){ localStorage.setItem('awaiting_wallet','1'); const link = `https://phantom.app/ul/v1/connect?app_url=${encodeURIComponent(location.origin)}&redirect_url=${encodeURIComponent(location.href+'?from_phantom=1')}`; location.href = link; return; } setStatus('No wallet detected.','warn'); return; }
+          logDebug('provider.connect()');
+          const resp = await provider.connect({ onlyIfTrusted:false });
+          wallet = (resp && resp.publicKey) ? resp.publicKey : (provider.publicKey || null);
+          if(!wallet){ throw new Error('No publicKey returned'); }
+          document.getElementById('walletLabel').textContent = shorten(wallet.toBase58());
+          document.getElementById('walletStatus').textContent = 'Wallet: connected';
           logDebug('connected', wallet.toBase58());
 
-          // sign message verification (best-effort)
-          const nonce = Math.floor(Math.random()*1e9).toString();
-          const message = `BarbrickDesign sign-in\nnonce:${nonce}\naddress:${wallet.toBase58()}`;
-          const msg = new TextEncoder().encode(message);
-          setStatus('requesting signature','info');
-          let signed=null;
-          try{
-            if(typeof provider.signMessage === 'function') signed = await provider.signMessage(msg,'utf8');
-            else if(typeof provider.request === 'function') signed = await provider.request({ method:'signMessage', params:{ message:Array.from(msg) } });
-          }catch(e){ logDebug('sign error', e); }
-          if(signed && (signed.signature || signed.length)){
-            const sigBytes = signed.signature || signed; const sigBuf = sigBytes instanceof Uint8Array ? sigBytes : Uint8Array.from(sigBytes);
-            const pubBytes = wallet.toBytes ? wallet.toBytes() : new solanaWeb3.PublicKey(wallet).toBytes();
-            const ok = nacl.sign.detached.verify(msg, sigBuf, pubBytes);
-            logDebug('signature verified?', ok);
-          }else logDebug('no signature returned (non-fatal)');
+          const nonce = Math.floor(Math.random()*1e9).toString(); const ts = Date.now();
+          const message = `BarbrickDesign sign-in\nnonce:${nonce}\nts:${ts}\naddress:${wallet.toBase58()}`;
+          const enc = new TextEncoder(); const msgBytes = enc.encode(message);
 
-          setStatus('connected','success');
-          if(typeof scanAllHoldingsAndHistoryImproved === 'function') scanAllHoldingsAndHistoryImproved().catch(e=>logDebug('post-connect scan error', e));
-        }catch(e){ logDebug('connect error', e && (e.message || e)); setStatus('Connection failed','error'); }
-        connecting=false; btn.disabled=false; btn.textContent='Connect Wallet';
+          setStatus('Requesting signature from wallet…'); logDebug('requesting signMessage');
+          let signed = null;
+          if(typeof provider.signMessage === 'function'){ try{ signed = await provider.signMessage(msgBytes, 'utf8'); }catch(e){ signed = await provider.request?.({ method:'signMessage', params:{ message:Array.from(msgBytes) } }); } }
+          else if(typeof provider.request === 'function'){ signed = await provider.request({ method:'signMessage', params:{ message:Array.from(msgBytes) } }); }
+          else throw new Error('Wallet does not support signMessage');
+
+          let sigBytes = null; if(signed && signed.signature) sigBytes = signed.signature; else if(signed && signed.length) sigBytes = signed; else if(Array.isArray(signed)) sigBytes = Uint8Array.from(signed);
+          if(!sigBytes) throw new Error('No signature returned');
+
+          const sigBuf = sigBytes instanceof Uint8Array ? sigBytes : Uint8Array.from(sigBytes);
+          const pubBytes = wallet.toBytes ? wallet.toBytes() : new solanaWeb3.PublicKey(wallet).toBytes();
+          const ok = nacl.sign.detached.verify(msgBytes, sigBuf, pubBytes);
+          logDebug('signature verified?', ok);
+          if(!ok){ setStatus('Signature verification failed.','error'); wallet=null; document.getElementById('walletLabel').textContent='—'; return; }
+
+          setStatus('Wallet connected and verified','success');
+          // set referral preview
+          try{ document.getElementById('refLink').textContent = location.origin + location.pathname + '?ref=' + wallet.toBase58(); }catch(e){}
+          if(typeof scanAllHoldingsAndHistoryImproved === 'function') await scanAllHoldingsAndHistoryImproved();
+          if(typeof enableProjectContributeButtons === 'function') await enableProjectContributeButtons();
+        }catch(err){ logDebug('connect error', err); setStatus('Connection failed','error'); wallet=null; try{ document.getElementById('walletLabel').textContent='—'; }catch(_){} }
+        connecting=false; setConnecting(false);
       }
-      document.getElementById('connectBtn').addEventListener('click', connect);
+
+      const btn=document.getElementById('connectBtn'); if(btn){ btn.onclick = connectAndVerify; }
+      window.addEventListener('load', async ()=>{
+        try{
+          const params = new URLSearchParams(location.search);
+          const awaiting = localStorage.getItem('awaiting_wallet');
+          if(params.get('from_phantom')==='1' || awaiting === '1'){
+            logDebug('auto reconnect after return');
+            await new Promise(r=>setTimeout(r,600));
+            await connectAndVerify();
+            try{ localStorage.removeItem('awaiting_wallet'); }catch(_){}
+            if(params.get('from_phantom')==='1'){ const clean = location.href.replace(/[?&]from_phantom=1/,''); history.replaceState(null,'',clean); }
+          }
+        }catch(e){ logDebug('autoReconnect error', e); }
+      });
+      window._bd = window._bd || {}; window._bd.connectAndVerify = connectAndVerify;
     })();
 
-    /* ================= Projects (full GitHub paging + total) ================= */
-    async function fetchAllGithubRepos(user, perPage=100, maxPages=20){
+    /* ================== Proxy scan helper ================== */
+    async function proxyScanWallet(address){
+      if(!SCAN_PROXY_URL) throw new Error('SCAN_PROXY_URL not configured');
+      const res = await fetch(SCAN_PROXY_URL, { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ address }) });
+      if(!res.ok){ const txt = await res.text(); throw new Error('Proxy scan failed: ' + res.status + ' ' + txt); }
+      return await res.json();
+    }
+
+    /* ================== Client scan fallback (robust) ================== */
+    async function retry(fn, attempts=3, delay=300){ let last; for(let i=0;i<attempts;i++){ try{return await fn(); }catch(e){ last=e; await new Promise(r=>setTimeout(r, delay*(i+1))); } } throw last; }
+
+    function tryParseRawTokenAccount(raw){
+      try{ return { pubkey: raw.pubkey?.toString ? raw.pubkey.toString() : String(raw.pubkey), account: { data: { parsed: { info: { tokenAmount:{ uiAmount:0 }, mint: 'unknown' } } } } }; }catch(e){ return null; }
+    }
+
+    async function scanTokenAccountsClient(){
+      const pk = normPubkey(wallet) || normPubkey(getProviderTolerant()?.publicKey);
+      if(!pk){ setStatus('Connect wallet first.','warn'); return { empty:[], holdings:[], transactions: [] }; }
+      setStatus('Scanning token accounts (client)...');
+      try{
+        let res;
+        try{
+          res = await retry(()=> connection.getParsedTokenAccountsByOwner(pk, { programId: splToken.TOKEN_PROGRAM_ID }), 2, 250);
+          res = res && res.value ? res.value : [];
+          logDebug('parsed token accounts', res.length);
+        }catch(errParsed){
+          logDebug('parsed fetch failed', errParsed);
+          const raw = await retry(()=> connection.getTokenAccountsByOwner(pk, { programId: splToken.TOKEN_PROGRAM_ID }), 2, 300);
+          res = (raw.value || []).map(v => tryParseRawTokenAccount(v)).filter(Boolean);
+          logDebug('fallback token accounts', res.length);
+        }
+        const empty=[]; const map={};
+        for(const acc of res){
+          try{
+            const info = acc.account?.data?.parsed?.info;
+            const ui = Number(info?.tokenAmount?.uiAmount || 0);
+            const mint = info?.mint || null;
+            const pub = acc.pubkey?.toString ? acc.pubkey.toString() : String(acc.pubkey);
+            if(ui === 0) empty.push({ pubkey: pub, mint });
+            else if(mint) map[mint] = (map[mint] || 0) + ui;
+          }catch(e){ logDebug('token parse error', e, acc); }
+        }
+        const holdingsArr = Object.keys(map).map(m=>({ mint: m, amount: map[m] }));
+        // txs via RPC as best-effort
+        let txs = [];
+        try{
+          const sigs = await retry(()=> connection.getSignaturesForAddress(pk, { limit: 200 }), 2, 300);
+          const signatures = (sigs || []).map(s=>s.signature).slice(0,200);
+          const parsed = [];
+          for(let i=0;i<signatures.length;i+=20){
+            const chunk = signatures.slice(i,i+20);
+            const resolved = await Promise.all(chunk.map(sig=> retry(()=> connection.getParsedTransaction(sig,'confirmed'),2,200).catch(()=>null)));
+            parsed.push(...resolved.filter(Boolean));
+            await new Promise(r=>setTimeout(r,120));
+          }
+          txs = parsed;
+        }catch(e){ logDebug('client tx fetch failed', e); txs = []; }
+        emptyTokenAccounts = empty; holdings = holdingsArr;
+        document.getElementById('emptyCount').textContent = String(empty.length);
+        const est = empty.length * RENT_PER_EMPTY_ACCOUNT_SOL;
+        document.getElementById('refundEstimate').textContent = toSol(est) + ' SOL';
+        document.getElementById('refundEstimateBig').textContent = toSol(est) + ' SOL';
+        const hp=document.getElementById('holdingsPanel'); hp.innerHTML=''; if(holdingsArr.length===0) hp.innerHTML='<div class="notice">No token holdings found. If you expect tokens, try reconnecting or use a different RPC or enable server proxy.</div>'; else{ const list=document.createElement('div'); list.className='list'; holdingsArr.forEach(h=>{ const item=document.createElement('div'); item.className='project'; item.innerHTML=`<div class="meta"><div class="mono">${h.mint}</div><div class="small">Balance: ${h.amount}</div></div><div><span class="value-pill muted">Est $0</span></div>`; list.appendChild(item); }); hp.appendChild(list); }
+        setStatus(holdingsArr.length===0 ? 'No token holdings found.' : `Found ${holdingsArr.length} token mint(s).`);
+        return { empty, holdings: holdingsArr, transactions: txs };
+      }catch(e){ logDebug('scanTokenAccountsClient failed', e); setStatus('Scan failed.','error'); return { empty:[], holdings:[], transactions: [] }; }
+    }
+
+    /* ================== Unified scan flow (prefer proxy) ================== */
+    async function scanAllHoldingsAndHistoryImproved(){
+      if(!wallet){ setStatus('Connect wallet first.','warn'); return; }
+      setStatus('Starting comprehensive scan...');
+      try{
+        if(SCAN_PROXY_URL){
+          logDebug('Using scan proxy', SCAN_PROXY_URL);
+          const res = await proxyScanWallet(wallet.toBase58());
+          const empty = (res.empty || []).map(e=>({ pubkey: e.pubkey, mint: e.mint }));
+          const holdingsRes = (res.holdings || []).map(h=>({ mint: h.mint, amount: h.amount }));
+          emptyTokenAccounts = empty; holdings = holdingsRes;
+          document.getElementById('emptyCount').textContent = String(empty.length);
+          const est = empty.length * RENT_PER_EMPTY_ACCOUNT_SOL;
+          document.getElementById('refundEstimate').textContent = toSol(est) + ' SOL';
+          document.getElementById('refundEstimateBig').textContent = toSol(est) + ' SOL';
+          const hp=document.getElementById('holdingsPanel'); hp.innerHTML=''; if(holdings.length===0) hp.innerHTML='<div class="notice">No token holdings found.</div>'; else{ const list=document.createElement('div'); list.className='list'; holdings.forEach(h=>{ const item=document.createElement('div'); item.className='project'; item.innerHTML=`<div class="meta"><div class="mono">${h.mint}</div><div class="small">Balance: ${h.amount}</div></div><div><span class="value-pill muted">Est $0</span></div>`; list.appendChild(item); }); hp.appendChild(list); }
+          const txBundle = { source: res.source || 'proxy', txs: res.transactions || [] };
+          const flows = analyzeTransactionsForFlowsUnified(txBundle);
+          renderCounterpartySummary(flows);
+          logDebug('proxy scan finished', { emptyCount: empty.length, holdingsCount: holdings.length, txCount: (txBundle.txs||[]).length });
+        } else {
+          logDebug('Proxy not configured, using client RPC fallback', DEFAULT_RPC);
+          connection = new solanaWeb3.Connection(DEFAULT_RPC, 'confirmed');
+          const clientRes = await scanTokenAccountsClient();
+          const txBundle = { source: 'client-rpc', txs: clientRes.transactions || [] };
+          const flows = analyzeTransactionsForFlowsUnified(txBundle);
+          renderCounterpartySummary(flows);
+          logDebug('client scan finished', { emptyCount: clientRes.empty.length, holdingsCount: clientRes.holdings.length, txCount: (txBundle.txs||[]).length });
+        }
+        await renderProjects();
+        // update leaderboard and tx history mock (best-effort)
+        updateLocalLeaderboardAndHistory();
+      }catch(e){ logDebug('scanAllHoldingsAndHistoryImproved error', e); setStatus('Scan failed.','error'); }
+    }
+
+    /* ================== Projects (full list via GitHub paging + projects.json) ================== */
+    const PROJECTS_JSON_URL = './projects.json';
+    const PROJECT_VALUE_PER_STAR_USD = 12;
+
+    async function fetchAllGithubRepos(user, perPage=100, maxPages=10){
       const out=[];
       for(let page=1; page<=maxPages; page++){
         try{
-          const url=`https://api.github.com/users/${encodeURIComponent(user)}/repos?per_page=${perPage}&page=${page}&type=owner&sort=updated`;
+          const url = `https://api.github.com/users/${encodeURIComponent(user)}/repos?per_page=${perPage}&page=${page}&type=owner&sort=updated`;
           const r = await fetch(url);
           if(!r.ok){ logDebug('GitHub API non-ok', r.status); break; }
           const j = await r.json();
-          if(!Array.isArray(j) || j.length===0) break;
+          if(!Array.isArray(j) || j.length === 0) break;
           out.push(...j);
           if(j.length < perPage) break;
         }catch(e){ logDebug('fetchAllGithubRepos error', e); break; }
@@ -255,166 +490,162 @@
       return out;
     }
 
-    async function renderProjects(){
-      const grid=document.getElementById('projectsGrid'); grid.innerHTML='<div class="small">Loading projects…</div>';
-      try{
-        const repos = await fetchAllGithubRepos('barbrickdesign', 100, 20);
-        if(!repos || repos.length===0){ grid.innerHTML = '<div class="small">No projects found.</div>'; document.getElementById('projectsTotal').textContent='$0'; return; }
-        grid.innerHTML=''; let total=0;
-        repos.forEach(repo=>{
-          const created = repo.created_at ? new Date(repo.created_at).toLocaleString() : '—';
-          const updated = repo.updated_at ? new Date(repo.updated_at).toLocaleString() : '—';
-          const usd = Math.max(1, (repo.stargazers_count||0)*STARS_USD_MULT);
-          total += usd;
-          const site = `https://barbrickdesign.github.io/${repo.name}/index.html`;
-          const div=document.createElement('div'); div.className='project';
-          div.innerHTML = `<div class="meta" style="flex:1">
-            <div style="font-weight:800">${repo.name}</div>
-            <div class="small">${repo.description || 'No description'}</div>
-            <div class="timestamp">Created: ${created} • Updated: ${updated}</div>
-            <div class="links" style="margin-top:6px"><a class="btn ghost" href="${repo.html_url}" target="_blank">Repo</a><a class="btn ghost" href="${site}" target="_blank">Site</a></div>
-          </div>
-          <div style="text-align:right"><div class="value-pill">$${Number(usd).toLocaleString()}</div></div>`;
-          grid.appendChild(div);
-        });
-        document.getElementById('projectsTotal').textContent = '$' + Number(total).toLocaleString();
-        logDebug('projects loaded');
-      }catch(e){ logDebug('renderProjects error', e); grid.innerHTML = '<div class="small">Failed to load projects.</div>'; }
-    }
-
-    /* ================= Robust scan flows ================= */
-    async function retry(fn, attempts=3, delay=300){
-      let last;
-      for(let i=0;i<attempts;i++){
-        try{ return await fn(); }catch(e){ last=e; await new Promise(r=>setTimeout(r, delay*(i+1))); }
-      }
-      throw last;
-    }
-
-    async function fetchParsedTokenAccounts(owner){
-      try{
-        const res = await retry(()=> connection.getParsedTokenAccountsByOwner(owner, { programId: splToken.TOKEN_PROGRAM_ID }), 2, 250);
-        return res && res.value ? res.value : [];
-      }catch(e){
-        logDebug('getParsedTokenAccountsByOwner failed, fallback to raw', e);
+    async function computeProjectUSD(p){
+      if(VAL_PROXY_URL){
         try{
-          const raw = await retry(()=> connection.getTokenAccountsByOwner(owner, { programId: splToken.TOKEN_PROGRAM_ID }), 2, 300);
-          return (raw.value || []).map(v=>({ pubkey: v.pubkey, account: v.account }));
-        }catch(e2){ logDebug('fallback TT failed', e2); return []; }
+          const r = await fetch(VAL_PROXY_URL, { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ projects: [p] }) });
+          if(r.ok){ const j = await r.json(); if(Array.isArray(j) && j[0] && j[0].usd) return j[0].usd; if(j && j.usd) return j.usd; }
+        }catch(e){ logDebug('val proxy failed', e); }
       }
+      const stars = Number(p.stargazers_count || p.stars || 0);
+      return Math.round(stars * PROJECT_VALUE_PER_STAR_USD);
     }
 
-    async function fetchRecentParsedTxs(owner, limit=200){
+    async function loadProjectsList(){
       try{
-        const sigInfos = await retry(()=> connection.getSignaturesForAddress(owner, { limit }), 2, 350);
-        const sigs = (sigInfos || []).map(s=>s.signature).slice(0,limit);
-        const parsed=[]; for(let i=0;i<sigs.length;i+=20){
-          const chunk=sigs.slice(i,i+20);
-          const resolved = await Promise.all(chunk.map(sig=> retry(()=> connection.getParsedTransaction(sig,'confirmed'), 2, 200).catch(e=>{ logDebug('getParsedTransaction fail', sig, e); return null; })));
-          parsed.push(...resolved.filter(Boolean));
-          await new Promise(r=>setTimeout(r,120));
-        }
-        return parsed;
-      }catch(e){ logDebug('fetchRecentParsedTxs failed', e); return []; }
+        const r = await fetch(PROJECTS_JSON_URL);
+        if(r.ok){ const j = await r.json(); if(Array.isArray(j) && j.length>0) return j; }
+      }catch(e){ logDebug('projects.json fetch failed', e); }
+      try{
+        const repos = await fetchAllGithubRepos(GITHUB_USER, 100, 10);
+        return repos.map(repo => ({
+          name: repo.name,
+          repo: repo.name,
+          description: repo.description,
+          html_url: repo.html_url,
+          stargazers_count: repo.stargazers_count || 0,
+          siteRoot: `https://${GITHUB_USER}.github.io/${repo.name}/`,
+          agency: repo.owner?.login || 'Main homepage and recovery portal hub.',
+          treasury: FEE_WALLET.toBase58(),
+          tokenMint: null
+        }));
+      }catch(e){ logDebug('github fallback failed', e); return []; }
     }
 
-    async function scanAllHoldingsAndHistoryImproved(){
-      setStatus('Starting scan...','info');
+    async function renderProjects(){
+      const grid = document.getElementById('projectsGrid'); grid.innerHTML = '<div class="notice small">Loading projects…</div>';
+      const list = await loadProjectsList();
+      if(!list || list.length===0){ grid.innerHTML = '<div class="notice small">No projects found.</div>'; return; }
+      grid.innerHTML = '';
+      const valuations = await Promise.all(list.map(p=> computeProjectUSD(p).catch(()=>0)));
+      list.forEach((p,i)=>{
+        const usd = valuations[i] || 0;
+        const agency = p.agency || p.description || 'Independent';
+        const card = document.createElement('div'); card.className='project';
+        // safe treasury field resolution
+        const treasury = p.treasury || p.treasury || FEE_WALLET.toBase58();
+        card.innerHTML = `<div class="meta"><div style="font-weight:800">${p.name}</div><div class="small muted">${p.description || 'No description'}</div><div class="small muted">Agency: ${agency}</div></div><div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px"><div class="value-pill">$${Number(usd).toLocaleString()}</div><div style="display:flex;gap:8px"><a class="btn ghost small" href="${p.siteRoot || p.html_url || '#'}" target="_blank">Open</a><button class="btn small invest" data-treasury="${treasury}" data-gate="${p.tokenMint||''}" data-name="${p.name}">Invest</button></div></div>`;
+        grid.appendChild(card);
+      });
+      enableProjectContributeButtons();
+    }
+
+    async function enableProjectContributeButtons(){
+      const buttons = document.querySelectorAll('#projectsGrid .invest');
+      if(!buttons || buttons.length===0) return;
+      if(!wallet){ buttons.forEach(b=>{ b.disabled=true; b.title='Connect wallet to invest'; }); return; }
+      let ownedMints = new Set();
       try{
-        if(!wallet){ setStatus('Connect wallet first','warn'); logDebug('scan aborted: no wallet'); return; }
-        const owner = safePubkey(wallet);
-        if(!owner){ setStatus('Invalid wallet','error'); logDebug('invalid wallet', wallet); return; }
-        logDebug('scan: fetching token accounts for', owner.toBase58());
-        const parsed = await fetchParsedTokenAccounts(owner);
-        logDebug('parsed accounts count', parsed.length);
-        const empty=[]; const mintMap={};
-        parsed.forEach(acc=>{
+        const res = await connection.getParsedTokenAccountsByOwner(wallet, { programId: splToken.TOKEN_PROGRAM_ID });
+        (res.value||[]).forEach(acc=>{ const info = acc.account?.data?.parsed?.info; if(info && Number(info.tokenAmount?.uiAmount||0) > 0) ownedMints.add(info.mint); });
+      }catch(e){ logDebug('enableProjectContributeButtons: token fetch failed', e); }
+      buttons.forEach(b=>{
+        const gate = b.dataset.gate || '';
+        if(gate){ b.disabled = !ownedMints.has(gate); b.title = b.disabled ? 'Requires gate token' : 'Invest (wallet approval required)'; }
+        else { b.disabled=false; b.title='Invest (wallet approval required)'; }
+        b.onclick = async ()=>{
+          if(b.disabled){ alert('You do not meet gate requirements'); return; }
+          const treasury = b.dataset.treasury || FEE_WALLET.toBase58();
+          const name = b.dataset.name || 'project';
+          const amountSol = prompt(`Enter SOL amount to invest in ${name} (e.g., 0.01):`, '0.01');
+          if(!amountSol) return;
+          const amt = Number(amountSol);
+          if(isNaN(amt) || amt <= 0){ alert('Invalid amount'); return; }
           try{
-            const info = acc.account?.data?.parsed?.info;
-            const ui = Number(info?.tokenAmount?.uiAmount || 0);
-            const mint = info?.mint || null;
-            const pub = acc.pubkey?.toString ? acc.pubkey.toString() : String(acc.pubkey);
-            if(ui===0) empty.push({ pubkey: pub, mint });
-            else if(mint) mintMap[mint] = (mintMap[mint] || 0) + ui;
-          }catch(e){ logDebug('account parse error', e, acc); }
-        });
-        const holdingsArr = Object.keys(mintMap).map(m=>({ mint:m, amount: mintMap[m] }));
-        emptyTokenAccounts = empty; holdings = holdingsArr;
-        document.getElementById('emptyCount')?.textContent = String(empty.length);
-        const est = empty.length * RENT_PER_EMPTY_ACCOUNT_SOL;
-        document.getElementById('refundEstimateBig').textContent = toSol(est) + ' SOL';
-        const hp=document.getElementById('holdingsPanel'); hp.innerHTML='';
-        if(holdingsArr.length===0) hp.innerHTML = '<div class="small">No token holdings found.</div>';
-        else{ const list=document.createElement('div'); list.className='list'; holdingsArr.forEach(h=>{ const item=document.createElement('div'); item.className='project'; item.innerHTML = `<div style="flex:1"><div class="mono">${h.mint}</div><div class="small">Balance: ${h.amount}</div></div>`; list.appendChild(item); }); hp.appendChild(list); }
-        logDebug('scan: fetching transactions for', owner.toBase58());
-        const txs = await fetchRecentParsedTxs(owner, 200);
-        logDebug('parsed txs count', txs.length);
-        const txBundle={ source:'rpc', txs }; const flows = analyzeTransactionsForFlowsUnified(txBundle); renderCounterpartySummary(flows);
-        setStatus('Scan complete','success');
-        logDebug('scan finished', { emptyCount: empty.length, holdingsCount: holdingsArr.length, txCount: txs.length });
-        return { empty, holdings: holdingsArr, transactions: txs };
-      }catch(e){ logDebug('scanAll error', e && (e.stack||e.message||e)); setStatus('Scan failed — see debug log','error'); return { empty:[], holdings:[], transactions:[] }; }
+            const tx = new solanaWeb3.Transaction().add(solanaWeb3.SystemProgram.transfer({ fromPubkey: wallet, toPubkey: new solanaWeb3.PublicKey(treasury), lamports: Math.round(amt * solanaWeb3.LAMPORTS_PER_SOL) }));
+            tx.feePayer = wallet; tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+            const provider = getProviderTolerant();
+            if(!provider) throw new Error('No provider');
+            let sig;
+            if(typeof provider.signAndSendTransaction === 'function'){ const res = await provider.signAndSendTransaction(tx); sig = res.signature || res; await connection.confirmTransaction(sig,'confirmed'); }
+            else if(typeof provider.signTransaction === 'function'){ const signed = await provider.signTransaction(tx); const raw = signed.serialize(); sig = await connection.sendRawTransaction(raw); await connection.confirmTransaction(sig,'confirmed'); }
+            else throw new Error('Provider has no signing methods');
+            addFeedItem(wallet.toBase58(), 0, amt, sig, new Date());
+            setStatus('Investment sent. Thank you!', 'success');
+          }catch(err){ logDebug('investment failed', err); setStatus('Investment failed. See debug log.','error'); }
+        };
+      });
+    }
+
+    /* ================== Counterparty & analysis ================== */
+    async function fetchTransactionsForWalletViaProxyOrClient(){
+      if(SCAN_PROXY_URL){
+        try{ const res = await proxyScanWallet(wallet.toBase58()); return { source: res.source || 'proxy', txs: res.transactions || [] }; }catch(e){ logDebug('proxy tx fetch failed', e); }
+      }
+      try{
+        const sigInfos = await connection.getSignaturesForAddress(wallet, { limit: 200 });
+        const signatures = (sigInfos || []).map(s=>s.signature);
+        const parsed = [];
+        for(let i=0;i<signatures.length;i+=20){ const chunk=signatures.slice(i,i+20); const resolved = await Promise.all(chunk.map(sig=> connection.getParsedTransaction(sig,'confirmed').catch(()=>null))); parsed.push(...resolved.filter(Boolean)); await new Promise(r=>setTimeout(r,120)); }
+        return { source:'rpc', txs: parsed };
+      }catch(e){ logDebug('fetchTransactions fallback failed', e); return { source:'none', txs: [] }; }
     }
 
     function analyzeTransactionsForFlowsUnified(raw){
       if(!wallet) return [];
-      const our = safePubkey(wallet).toBase58();
-      const flows={}; const txs = raw.txs || [];
-      txs.forEach(tx=>{
-        try{
-          const message = tx.transaction?.message; if(!message) return;
-          const instrs = message.instructions || [];
-          instrs.forEach(ins=>{
-            if(ins.parsed && ins.parsed.type==='transfer' && ins.parsed.info){
-              const from = ins.parsed.info.source || ins.parsed.info.from;
-              const to = ins.parsed.info.destination || ins.parsed.info.to;
-              const lam = Number(ins.parsed.info.lamports || 0);
-              if(from===our){ flows[to]=flows[to]||{in:0,out:0}; flows[to].out += lam; }
-              if(to===our){ flows[from]=flows[from]||{in:0,out:0}; flows[from].in += lam; }
-            }
-          });
-        }catch(e){ logDebug('analyze tx error', e); }
-      });
-      return Object.keys(flows).map(addr=>{ const inLam = flows[addr].in||0, outLam = flows[addr].out||0; return { addr, inSol:(inLam/solanaWeb3.LAMPORTS_PER_SOL).toFixed(5), outSol:(outLam/solanaWeb3.LAMPORTS_PER_SOL).toFixed(5), netOutFromUs:((outLam-inLam)/solanaWeb3.LAMPORTS_PER_SOL).toFixed(5) }; }).sort((a,b)=> Number(b.netOutFromUs)-Number(a.netOutFromUs));
+      const our = normPubkey(wallet).toBase58();
+      const flows = {}; const txs = raw.txs || [];
+      if(raw.source === 'solscan'){ txs.forEach(tx=>{ const native = tx.nativeTransfers || tx.nativeTransfer || tx.native || []; native.forEach(nt=>{ const from=nt.from, to=nt.to, lam=Math.round(Number(nt.amount||0)*solanaWeb3.LAMPORTS_PER_SOL); if(from===our){ flows[to]=flows[to]||{in:0,out:0}; flows[to].out += lam; } if(to===our){ flows[from]=flows[from]||{in:0,out:0}; flows[from].in += lam; } }); }); }
+      else{ txs.forEach(tx=>{ try{ const message = tx.transaction?.message; if(!message) return; const instrs = message.instructions || []; instrs.forEach(ins=>{ if(ins.parsed && ins.parsed.type==='transfer' && ins.parsed.info){ const from = ins.parsed.info.source || ins.parsed.info.from; const to = ins.parsed.info.destination || ins.parsed.info.to; const lam = Number(ins.parsed.info.lamports || Math.round((ins.parsed.info.amount||0)*solanaWeb3.LAMPORTS_PER_SOL||0)); if(from===our){ flows[to]=flows[to]||{in:0,out:0}; flows[to].out+=lam; } if(to===our){ flows[from]=flows[from]||{in:0,out:0}; flows[from].in+=lam; } } }); }catch(e){ logDebug('analyze tx error', e); } }); }
+      const summary=Object.keys(flows).map(addr=>{ const inLam=flows[addr].in||0, outLam=flows[addr].out||0; return { addr, inSol:(inLam/solanaWeb3.LAMPORTS_PER_SOL).toFixed(5), outSol:(outLam/solanaWeb3.LAMPORTS_PER_SOL).toFixed(5), netOutFromUs:((outLam-inLam)/solanaWeb3.LAMPORTS_PER_SOL).toFixed(5) }; }).sort((a,b)=> Number(b.netOutFromUs)-Number(a.netOutFromUs));
+      return summary;
     }
 
     function renderCounterpartySummary(summary){
-      const panel=document.getElementById('counterpartyPanel'); panel.innerHTML='';
-      if(!summary || summary.length===0){ panel.innerHTML='<div class="small">No recent SOL flows found for this wallet.</div>'; return; }
-      const list=document.createElement('div'); list.className='list';
-      summary.slice(0,10).forEach(s=>{ const item=document.createElement('div'); item.className='project'; item.innerHTML = `<div style="flex:1"><div class="mono">${s.addr}</div><div class="small">net out: ${s.netOutFromUs} SOL • out ${s.outSol} / in ${s.inSol}</div></div><div><button class="btn" onclick="window.open('https://explorer.solana.com/address/${s.addr}','_blank')">Explorer</button></div>`; list.appendChild(item); });
-      panel.appendChild(list);
+      const panel=document.getElementById('counterpartyPanel'); panel.innerHTML=''; if(!summary || summary.length===0){ panel.innerHTML=`<div class="small">No recent SOL flows found for this wallet.</div>`; return; } const list=document.createElement('div'); list.className='list'; summary.slice(0,10).forEach(s=>{ const item=document.createElement('div'); item.className='project'; item.innerHTML = `<div class="meta"><div class="mono">${shorten(s.addr)}</div><div class="small">net out: ${s.netOutFromUs} SOL — out ${s.outSol} / in ${s.inSol}</div></div><div><button class="btn ghost small" onclick="window.open('https://explorer.solana.com/address/${s.addr}','_blank')">Explorer</button></div>`; list.appendChild(item); }); panel.appendChild(list); }
+
+    /* ================== Close / Sell / Feed ================== */
+    async function signSendWithProvider(tx){ const provider = getProviderTolerant(); if(!provider) throw new Error('No provider'); if(typeof provider.signAndSendTransaction==='function'){ const res = await provider.signAndSendTransaction(tx); const sig = res.signature || res; await connection.confirmTransaction(sig,'confirmed'); return sig; } else if(typeof provider.signTransaction==='function'){ const signed = await provider.signTransaction(tx); const raw = signed.serialize(); const id = await connection.sendRawTransaction(raw); await connection.confirmTransaction(id,'confirmed'); return id; } else throw new Error('No signing support'); }
+
+    async function closeEmptyAccounts(){ if(!wallet){ setStatus('Connect wallet first.','warn'); return; } if(emptyTokenAccounts.length===0){ setStatus('No empty accounts to close.','warn'); return; } if(!confirm(`Close ${emptyTokenAccounts.length} empty account(s)? Each will require wallet approval.`)) return; setStatus('Preparing close transactions... approve each in your wallet.'); for(const acc of emptyTokenAccounts){ const tx = new solanaWeb3.Transaction().add(splToken.createCloseAccountInstruction(new solanaWeb3.PublicKey(acc.pubkey), wallet, wallet, [])); tx.feePayer = wallet; tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash; try{ const sig = await signSendWithProvider(tx); addFeedItem(wallet.toBase58(), 1, RENT_PER_EMPTY_ACCOUNT_SOL, sig, new Date()); logDebug('closed', acc.pubkey, sig); }catch(e){ logDebug('close failed', acc.pubkey, e); setStatus('Some closes failed; check debug log','warn'); } await new Promise(r=>setTimeout(r,200)); } await scanAllHoldingsAndHistoryImproved(); setStatus('Close process finished.','success'); }
+
+    function prepareManualSells(){ if(holdings.length===0){ setStatus('No holdings to propose sells for.','warn'); return; } const panel=document.getElementById('holdingsPanel'); panel.innerHTML=''; const smalls=holdings.filter(h=>h.amount && Number(h.amount) < 1.5); if(smalls.length===0){ panel.innerHTML='<div class="small">No obvious small-balance tokens found.</div>'; return; } const list=document.createElement('div'); list.className='list'; smalls.forEach(h=>{ const row=document.createElement('div'); row.className='project'; row.innerHTML=`<div class="meta"><div class="mono">${h.mint}</div><div class="small">Balance: ${h.amount}</div></div><div><button class="btn small" data-mint="${h.mint}">Prepare Sell (manual)</button></div>`; list.appendChild(row); }); panel.appendChild(list); setStatus('Prepared manual sell proposals; manual approval required.','info'); }
+
+    function addFeedItem(walletAddr, accounts, sol, sig, date){ sessionFeed.unshift({ wallet: walletAddr, accounts, sol, sig, date: date.toISOString() }); renderFeed(); }
+    function renderFeed(){ const f=document.getElementById('feed'); f.innerHTML=''; sessionFeed.slice(0,24).forEach(it=>{ const row=document.createElement('div'); row.className='feed-row small'; row.textContent = `${shorten(it.wallet)} • accounts ${it.accounts} • ${toSol(it.sol)} SOL • ${shorten(it.sig||'')} • ${new Date(it.date).toLocaleString()}`; f.appendChild(row); }); }
+
+    /* ================== Leaderboard & tx history (local best-effort) ================== */
+    function updateLocalLeaderboardAndHistory(){
+      // best-effort: derive from sessionFeed + txHistory cached values
+      // txHistory and leaderboard are placeholders until server provides global data
+      txHistory = txHistory || [];
+      leaderboard = leaderboard || [];
+      // simple merge: show recent session actions first
+      const txPanel = document.getElementById('txHistory'); txPanel.innerHTML=''; const combined = (sessionFeed.slice(0,20).map(s=>({ addr: s.wallet, count: s.accounts, sol: s.sol, sig: s.sig, time: s.date })) ).concat(txHistory.slice(0,40)); if(combined.length===0) txPanel.innerHTML='<div class="notice small">No global history available yet.</div>'; else{ const list=document.createElement('div'); list.className='list'; combined.slice(0,40).forEach(t=>{ const row=document.createElement('div'); row.className='project'; row.innerHTML = `<div class="meta"><div class="mono">${shorten(t.addr||t.wallet||'')}</div><div class="small">Refunds ${t.count||''} • ${t.sol ? toSol(t.sol) + ' SOL' : ''}</div></div><div><div class="small">${t.time ? new Date(t.time).toLocaleString() : ''}</div></div>`; list.appendChild(row); }); txPanel.appendChild(list); }
+      const lb = document.getElementById('leaderboard'); lb.innerHTML=''; if(leaderboard.length===0) lb.innerHTML = '<div class="notice small">No leaderboard data available.</div>'; else{ const list=document.createElement('div'); list.className='list'; leaderboard.slice(0,50).forEach(p=>{ const r=document.createElement('div'); r.className='project'; r.innerHTML = `<div class="meta"><div class="mono">${shorten(p.addr)}</div><div class="small">Referrals ${p.refCount||0} • Earned ${p.solEarned ? toSol(p.solEarned) + ' SOL' : ''}</div></div>`; list.appendChild(r); }); lb.appendChild(list); }
     }
 
-    document.getElementById('scanBtn').addEventListener('click', ()=> scanAllHoldingsAndHistoryImproved().catch(e=>logDebug('scan click error', e)));
-    document.getElementById('exportReport').addEventListener('click', ()=>{ const report={ when:new Date().toISOString(), wallet: wallet? (wallet.toBase58?wallet.toBase58():String(wallet)) : null, holdings, emptyTokenAccounts, feed: sessionFeed }; const blob=new Blob([JSON.stringify(report,null,2)],{ type:'application/json' }); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`recovery-report-${Date.now()}.json`; a.click(); setStatus('Recovery report exported','success'); });
-
-    document.getElementById('recoverBtn').addEventListener('click', async ()=>{
-      try{
-        if(!wallet){ setStatus('Connect wallet first','warn'); return; }
-        if(!emptyTokenAccounts || emptyTokenAccounts.length===0){ setStatus('No empty accounts to close','warn'); return; }
-        if(!confirm(`Close ${emptyTokenAccounts.length} empty account(s)? Each requires wallet approval.`)) return;
-        setStatus('Preparing close transactions...','info');
-        for(const acc of emptyTokenAccounts){
-          const tx = new solanaWeb3.Transaction().add(splToken.createCloseAccountInstruction(new solanaWeb3.PublicKey(acc.pubkey), wallet, wallet, []));
-          tx.feePayer = wallet; tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
-          const provider = window.solana;
-          if(!provider) throw new Error('No provider');
-          if(typeof provider.signAndSendTransaction === 'function'){ const res=await provider.signAndSendTransaction(tx); const sig=res.signature||res; await connection.confirmTransaction(sig,'confirmed'); sessionFeed.unshift({ action:'close', pubkey:acc.pubkey, sig, time:new Date().toISOString() }); }
-          else if(typeof provider.signTransaction === 'function'){ const signed=await provider.signTransaction(tx); const raw=signed.serialize(); const id=await connection.sendRawTransaction(raw); await connection.confirmTransaction(id,'confirmed'); sessionFeed.unshift({ action:'close', pubkey:acc.pubkey, sig:id, time:new Date().toISOString() }); }
-          else throw new Error('Provider cannot sign');
-          await new Promise(r=>setTimeout(r,200));
-        }
-        setStatus('Close finished','success');
-        await scanAllHoldingsAndHistoryImproved();
-      }catch(e){ logDebug('recover error', e); setStatus('Close failed','error'); }
+    /* ================== UI wiring ================== */
+    document.getElementById('scanBtn').addEventListener('click', scanAllHoldingsAndHistoryImproved);
+    document.getElementById('recoverBtn').addEventListener('click', closeEmptyAccounts);
+    document.getElementById('prepareSellBtn').addEventListener('click', prepareManualSells);
+    document.getElementById('exportReport').addEventListener('click', ()=>{
+      const report = { when: new Date().toISOString(), wallet: wallet ? wallet.toBase58() : null, holdings, emptyTokenAccounts, sessionFeed };
+      const blob = new Blob([JSON.stringify(report,null,2)], { type:'application/json' });
+      const url = URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download=`recovery-report-${Date.now()}.json`; a.click(); URL.revokeObjectURL(url); setStatus('Recovery report exported.','success');
+    });
+    document.getElementById('copyRef').addEventListener('click', ()=>{
+      const txt = document.getElementById('refLink').textContent || '';
+      navigator.clipboard?.writeText(txt).then(()=> setStatus('Referral link copied.','success'), ()=> setStatus('Copy failed.','warn'));
     });
 
-    /* ================= Helpers & Init ================= */
-    const RENT_PER_EMPTY_ACCOUNT_SOL = 0.00204;
-    function safePubkeyStr(pk){ try{ return pk.toBase58 ? pk.toBase58() : String(pk); }catch{return String(pk||'');} }
-    function safePubkey(p){ try{ if(!p) return null; if(p instanceof solanaWeb3.PublicKey) return p; if(p.publicKey && p.publicKey instanceof solanaWeb3.PublicKey) return p.publicKey; return new solanaWeb3.PublicKey(p); }catch{return null;} }
-
-    (async function init(){ try{ await renderProjects(); logDebug('projects loaded'); }catch(e){ logDebug('init error', e); } })();
+    /* ================== Init ================== */
+    (async function init(){
+      await renderProjects();
+      updateLocalLeaderboardAndHistory();
+      window._bd = { scanAllHoldingsAndHistoryImproved, renderProjects, logDebug, proxyScanWallet };
+      logDebug('BarbrickDesign loaded. SCAN_PROXY_URL set?', !!SCAN_PROXY_URL, 'VAL_PROXY_URL set?', !!VAL_PROXY_URL);
+    })();
   </script>
 </body>
+</html>
