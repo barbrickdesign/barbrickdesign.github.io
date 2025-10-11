@@ -49,3 +49,14 @@ hr {
 .btn-xl {
   padding: 1rem 1rem;
 }
+.repo-container::-webkit-scrollbar {
+  width: 6px;
+}
+.repo-container::-webkit-scrollbar-thumb {
+  background: var(--stroke);
+  border-radius: 3px;
+}
+details summary {
+  cursor: pointer;
+  color: var(--accent);
+}
