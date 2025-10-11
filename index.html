@@ -504,5 +504,77 @@
     // Init
     updateReferralPreview();
   </script>
+  <!-- 🔁 GitHub Repo Feed -->
+<script>
+async function fetchRepos() {
+  const res = await fetch("https://api.github.com/users/barbrickdesign/repos?per_page=100");
+  const repos = await res.json();
+  const container = document.querySelector(".modules .card:nth-of-type(2) .list");
+  repos.forEach(repo => {
+    const div = document.createElement("div");
+    div.innerHTML = `<a class="link" href="${repo.html_url}" target="_blank">${repo.name}</a> — ${repo.description || "No description"}`;
+    container.appendChild(div);
+  });
+}
+fetchRepos();
+</script>
+
+<!-- 🕰️ Commit Viewer Toggle -->
+<div id="commitToggle" onclick="toggleViewer()" style="position:fixed;bottom:20px;right:20px;z-index:9999;background:#222;color:#fff;padding:10px;border-radius:50%;box-shadow:0 0 10px #000;cursor:pointer;">🕰️</div>
+
+<!-- 🕰️ Commit Viewer Panel -->
+<div id="commitViewer" style="display:none;position:fixed;top:10px;right:10px;background:#111;padding:10px;border-radius:8px;max-height:90vh;overflow:auto;width:400px;z-index:9999;">
+  <h3>🔁 Commit Viewer</h3>
+  <select id="commitSelector"></select>
+  <button onclick="loadCommit()">Load</button>
+  <button onclick="copyToClipboard()">📋 Copy</button>
+  <div id="previewFrame" style="margin-top:10px;border:1px solid #333;height:300px;background:#000;"></div>
+  <pre id="commitPreview" style="margin-top:10px;background:#222;padding:10px;border-radius:6px;white-space:pre-wrap;"></pre>
+</div>
+
+<script>
+const repo = "barbrickdesign/SOLRecovery";
+const filePath = "index.html";
+
+function toggleViewer() {
+  const viewer = document.getElementById("commitViewer");
+  viewer.style.display = viewer.style.display === "none" ? "block" : "none";
+}
+
+async function fetchCommits() {
+  const res = await fetch(`https://api.github.com/repos/${repo}/commits?path=${filePath}`);
+  const commits = await res.json();
+  const selector = document.getElementById("commitSelector");
+  commits.forEach(commit => {
+    const option = document.createElement("option");
+    option.value = commit.sha;
+    option.text = `${commit.commit.message} (${commit.commit.author.date})`;
+    selector.appendChild(option);
+  });
+}
+
+async function loadCommit() {
+  const sha = document.getElementById("commitSelector").value;
+  const res = await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}?ref=${sha}`);
+  const data = await res.json();
+  const content = atob(data.content);
+  document.getElementById("commitPreview").textContent = content;
+
+  const frame = document.createElement("iframe");
+  frame.style.width = "100%";
+  frame.style.height = "100%";
+  frame.style.border = "none";
+  frame.srcdoc = content;
+  const previewContainer = document.getElementById("previewFrame");
+  previewContainer.innerHTML = "";
+  previewContainer.appendChild(frame);
+}
+
+function copyToClipboard() {
+  const text = document.getElementById("commitPreview").textContent;
+  navigator.clipboard.writeText(text).then(() => alert("Copied to clipboard!"));
+}
+
+fetchCommits();
 </body>
 </html>
