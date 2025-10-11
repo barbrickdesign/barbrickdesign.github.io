@@ -1,31 +1,112 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
+  <title>BarbrickDesign — Build, Recover, and Earn</title>
   <title>BarbrickDesign — Recover and Earn</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Recover funds across chains, access projects, and invest back into the ecosystem." />
+  <link rel="preconnect" href="https://unpkg.com" />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
   <style>
+    :root {
+      --bg: #0a0c11; --panel:#0f131a; --text:#eaf1fb; --muted:#a8b3c7; --accent:#66fcf1;
+      --good:#3be477; --warn:#fbbf24; --bad:#ff6b6b; --stroke:#223149;
+    }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif; background:var(--bg); color:var(--text); }
+    header, footer { display:flex; justify-content:space-between; align-items:center; padding:16px 24px; background:var(--panel); border-bottom:1px solid var(--stroke); }
+    footer { border-top:1px solid var(--stroke); border-bottom:none; }
+    .brand { font-weight:800; font-size:18px; }
+    .nav { display:flex; gap:10px; flex-wrap:wrap; }
+    .btn { background:#121827; color:var(--text); border:1px solid var(--stroke); padding:10px 14px; border-radius:10px; cursor:pointer; font-weight:600; }
+    .btn:hover { border-color:var(--accent); }
+    .hero { padding:28px; text-align:center; background:var(--panel); }
+    .hero h1 { font-size:28px; margin:0 0 8px; }
+    .hero p { color:var(--muted); margin:0 0 16px; }
     body { margin:0; font-family: Inter, sans-serif; background:#0a0c11; color:#eaf1fb; }
     header, footer { display:flex; justify-content:space-between; align-items:center; padding:16px 24px; background:#0f131a; }
     .btn { background:#121827; color:#eaf1fb; border:1px solid #223149; padding:10px 14px; border-radius:10px; cursor:pointer; font-weight:600; }
     .btn:hover { border-color:#66fcf1; }
     .hero { padding:32px; text-align:center; background:#0f131a; }
     .big { font-size:36px; font-weight:900; margin:12px 0; }
+    .grid { display:grid; gap:16px; }
+    @media (min-width: 940px) { .grid.two { grid-template-columns: 1.2fr 0.8fr; } }
+    .card { background:var(--panel); border:1px solid var(--stroke); border-radius:12px; padding:16px; }
+    .projects, .modules, .feed { padding:24px; }
+    .link { color:var(--accent); font-weight:700; }
+    .feed-head, .feed-row { display:grid; grid-template-columns:1.2fr 0.7fr 0.9fr 1.4fr 1fr; gap:8px; font-size:13px; }
+    .feed-head { font-weight:700; color:var(--muted); }
+    .small { font-size:12px; color:var(--muted); }
     .small { font-size:12px; color:#a8b3c7; }
     .mono { font-family: ui-monospace, Menlo, Consolas, monospace; }
+    .status { min-height:18px; }
   </style>
 </head>
 <body>
   <header>
+    <div class="brand">BarbrickDesign</div>
+    <div class="nav">
     <div>BarbrickDesign</div>
     <div>
       <button id="connectBtn" class="btn">Connect Wallet</button>
       <button id="resetBtn" class="btn">Reset</button>
+      <a class="btn" href="https://barbrickdesign.github.io/city-3d/" target="_blank" rel="noopener">City‑3D</a>
+      <a class="btn" href="https://barbrickdesign.github.io/SOLRecovery/" target="_blank" rel="noopener">SOL Recovery</a>
+      <a class="btn" href="https://github.com/barbrickdesign?tab=repositories" target="_blank" rel="noopener">GitHub</a>
     </div>
   </header>
 
   <section class="hero">
     <h1>💰 Instantly Reclaim Lost Crypto</h1>
+    <p>Recover hidden funds from test wallets, dust tokens, and fraud drains. Keep 95% — lowest fee in the game.</p>
+
+    <div class="grid two">
+      <div class="card">
+        <div class="grid" style="gap:10px;">
+          <div class="small mono">User ID (wallet): <span id="walletLabel">—</span></div>
+          <div>
+            <label class="small" for="chainSelect">Recovery chain</label>
+            <select id="chainSelect" class="btn">
+              <option value="solana" selected>Solana (Phantom)</option>
+              <option value="ethereum">Ethereum (MetaMask)</option>
+              <option value="polygon">Polygon (MetaMask)</option>
+              <option value="bsc">BSC (MetaMask)</option>
+            </select>
+          </div>
+          <div class="big" id="refundEstimateBig">0.00000 SOL</div>
+          <div id="status" class="small status">Connect your wallet to begin.</div>
+          <div class="grid" style="grid-template-columns: 1fr 1fr; gap:10px;">
+            <button id="scanBtn" class="btn">Scan</button>
+            <button id="recoverBtn" class="btn">Recover Now</button>
+          </div>
+          <div class="small">Only 5% support fee — the lowest in the game. You pay gas.</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3 style="margin:0 0 8px 0;">Coin-holder LLM Access</h3>
+        <div class="small">Hold our coins or NFTs to unlock on-site LLM chat for strategy, dev help, and ritual design.</div>
+        <div class="grid" style="gap:10px; margin-top:10px;">
+          <div id="llmAccessBadge" class="small">Access: locked</div>
+          <button id="openLLM" class="btn" disabled>Open LLM</button>
+          <div class="small">Configure mints in code to gate access.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="modules">
+    <div class="card">
+      <h3 style="margin:0 0 8px 0;">Income modules</h3>
+      <p><a class="link" href="https://barbrickdesign.github.io/SOLRecovery/" target="_blank" rel="noopener">SOL Recovery Portal</a> — reclaim rent fast.</p>
+      <p><a class="link" href="https://barbrickdesign.github.io/city-3d/" target="_blank" rel="noopener">City‑3D</a> — interactive 3D demo.</p>
+      <p><a class="link" href="https://github.com/barbrickdesign?tab=repositories" target="_blank" rel="noopener">All GitHub projects</a> — see everything live.</p>
+    </div>
+  </section>
+
+  <section class="feed">
+    <div class="feed-head"><span>Wallet</span><span>Accounts</span><span>Refunded</span><span>Tx</span><span>Date</span></div>
+    <div id="feed"></div>
     <p class="small">Keep 95% — lowest fee in the game. User pays gas.</p>
     <label for="chainSelect">Recovery chain:</label>
     <select id="chainSelect" class="btn">
@@ -42,41 +123,135 @@
   </section>
 
   <footer>
+    <span>© BarbrickDesign 2025</span>
+    <span class="small">User ID: <span class="mono" id="walletLabelFooter">—</span></span>
     <span class="small">© BarbrickDesign 2025</span>
   </footer>
 
+  <!-- Solana -->
   <!-- Load Solana + SPL Token first -->
   <script src="https://unpkg.com/@solana/web3.js@1.95.6/lib/index.iife.js"></script>
   <script src="https://unpkg.com/@solana/spl-token@0.3.11/dist/browser/spl-token.min.js"></script>
+  <!-- EVM -->
   <!-- Load ethers.js for EVM -->
   <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.1/dist/ethers.umd.min.js"></script>
 
   <!-- Your app logic -->
   <script>
+    // Connections and constants
+    const solConnection = new solanaWeb3.Connection('https://api.mainnet-beta.solana.com', 'confirmed');
     const solConnection = new solanaWeb3.Connection('https://api.mainnet-beta.solana.com','confirmed');
     const FEE_WALLET = new solanaWeb3.PublicKey('5hSWosj58ki4A6hSfQrvteQU5QvyCWmhHn4AuqgaQzqr');
     const RENT_PER_EMPTY_ACCOUNT_SOL = 0.00204;
     const DONATION_PCT = 0.05;
+    const GATE_MINTS = []; // add SPL token/NFT mints for LLM gating
 
+    // State
     let chain = 'solana';
+    let solWallet = null; // PublicKey
+    let evmWallet = null; // string
     let solWallet = null;
     let evmWallet = null;
     let emptyAccounts = [];
+    let sessionFeed = [];
 
+    // Elements
     const chainSelect = document.getElementById('chainSelect');
     const statusEl = document.getElementById('status');
     const walletLabel = document.getElementById('walletLabel');
+    const walletLabelFooter = document.getElementById('walletLabelFooter');
     const refundEstimateBigEl = document.getElementById('refundEstimateBig');
+    const feedEl = document.getElementById('feed');
+    const llmAccessBadge = document.getElementById('llmAccessBadge');
+    const openLLMBtn = document.getElementById('openLLM');
 
+    const connectBtn = document.getElementById('connectBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const scanBtn = document.getElementById('scanBtn');
+    const recoverBtn = document.getElementById('recoverBtn');
+
+    // Helpers
+    function setStatus(msg, kind = 'info') {
+      statusEl.textContent = msg;
+      statusEl.style.color = kind === 'error' ? '#ff6b6b' : kind === 'warn' ? '#fbbf24' : kind === 'success' ? '#3be477' : '#a8b3c7';
+    }
+    function shorten(s) { if (!s) return '—'; return s.length > 12 ? (s.slice(0,4)+'...'+s.slice(-4)) : s; }
+    function toSol(n) { return (Math.round(n * 100000) / 100000).toFixed(5); }
+    function lamportsToSol(l) { return l / solanaWeb3.LAMPORTS_PER_SOL; }
+    function solToLamports(s) { return Math.floor(s * solanaWeb3.LAMPORTS_PER_SOL); }
+
+    function setWalletIdDisplay(idText) {
+      walletLabel.textContent = idText;
+      walletLabelFooter.textContent = idText;
+    }
+
+    function renderFeed() {
+      feedEl.innerHTML = '';
+      for (const it of sessionFeed.slice(0, 24)) {
+        const row = document.createElement('div');
+        row.className = 'feed-row';
+        row.innerHTML = `
+          <span class="mono">${shorten(it.wallet)}</span>
+          <span>${it.accounts}</span>
+          <span>${it.amount}</span>
+          <span class="mono">${shorten(it.sig || '')}</span>
+          <span>${new Date(it.date).toLocaleString()}</span>
+        `;
+        feedEl.appendChild(row);
+      }
+    }
+
+    function addFeedItem(wallet, accounts, amount, sig) {
+      sessionFeed.unshift({ wallet, accounts, amount, sig, date: new Date().toISOString() });
+      renderFeed();
+    }
     function setStatus(msg){ statusEl.textContent = msg; }
     function shorten(s){ return s ? s.slice(0,4)+'...'+s.slice(-4) : '—'; }
 
+    // Chain selection
+    chainSelect.addEventListener('change', (e) => {
     chainSelect.addEventListener('change', e => {
       chain = e.target.value;
+      setStatus(`Selected ${chain.toUpperCase()} for recovery.`);
+      resetConnection();
+      if (chain === 'solana') {
+        refundEstimateBigEl.textContent = '0.00000 SOL';
+      } else {
+        refundEstimateBigEl.textContent = 'Estimation requires explorer mapping';
+      }
       setStatus(`Selected ${chain.toUpperCase()}. Connect wallet.`);
       refundEstimateBigEl.textContent = chain==='solana' ? '0.00000 SOL' : '—';
     });
 
+    // Wallet connect
+    async function connectWallet() {
+      try {
+        if (chain === 'solana') {
+          const provider = window.solana;
+          if (!provider || !(provider.isPhantom || provider.isBackpack || provider.isOKXWallet)) {
+            setStatus('No Solana wallet detected. Install Phantom.', 'warn');
+            return;
+          }
+          const resp = await provider.connect();
+          solWallet = resp.publicKey;
+          setWalletIdDisplay(shorten(solWallet.toBase58()));
+          setStatus('Solana wallet connected.');
+          await scanSolana();
+          await gateLlmAccessSolana();
+        } else {
+          if (!window.ethereum) { setStatus('No EVM wallet detected. Install MetaMask.', 'warn'); return; }
+          const provider = new ethers.BrowserProvider(window.ethereum);
+          const accounts = await provider.send('eth_requestAccounts', []);
+          evmWallet = accounts[0];
+          setWalletIdDisplay(shorten(evmWallet));
+          setStatus(`${chain.toUpperCase()} wallet connected.`);
+          await mapEvmActivity();
+          // LLM gate: for EVM chains, treat as open until you add on-chain gating
+          llmAccessBadge.textContent = 'Access: open (config pending)';
+          openLLMBtn.disabled = false;
+        }
+      } catch (e) {
+        setStatus('Wallet connection canceled or failed.', 'error');
     async function connectWallet(){
       if(chain==='solana'){
         const provider = window.solana;
@@ -95,6 +270,17 @@
       }
     }
 
+    function resetConnection() {
+      try {
+        if (solWallet && window.solana) {
+          try { window.solana.disconnect(); } catch(_) {}
+        }
+      } catch(_) {}
+      solWallet = null;
+      evmWallet = null;
+      emptyAccounts = [];
+      setWalletIdDisplay('—');
+      renderFeed();
     function resetConnection(){
       solWallet=null; evmWallet=null; emptyAccounts=[];
       walletLabel.textContent='—';
@@ -102,6 +288,15 @@
       setStatus('Connection reset.');
     }
 
+    // Solana scanning
+    async function scanSolana() {
+      if (!solWallet) { setStatus('Connect a Solana wallet first.', 'warn'); return; }
+      setStatus('Scanning empty token accounts on Solana...');
+      try {
+        const res = await solConnection.getParsedTokenAccountsByOwner(solWallet, { programId: splToken.TOKEN_PROGRAM_ID });
+        emptyAccounts = res.value.filter(acc => Number(acc.account.data.parsed.info.tokenAmount?.uiAmount || 0) === 0);
+        const est = emptyAccounts.length * RENT_PER_EMPTY_ACCOUNT_SOL;
+        refundEstimateBigEl.textContent = toSol(est) + ' SOL';
     async function scan(){
       if(chain==='solana'){
         if(!solWallet){ setStatus('Connect wallet first.'); return; }
@@ -110,12 +305,109 @@
         const est = emptyAccounts.length*RENT_PER_EMPTY_ACCOUNT_SOL;
         refundEstimateBigEl.textContent=est.toFixed(5)+' SOL';
         setStatus(`Found ${emptyAccounts.length} empty accounts.`);
-      } else {
-        if(!evmWallet){ setStatus('Connect wallet first.'); return; }
-        setStatus(`Check ${chain} explorer for activity: ${evmWallet}`);
+      } catch (e) {
+        console.error(e);
+        setStatus('Scan failed. Try again.', 'error');
       }
     }
 
+    // Solana recovery
+    async function recoverSolana() {
+      if (!solWallet) { setStatus('Connect a Solana wallet first.', 'warn'); return; }
+      if (emptyAccounts.length === 0) { setStatus('No empty accounts to close.', 'warn'); return; }
+      setStatus('Preparing recovery transactions...');
+      const ownerPubkey = solWallet;
+      let closed = 0;
+      let refundLamports = 0;
+      const chunkSize = 8;
+
+      for (let i = 0; i < emptyAccounts.length; i += chunkSize) {
+        const slice = emptyAccounts.slice(i, i + chunkSize);
+        const tx = new solanaWeb3.Transaction();
+        for (const acc of slice) {
+          const ix = splToken.createCloseAccountInstruction(
+            new solanaWeb3.PublicKey(acc.pubkey),
+            ownerPubkey, ownerPubkey, []
+          );
+          tx.add(ix);
+        }
+        tx.feePayer = ownerPubkey;
+        tx.recentBlockhash = (await solConnection.getLatestBlockhash()).blockhash;
+        try {
+          const signed = await window.solana.signAndSendTransaction(tx);
+          const sig = signed.signature || signed;
+          await solConnection.confirmTransaction(sig, 'confirmed');
+          closed += slice.length;
+          refundLamports += solToLamports(slice.length * RENT_PER_EMPTY_ACCOUNT_SOL);
+          addFeedItem(ownerPubkey.toBase58(), slice.length, `${toSol(slice.length * RENT_PER_EMPTY_ACCOUNT_SOL)} SOL`, sig);
+          setStatus(`Closed ${closed}/${emptyAccounts.length} accounts...`);
+        } catch (e) {
+          console.error(e);
+          setStatus('Some accounts failed to close. You can retry.', 'warn');
+        }
+      }
+
+      // Optional support fee
+      if (refundLamports > 0) {
+        const donationLamports = Math.floor(refundLamports * DONATION_PCT);
+        if (donationLamports > 0) {
+          const feeTx = new solanaWeb3.Transaction().add(solanaWeb3.SystemProgram.transfer({
+            fromPubkey: ownerPubkey, toPubkey: FEE_WALLET, lamports: donationLamports
+          }));
+          feeTx.feePayer = ownerPubkey;
+          feeTx.recentBlockhash = (await solConnection.getLatestBlockhash()).blockhash;
+          try {
+            const signedFee = await window.solana.signAndSendTransaction(feeTx);
+            const sigFee = signedFee.signature || signedFee;
+            await solConnection.confirmTransaction(sigFee, 'confirmed');
+            addFeedItem(ownerPubkey.toBase58(), 0, `${toSol(lamportsToSol(donationLamports))} SOL (support)`, sigFee);
+            setStatus('Support fee sent. Recovery complete.', 'success');
+          } catch (e) {
+            console.error(e);
+            setStatus('Support fee declined or failed.', 'warn');
+          }
+        } else {
+          setStatus('Recovery complete.', 'success');
+        }
+      } else {
+        setStatus('Recovery complete.', 'success');
+        if(!evmWallet){ setStatus('Connect wallet first.'); return; }
+        setStatus(`Check ${chain} explorer for activity: ${evmWallet}`);
+      }
+
+      // Rescan to refresh estimate
+      await scanSolana();
+    }
+
+    // EVM mapping (placeholder actionable guidance)
+    async function mapEvmActivity() {
+      if (!evmWallet) { setStatus('Connect an EVM wallet first.', 'warn'); return; }
+      const explorers = { ethereum:'https://etherscan.io/address/', polygon:'https://polygonscan.com/address/', bsc:'https://bscscan.com/address/' };
+      const url = explorers[chain] + evmWallet;
+      setStatus(`Open explorer to map activity: ${url}`);
+      refundEstimateBigEl.textContent = 'Estimation requires explorer mapping';
+    }
+
+    async function recoverEvm() {
+      setStatus('Multi-chain recovery requires per-chain strategy and indexers. Use explorer and revoke approvals as needed.', 'warn');
+      const revokeLinks = { ethereum:'https://revoke.cash/', polygon:'https://revoke.cash/polygon', bsc:'https://revoke.cash/bsc' };
+      window.open(revokeLinks[chain], '_blank');
+    }
+
+    // LLM gate (Solana holdings)
+    async function gateLlmAccessSolana() {
+      if (!solWallet) { llmAccessBadge.textContent = 'Access: locked'; openLLMBtn.disabled = true; return; }
+      if (GATE_MINTS.length === 0) { llmAccessBadge.textContent = 'Access: open (config pending)'; openLLMBtn.disabled = false; return; }
+      try {
+        const res = await solConnection.getParsedTokenAccountsByOwner(solWallet, { programId: splToken.TOKEN_PROGRAM_ID });
+        const userMints = new Set(res.value.map(acc => acc.account.data.parsed.info.mint));
+        const has = GATE_MINTS.some(m => userMints.has(m));
+        llmAccessBadge.textContent = has ? 'Access: unlocked' : 'Access: locked';
+        openLLMBtn.disabled = !has;
+      } catch (e) {
+        console.error(e);
+        llmAccessBadge.textContent = 'Access: error';
+        openLLMBtn.disabled = true;
     async function recover(){
       if(chain==='solana'){
         if(!solWallet){ setStatus('Connect wallet first.'); return; }
@@ -127,9 +419,24 @@
       }
     }
 
+    // LLM open (placeholder)
+    function openLLM() {
+      alert('LLM gated chat placeholder. Replace with your chat UI and backend endpoint authenticated via wallet signature.');
+    }
+
+    // Wire up
+    connectBtn.addEventListener('click', connectWallet);
+    resetBtn.addEventListener('click', resetConnection);
+    scanBtn.addEventListener('click', async () => { chain === 'solana' ? scanSolana() : mapEvmActivity(); });
+    recoverBtn.addEventListener('click', async () => { chain === 'solana' ? recoverSolana() : recoverEvm(); });
+    openLLMBtn.addEventListener('click', openLLM);
+
+    // Initial UI state
+    setStatus('Connect your wallet to begin.');
     document.getElementById('connectBtn').addEventListener('click', connectWallet);
     document.getElementById('resetBtn').addEventListener('click', resetConnection);
     document.getElementById('scanBtn').addEventListener('click', scan);
     document.getElementById('recoverBtn').addEventListener('click', recover);
   </script>
 </body>
+</html>
