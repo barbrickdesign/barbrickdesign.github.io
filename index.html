@@ -730,67 +730,67 @@
     listRepos();
 
     // ---------- Commit Viewer (fixed script structure) ----------
-    const commitRepo = 'barbrickdesign/SOLRecovery';
-    const commitFilePath = 'index.html';
+const commitRepo = 'barbrickdesign/SOLRecovery';
+const commitFilePath = 'index.html';
 
-    commitToggle.addEventListener('click', () => {
-      const show = commitViewer.style.display !== 'block';
-      commitViewer.style.display = show ? 'block' : 'none';
-      if (show && !commitSelector.dataset.loaded) fetchCommits();
+commitToggle.addEventListener('click', () => {
+  const show = commitViewer.style.display !== 'block';
+  commitViewer.style.display = show ? 'block' : 'none';
+  if (show && !commitSelector.dataset.loaded) fetchCommits();
+});
+
+async function fetchCommits() {
+  try {
+    const res = await fetch(`https://api.github.com/repos/${commitRepo}/commits?path=${commitFilePath}`);
+    const commits = await res.json();
+    commitSelector.innerHTML = '';
+    commits.forEach(commit => {
+      const option = document.createElement('option');
+      option.value = commit.sha;
+      option.text = `${commit.commit.message} (${commit.commit.author.date})`;
+      commitSelector.appendChild(option);
     });
+    commitSelector.dataset.loaded = '1';
+  } catch (e) {
+    commitSelector.innerHTML = '';
+    const option = document.createElement('option');
+    option.value = '';
+    option.text = 'Failed to load commits';
+    commitSelector.appendChild(option);
+  }
+}
 
-    async function fetchCommits() {
-      try {
-        const res = await fetch(`https://api.github.com/repos/${commitRepo}/commits?path=${commitFilePath}`);
-        const commits = await res.json();
-        commitSelector.innerHTML = '';
-        commits.forEach(commit => {
-          const option = document.createElement('option');
-          option.value = commit.sha;
-          option.text = `${commit.commit.message} (${commit.commit.author.date})`;
-          commitSelector.appendChild(option);
-        });
-        commitSelector.dataset.loaded = '1';
-      } catch (e) {
-        commitSelector.innerHTML = '';
-        const option = document.createElement('option');
-        option.value = '';
-        option.text = 'Failed to load commits';
-        commitSelector.appendChild(option);
-      }
-    }
+async function loadCommit() {
+  const sha = commitSelector.value;
+  if (!sha) return;
+  try {
+    const res = await fetch(`https://api.github.com/repos/${commitRepo}/contents/${commitFilePath}?ref=${sha}`);
+    const data = await res.json();
+    const content = atob(data.content);
+    commitPreview.textContent = content;
+    const frame = document.createElement('iframe');
+    frame.style.width = '100%';
+    frame.style.height = '100%';
+    frame.style.border = 'none';
+    frame.srcdoc = content;
+    previewFrame.innerHTML = '';
+    previewFrame.appendChild(frame);
+  } catch (e) {
+    commitPreview.textContent = 'Failed to load commit content.';
+    previewFrame.innerHTML = '';
+  }
+}
 
-    async function loadCommit() {
-      const sha = commitSelector.value;
-      if (!sha) return;
-      try {
-        const res = await fetch(`https://api.github.com/repos/${commitRepo}/contents/${commitFilePath}?ref=${sha}`);
-        const data = await res.json();
-        const content = atob(data.content);
-        commitPreview.textContent = content;
-        const frame = document.createElement('iframe');
-        frame.style.width = '100%';
-        frame.style.height = '100%';
-        frame.style.border = 'none';
-        frame.srcdoc = content;
-        previewFrame.innerHTML = '';
-        previewFrame.appendChild(frame);
-      } catch (e) {
-        commitPreview.textContent = 'Failed to load commit content.';
-        previewFrame.innerHTML = '';
-      }
-    }
+function copyCommitToClipboard() {
+  const text = commitPreview.textContent || '';
+  navigator.clipboard.writeText(text).then(
+    () => setStatus('Commit content copied.', 'success'),
+    () => setStatus('Copy failed.', 'warn')
+  );
+}
 
-    function copyCommitToClipboard() {
-      const text = commitPreview.textContent || '';
-      navigator.clipboard.writeText(text).then(
-        () => setStatus('Commit content copied.', 'success'),
-        () => setStatus('Copy failed.', 'warn')
-      );
-    }
-
-    commitLoadBtn.addEventListener('click', loadCommit);
-    commitCopyBtn.addEventListener('click', copyCommitToClipboard);
-  </script>
+commitLoadBtn.addEventListener('click', loadCommit);
+commitCopyBtn.addEventListener('click', copyCommitToClipboard);
+</script>
 </body>
 </html>
