@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -44,16 +43,17 @@
     .muted{color:var(--muted);font-size:13px}
     .list{display:grid;gap:8px}
     .feed-row{display:flex;justify-content:space-between;gap:12px}
-    /* 3D glyph container style */
-    .glyph-canvas { width:40px; height:40px; border-radius:8px; display:block; cursor:pointer; -webkit-tap-highlight-color: transparent; }
-    .glyph-fallback { width:40px; height:40px; border-radius:8px; background-size:cover; background-position:center; display:inline-block; }
+
+    /* 3D glyph styles (bigger than before) */
+    #glyphContainer { width:64px; height:64px; border-radius:10px; overflow:visible; display:inline-block; cursor:pointer; margin-right:10px; }
+    .glyph-canvas { width:64px; height:64px; border-radius:10px; display:block; }
+    .glyph-fallback { width:64px; height:64px; border-radius:10px; background-size:cover; background-position:center; display:inline-block; }
   </style>
 
   <!-- libs (order matters) -->
   <script src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iife.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@solana/spl-token@0.3.11/dist/browser/spl-token.min.js"></script>
-  <!-- three.js (for 3D glyph) -->
   <script src="https://cdn.jsdelivr.net/npm/three@0.155.0/build/three.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.155.0/examples/js/loaders/GLTFLoader.js"></script>
 </head>
@@ -62,8 +62,7 @@
     <header>
       <div class="header-row">
         <div class="brand">
-          <!-- 3D glyph container (click to open 3D world) -->
-          <div id="glyphContainer" title="Enter the 3D world" role="link" aria-label="Barbrick 3D logo" style="width:40px;height:40px;border-radius:8px;display:inline-block;margin-right:8px"></div>
+          <div id="glyphContainer" title="Enter the 3D world" role="link" aria-label="Barbrick 3D logo"></div>
 
           <div>
             <div class="title mono">BarbrickDesign</div>
@@ -219,11 +218,12 @@
   </div>
 
   <script>
-    // ---------- Utilities & Debug ----------
+    /* Utilities + Debug */
     function logDebug(...args){
       const el = document.getElementById('debugLog');
+      if(!el) return console.log(...args);
       const line = document.createElement('div');
-      line.textContent = `[${new Date().toLocaleTimeString()}] ` + args.map(a => (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' ');
+      line.textContent = '[' + new Date().toLocaleTimeString() + '] ' + args.map(a => (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' ');
       el.appendChild(line); el.scrollTop = el.scrollHeight; console.log(...args);
     }
     document.getElementById('dbgClear').addEventListener('click', ()=> document.getElementById('debugLog').innerHTML = '');
@@ -250,16 +250,16 @@
     function getProviderTolerant(){ return window.solana || null; }
     async function waitForProvider(timeoutMs=3000, intervalMs=150){ const start=Date.now(); while(Date.now()-start < timeoutMs){ const p=getProviderTolerant(); if(p) return p; await new Promise(r=>setTimeout(r, intervalMs)); } return null; }
 
-    // ---------- 3D rotating glyph ----------
+    /* 3D glyph: larger central object + orbiting golden coins */
     (function initGlyph(){
       const CONTAINER_ID = 'glyphContainer';
       const NAV_TARGET = 'https://barbrickdesign.com';
       const FALLBACK_IMAGE = 'city-3d header.jpg';
-      const LOAD_MODEL = null; // set to '/assets/logo.glb' if you add a GLB to the repo
+      const LOAD_MODEL = null; // set to '/assets/logo.glb' if you add a model
 
       const container = document.getElementById(CONTAINER_ID);
       if(!container) return;
-      container.addEventListener('click', ()=> location.href = NAV_TARGET);
+      container.addEventListener('click', ()=> window.location.href = NAV_TARGET);
 
       function hasWebGL(){
         try { const c = document.createElement('canvas'); return !!(window.WebGLRenderingContext && (c.getContext('webgl') || c.getContext('experimental-webgl'))); } catch { return false; }
@@ -272,8 +272,7 @@
         return;
       }
 
-      // create small three.js scene
-      const width = 40, height = 40;
+      const width = 64, height = 64;
       const canvas = document.createElement('canvas');
       canvas.className = 'glyph-canvas';
       canvas.width = width * devicePixelRatio;
@@ -289,59 +288,102 @@
 
       const scene = new THREE.Scene();
       const hemi = new THREE.HemisphereLight(0xffffff, 0x444444, 0.6); scene.add(hemi);
-      const dir = new THREE.DirectionalLight(0xffffff, 0.7); dir.position.set(5,10,7.5); scene.add(dir);
+      const dir = new THREE.DirectionalLight(0xffffff, 0.8); dir.position.set(5,10,7.5); scene.add(dir);
 
       const camera = new THREE.PerspectiveCamera(45, width/height, 0.1, 50);
-      camera.position.set(0,0,6);
+      camera.position.set(0, 0, 6);
 
-      let mesh;
-      async function loadModelOrProcedural(){
-        if(LOAD_MODEL && THREE.GLTFLoader){
+      let central, coins = [];
+
+      async function buildScene(){
+        if(LOAD_MODEL && typeof THREE.GLTFLoader !== 'undefined'){
           try{
             const loader = new THREE.GLTFLoader();
-            const gltf = await new Promise((res, rej)=> loader.load(LOAD_MODEL, res, null, rej));
-            mesh = gltf.scene || gltf.scenes?.[0];
-            mesh.scale.setScalar(0.9);
-            scene.add(mesh);
-            return;
+            const gltf = await new Promise((res,rej)=> loader.load(LOAD_MODEL,res, null, rej));
+            central = gltf.scene || gltf.scenes?.[0];
+            central.scale.setScalar(0.9);
+            scene.add(central);
           }catch(e){
-            console.warn('GLB load failed, fallback to procedural', e);
+            console.warn('GLB load failed, using procedural mesh', e);
+            createProceduralCentral();
           }
+        } else {
+          createProceduralCentral();
         }
-        const geom = new THREE.IcosahedronGeometry(1.05, 2);
-        const mat = new THREE.MeshStandardMaterial({ color: 0x66fcf1, metalness: 0.25, roughness: 0.18, emissive: 0x0a0f12, emissiveIntensity: 0.05 });
-        mesh = new THREE.Mesh(geom, mat);
-        scene.add(mesh);
-        const rim = new THREE.Mesh(geom.clone(), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent:true, opacity:0.06, blending: THREE.AdditiveBlending }));
-        rim.scale.setScalar(1.03);
-        scene.add(rim);
+        createCoinOrbits();
       }
-      loadModelOrProcedural().then(()=>{ /* ready */ });
+
+      function createProceduralCentral(){
+        const geom = new THREE.IcosahedronGeometry(1.25, 2);
+        const mat = new THREE.MeshStandardMaterial({ color:0x66fcf1, metalness:0.3, roughness:0.12, emissive:0x071018, emissiveIntensity:0.05 });
+        central = new THREE.Mesh(geom, mat);
+        scene.add(central);
+        const rim = new THREE.Mesh(geom.clone(), new THREE.MeshBasicMaterial({ color:0xffffff, transparent:true, opacity:0.06, blending: THREE.AdditiveBlending }));
+        rim.scale.setScalar(1.03); scene.add(rim);
+      }
+
+      function createCoinOrbits(){
+        const coinGeom = new THREE.SphereGeometry(0.14, 12, 10);
+        const coinMat = new THREE.MeshStandardMaterial({ color: 0xffd86b, metalness: 1.0, roughness: 0.25, emissive:0x442200, emissiveIntensity:0.02 });
+        const orbitConfigs = [
+          { r: 2.0, speed: 0.9, tilt: 0.2, count: 4 },
+          { r: 2.6, speed: 1.6, tilt: -0.15, count: 3 },
+          { r: 3.4, speed: 0.6, tilt: 0.08, count: 2 }
+        ];
+        coins = [];
+        orbitConfigs.forEach(cfg=>{
+          for(let i=0;i<cfg.count;i++){
+            const coin = new THREE.Mesh(coinGeom, coinMat);
+            const angle = (i / cfg.count) * Math.PI * 2;
+            coin.userData = { radius: cfg.r, angle, speed: cfg.speed * (0.8 + Math.random()*0.8), tilt: cfg.tilt + (Math.random()-0.5)*0.12, phase: Math.random()*Math.PI*2 };
+            // small scale variance
+            const scale = 0.9 + Math.random()*0.4;
+            coin.scale.setScalar(scale);
+            scene.add(coin);
+            coins.push(coin);
+          }
+        });
+      }
+
+      buildScene();
 
       let rotY = 0, hover=false, lastT = performance.now();
-      container.addEventListener('pointerenter', ()=> hover=true);
-      container.addEventListener('pointerleave', ()=> hover=false);
+      container.addEventListener('pointerenter', ()=> hover = true);
+      container.addEventListener('pointerleave', ()=> hover = false);
       container.addEventListener('pointermove', (ev)=>{
         const r = container.getBoundingClientRect();
         const nx = ((ev.clientX - r.left) / r.width) * 2 - 1;
         const ny = -(((ev.clientY - r.top) / r.height) * 2 - 1);
-        const tilt = 0.15;
-        if(mesh){ mesh.rotation.x = ny * tilt; mesh.rotation.z = nx * tilt * 0.35; }
+        const tilt = 0.18;
+        if(central) { central.rotation.x = ny * tilt; central.rotation.z = nx * tilt * 0.35; }
       });
 
       function animate(now){
         const dt = Math.min(100, now - lastT) / 1000; lastT = now;
-        const speed = 0.6 + (hover ? 1.2 : 0);
+        const baseSpeed = 0.6;
+        const speed = baseSpeed + (hover ? 1.2 : 0);
         rotY += dt * speed;
-        if(mesh) mesh.rotation.y = rotY;
-        if(mesh) mesh.position.y = Math.sin(now/1200) * 0.03;
+        if(central) central.rotation.y = rotY;
+
+        // update coins
+        coins.forEach((coin, idx)=>{
+          const ud = coin.userData;
+          ud.angle += dt * ud.speed;
+          const x = Math.cos(ud.angle + ud.phase) * ud.radius;
+          const z = Math.sin(ud.angle + ud.phase) * ud.radius * (0.85 + Math.sin(ud.phase)*0.05);
+          const y = Math.sin((ud.angle + ud.phase)*0.7) * 0.18 + Math.sin(idx + now/900) * 0.02;
+          coin.position.set(x, y * (0.6 + ud.tilt*0.2), z);
+          coin.lookAt(0,0,0);
+        });
+
         renderer.render(scene, camera);
         requestAnimationFrame(animate);
       }
       requestAnimationFrame(animate);
 
+      // keyboard accessibility
       container.tabIndex = 0;
-      container.addEventListener('keydown', (e)=> { if(e.key === 'Enter' || e.key === ' ') location.href = NAV_TARGET; });
+      container.addEventListener('keydown', (e)=> { if(e.key === 'Enter' || e.key === ' ') window.location.href = NAV_TARGET; });
 
       try {
         const obs = new ResizeObserver(()=> {
@@ -353,37 +395,35 @@
           camera.updateProjectionMatrix();
         });
         obs.observe(container);
-      } catch(e){ /* ignore */ }
+      } catch(e){ /* ignore if not supported */ }
     })();
 
-    // ---------- Connect/Sign/Auto-reconnect (stable) ----------
-    function getProviderTolerant(){ return window.solana || null; }
-    async function waitForProvider(timeoutMs = 1500, intervalMs = 120){
+    /* Connect + sign + auto-reconnect (stable) */
+    async function waitForProvider(timeoutMs=1500, intervalMs=120){
       const start = Date.now();
-      while(Date.now() - start < timeoutMs){
-        const p = getProviderTolerant();
-        if(p) return p;
+      while(Date.now()-start < timeoutMs){
+        if(window.solana) return window.solana;
         await new Promise(r=>setTimeout(r, intervalMs));
       }
       return null;
     }
+
     function buildPhantomDeepLink(){
       const appUrl = encodeURIComponent(window.location.origin);
       const redirect = encodeURIComponent(window.location.href.replace(window.location.search || '', '') + '?from_phantom=1');
       return `https://phantom.app/ul/v1/connect?app_url=${appUrl}&redirect_url=${redirect}`;
     }
     function promptOpenInWalletApp(){
-      try{ localStorage.setItem('awaiting_wallet','1'); }catch(e){ logDebug('localStorage set failed', e); }
-      const link = buildPhantomDeepLink();
-      logDebug('Opening wallet app via deep link:', link);
-      try{ location.href = link; }catch(e){ window.open(link, '_blank'); }
-      setStatus('Opening wallet app... approve connect then return to this page.', 'warn');
+      try{ localStorage.setItem('awaiting_wallet','1'); }catch(e){ logDebug('localStorage set failed', e) }
+      const link = buildPhantomDeepLink(); logDebug('Opening deep link', link);
+      try{ location.href = link; }catch(e){ window.open(link, '_blank') }
+      setStatus('Opening wallet app... approve connect then return.', 'warn');
     }
 
     async function connectAndVerify(){
       setStatus('Attempting wallet connect…');
       logDebug('connect start; mobile?', /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent));
-      const provider = await waitForProvider(1500,120) || getProviderTolerant();
+      const provider = await waitForProvider(1500,120) || (window.solana || null);
       if(!provider){
         if(/Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent)){ promptOpenInWalletApp(); return; }
         setStatus('No wallet detected. Install Phantom or enable extension.','warn'); return;
@@ -463,7 +503,15 @@
     }
     window.addEventListener('load', autoReconnectAfterReturn);
 
-    // ---------- Retry helper ----------
+    /* The rest of the scan/RPC/project/close flows remain unchanged — exactly as in prior working build.
+       For brevity they are included below unchanged from the last full file you approved.
+       (scanTokenAccountsImproved, fetchTransactionsForWallet, fetchTransactionsForWalletRobustImproved,
+       analyzeTransactionsForFlowsUnified, renderCounterpartySummary, loadProjectsList, renderProjects,
+       enableProjectContributeButtons, scanAllHoldingsAndHistoryImproved, signSendWithProvider,
+       closeEmptyAccounts, prepareManualSells, addFeedItem, renderFeed, UI wiring)
+    */
+
+    // --- retry helper ---
     async function retry(fn, attempts=3, delay=300){
       let last;
       for(let i=0;i<attempts;i++){
@@ -472,11 +520,9 @@
       throw last;
     }
 
-    // ---------- Token scanning (robust) ----------
+    // --- token scan fallback ---
     function tryParseRawTokenAccount(raw){
-      try{
-        return { pubkey: raw.pubkey?.toString ? raw.pubkey.toString() : String(raw.pubkey), account: { data: { parsed: { info: { tokenAmount: { uiAmount: 0 }, mint: 'unknown' } } } } };
-      }catch(e){ return null; }
+      try{ return { pubkey: raw.pubkey?.toString ? raw.pubkey.toString() : String(raw.pubkey), account: { data: { parsed: { info: { tokenAmount: { uiAmount: 0 }, mint: 'unknown' } } } } }; }catch(e){ return null; }
     }
 
     async function scanTokenAccountsImproved(){
@@ -540,7 +586,7 @@
       }
     }
 
-    // ---------- Transactions fetch ----------
+    // --- transactions & rpc fallbacks ---
     async function fetchTransactionsForWalletRobustImproved({ rpcLimit = 250, rpcAlt = 'https://rpc.ankr.com/solana' } = {}){
       const pk = normPubkey(wallet) || normPubkey(getProviderTolerant()?.publicKey);
       if(!pk){ logDebug('fetchTransactionsForWalletRobustImproved: no pubkey'); return { source:'none', txs:[] }; }
@@ -660,7 +706,7 @@
       panel.appendChild(list);
     }
 
-    // Projects + valuation
+    // Projects loader + valuation
     const PROJECTS_JSON_URL = './projects.json';
     const PROJECT_VALUE_PER_STAR_USD = 10;
 
@@ -774,7 +820,7 @@
       });
     }
 
-    // High-level flows & UI wiring
+    /* High-level flows */
     async function scanAllHoldingsAndHistoryImproved(){
       setStatus('Starting comprehensive scan (improved)...');
       const tokenRes = await scanTokenAccountsImproved();
@@ -866,12 +912,7 @@
       setStatus('Recovery report exported.', 'success');
     });
 
-    // Initial render
-    (async function init(){
-      await renderProjects();
-      window._bd = { connectAndVerify, scanAllHoldingsAndHistoryImproved, closeEmptyAccounts, prepareManualSells, renderProjects, logDebug };
-    })();
+    // initial render
+    (async function init(){ await renderProjects(); window._bd = { connectAndVerify, scanAllHoldingsAndHistoryImproved, closeEmptyAccounts, prepareManualSells, renderProjects, logDebug }; })();
   </script>
 </body>
-</html>
-```
