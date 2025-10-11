@@ -1,166 +1,252 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="utf-8" />
   <title>BarbrickDesign — Build, Recover, and Earn</title>
-  <title>BarbrickDesign — Recover and Earn</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Recover funds across chains, access projects, and invest back into the ecosystem." />
+  <meta name="description" content="Mythic automation, recovery portals, MMO, coin forges, and on-site LLM access for coin holders. Build, recover, and earn." />
   <link rel="preconnect" href="https://unpkg.com" />
   <link rel="preconnect" href="https://cdn.jsdelivr.net" />
   <style>
     :root {
-      --bg: #0a0c11; --panel:#0f131a; --text:#eaf1fb; --muted:#a8b3c7; --accent:#66fcf1;
-      --good:#3be477; --warn:#fbbf24; --bad:#ff6b6b; --stroke:#223149;
+      --bg: #0a0c11;
+      --panel: #0f131a;
+      --glass: rgba(255,255,255,0.06);
+      --stroke: rgba(255,255,255,0.14);
+      --text: #eaf1fb;
+      --muted: #a8b3c7;
+      --accent: #66fcf1;
+      --accent2: #9b7bff;
+      --good: #3be477;
+      --warn: #fbbf24;
+      --bad: #ff6b6b;
     }
     * { box-sizing: border-box; }
-    body { margin:0; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, sans-serif; background:var(--bg); color:var(--text); }
-    header, footer { display:flex; justify-content:space-between; align-items:center; padding:16px 24px; background:var(--panel); border-bottom:1px solid var(--stroke); }
-    footer { border-top:1px solid var(--stroke); border-bottom:none; }
-    .brand { font-weight:800; font-size:18px; }
-    .nav { display:flex; gap:10px; flex-wrap:wrap; }
-    .btn { background:#121827; color:var(--text); border:1px solid var(--stroke); padding:10px 14px; border-radius:10px; cursor:pointer; font-weight:600; }
-    .btn:hover { border-color:var(--accent); }
-    .hero { padding:28px; text-align:center; background:var(--panel); }
-    .hero h1 { font-size:28px; margin:0 0 8px; }
-    .hero p { color:var(--muted); margin:0 0 16px; }
-    body { margin:0; font-family: Inter, sans-serif; background:#0a0c11; color:#eaf1fb; }
-    header, footer { display:flex; justify-content:space-between; align-items:center; padding:16px 24px; background:#0f131a; }
-    .btn { background:#121827; color:#eaf1fb; border:1px solid #223149; padding:10px 14px; border-radius:10px; cursor:pointer; font-weight:600; }
-    .btn:hover { border-color:#66fcf1; }
-    .hero { padding:32px; text-align:center; background:#0f131a; }
-    .big { font-size:36px; font-weight:900; margin:12px 0; }
-    .grid { display:grid; gap:16px; }
-    @media (min-width: 940px) { .grid.two { grid-template-columns: 1.2fr 0.8fr; } }
-    .card { background:var(--panel); border:1px solid var(--stroke); border-radius:12px; padding:16px; }
-    .projects, .modules, .feed { padding:24px; }
-    .link { color:var(--accent); font-weight:700; }
-    .feed-head, .feed-row { display:grid; grid-template-columns:1.2fr 0.7fr 0.9fr 1.4fr 1fr; gap:8px; font-size:13px; }
-    .feed-head { font-weight:700; color:var(--muted); }
-    .small { font-size:12px; color:var(--muted); }
-    .small { font-size:12px; color:#a8b3c7; }
-    .mono { font-family: ui-monospace, Menlo, Consolas, monospace; }
-    .status { min-height:18px; }
+    html, body { margin: 0; font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Ubuntu, 'Helvetica Neue', Arial, 'Noto Sans', sans-serif; background: radial-gradient(1200px 600px at 20% -20%, rgba(102,252,241,0.08), transparent), var(--bg); color: var(--text); }
+    a { color: var(--accent); text-decoration: none; }
+    .wrap { max-width: 1200px; margin: 0 auto; padding: 24px; }
+
+    /* Header */
+    header { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+    .brand { display: flex; align-items: center; gap: 12px; }
+    .glyph { width: 42px; height: 42px; border-radius: 10px; background: conic-gradient(from 210deg, var(--accent), var(--accent2), var(--accent)); box-shadow: 0 0 80px rgba(102,252,241,0.25); animation: spin 12s linear infinite; }
+    @keyframes spin { 0% { transform: rotate(0deg)} 100% { transform: rotate(360deg)} }
+    .nav { display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn { background: #121827; color: var(--text); border: 1px solid #223149; padding: 10px 14px; border-radius: 12px; cursor: pointer; font-weight: 700; transition: 0.2s ease; }
+    .btn:hover { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(102,252,241,0.12); }
+    .btn.primary { background: linear-gradient(135deg, #121a2b, #172238); border-color: #2a3f62; }
+    .btn.ghost { background: transparent; border-color: var(--stroke); }
+    .mono { font-family: ui-monospace,SFMono-Regular,Menlo,Consolas,monospace; }
+    .badge { display: inline-block; padding: 6px 10px; border-radius: 999px; border: 1px solid var(--stroke); background: var(--glass); font-size: 12px; color: var(--muted); }
+
+    /* Hero */
+    .hero { margin-top: 18px; padding: 24px; border-radius: 20px; background: linear-gradient(180deg, rgba(102,252,241,0.08), rgba(102,252,241,0) 30%), var(--panel); border: 1px solid var(--stroke); display: grid; gap: 12px; }
+    .title { font-size: 34px; font-weight: 900; letter-spacing: 0.6px; }
+    .subtitle { color: var(--muted); font-size: 16px; }
+    .hero-grid { display: grid; grid-template-columns: 1fr; gap: 16px; }
+    @media (min-width: 950px) { .hero-grid { grid-template-columns: 1.3fr 0.7fr; } }
+    .card { background: var(--panel); border: 1px solid var(--stroke); border-radius: 16px; padding: 16px; }
+    .big { font-size: 40px; font-weight: 900; letter-spacing: 0.3px; }
+    .small { font-size: 12px; color: var(--muted); }
+    .row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+    .hr { height: 1px; background: var(--stroke); border: 0; margin: 12px 0; }
+
+    /* Stats */
+    .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 16px; }
+    .stat { text-align: center; background: var(--panel); border: 1px solid var(--stroke); border-radius: 16px; padding: 16px; }
+    .stat .label { font-size: 12px; color: var(--muted); }
+    .stat .val { font-size: 24px; font-weight: 800; }
+
+    /* Modules */
+    .modules { margin-top: 18px; display: grid; grid-template-columns: 1fr; gap: 16px; }
+    @media (min-width: 1000px) { .modules { grid-template-columns: 1fr 1fr; } }
+    .module-title { font-weight: 800; font-size: 16px; margin-bottom: 6px; }
+    .grid { display: grid; gap: 10px; }
+    .list { display: grid; gap: 8px; }
+    .item { display: grid; grid-template-columns: 1.1fr 0.7fr 1fr; gap: 10px; align-items: center; }
+    .link { color: var(--accent); font-weight: 700; }
+    .note { font-size: 12px; color: var(--muted); }
+
+    /* Feed */
+    .feed { background: var(--panel); border: 1px solid var(--stroke); border-radius: 16px; padding: 12px; }
+    .feed-head, .feed-row { display: grid; grid-template-columns: 1.2fr 0.7fr 0.9fr 1.4fr 1fr; gap: 8px; align-items: center; }
+    .feed-head { font-weight: 700; color: var(--muted); font-size: 12px; }
+    .pill { display: inline-flex; align-items: center; gap: 8px; padding: 8px 12px; border: 1px solid var(--stroke); border-radius: 999px; background: var(--glass); }
+    footer { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--stroke); color: var(--muted); }
   </style>
 </head>
 <body>
-  <header>
-    <div class="brand">BarbrickDesign</div>
-    <div class="nav">
-    <div>BarbrickDesign</div>
-    <div>
-      <button id="connectBtn" class="btn">Connect Wallet</button>
-      <button id="resetBtn" class="btn">Reset</button>
-      <a class="btn" href="https://barbrickdesign.github.io/city-3d/" target="_blank" rel="noopener">City‑3D</a>
-      <a class="btn" href="https://barbrickdesign.github.io/SOLRecovery/" target="_blank" rel="noopener">SOL Recovery</a>
-      <a class="btn" href="https://github.com/barbrickdesign?tab=repositories" target="_blank" rel="noopener">GitHub</a>
-    </div>
-  </header>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="glyph"></div>
+        <div>
+          <div class="mono" style="font-weight:800;">BarbrickDesign</div>
+          <div class="small">Mythic automation, sovereign agents, and instant SOL recovery</div>
+        </div>
+      </div>
+      <div class="nav">
+        <button id="connectBtn" class="btn primary">Connect Wallet</button>
+        <button id="resetBtn" class="btn">Reset</button>
+        <a class="btn ghost" href="https://www.barbrickdesign.com" target="_blank" rel="noopener">Main site</a>
+        <a class="btn ghost" href="https://github.com/barbrickdesign?tab=repositories" target="_blank" rel="noopener">GitHub</a>
+      </div>
+    </header>
 
-  <section class="hero">
-    <h1>💰 Instantly Reclaim Lost Crypto</h1>
-    <p>Recover hidden funds from test wallets, dust tokens, and fraud drains. Keep 95% — lowest fee in the game.</p>
+    <section class="hero">
+      <div class="title">Build, recover, and earn — all in one place</div>
+      <div class="subtitle">Close empty token accounts and reclaim SOL, mint mythic assets, access our coin-holder LLM, and link into every active project.</div>
 
-    <div class="grid two">
-      <div class="card">
-        <div class="grid" style="gap:10px;">
-          <div class="small mono">User ID (wallet): <span id="walletLabel">—</span></div>
-          <div>
-            <label class="small" for="chainSelect">Recovery chain</label>
-            <select id="chainSelect" class="btn">
-              <option value="solana" selected>Solana (Phantom)</option>
-              <option value="ethereum">Ethereum (MetaMask)</option>
-              <option value="polygon">Polygon (MetaMask)</option>
-              <option value="bsc">BSC (MetaMask)</option>
-            </select>
+      <div class="hero-grid">
+        <div class="card">
+          <div class="row" style="justify-content:space-between;">
+            <div class="mono small">Wallet</div>
+            <div id="walletLabel" class="mono small">—</div>
           </div>
+          <div class="hr"></div>
           <div class="big" id="refundEstimateBig">0.00000 SOL</div>
-          <div id="status" class="small status">Connect your wallet to begin.</div>
-          <div class="grid" style="grid-template-columns: 1fr 1fr; gap:10px;">
-            <button id="scanBtn" class="btn">Scan</button>
-            <button id="recoverBtn" class="btn">Recover Now</button>
+          <div class="small">Estimated SOL you can recover right now</div>
+          <div class="row" style="margin-top:10px;">
+            <button id="recoverBtn" class="btn">Recover My SOL</button>
+            <button id="scanBtn" class="btn ghost">Recalculate</button>
+            <div class="badge">Only 5% fee — lowest in the game</div>
           </div>
-          <div class="small">Only 5% support fee — the lowest in the game. You pay gas.</div>
+          <div class="row" style="margin-top:8px;">
+            <input id="refAddress" class="btn mono" style="min-width:280px; background:#0f141d;" placeholder="Optional referrer wallet (?ref=)" />
+            <label class="pill"><input id="donationToggle" type="checkbox" checked /> <span class="small">Include 5% support</span></label>
+          </div>
+          <div id="status" class="small" style="min-height:18px; margin-top:8px;"></div>
+        </div>
+
+        <div class="card">
+          <div class="module-title">Coin-holder LLM Access</div>
+          <div class="small">Hold any of our coins or NFTs to unlock on-site LLM chat for strategy, dev help, and ritual design.</div>
+          <div class="hr"></div>
+          <div class="row">
+            <div id="llmAccessBadge" class="badge">Access: locked</div>
+            <button id="openLLM" class="btn" disabled>Open LLM</button>
+          </div>
+          <div class="note">Token-gated: we check balances for approved mints below. Connect your wallet to verify.</div>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><div class="label">Empty accounts</div><div id="emptyCount" class="val">0</div></div>
+        <div class="stat"><div class="label">Estimated refund</div><div id="refundEstimate" class="val">0.00000 SOL</div></div>
+        <div class="stat"><div class="label">Session actions</div><div id="sessionActions" class="val">0</div></div>
+      </div>
+    </section>
+
+    <section class="modules">
+      <div class="card">
+        <div class="module-title">Income modules</div>
+        <div class="grid">
+          <div class="item">
+            <div>
+              <div class="link">SOL Recovery Portal</div>
+              <div class="note">Close empty SPL token accounts in one click, reclaim rent, optional 5% support.</div>
+            </div>
+            <a class="btn ghost" href="https://barbrickdesign.github.io/SOLRecovery/" target="_blank" rel="noopener">Open</a>
+            <button id="recoverInlineBtn" class="btn">Recover here</button>
+          </div>
+          <div class="item">
+            <div>
+              <div class="link">NFT Minting Portal</div>
+              <div class="note">Mint lore-infused sigils and drop referrals. Configurable creator splits.</div>
+            </div>
+            <a class="btn ghost" href="https://barbrickdesign.github.io/NFTMint/" target="_blank" rel="noopener">Open</a>
+            <button class="btn" id="mintSigil">Mint Sigil</button>
+          </div>
+          <div class="item">
+            <div>
+              <div class="link">Agent Consulting</div>
+              <div class="note">Book time for sovereign automation architecture; paid in SOL or our coins.</div>
+            </div>
+            <a class="btn ghost" href="mailto:barbrickdesign@gmail.com?subject=Consulting%20Inquiry" target="_blank" rel="noopener">Email</a>
+            <button class="btn" id="bookIntro">Book intro</button>
+          </div>
+          <div class="item">
+            <div>
+              <div class="link">Affiliate + Referrals</div>
+              <div class="note">Earn SOL by sharing. Your ref gets 20% of support fees from recoveries you drive.</div>
+            </div>
+            <button class="btn" id="copyReferral">Copy my referral link</button>
+            <span class="badge mono" id="refPreview">—</span>
+          </div>
+          <div class="item">
+            <div>
+              <div class="link">Shop + Support</div>
+              <div class="note">Buy mythic merch or tip to fund RPC and drops.</div>
+            </div>
+            <a class="btn ghost" href="https://www.barbrickdesign.com" target="_blank" rel="noopener">Shop</a>
+            <button class="btn" id="sendSupport">Send tip</button>
+          </div>
         </div>
       </div>
 
       <div class="card">
-        <h3 style="margin:0 0 8px 0;">Coin-holder LLM Access</h3>
-        <div class="small">Hold our coins or NFTs to unlock on-site LLM chat for strategy, dev help, and ritual design.</div>
-        <div class="grid" style="gap:10px; margin-top:10px;">
-          <div id="llmAccessBadge" class="small">Access: locked</div>
-          <button id="openLLM" class="btn" disabled>Open LLM</button>
-          <div class="small">Configure mints in code to gate access.</div>
+        <div class="module-title">Projects</div>
+        <div class="list">
+          <div><a class="link" href="https://barbrickdesign.github.io/SOLRecovery/" target="_blank" rel="noopener">SOL Recovery Portal</a> — reclaim rent fast</div>
+          <div><a class="link" href="https://github.com/barbrickdesign?tab=repositories" target="_blank" rel="noopener">All GitHub projects</a> — forks, prototypes, and tooling</div>
+          <div><a class="link" href="https://barbrickdesign.github.io/OpenAiExperiments/" target="_blank" rel="noopener">OpenAI Experiments</a> — playful explorations</div>
+          <div><a class="link" href="https://barbrickdesign.github.io/OpenAI-Racecar-Simulation/" target="_blank" rel="noopener">Racecar Simulation</a> — kinetic sim</div>
+          <div><a class="link" href="https://barbrickdesign.github.io/OpenAI-Helicopter-Take-Off/" target="_blank" rel="noopener">Helicopter Take-Off</a> — motion sim</div>
+          <div class="note">More repositories and forks are showcased on the GitHub profile.</div>
         </div>
       </div>
-    </div>
-  </section>
+    </section>
 
-  <section class="modules">
-    <div class="card">
-      <h3 style="margin:0 0 8px 0;">Income modules</h3>
-      <p><a class="link" href="https://barbrickdesign.github.io/SOLRecovery/" target="_blank" rel="noopener">SOL Recovery Portal</a> — reclaim rent fast.</p>
-      <p><a class="link" href="https://barbrickdesign.github.io/city-3d/" target="_blank" rel="noopener">City‑3D</a> — interactive 3D demo.</p>
-      <p><a class="link" href="https://github.com/barbrickdesign?tab=repositories" target="_blank" rel="noopener">All GitHub projects</a> — see everything live.</p>
-    </div>
-  </section>
+    <section class="feed" style="margin-top:16px;">
+      <div class="feed-head"><span>Wallet</span><span>Accounts</span><span>Refunded SOL</span><span>Tx Signature</span><span>Date</span></div>
+      <div id="feed"></div>
+      <div class="row" style="justify-content:flex-end; margin-top:8px;">
+        <button id="exportSession" class="btn ghost">Export session</button>
+        <button id="loadMore" class="btn ghost">Load more</button>
+      </div>
+    </section>
 
-  <section class="feed">
-    <div class="feed-head"><span>Wallet</span><span>Accounts</span><span>Refunded</span><span>Tx</span><span>Date</span></div>
-    <div id="feed"></div>
-    <p class="small">Keep 95% — lowest fee in the game. User pays gas.</p>
-    <label for="chainSelect">Recovery chain:</label>
-    <select id="chainSelect" class="btn">
-      <option value="solana" selected>Solana (Phantom)</option>
-      <option value="ethereum">Ethereum (MetaMask)</option>
-      <option value="polygon">Polygon</option>
-      <option value="bsc">BSC</option>
-    </select>
-    <div class="big" id="refundEstimateBig">0.00000</div>
-    <p id="status" class="small">Connect your wallet to begin.</p>
-    <button id="scanBtn" class="btn">Scan</button>
-    <button id="recoverBtn" class="btn">Recover Now</button>
-    <p class="small">Wallet ID: <span id="walletLabel" class="mono">—</span></p>
-  </section>
+    <footer>
+      <div class="row" style="justify-content:space-between;">
+        <div class="note">© BarbrickDesign 2025 · Built for contributors and coin holders</div>
+        <div class="row">
+          <a class="badge" href="https://www.barbrickdesign.com" target="_blank" rel="noopener">Main site</a>
+          <a class="badge" href="https://github.com/barbrickdesign?tab=repositories" target="_blank" rel="noopener">GitHub</a>
+        </div>
+      </div>
+    </footer>
+  </div>
 
-  <footer>
-    <span>© BarbrickDesign 2025</span>
-    <span class="small">User ID: <span class="mono" id="walletLabelFooter">—</span></span>
-    <span class="small">© BarbrickDesign 2025</span>
-  </footer>
-
-  <!-- Solana -->
-  <!-- Load Solana + SPL Token first -->
+  <!-- Solana client libraries -->
   <script src="https://unpkg.com/@solana/web3.js@1.95.6/lib/index.iife.js"></script>
   <script src="https://unpkg.com/@solana/spl-token@0.3.11/dist/browser/spl-token.min.js"></script>
-  <!-- EVM -->
-  <!-- Load ethers.js for EVM -->
-  <script src="https://cdn.jsdelivr.net/npm/ethers@6.13.1/dist/ethers.umd.min.js"></script>
 
-  <!-- Your app logic -->
   <script>
-    // Connections and constants
-    const solConnection = new solanaWeb3.Connection('https://api.mainnet-beta.solana.com', 'confirmed');
-    const solConnection = new solanaWeb3.Connection('https://api.mainnet-beta.solana.com','confirmed');
-    const FEE_WALLET = new solanaWeb3.PublicKey('5hSWosj58ki4A6hSfQrvteQU5QvyCWmhHn4AuqgaQzqr');
+    // Connection
+    const endpoint = 'https://api.mainnet-beta.solana.com';
+    const connection = new solanaWeb3.Connection(endpoint, 'confirmed');
+
+    // Recovery constants
     const RENT_PER_EMPTY_ACCOUNT_SOL = 0.00204;
     const DONATION_PCT = 0.05;
-    const GATE_MINTS = []; // add SPL token/NFT mints for LLM gating
+    const REFERRAL_SPLIT_PCT_OF_DONATION = 0.20;
+    const FEE_WALLET = new solanaWeb3.PublicKey('5hSWosj58ki4A6hSfQrvteQU5QvyCWmhHn4AuqgaQzqr');
 
-    // State
-    let chain = 'solana';
-    let solWallet = null; // PublicKey
-    let evmWallet = null; // string
-    let solWallet = null;
-    let evmWallet = null;
-    let emptyAccounts = [];
-    let sessionFeed = [];
+    // Token gate config (replace with your coin/NFT mint addresses)
+    const GATE_MINTS = [
+      // Example SPL token mint addresses — replace with your coin mints
+      // 'So11111111111111111111111111111111111111112'
+    ];
 
     // Elements
-    const chainSelect = document.getElementById('chainSelect');
-    const statusEl = document.getElementById('status');
     const walletLabel = document.getElementById('walletLabel');
-    const walletLabelFooter = document.getElementById('walletLabelFooter');
     const refundEstimateBigEl = document.getElementById('refundEstimateBig');
+    const emptyCountEl = document.getElementById('emptyCount');
+    const refundEstimateEl = document.getElementById('refundEstimate');
+    const sessionActionsEl = document.getElementById('sessionActions');
+    const statusEl = document.getElementById('status');
+    const refInput = document.getElementById('refAddress');
+    const donationToggle = document.getElementById('donationToggle');
     const feedEl = document.getElementById('feed');
     const llmAccessBadge = document.getElementById('llmAccessBadge');
     const openLLMBtn = document.getElementById('openLLM');
@@ -169,22 +255,196 @@
     const resetBtn = document.getElementById('resetBtn');
     const scanBtn = document.getElementById('scanBtn');
     const recoverBtn = document.getElementById('recoverBtn');
+    const recoverInlineBtn = document.getElementById('recoverInlineBtn');
+    const exportSessionBtn = document.getElementById('exportSession');
+    const loadMoreBtn = document.getElementById('loadMore');
+    const mintSigilBtn = document.getElementById('mintSigil');
+    const bookIntroBtn = document.getElementById('bookIntro');
+    const copyReferralBtn = document.getElementById('copyReferral');
+    const sendSupportBtn = document.getElementById('sendSupport');
 
-    // Helpers
-    function setStatus(msg, kind = 'info') {
-      statusEl.textContent = msg;
-      statusEl.style.color = kind === 'error' ? '#ff6b6b' : kind === 'warn' ? '#fbbf24' : kind === 'success' ? '#3be477' : '#a8b3c7';
+    // State
+    let wallet = null;
+    let emptyTokenAccounts = [];
+    let sessionFeed = [];
+    let sessionActions = 0;
+
+    // Referral prefill
+    const params = new URLSearchParams(window.location.search);
+    const refFromUrl = params.get('ref') || params.get('summoner');
+    if (refFromUrl) refInput.value = refFromUrl;
+
+    // Provider
+    function getProvider() {
+      const p = window.solana;
+      if (p && (p.isPhantom || p.isBackpack || p.isOKXWallet)) return p;
+      return null;
     }
-    function shorten(s) { if (!s) return '—'; return s.length > 12 ? (s.slice(0,4)+'...'+s.slice(-4)) : s; }
-    function toSol(n) { return (Math.round(n * 100000) / 100000).toFixed(5); }
-    function lamportsToSol(l) { return l / solanaWeb3.LAMPORTS_PER_SOL; }
-    function solToLamports(s) { return Math.floor(s * solanaWeb3.LAMPORTS_PER_SOL); }
 
-    function setWalletIdDisplay(idText) {
-      walletLabel.textContent = idText;
-      walletLabelFooter.textContent = idText;
+    // Wallet
+    async function connectWallet() {
+      const provider = getProvider();
+      if (!provider) { setStatus('Install Phantom, Backpack, or a Solana wallet.'); return; }
+      try {
+        const resp = await provider.connect();
+        wallet = resp.publicKey;
+        walletLabel.textContent = shorten(wallet.toBase58());
+        setStatus('Wallet connected.');
+        await scanEmptyAccounts();
+        await checkGateAccess();
+        updateReferralPreview();
+      } catch (e) {
+        setStatus('Wallet connection canceled or failed.', 'error');
+      }
     }
 
+    function resetConnection() {
+      const provider = getProvider();
+      if (provider) { try { provider.disconnect(); } catch(_){} }
+      wallet = null;
+      walletLabel.textContent = '—';
+      emptyTokenAccounts = [];
+      refundEstimateBigEl.textContent = '0.00000 SOL';
+      emptyCountEl.textContent = '0';
+      refundEstimateEl.textContent = '0.00000 SOL';
+      llmAccessBadge.textContent = 'Access: locked';
+      openLLMBtn.disabled = true;
+      setStatus('Connection reset.');
+    }
+
+    // Scan + Estimate
+    async function scanEmptyAccounts() {
+      if (!wallet) { setStatus('Connect a wallet first.', 'warn'); return; }
+      setStatus('Scanning empty token accounts...');
+      try {
+        const res = await connection.getParsedTokenAccountsByOwner(
+          wallet,
+          { programId: splToken.TOKEN_PROGRAM_ID }
+        );
+        emptyTokenAccounts = res.value
+          .filter(acc => Number(acc.account.data.parsed.info.tokenAmount?.uiAmount || 0) === 0)
+          .map(acc => ({ pubkey: acc.pubkey, mint: acc.account.data.parsed.info.mint }));
+
+        const count = emptyTokenAccounts.length;
+        const est = count * RENT_PER_EMPTY_ACCOUNT_SOL;
+        emptyCountEl.textContent = count.toString();
+        refundEstimateEl.textContent = toSol(est) + ' SOL';
+        refundEstimateBigEl.textContent = toSol(est) + ' SOL';
+        setStatus(`Found ${count} empty account(s).`);
+      } catch (e) {
+        console.error(e);
+        setStatus('Scan failed. Try again.', 'error');
+      }
+    }
+
+    // Recover
+    async function recoverNow() {
+      if (!wallet) { setStatus('Connect a wallet first.', 'warn'); return; }
+      if (emptyTokenAccounts.length === 0) { setStatus('No empty accounts to close.', 'warn'); return; }
+
+      setStatus('Preparing recovery transactions...');
+      const ownerPubkey = wallet;
+      let closed = 0;
+      let refundLamports = 0;
+      const chunkSize = 8;
+
+      for (let i = 0; i < emptyTokenAccounts.length; i += chunkSize) {
+        const slice = emptyTokenAccounts.slice(i, i + chunkSize);
+        const tx = new solanaWeb3.Transaction();
+        for (const acc of slice) {
+          const ix = splToken.createCloseAccountInstruction(
+            new solanaWeb3.PublicKey(acc.pubkey),
+            ownerPubkey,
+            ownerPubkey,
+            []
+          );
+          tx.add(ix);
+        }
+        tx.feePayer = ownerPubkey;
+        tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+        try {
+          const sig = await signSendConfirm(tx);
+          closed += slice.length;
+          refundLamports += slice.length * solanaWeb3.LAMPORTS_PER_SOL * RENT_PER_EMPTY_ACCOUNT_SOL;
+          addFeedItem(ownerPubkey.toBase58(), slice.length, slice.length * RENT_PER_EMPTY_ACCOUNT_SOL, sig, new Date());
+          setStatus(`Closed ${closed}/${emptyTokenAccounts.length} accounts...`);
+        } catch (e) {
+          console.error(e);
+          setStatus('Some accounts failed to close. You can retry.', 'warn');
+        }
+      }
+
+      // Optional support fee + referral
+      if (donationToggle.checked && refundLamports > 0) {
+        const donationLamports = Math.floor(refundLamports * DONATION_PCT);
+        const referralLamports = Math.floor(donationLamports * REFERRAL_SPLIT_PCT_OF_DONATION);
+        const feeLamports = donationLamports - referralLamports;
+        const referralAddr = safePubkey(refInput.value);
+        const tx = new solanaWeb3.Transaction();
+        if (feeLamports > 0) {
+          tx.add(solanaWeb3.SystemProgram.transfer({ fromPubkey: ownerPubkey, toPubkey: FEE_WALLET, lamports: feeLamports }));
+        }
+        if (referralAddr && referralLamports > 0) {
+          tx.add(solanaWeb3.SystemProgram.transfer({ fromPubkey: ownerPubkey, toPubkey: referralAddr, lamports: referralLamports }));
+        }
+        try {
+          const sig = await signSendConfirm(tx);
+          addFeedItem(ownerPubkey.toBase58(), 0, lamportsToSol(donationLamports), sig, new Date());
+          setStatus('Support and referral sent.', 'success');
+        } catch (e) {
+          console.error(e);
+          setStatus('Support declined or failed.', 'warn');
+        }
+      }
+
+      sessionActions += 1;
+      sessionActionsEl.textContent = sessionActions.toString();
+      await scanEmptyAccounts();
+      setStatus('Recovery complete.', 'success');
+    }
+
+    // Token gate for LLM
+    async function checkGateAccess() {
+      if (!wallet) { setStatus('Connect a wallet to check access.', 'warn'); return; }
+      if (GATE_MINTS.length === 0) { // If no mints configured yet, default open for testing
+        llmAccessBadge.textContent = 'Access: open (config pending)';
+        openLLMBtn.disabled = false;
+        return;
+      }
+      try {
+        const res = await connection.getParsedTokenAccountsByOwner(wallet, { programId: splToken.TOKEN_PROGRAM_ID });
+        const userMints = new Set(res.value.map(acc => acc.account.data.parsed.info.mint));
+        const hasRequired = GATE_MINTS.some(mint => userMints.has(mint));
+        llmAccessBadge.textContent = hasRequired ? 'Access: unlocked' : 'Access: locked';
+        openLLMBtn.disabled = !hasRequired;
+      } catch (e) {
+        console.error(e);
+        setStatus('Token-gate check failed.', 'error');
+      }
+    }
+
+    // Open LLM modal (placeholder UI; wire to your backend/inference endpoint)
+    function openLLM() {
+      alert('LLM is gated for coin holders. Replace this with your chat UI and API endpoint.');
+    }
+
+    // Utility actions
+    function updateReferralPreview() {
+      const base = location.origin + location.pathname;
+      const ref = refInput.value ? ('?ref=' + encodeURIComponent(refInput.value)) : '';
+      document.getElementById('refPreview').textContent = base + ref;
+    }
+    async function signSendConfirm(tx) {
+      const provider = getProvider();
+      const signed = await provider.signAndSendTransaction(tx);
+      const sig = signed.signature || signed;
+      await connection.confirmTransaction(sig, 'confirmed');
+      return sig;
+    }
+    function addFeedItem(wallet, accounts, sol, sig, date) {
+      sessionFeed.unshift({ wallet, accounts, sol, sig, date: date.toISOString() });
+      renderFeed();
+    }
     function renderFeed() {
       feedEl.innerHTML = '';
       for (const it of sessionFeed.slice(0, 24)) {
@@ -193,250 +453,56 @@
         row.innerHTML = `
           <span class="mono">${shorten(it.wallet)}</span>
           <span>${it.accounts}</span>
-          <span>${it.amount}</span>
+          <span>${toSol(it.sol)} SOL</span>
           <span class="mono">${shorten(it.sig || '')}</span>
           <span>${new Date(it.date).toLocaleString()}</span>
         `;
         feedEl.appendChild(row);
       }
     }
-
-    function addFeedItem(wallet, accounts, amount, sig) {
-      sessionFeed.unshift({ wallet, accounts, amount, sig, date: new Date().toISOString() });
-      renderFeed();
+    function exportSession() {
+      const blob = new Blob([JSON.stringify({ feed: sessionFeed }, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `barbrick-session-${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
     }
-    function setStatus(msg){ statusEl.textContent = msg; }
-    function shorten(s){ return s ? s.slice(0,4)+'...'+s.slice(-4) : '—'; }
-
-    // Chain selection
-    chainSelect.addEventListener('change', (e) => {
-    chainSelect.addEventListener('change', e => {
-      chain = e.target.value;
-      setStatus(`Selected ${chain.toUpperCase()} for recovery.`);
-      resetConnection();
-      if (chain === 'solana') {
-        refundEstimateBigEl.textContent = '0.00000 SOL';
-      } else {
-        refundEstimateBigEl.textContent = 'Estimation requires explorer mapping';
-      }
-      setStatus(`Selected ${chain.toUpperCase()}. Connect wallet.`);
-      refundEstimateBigEl.textContent = chain==='solana' ? '0.00000 SOL' : '—';
-    });
-
-    // Wallet connect
-    async function connectWallet() {
-      try {
-        if (chain === 'solana') {
-          const provider = window.solana;
-          if (!provider || !(provider.isPhantom || provider.isBackpack || provider.isOKXWallet)) {
-            setStatus('No Solana wallet detected. Install Phantom.', 'warn');
-            return;
-          }
-          const resp = await provider.connect();
-          solWallet = resp.publicKey;
-          setWalletIdDisplay(shorten(solWallet.toBase58()));
-          setStatus('Solana wallet connected.');
-          await scanSolana();
-          await gateLlmAccessSolana();
-        } else {
-          if (!window.ethereum) { setStatus('No EVM wallet detected. Install MetaMask.', 'warn'); return; }
-          const provider = new ethers.BrowserProvider(window.ethereum);
-          const accounts = await provider.send('eth_requestAccounts', []);
-          evmWallet = accounts[0];
-          setWalletIdDisplay(shorten(evmWallet));
-          setStatus(`${chain.toUpperCase()} wallet connected.`);
-          await mapEvmActivity();
-          // LLM gate: for EVM chains, treat as open until you add on-chain gating
-          llmAccessBadge.textContent = 'Access: open (config pending)';
-          openLLMBtn.disabled = false;
-        }
-      } catch (e) {
-        setStatus('Wallet connection canceled or failed.', 'error');
-    async function connectWallet(){
-      if(chain==='solana'){
-        const provider = window.solana;
-        if(!provider){ setStatus('Install Phantom.'); return; }
-        const resp = await provider.connect();
-        solWallet = resp.publicKey;
-        walletLabel.textContent = shorten(solWallet.toBase58());
-        setStatus('Solana wallet connected.');
-      } else {
-        if(!window.ethereum){ setStatus('Install MetaMask.'); return; }
-        const provider = new ethers.BrowserProvider(window.ethereum);
-        const accounts = await provider.send('eth_requestAccounts',[]);
-        evmWallet = accounts[0];
-        walletLabel.textContent = shorten(evmWallet);
-        setStatus(`${chain.toUpperCase()} wallet connected.`);
-      }
+    function setStatus(msg, kind = 'info') {
+      statusEl.textContent = msg;
+      statusEl.style.color = kind === 'error' ? 'var(--bad)' : kind === 'warn' ? 'var(--warn)' : kind === 'success' ? 'var(--good)' : 'var(--muted)';
     }
-
-    function resetConnection() {
-      try {
-        if (solWallet && window.solana) {
-          try { window.solana.disconnect(); } catch(_) {}
-        }
-      } catch(_) {}
-      solWallet = null;
-      evmWallet = null;
-      emptyAccounts = [];
-      setWalletIdDisplay('—');
-      renderFeed();
-    function resetConnection(){
-      solWallet=null; evmWallet=null; emptyAccounts=[];
-      walletLabel.textContent='—';
-      refundEstimateBigEl.textContent='0.00000';
-      setStatus('Connection reset.');
-    }
-
-    // Solana scanning
-    async function scanSolana() {
-      if (!solWallet) { setStatus('Connect a Solana wallet first.', 'warn'); return; }
-      setStatus('Scanning empty token accounts on Solana...');
-      try {
-        const res = await solConnection.getParsedTokenAccountsByOwner(solWallet, { programId: splToken.TOKEN_PROGRAM_ID });
-        emptyAccounts = res.value.filter(acc => Number(acc.account.data.parsed.info.tokenAmount?.uiAmount || 0) === 0);
-        const est = emptyAccounts.length * RENT_PER_EMPTY_ACCOUNT_SOL;
-        refundEstimateBigEl.textContent = toSol(est) + ' SOL';
-    async function scan(){
-      if(chain==='solana'){
-        if(!solWallet){ setStatus('Connect wallet first.'); return; }
-        const res = await solConnection.getParsedTokenAccountsByOwner(solWallet,{programId:splToken.TOKEN_PROGRAM_ID});
-        emptyAccounts = res.value.filter(acc=>Number(acc.account.data.parsed.info.tokenAmount.uiAmount)===0);
-        const est = emptyAccounts.length*RENT_PER_EMPTY_ACCOUNT_SOL;
-        refundEstimateBigEl.textContent=est.toFixed(5)+' SOL';
-        setStatus(`Found ${emptyAccounts.length} empty accounts.`);
-      } catch (e) {
-        console.error(e);
-        setStatus('Scan failed. Try again.', 'error');
-      }
-    }
-
-    // Solana recovery
-    async function recoverSolana() {
-      if (!solWallet) { setStatus('Connect a Solana wallet first.', 'warn'); return; }
-      if (emptyAccounts.length === 0) { setStatus('No empty accounts to close.', 'warn'); return; }
-      setStatus('Preparing recovery transactions...');
-      const ownerPubkey = solWallet;
-      let closed = 0;
-      let refundLamports = 0;
-      const chunkSize = 8;
-
-      for (let i = 0; i < emptyAccounts.length; i += chunkSize) {
-        const slice = emptyAccounts.slice(i, i + chunkSize);
-        const tx = new solanaWeb3.Transaction();
-        for (const acc of slice) {
-          const ix = splToken.createCloseAccountInstruction(
-            new solanaWeb3.PublicKey(acc.pubkey),
-            ownerPubkey, ownerPubkey, []
-          );
-          tx.add(ix);
-        }
-        tx.feePayer = ownerPubkey;
-        tx.recentBlockhash = (await solConnection.getLatestBlockhash()).blockhash;
-        try {
-          const signed = await window.solana.signAndSendTransaction(tx);
-          const sig = signed.signature || signed;
-          await solConnection.confirmTransaction(sig, 'confirmed');
-          closed += slice.length;
-          refundLamports += solToLamports(slice.length * RENT_PER_EMPTY_ACCOUNT_SOL);
-          addFeedItem(ownerPubkey.toBase58(), slice.length, `${toSol(slice.length * RENT_PER_EMPTY_ACCOUNT_SOL)} SOL`, sig);
-          setStatus(`Closed ${closed}/${emptyAccounts.length} accounts...`);
-        } catch (e) {
-          console.error(e);
-          setStatus('Some accounts failed to close. You can retry.', 'warn');
-        }
-      }
-
-      // Optional support fee
-      if (refundLamports > 0) {
-        const donationLamports = Math.floor(refundLamports * DONATION_PCT);
-        if (donationLamports > 0) {
-          const feeTx = new solanaWeb3.Transaction().add(solanaWeb3.SystemProgram.transfer({
-            fromPubkey: ownerPubkey, toPubkey: FEE_WALLET, lamports: donationLamports
-          }));
-          feeTx.feePayer = ownerPubkey;
-          feeTx.recentBlockhash = (await solConnection.getLatestBlockhash()).blockhash;
-          try {
-            const signedFee = await window.solana.signAndSendTransaction(feeTx);
-            const sigFee = signedFee.signature || signedFee;
-            await solConnection.confirmTransaction(sigFee, 'confirmed');
-            addFeedItem(ownerPubkey.toBase58(), 0, `${toSol(lamportsToSol(donationLamports))} SOL (support)`, sigFee);
-            setStatus('Support fee sent. Recovery complete.', 'success');
-          } catch (e) {
-            console.error(e);
-            setStatus('Support fee declined or failed.', 'warn');
-          }
-        } else {
-          setStatus('Recovery complete.', 'success');
-        }
-      } else {
-        setStatus('Recovery complete.', 'success');
-        if(!evmWallet){ setStatus('Connect wallet first.'); return; }
-        setStatus(`Check ${chain} explorer for activity: ${evmWallet}`);
-      }
-
-      // Rescan to refresh estimate
-      await scanSolana();
-    }
-
-    // EVM mapping (placeholder actionable guidance)
-    async function mapEvmActivity() {
-      if (!evmWallet) { setStatus('Connect an EVM wallet first.', 'warn'); return; }
-      const explorers = { ethereum:'https://etherscan.io/address/', polygon:'https://polygonscan.com/address/', bsc:'https://bscscan.com/address/' };
-      const url = explorers[chain] + evmWallet;
-      setStatus(`Open explorer to map activity: ${url}`);
-      refundEstimateBigEl.textContent = 'Estimation requires explorer mapping';
-    }
-
-    async function recoverEvm() {
-      setStatus('Multi-chain recovery requires per-chain strategy and indexers. Use explorer and revoke approvals as needed.', 'warn');
-      const revokeLinks = { ethereum:'https://revoke.cash/', polygon:'https://revoke.cash/polygon', bsc:'https://revoke.cash/bsc' };
-      window.open(revokeLinks[chain], '_blank');
-    }
-
-    // LLM gate (Solana holdings)
-    async function gateLlmAccessSolana() {
-      if (!solWallet) { llmAccessBadge.textContent = 'Access: locked'; openLLMBtn.disabled = true; return; }
-      if (GATE_MINTS.length === 0) { llmAccessBadge.textContent = 'Access: open (config pending)'; openLLMBtn.disabled = false; return; }
-      try {
-        const res = await solConnection.getParsedTokenAccountsByOwner(solWallet, { programId: splToken.TOKEN_PROGRAM_ID });
-        const userMints = new Set(res.value.map(acc => acc.account.data.parsed.info.mint));
-        const has = GATE_MINTS.some(m => userMints.has(m));
-        llmAccessBadge.textContent = has ? 'Access: unlocked' : 'Access: locked';
-        openLLMBtn.disabled = !has;
-      } catch (e) {
-        console.error(e);
-        llmAccessBadge.textContent = 'Access: error';
-        openLLMBtn.disabled = true;
-    async function recover(){
-      if(chain==='solana'){
-        if(!solWallet){ setStatus('Connect wallet first.'); return; }
-        if(emptyAccounts.length===0){ setStatus('No empty accounts.'); return; }
-        setStatus('Recovery complete (demo). Rent refunded to your wallet.');
-        refundEstimateBigEl.textContent='0.00000 SOL';
-      } else {
-        setStatus('Multi-chain recovery requires indexers. Use explorer + revoke.cash for now.');
-      }
-    }
-
-    // LLM open (placeholder)
-    function openLLM() {
-      alert('LLM gated chat placeholder. Replace with your chat UI and backend endpoint authenticated via wallet signature.');
-    }
+    function shorten(s) { return s ? (s.slice(0,4) + '...' + s.slice(-4)) : '—'; }
+    function toSol(n) { return (Math.round(n * 100000) / 100000).toFixed(5); }
+    function lamportsToSol(l) { return l / solanaWeb3.LAMPORTS_PER_SOL; }
+    function solToLamports(s) { return Math.floor(s * solanaWeb3.LAMPORTS_PER_SOL); }
+    function safePubkey(s) { try { return s ? new solanaWeb3.PublicKey(s) : null; } catch(_) { return null; } }
 
     // Wire up
     connectBtn.addEventListener('click', connectWallet);
     resetBtn.addEventListener('click', resetConnection);
-    scanBtn.addEventListener('click', async () => { chain === 'solana' ? scanSolana() : mapEvmActivity(); });
-    recoverBtn.addEventListener('click', async () => { chain === 'solana' ? recoverSolana() : recoverEvm(); });
+    scanBtn.addEventListener('click', scanEmptyAccounts);
+    recoverBtn.addEventListener('click', recoverNow);
+    recoverInlineBtn.addEventListener('click', recoverNow);
+    exportSessionBtn.addEventListener('click', exportSession);
+    loadMoreBtn.addEventListener('click', () => setStatus('Session-only feed. Add a backend for global feed.', 'warn'));
     openLLMBtn.addEventListener('click', openLLM);
+    mintSigilBtn.addEventListener('click', () => alert('Mint flow placeholder. Connect to your mint API or on-chain program.'));
+    bookIntroBtn.addEventListener('click', () => alert('Add Calendly or booking embed here.'));
+    copyReferralBtn.addEventListener('click', () => { updateReferralPreview(); navigator.clipboard.writeText(document.getElementById('refPreview').textContent); setStatus('Referral link copied.', 'success'); });
+    sendSupportBtn.addEventListener('click', async () => {
+      if (!wallet) { setStatus('Connect wallet to send a tip.', 'warn'); return; }
+      const tx = new solanaWeb3.Transaction().add(solanaWeb3.SystemProgram.transfer({
+        fromPubkey: wallet, toPubkey: FEE_WALLET, lamports: solanaWeb3.LAMPORTS_PER_SOL * 0.01 // 0.01 SOL tip
+      }));
+      tx.feePayer = wallet;
+      tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
+      try { await signSendConfirm(tx); setStatus('Thanks for the support!', 'success'); } catch (e) { setStatus('Tip failed or declined.', 'warn'); }
+    });
 
-    // Initial UI state
-    setStatus('Connect your wallet to begin.');
-    document.getElementById('connectBtn').addEventListener('click', connectWallet);
-    document.getElementById('resetBtn').addEventListener('click', resetConnection);
-    document.getElementById('scanBtn').addEventListener('click', scan);
-    document.getElementById('recoverBtn').addEventListener('click', recover);
+    // Init
+    updateReferralPreview();
   </script>
 </body>
 </html>
