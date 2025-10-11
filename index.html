@@ -300,8 +300,12 @@
   </div>
 
   <!-- Solana client libraries -->
-  <script src="https://unpkg.com/@solana/web3.js@1.95.6/lib/index.iife.js"></script>
-  <script src="https://unpkg.com/@solana/spl-token@0.3.11/dist/browser/spl-token.min.js"></script>
+  <!-- Solana client libraries: load first -->
+<script src="https://unpkg.com/@solana/web3.js@1.95.6/lib/index.iife.js"></script>
+<script src="https://unpkg.com/@solana/spl-token@0.3.11/dist/browser/spl-token.min.js"></script>
+
+<!-- Projects loader: independent and safe -->
+<script src="./projects.js"></script>
 
   <script>
     // Connection
