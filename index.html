@@ -650,5 +650,135 @@ async function scanReposForIndex() {
 
 scanReposForIndex();
 </script>
+  <script>
+document.addEventListener("DOMContentLoaded", () => {
+  updateReferralPreview();
+  fetchCommits();
+  scanReposForIndex();
+});
+
+// 🔁 GitHub Repo Scanner
+async function scanReposForIndex() {
+  const container = document.getElementById("repoGroups");
+  if (!container) return;
+
+  container.innerHTML = "<div style='color:#aaa;'>🔄 Loading projects...</div>";
+
+  try {
+    const res = await fetch("https://api.github.com/users/barbrickdesign/repos?per_page=100");
+    if (!res.ok) throw new Error("GitHub API failed");
+    const repos = await res.json();
+
+    container.innerHTML = ""; // Clear loading
+
+    // 📦 Project Count
+    const countDiv = document.createElement("div");
+    countDiv.style.margin = "10px 0";
+    countDiv.style.fontWeight = "bold";
+    countDiv.style.color = "#66fcf1";
+    countDiv.textContent = `📦 Total Projects: ${repos.length}`;
+    container.appendChild(countDiv);
+
+    for (const repo of repos) {
+      const repoName = repo.name;
+      const repoURL = repo.html_url;
+      const indexURL = `https://barbrickdesign.github.io/${repoName}/index.html`;
+      const updatedAt = new Date(repo.updated_at).toLocaleDateString();
+
+      let indexExists = false;
+      try {
+        const check = await fetch(indexURL, { method: "HEAD" });
+        indexExists = check.ok;
+      } catch (e) {
+        indexExists = false;
+      }
+
+      const div = document.createElement("div");
+      div.style.marginBottom = "12px";
+      div.innerHTML = `
+        <div style="padding: 10px; border: 1px solid #333; border-radius: 8px; background: #111;">
+          <div style="font-size: 1.1em; font-weight: bold;">
+            <a class="link" href="${repoURL}" target="_blank">${repoName}</a>
+          </div>
+          <div style="font-size: 0.9em; color: #aaa;">🗓️ Updated: ${updatedAt}</div>
+          <div style="margin-top: 4px;">
+            ${indexExists
+              ? `<a class="link" href="${indexURL}" target="_blank">🌐 Live index.html</a>`
+              : `<span style="color:#f66;">⚠️ Missing or broken index.html</span>`}
+          </div>
+        </div>
+      `;
+      container.appendChild(div);
+    }
+  } catch (err) {
+    console.error("Project scan failed:", err);
+    container.innerHTML = "<div style='color:#f66;'>⚠️ Failed to load projects. Try again later.</div>";
+  }
+}
+
+// 🕰️ Commit Viewer
+const repo = "barbrickdesign/SOLRecovery";
+const filePath = "index.html";
+
+function toggleViewer() {
+  const viewer = document.getElementById("commitViewer");
+  viewer.style.display = viewer.style.display === "none" ? "block" : "none";
+}
+
+async function fetchCommits() {
+  const res = await fetch(`https://api.github.com/repos/${repo}/commits?path=${filePath}`);
+  const commits = await res.json();
+  const selector = document.getElementById("commitSelector");
+  commits.forEach(commit => {
+    const option = document.createElement("option");
+    option.value = commit.sha;
+    option.text = `${commit.commit.message} (${commit.commit.author.date})`;
+    selector.appendChild(option);
+  });
+}
+
+async function loadCommit() {
+  const sha = document.getElementById("commitSelector").value;
+  const res = await fetch(`https://api.github.com/repos/${repo}/contents/${filePath}?ref=${sha}`);
+  const data = await res.json();
+  const content = atob(data.content);
+  document.getElementById("commitPreview").textContent = content;
+
+  const frame = document.createElement("iframe");
+  frame.style.width = "100%";
+  frame.style.height = "100%";
+  frame.style.border = "none";
+  frame.srcdoc = content;
+  const previewContainer = document.getElementById("previewFrame");
+  previewContainer.innerHTML = "";
+  previewContainer.appendChild(frame);
+}
+
+function copyToClipboard() {
+  const text = document.getElementById("commitPreview").textContent;
+  navigator.clipboard.writeText(text).then(() => alert("Copied to clipboard!"));
+}
+
+// 🔗 Referral Preview
+function updateReferralPreview() {
+  const base = location.origin + location.pathname;
+  const refInput = document.getElementById("refAddress");
+  const ref = refInput?.value ? ('?ref=' + encodeURIComponent(refInput.value)) : '';
+  const preview = document.getElementById("refPreview");
+  if (preview) preview.textContent = base + ref;
+}
+</script>
+
+<!-- 🕰️ Commit Viewer Toggle -->
+<div id="commitToggle" onclick="toggleViewer()" style="position:fixed;bottom:20px;right:20px;z-index:9999;background:#222;color:#fff;padding:10px;border-radius:50%;box-shadow:0 0 10px #000;cursor:pointer;">🕰️</div>
+
+<!-- 🕰️ Commit Viewer Panel -->
+<div id="commitViewer" style="display:none;position:fixed;top:10px;right:10px;background:#111;padding:10px;border-radius:8px;max-height:90vh;overflow:auto;width:400px;z-index:9999;">
+  <h3>🔁 Commit Viewer</h3>
+  <select id="commitSelector"></select>
+  <button onclick="loadCommit()">Load</button>
+  <button onclick="copyToClipboard()">📋 Copy</button>
+  <div id="previewFrame" style="margin-top:10px;border:1px solid #333;height:300px;background:#000;"></div>
+  <pre id="commitPreview" style="margin-top:10px;background:#222;padding:10px;border-radius:6px;white-space:pre-wrap;"></pre>
 </body>
 </html>
