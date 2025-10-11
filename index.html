@@ -299,13 +299,12 @@
     <pre id="commitPreview" style="margin-top:10px;background:#222;padding:10px;border-radius:6px;white-space:pre-wrap;"></pre>
   </div>
 
-  <!-- Solana client libraries -->
-  <!-- Solana client libraries: load first -->
-<script src="https://unpkg.com/@solana/web3.js@1.95.6/lib/index.iife.js"></script>
-<script src="https://unpkg.com/@solana/spl-token@0.3.11/dist/browser/spl-token.min.js"></script>
+  <!-- ✅ Load Solana client libraries first -->
+  <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iife.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@solana/spl-token@0.3.11/dist/browser/spl-token.min.js"></script>
 
-<!-- Projects loader: independent and safe -->
-<script src="./projects.js"></script>
+  <!-- ✅ Projects loader (hybrid GitHub API + fallback) -->
+  <script src="./projects.js"></script>
 
   <script>
     // Connection
@@ -560,7 +559,6 @@
       return s.replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
     }
     function llmRespond(prompt) {
-      // Lightweight pseudo-response: summarize and suggest next step
       const hint = prompt.length > 200 ? 'You wrote a detailed prompt. Consider breaking it into actionable steps.' : 'Consider a single concrete next step you can do in 10 minutes.';
       const echo = prompt.slice(0, 500);
       const response = `I hear: "${echo}". ${hint}`;
@@ -688,113 +686,67 @@
     // Init
     updateReferralPreview();
 
-    // ---------- GitHub Repos: combined scan with index.html presence ----------
-    async function listRepos() {
-      const container = document.getElementById('repoGroups');
-      container.innerHTML = '';
+    // ---------- Commit Viewer (fixed script structure) ----------
+    const commitRepo = 'barbrickdesign/SOLRecovery';
+    const commitFilePath = 'index.html';
+
+    commitToggle.addEventListener('click', () => {
+      const show = commitViewer.style.display !== 'block';
+      commitViewer.style.display = show ? 'block' : 'none';
+      if (show && !commitSelector.dataset.loaded) fetchCommits();
+    });
+
+    async function fetchCommits() {
       try {
-        const res = await fetch('https://api.github.com/users/barbrickdesign/repos?per_page=100', {
-          headers: { 'Accept': 'application/vnd.github+json' }
+        const res = await fetch(`https://api.github.com/repos/${commitRepo}/commits?path=${commitFilePath}`);
+        const commits = await res.json();
+        commitSelector.innerHTML = '';
+        commits.forEach(commit => {
+          const option = document.createElement('option');
+          option.value = commit.sha;
+          option.text = `${commit.commit.message} (${commit.commit.author.date})`;
+          commitSelector.appendChild(option);
         });
-        const repos = await res.json();
-        // Sort: most recently updated first
-        repos.sort((a, b) => new Date(b.pushed_at) - new Date(a.pushed_at));
-        for (const repo of repos) {
-          const repoName = repo.name;
-          const repoURL = repo.html_url;
-          const liveURL = `https://barbrickdesign.github.io/${repoName}/index.html`;
-
-          let indexExists = false;
-          try {
-            const head = await fetch(liveURL, { method: 'HEAD' });
-            indexExists = head.ok;
-          } catch(_) { indexExists = false; }
-
-          const row = document.createElement('div');
-          row.className = 'item';
-          row.innerHTML = `
-            <div>
-              <div class="link"><a href="${repoURL}" target="_blank" rel="noopener">${repoName}</a></div>
-              <div class="note">${repo.description || 'No description'}</div>
-            </div>
-            <a class="btn ghost" href="${repoURL}" target="_blank" rel="noopener">Repo</a>
-            ${indexExists
-              ? `<a class="btn" href="${liveURL}" target="_blank" rel="noopener">View index.html</a>`
-              : `<span class="badge" style="border-color:#f66;color:#f99;">⚠️ No index.html</span>`}
-          `;
-          container.appendChild(row);
-        }
+        commitSelector.dataset.loaded = '1';
       } catch (e) {
-        const err = document.createElement('div');
-        err.className = 'note';
-        err.textContent = 'Failed to load repos. Try again later.';
-        container.appendChild(err);
+        commitSelector.innerHTML = '';
+        const option = document.createElement('option');
+        option.value = '';
+        option.text = 'Failed to load commits';
+        commitSelector.appendChild(option);
       }
     }
-    listRepos();
 
-    // ---------- Commit Viewer (fixed script structure) ----------
-const commitRepo = 'barbrickdesign/SOLRecovery';
-const commitFilePath = 'index.html';
+    async function loadCommit() {
+      const sha = commitSelector.value;
+      if (!sha) return;
+      try {
+        const res = await fetch(`https://api.github.com/repos/${commitRepo}/contents/${commitFilePath}?ref=${sha}`);
+        const data = await res.json();
+        const content = atob(data.content);
+        commitPreview.textContent = content;
+        const frame = document.createElement('iframe');
+        frame.style.width = '100%';
+        frame.style.height = '100%';
+        frame.style.border = 'none';
+        frame.srcdoc = content;
+        previewFrame.innerHTML = '';
+        previewFrame.appendChild(frame);
+      } catch (e) {
+        commitPreview.textContent = 'Failed to load commit content.';
+        previewFrame.innerHTML = '';
+      }
+    }
 
-commitToggle.addEventListener('click', () => {
-  const show = commitViewer.style.display !== 'block';
-  commitViewer.style.display = show ? 'block' : 'none';
-  if (show && !commitSelector.dataset.loaded) fetchCommits();
-});
+    function copyCommitToClipboard() {
+      const text = commitPreview.textContent || '';
+      navigator.clipboard.writeText(text).then(
+        () => setStatus('Commit content copied.', 'success'),
+        () => setStatus('Copy failed.', 'warn')
+      );
+    }
 
-async function fetchCommits() {
-  try {
-    const res = await fetch(`https://api.github.com/repos/${commitRepo}/commits?path=${commitFilePath}`);
-    const commits = await res.json();
-    commitSelector.innerHTML = '';
-    commits.forEach(commit => {
-      const option = document.createElement('option');
-      option.value = commit.sha;
-      option.text = `${commit.commit.message} (${commit.commit.author.date})`;
-      commitSelector.appendChild(option);
-    });
-    commitSelector.dataset.loaded = '1';
-  } catch (e) {
-    commitSelector.innerHTML = '';
-    const option = document.createElement('option');
-    option.value = '';
-    option.text = 'Failed to load commits';
-    commitSelector.appendChild(option);
-  }
-}
-
-async function loadCommit() {
-  const sha = commitSelector.value;
-  if (!sha) return;
-  try {
-    const res = await fetch(`https://api.github.com/repos/${commitRepo}/contents/${commitFilePath}?ref=${sha}`);
-    const data = await res.json();
-    const content = atob(data.content);
-    commitPreview.textContent = content;
-    const frame = document.createElement('iframe');
-    frame.style.width = '100%';
-    frame.style.height = '100%';
-    frame.style.border = 'none';
-    frame.srcdoc = content;
-    previewFrame.innerHTML = '';
-    previewFrame.appendChild(frame);
-  } catch (e) {
-    commitPreview.textContent = 'Failed to load commit content.';
-    previewFrame.innerHTML = '';
-  }
-}
-
-function copyCommitToClipboard() {
-  const text = commitPreview.textContent || '';
-  navigator.clipboard.writeText(text).then(
-    () => setStatus('Commit content copied.', 'success'),
-    () => setStatus('Copy failed.', 'warn')
-  );
-}
-
-commitLoadBtn.addEventListener('click', loadCommit);
-commitCopyBtn.addEventListener('click', copyCommitToClipboard);
-</script>
+    commitLoadBtn.addEventListener('click', loadCommit);
+    commitCopyBtn.addEventListener('click', copyCommitToClipboard);
+  </script>
 </body>
-</html>
