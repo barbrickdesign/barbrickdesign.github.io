@@ -1,829 +1,111 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <title>BarbrickDesign — Build, Recover, and Earn</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Build, recover, and earn — SOL recovery, projects, LLM access." />
-  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
-  <link rel="preconnect" href="https://unpkg.com" />
-  <style>
-    :root{
-      --bg:#0a0c11; --panel:#0f131a; --glass:rgba(255,255,255,0.06);
-      --stroke:rgba(255,255,255,0.14); --text:#eaf1fb; --muted:#a8b3c7;
-      --accent:#66fcf1; --good:#3be477; --warn:#fbbf24; --bad:#ff6b6b;
-    }
-    *{box-sizing:border-box}
-    html,body{margin:0;height:100%;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial; background:radial-gradient(1200px 600px at 20% -20%, rgba(102,252,241,0.06), transparent),var(--bg); color:var(--text)}
-    a{color:var(--accent);text-decoration:none}
-    .wrap{max-width:1200px;margin:0 auto;padding:16px}
-    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
-    .col{display:grid;gap:10px}
-    .card{background:var(--panel);border:1px solid var(--stroke);border-radius:12px;padding:14px}
-    .btn{background:#121827;color:var(--text);border:1px solid #223149;padding:10px 12px;border-radius:10px;cursor:pointer;font-weight:700}
-    .btn.ghost{background:transparent;border-color:var(--stroke)}
-    .btn.primary{background:linear-gradient(135deg,#121a2b,#172238);border-color:#2a3f62}
-    .btn.block{width:100%}
-    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
-    .badge{display:inline-block;padding:6px 10px;border-radius:999px;border:1px solid var(--stroke);background:var(--glass);color:var(--muted);font-size:12px}
-    .title{font-size:28px;font-weight:900}
-    .subtitle{color:var(--muted);font-size:14px}
-    .big{font-size:32px;font-weight:900}
-    .small{font-size:12px;color:var(--muted)}
-    header{display:grid;grid-template-columns:1fr;gap:12px;align-items:center}
-    @media(min-width:800px){header{grid-template-columns:1fr auto}}
-    .brand{display:flex;gap:12px;align-items:center}
-    .glyph{width:42px;height:42px;border-radius:10px;background:conic-gradient(from 210deg,var(--accent),#9b7bff,var(--accent));box-shadow:0 0 60px rgba(102,252,241,0.14);animation:spin 12s linear infinite}
-    @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}}
-    .nav{display:grid;grid-template-columns:1fr 1fr;gap:8px}
-    @media(min-width:700px){.nav{grid-template-columns:repeat(5,auto);justify-content:end}}
-    .hero{margin-top:12px;display:grid;gap:12px}
-    .hero-grid{display:grid;grid-template-columns:1fr;gap:12px}
-    @media(min-width:950px){.hero-grid{grid-template-columns:1.4fr 0.8fr}}
-    .stats{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px}
-    @media(min-width:650px){.stats{grid-template-columns:repeat(3,1fr)}}
-    .stat{text-align:center;border-radius:12px;padding:12px;border:1px solid var(--stroke)}
-    .list{display:grid;gap:8px}
-    .item{display:grid;gap:10px}
-    @media(min-width:800px){.item{grid-template-columns:1.1fr 0.7fr 1fr;align-items:center}}
-    .feed{background:var(--panel);border:1px solid var(--stroke);border-radius:12px;padding:12px;margin-top:12px}
-    .feed-head,.feed-row{display:grid;grid-template-columns:1fr 0.6fr 0.8fr 1.4fr 0.8fr;gap:8px;align-items:center}
-    @media(max-width:800px){.feed-head,.feed-row{grid-template-columns:1fr 0.6fr 0.8fr 1.2fr} .feed-head span:last-child,.feed-row span:last-child{display:none}}
-    .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:9998}
-    .modal{background:#0e1218;border:1px solid var(--stroke);border-radius:12px;padding:16px;width:min(720px,92vw)}
-    #commitToggle{position:fixed;bottom:20px;right:20px;z-index:9999;background:#222;color:#fff;padding:10px;border-radius:50%;cursor:pointer}
-    #commitViewer{display:none;position:fixed;top:10px;right:10px;background:#111;padding:10px;border-radius:8px;max-height:90vh;overflow:auto;width:min(640px,92vw);z-index:9999}
-    #debugPanel{position:fixed;bottom:0;left:0;width:100%;max-height:240px;overflow:auto;background:#081018;border-top:1px solid #222;font-family:ui-monospace,Menlo,Consolas;z-index:99999;color:#9bd;padding:8px}
-    @media(max-width:600px){#debugPanel{font-size:11px}}
-  </style>
-</head>
-<body>
-  <div class="wrap">
-    <header>
-      <div class="brand">
-        <div class="glyph" aria-hidden="true"></div>
-        <div>
-          <div class="mono" style="font-weight:800">BarbrickDesign</div>
-          <div class="small">Mythic automation, sovereign agents, and instant SOL recovery</div>
-        </div>
-      </div>
+<!DOCTYPE html> <html lang="en"> <head> <meta charset="utf-8" /> <title>BarbrickDesign — Build, Recover, and Earn</title> <meta name="viewport" content="width=device-width, initial-scale=1" /> <meta name="description" content="Build, recover, and earn — SOL recovery, projects, LLM access." /> <link rel="preconnect" href="https://cdn.jsdelivr.net" /> <link rel="preconnect" href="https://unpkg.com" /> <style> :root{ --bg:#0a0c11; --panel:#0f131a; --glass:rgba(255,255,255,0.06); --stroke:rgba(255,255,255,0.14); --text:#eaf1fb; --muted:#a8b3c7; --accent:#66fcf1; --good:#3be477; --warn:#fbbf24; --bad:#ff6b6b; } *{box-sizing:border-box} html,body{margin:0;height:100%;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial; background:radial-gradient(1200px 600px at 20% -20%, rgba(102,252,241,0.06), transparent),var(--bg); color:var(--text)} a{color:var(--accent);text-decoration:none} .wrap{max-width:1200px;margin:0 auto;padding:16px} .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap} .col{display:grid;gap:10px} .card{background:var(--panel);border:1px solid var(--stroke);border-radius:12px;padding:14px} .btn{background:#121827;color:var(--text);border:1px solid #223149;padding:10px 12px;border-radius:10px;cursor:pointer;font-weight:700} .btn.ghost{background:transparent;border-color:var(--stroke)} .btn.primary{background:linear-gradient(135deg,#121a2b,#172238);border-color:#2a3f62} .btn.block{width:100%} .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace} .badge{display:inline-block;padding:6px 10px;border-radius:999px;border:1px solid var(--stroke);background:var(--glass);color:var(--muted);font-size:12px} .title{font-size:28px;font-weight:900} .subtitle{color:var(--muted);font-size:14px} .big{font-size:32px;font-weight:900} .small{font-size:12px;color:var(--muted)} header{display:grid;grid-template-columns:1fr;gap:12px;align-items:center} @media(min-width:800px){header{grid-template-columns:1fr auto}} .brand{display:flex;gap:12px;align-items:center} .glyph{width:42px;height:42px;border-radius:10px;background:conic-gradient(from 210deg,var(--accent),#9b7bff,var(--accent));box-shadow:0 0 60px rgba(102,252,241,0.14);animation:spin 12s linear infinite} @keyframes spin{0%{transform:rotate(0)}100%{transform:rotate(360deg)}} .nav{display:grid;grid-template-columns:1fr 1fr;gap:8px} @media(min-width:700px){.nav{grid-template-columns:repeat(5,auto);justify-content:end}} .hero{margin-top:12px;display:grid;gap:12px} .hero-grid{display:grid;grid-template-columns:1fr;gap:12px} @media(min-width:950px){.hero-grid{grid-template-columns:1.4fr 0.8fr}} .stats{display:grid;grid-template-columns:1fr;gap:10px;margin-top:10px} @media(min-width:650px){.stats{grid-template-columns:repeat(3,1fr)}} .stat{text-align:center;border-radius:12px;padding:12px;border:1px solid var(--stroke)} .list{display:grid;gap:8px} .item{display:grid;gap:10px} @media(min-width:800px){.item{grid-template-columns:1.1fr 0.7fr 1fr;align-items:center}} .feed{background:var(--panel);border:1px solid var(--stroke);border-radius:12px;padding:12px;margin-top:12px} .feed-head,.feed-row{display:grid;grid-template-columns:1fr 0.6fr 0.8fr 1.4fr 0.8fr;gap:8px;align-items:center} @media(max-width:800px){.feed-head,.feed-row{grid-template-columns:1fr 0.6fr 0.8fr 1.2fr} .feed-head span:last-child,.feed-row span:last-child{display:none}} .modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,0.6);display:none;align-items:center;justify-content:center;z-index:9998} .modal{background:#0e1218;border:1px solid var(--stroke);border-radius:12px;padding:16px;width:min(720px,92vw)} #commitToggle{position:fixed;bottom:20px;right:20px;z-index:9999;background:#222;color:#fff;padding:10px;border-radius:50%;cursor:pointer} #commitViewer{display:none;position:fixed;top:10px;right:10px;background:#111;padding:10px;border-radius:8px;max-height:90vh;overflow:auto;width:min(640px,92vw);z-index:9999} #debugPanel{position:fixed;bottom:0;left:0;width:100%;max-height:240px;overflow:auto;background:#081018;border-top:1px solid #222;font-family:ui-monospace,Menlo,Consolas;z-index:99999;color:#9bd;padding:8px} @media(max-width:600px){#debugPanel{font-size:11px}} </style> </head> <body> <div class="wrap"> <header> <div class="brand"> <div class="glyph" aria-hidden="true"></div> <div> <div class="mono" style="font-weight:800">BarbrickDesign</div> <div class="small">Mythic automation, sovereign agents, and instant SOL recovery</div> </div> </div>
 
-      <div class="nav">
-        <button id="connectBtn" class="btn primary">Connect Wallet</button>
-        <button id="resetBtn" class="btn">Reset</button>
-        <span id="walletStatus" class="badge">Wallet: not detected</span>
-        <a class="btn ghost" href="https://www.barbrickdesign.com" target="_blank" rel="noopener">Main site</a>
-        <a class="btn ghost" href="https://github.com/barbrickdesign?tab=repositories" target="_blank" rel="noopener">GitHub</a>
-      </div>
-    </header>
+<div class="nav"> <button id="connectBtn" class="btn primary">Connect Wallet</button> <button id="resetBtn" class="btn">Reset</button> <span id="walletStatus" class="badge">Wallet: not detected</span> <a class="btn ghost" href="https://www.barbrickdesign.com" target="_blank" rel="noopener">Main site</a> <a class="btn ghost" href="https://github.com/barbrickdesign?tab=repositories" target="_blank" rel="noopener">GitHub</a> </div> </header>
 
-    <section class="hero">
-      <div class="card">
-        <div class="title">Build, recover, and earn — all in one place</div>
-        <div class="subtitle">Close empty token accounts, analyze transaction history, map SOL flow, and recover rent.</div>
-      </div>
+<section class="hero"> <div class="card"> <div class="title">Build, recover, and earn — all in one place</div> <div class="subtitle">Close empty token accounts, analyze transaction history, map SOL flow, and recover rent.</div> </div>
 
-      <div class="hero-grid">
-        <div class="card">
-          <div class="row" style="justify-content:space-between">
-            <div class="mono small">Wallet</div>
-            <div id="walletLabel" class="mono small">—</div>
-          </div>
+<div class="hero-grid"> <div class="card"> <div class="row" style="justify-content:space-between"> <div class="mono small">Wallet</div> <div id="walletLabel" class="mono small">—</div> </div>
 
-          <div style="height:10px"></div>
+<div style="height:10px"></div>
 
-          <div class="big" id="refundEstimateBig">0.00000 SOL</div>
-          <div class="small">Estimated SOL you can recover right now</div>
+<div class="big" id="refundEstimateBig">0.00000 SOL</div> <div class="small">Estimated SOL you can recover right now</div>
 
-          <div class="row" style="margin-top:10px">
-            <button id="recoverBtn" class="btn block">Recover My SOL</button>
-            <button id="scanBtn" class="btn ghost">Scan & Analyze</button>
-            <div class="badge">5% support (optional)</div>
-          </div>
+<div class="row" style="margin-top:10px"> <button id="recoverBtn" class="btn block">Recover My SOL</button> <button id="scanBtn" class="btn ghost">Scan & Analyze</button> <div class="badge">5% support (optional)</div> </div>
 
-          <div class="row" style="margin-top:8px">
-            <input id="refAddress" class="btn mono" style="min-width:200px;background:#0f141d" placeholder="Optional referrer wallet (?ref=)" />
-            <label class="row" style="gap:8px"><input id="donationToggle" type="checkbox" checked /> <span class="small">Include support</span></label>
-          </div>
+<div class="row" style="margin-top:8px"> <input id="refAddress" class="btn mono" style="min-width:200px;background:#0f141d" placeholder="Optional referrer wallet (?ref=)" /> <label class="row" style="gap:8px"><input id="donationToggle" type="checkbox" checked /> <span class="small">Include support</span></label> </div>
 
-          <div id="status" class="small" style="min-height:18px;margin-top:8px"></div>
-        </div>
+<div id="status" class="small" style="min-height:18px;margin-top:8px"></div> </div>
 
-        <div class="card">
-          <div style="font-weight:800;margin-bottom:6px">Coin-holder LLM access</div>
-          <div class="small">Token‑gated chat for holders.</div>
-          <div class="hr"></div>
-          <div class="row">
-            <div id="llmAccessBadge" class="badge">Access: locked</div>
-            <button id="openLLM" class="btn" disabled>Open LLM</button>
-          </div>
-          <div class="small" style="margin-top:8px">Connect wallet to verify holdings.</div>
-        </div>
-      </div>
+<div class="card"> <div style="font-weight:800;margin-bottom:6px">Coin-holder LLM access</div> <div class="small">Token‑gated chat for holders.</div> <div class="hr"></div> <div class="row"> <div id="llmAccessBadge" class="badge">Access: locked</div> <button id="openLLM" class="btn" disabled>Open LLM</button> </div> <div class="small" style="margin-top:8px">Connect wallet to verify holdings.</div> </div> </div>
 
-      <div class="stats">
-        <div class="stat">
-          <div class="small">Empty accounts</div>
-          <div id="emptyCount" class="big">0</div>
-        </div>
-        <div class="stat">
-          <div class="small">Estimated refund</div>
-          <div id="refundEstimate" class="big">0.00000 SOL</div>
-        </div>
-        <div class="stat">
-          <div class="small">Session actions</div>
-          <div id="sessionActions" class="big">0</div>
-        </div>
-      </div>
-    </section>
+<div class="stats"> <div class="stat"> <div class="small">Empty accounts</div> <div id="emptyCount" class="big">0</div> </div> <div class="stat"> <div class="small">Estimated refund</div> <div id="refundEstimate" class="big">0.00000 SOL</div> </div> <div class="stat"> <div class="small">Session actions</div> <div id="sessionActions" class="big">0</div> </div> </div> </section>
 
-    <section class="modules">
-      <div class="card">
-        <div style="font-weight:800;margin-bottom:8px">Income modules</div>
+<section class="modules"> <div class="card"> <div style="font-weight:800;margin-bottom:8px">Income modules</div>
 
-        <div class="list">
-          <div class="item">
-            <div>
-              <div class="link">SOL Recovery Portal</div>
-              <div class="small">Close empty SPL token accounts and reclaim rent in bulk.</div>
-            </div>
-            <a class="btn ghost" href="https://barbrickdesign.github.io/SOLRecovery/" target="_blank" rel="noopener">Open</a>
-            <button id="recoverInlineBtn" class="btn">Recover here</button>
-          </div>
+<div class="list"> <div class="item"> <div> <div class="link">SOL Recovery Portal</div> <div class="small">Close empty SPL token accounts and reclaim rent in bulk.</div> </div> <a class="btn ghost" href="https://barbrickdesign.github.io/SOLRecovery/" target="_blank" rel="noopener">Open</a> <button id="recoverInlineBtn" class="btn">Recover here</button> </div>
 
-          <div class="item">
-            <div>
-              <div class="link">NFT Minting Portal</div>
-              <div class="small">Mint sigils, set splits, and manage drops.</div>
-            </div>
-            <a class="btn ghost" href="https://barbrickdesign.github.io/NFTMint/" target="_blank" rel="noopener">Open</a>
-            <button id="mintSigil" class="btn">Mint</button>
-          </div>
-        </div>
-      </div>
+<div class="item"> <div> <div class="link">NFT Minting Portal</div> <div class="small">Mint sigils, set splits, and manage drops.</div> </div> <a class="btn ghost" href="https://barbrickdesign.github.io/NFTMint/" target="_blank" rel="noopener">Open</a> <button id="mintSigil" class="btn">Mint</button> </div> </div> </div>
 
-      <div class="card">
-        <div style="font-weight:800;margin-bottom:6px">Projects</div>
-        <div style="max-height:420px;overflow:auto;padding-right:8px">
-          <div id="repoGroups" class="list"></div>
-        </div>
-        <div class="small" style="margin-top:8px">We check each project's root index.html; if not found we mark it and avoid 404 links.</div>
-      </div>
-    </section>
+<div class="card"> <div style="font-weight:800;margin-bottom:6px">Projects</div> <div style="max-height:420px;overflow:auto;padding-right:8px"> <div id="repoGroups" class="list"></div> </div> <div class="small" style="margin-top:8px">We check each project's root index.html; if not found we mark it and avoid 404 links.</div> </div> </section>
 
-    <section class="feed">
-      <div class="feed-head">
-        <span>Wallet</span><span>Accounts</span><span>Refunded SOL</span><span>Tx</span><span>Date</span>
-      </div>
-      <div id="feed"></div>
-      <div class="row" style="justify-content:flex-end;margin-top:8px">
-        <button id="exportSession" class="btn ghost">Export session</button>
-        <button id="loadMore" class="btn ghost">Load more</button>
-      </div>
-    </section>
+<section class="feed"> <div class="feed-head"> <span>Wallet</span><span>Accounts</span><span>Refunded SOL</span><span>Tx</span><span>Date</span> </div> <div id="feed"></div> <div class="row" style="justify-content:flex-end;margin-top:8px"> <button id="exportSession" class="btn ghost">Export session</button> <button id="loadMore" class="btn ghost">Load more</button> </div> </section>
 
-    <footer style="margin-top:12px">
-      <div class="row" style="justify-content:space-between">
-        <div class="small">© BarbrickDesign 2025 · Built for contributors and coin holders</div>
-        <div class="row">
-          <a class="badge" href="https://www.barbrickdesign.com" target="_blank" rel="noopener">Main site</a>
-          <a class="badge" href="https://github.com/barbrickdesign?tab=repositories" target="_blank" rel="noopener">GitHub</a>
-        </div>
-      </div>
-    </footer>
-  </div>
+<footer style="margin-top:12px"> <div class="row" style="justify-content:space-between"> <div class="small">© BarbrickDesign 2025 · Built for contributors and coin holders</div> <div class="row"> <a class="badge" href="https://www.barbrickdesign.com" target="_blank" rel="noopener">Main site</a> <a class="badge" href="https://github.com/barbrickdesign?tab=repositories" target="_blank" rel="noopener">GitHub</a> </div> </div> </footer> </div>
 
-  <!-- LLM Modal -->
-  <div id="llmBackdrop" class="modal-backdrop" aria-hidden="true">
-    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="llmTitle">
-      <header>
-        <h3 id="llmTitle" class="mono" style="font-weight:800">LLM — Coin holder chat</h3>
-        <button id="llmClose" class="btn ghost">Close</button>
-      </header>
-      <div class="body">
-        <div class="small" style="margin-bottom:8px">Local demo chat — replace with your backend.</div>
-        <div id="llmMessages" style="background:#081018;border:1px solid var(--stroke);border-radius:8px;padding:10px;min-height:180px"></div>
-        <div class="row" style="margin-top:8px">
-          <input id="llmInput" class="btn mono" style="flex:1;background:#0f141d" placeholder="Ask for strategy, dev help, or ritual design..." />
-          <button id="llmSend" class="btn">Send</button>
-        </div>
-      </div>
-    </div>
-  </div>
+<!-- LLM Modal --> <div id="llmBackdrop" class="modal-backdrop" aria-hidden="true"> <div class="modal" role="dialog" aria-modal="true" aria-labelledby="llmTitle"> <header> <h3 id="llmTitle" class="mono" style="font-weight:800">LLM — Coin holder chat</h3> <button id="llmClose" class="btn ghost">Close</button> </header> <div class="body"> <div class="small" style="margin-bottom:8px">Local demo chat — replace with your backend.</div> <div id="llmMessages" style="background:#081018;border:1px solid var(--stroke);border-radius:8px;padding:10px;min-height:180px"></div> <div class="row" style="margin-top:8px"> <input id="llmInput" class="btn mono" style="flex:1;background:#0f141d" placeholder="Ask for strategy, dev help, or ritual design..." /> <button id="llmSend" class="btn">Send</button> </div> </div> </div> </div>
 
-  <!-- Commit viewer -->
-  <div id="commitToggle">🕰️</div>
-  <div id="commitViewer">
-    <h3 class="mono" style="font-weight:800">🔁 Commit viewer</h3>
-    <div class="row" style="gap:6px">
-      <select id="commitSelector" class="btn mono" style="flex:1;background:#0f141d"></select>
-      <button id="commitLoad" class="btn">Load</button>
-      <button id="commitCopy" class="btn ghost">📋 Copy</button>
-    </div>
-    <div id="previewFrame" style="margin-top:10px;border:1px solid #333;height:300px;background:#000"></div>
-    <pre id="commitPreview" style="margin-top:10px;background:#222;padding:10px;border-radius:6px;white-space:pre-wrap"></pre>
-  </div>
+<!-- Commit viewer --> <div id="commitToggle">🕰️</div> <div id="commitViewer"> <h3 class="mono" style="font-weight:800">🔁 Commit viewer</h3> <div class="row" style="gap:6px"> <select id="commitSelector" class="btn mono" style="flex:1;background:#0f141d"></select> <button id="commitLoad" class="btn">Load</button> <button id="commitCopy" class="btn ghost">📋 Copy</button> </div> <div id="previewFrame" style="margin-top:10px;border:1px solid #333;height:300px;background:#000"></div> <pre id="commitPreview" style="margin-top:10px;background:#222;padding:10px;border-radius:6px;white-space:pre-wrap"></pre> </div>
 
-  <!-- Solana libs -->
-  <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iife.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@solana/spl-token@0.3.11/dist/browser/spl-token.min.js"></script>
+<!-- Solana libs --> <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iife.min.js"></script> <script src="https://cdn.jsdelivr.net/npm/@solana/spl-token@0.3.11/dist/browser/spl-token.min.js"></script>
 
-  <!-- projects.js fallback loader expected at site root -->
-  <script src="./projects.js"></script>
+<!-- projects.js fallback loader expected at site root --> <script src="./projects.js"></script>
 
-  <script>
-    /* ========== Debug Panel ========== */
-    const debugPanel = document.createElement('div');
-    debugPanel.id = 'debugPanel';
-    debugPanel.innerHTML = `
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <strong>🔍 Debug Log</strong>
-        <div style="display:flex;gap:8px;align-items:center">
-          <button id="toggleDebug" class="btn ghost" style="padding:6px 10px">Hide</button>
-          <button id="clearDebug" class="btn ghost" style="padding:6px 10px">Clear</button>
-        </div>
-      </div>
-      <div id="debugLog" style="margin-top:8px;white-space:pre-wrap"></div>
-    `;
-    document.body.appendChild(debugPanel);
-    function logDebug(...args){
-      const el = document.getElementById('debugLog');
-      const t = '[' + new Date().toLocaleTimeString() + '] ' + args.map(a => (typeof a === 'object' ? JSON.stringify(a,null,2) : String(a))).join(' ');
-      const d = document.createElement('div'); d.textContent = t; el.appendChild(d); el.scrollTop = el.scrollHeight;
-      console.log(...args);
-    }
-    document.getElementById('clearDebug').addEventListener('click', ()=> document.getElementById('debugLog').innerHTML = '');
-    document.getElementById('toggleDebug').addEventListener('click', (e)=> {
-      const log = document.getElementById('debugLog'); const hidden = log.style.display === 'none'; log.style.display = hidden ? 'block' : 'none'; e.target.textContent = hidden ? 'Hide' : 'Show';
-    });
+<script> /* ========== Debug Panel ========== */ const debugPanel = document.createElement('div'); debugPanel.id = 'debugPanel'; debugPanel.innerHTML = <div style="display:flex;justify-content:space-between;align-items:center"> <strong>🔍 Debug Log</strong> <div style="display:flex;gap:8px;align-items:center"> <button id="toggleDebug" class="btn ghost" style="padding:6px 10px">Hide</button> <button id="clearDebug" class="btn ghost" style="padding:6px 10px">Clear</button> </div> </div> <div id="debugLog" style="margin-top:8px;white-space:pre-wrap"></div>; document.body.appendChild(debugPanel); function logDebug(...args){ const el = document.getElementById('debugLog'); const t = '[' + new Date().toLocaleTimeString() + '] ' + args.map(a => (typeof a === 'object' ? JSON.stringify(a,null,2) : String(a))).join(' '); const d = document.createElement('div'); d.textContent = t; el.appendChild(d); el.scrollTop = el.scrollHeight; console.log(...args); } document.getElementById('clearDebug').addEventListener('click', ()=> document.getElementById('debugLog').innerHTML = ''); document.getElementById('toggleDebug').addEventListener('click', (e)=> { const log = document.getElementById('debugLog'); const hidden = log.style.display === 'none'; log.style.display = hidden ? 'block' : 'none'; e.target.textContent = hidden ? 'Hide' : 'Show'; });
 
-    /* ========== Elements & State ========== */
-    const walletLabel = document.getElementById('walletLabel');
-    const statusEl = document.getElementById('status');
-    const connectBtn = document.getElementById('connectBtn');
-    const resetBtn = document.getElementById('resetBtn');
-    const scanBtn = document.getElementById('scanBtn');
-    const recoverBtn = document.getElementById('recoverBtn');
-    const recoverInlineBtn = document.getElementById('recoverInlineBtn');
-    const exportSessionBtn = document.getElementById('exportSession');
-    const loadMoreBtn = document.getElementById('loadMore');
-    const mintSigilBtn = document.getElementById('mintSigil');
-    const bookIntroBtn = document.getElementById('bookIntro');
-    const copyReferralBtn = document.getElementById('copyReferral');
-    const sendSupportBtn = document.getElementById('sendSupport');
-    const llmAccessBadge = document.getElementById('llmAccessBadge');
-    const openLLMBtn = document.getElementById('openLLM');
-    const llmBackdrop = document.getElementById('llmBackdrop');
-    const llmClose = document.getElementById('llmClose');
-    const llmMessages = document.getElementById('llmMessages');
-    const llmInput = document.getElementById('llmInput');
-    const llmSend = document.getElementById('llmSend');
-    const walletStatusBadge = document.getElementById('walletStatus');
-    const repoGroups = document.getElementById('repoGroups');
+/* ========== Elements & State ========== */ const walletLabel = document.getElementById('walletLabel'); const statusEl = document.getElementById('status'); const connectBtn = document.getElementById('connectBtn'); const resetBtn = document.getElementById('resetBtn'); const scanBtn = document.getElementById('scanBtn'); const recoverBtn = document.getElementById('recoverBtn'); const recoverInlineBtn = document.getElementById('recoverInlineBtn'); const exportSessionBtn = document.getElementById('exportSession'); const loadMoreBtn = document.getElementById('loadMore'); const mintSigilBtn = document.getElementById('mintSigil'); const bookIntroBtn = document.getElementById('bookIntro'); const copyReferralBtn = document.getElementById('copyReferral'); const sendSupportBtn = document.getElementById('sendSupport'); const llmAccessBadge = document.getElementById('llmAccessBadge'); const openLLMBtn = document.getElementById('openLLM'); const llmBackdrop = document.getElementById('llmBackdrop'); const llmClose = document.getElementById('llmClose'); const llmMessages = document.getElementById('llmMessages'); const llmInput = document.getElementById('llmInput'); const llmSend = document.getElementById('llmSend'); const walletStatusBadge = document.getElementById('walletStatus'); const repoGroups = document.getElementById('repoGroups');
 
-    const commitToggle = document.getElementById('commitToggle');
-    const commitViewer = document.getElementById('commitViewer');
-    const commitSelector = document.getElementById('commitSelector');
-    const commitLoadBtn = document.getElementById('commitLoad');
-    const commitCopyBtn = document.getElementById('commitCopy');
-    const commitPreview = document.getElementById('commitPreview');
-    const previewFrame = document.getElementById('previewFrame');
+const commitToggle = document.getElementById('commitToggle'); const commitViewer = document.getElementById('commitViewer'); const commitSelector = document.getElementById('commitSelector'); const commitLoadBtn = document.getElementById('commitLoad'); const commitCopyBtn = document.getElementById('commitCopy'); const commitPreview = document.getElementById('commitPreview'); const previewFrame = document.getElementById('previewFrame');
 
-    const feedEl = document.getElementById('feed');
-    const refInput = document.getElementById('refAddress');
-    const donationToggle = document.getElementById('donationToggle');
-    const refundEstimateBigEl = document.getElementById('refundEstimateBig');
-    const emptyCountEl = document.getElementById('emptyCount');
-    const refundEstimateEl = document.getElementById('refundEstimate');
-    const sessionActionsEl = document.getElementById('sessionActions');
+const feedEl = document.getElementById('feed'); const refInput = document.getElementById('refAddress'); const donationToggle = document.getElementById('donationToggle'); const refundEstimateBigEl = document.getElementById('refundEstimateBig'); const emptyCountEl = document.getElementById('emptyCount'); const refundEstimateEl = document.getElementById('refundEstimate'); const sessionActionsEl = document.getElementById('sessionActions');
 
-    const endpoint = 'https://api.mainnet-beta.solana.com';
-    const connection = new solanaWeb3.Connection(endpoint, 'confirmed');
-    const RENT_PER_EMPTY_ACCOUNT_SOL = 0.00204;
-    const DONATION_PCT = 0.05;
-    const REFERRAL_SPLIT_PCT_OF_DONATION = 0.20;
-    const FEE_WALLET = new solanaWeb3.PublicKey('5hSWosj58ki4A6hSfQrvteQU5QvyCWmhHn4AuqgaQzqr');
-    const GATE_MINTS = []; // add mint addresses to enforce token gate
+const endpoint = 'https://api.mainnet-beta.solana.com'; const connection = new solanaWeb3.Connection(endpoint, 'confirmed'); const RENT_PER_EMPTY_ACCOUNT_SOL = 0.00204; const DONATION_PCT = 0.05; const REFERRAL_SPLIT_PCT_OF_DONATION = 0.20; const FEE_WALLET = new solanaWeb3.PublicKey('5hSWosj58ki4A6hSfQrvteQU5QvyCWmhHn4AuqgaQzqr'); const GATE_MINTS = []; // add mint addresses to enforce token gate
 
-    let wallet = null;
-    let emptyTokenAccounts = [];
-    let holdings = []; // {mint, amount}
-    let sessionFeed = [];
-    let sessionActions = 0;
+let wallet = null; let emptyTokenAccounts = []; let holdings = []; // {mint, amount} let sessionFeed = []; let sessionActions = 0;
 
-    function setStatus(msg, kind='info'){
-      statusEl.textContent = msg;
-      statusEl.style.color = kind==='error' ? 'var(--bad)' : kind==='warn' ? 'var(--warn)' : kind==='success' ? 'var(--good)' : 'var(--muted)';
-    }
-    function shorten(s){ return s ? (s.slice(0,4) + '...' + s.slice(-4)) : '—' }
-    function toSol(n){ return (Math.round(n*100000)/100000).toFixed(5) }
-    function lamportsToSol(l){ return l / solanaWeb3.LAMPORTS_PER_SOL }
-    function safePubkey(s){ try{ return s ? new solanaWeb3.PublicKey(s) : null } catch(_) { return null } }
-    function updateReferralPreview(){ const base = location.origin + location.pathname; const ref = refInput.value ? ('?ref=' + encodeURIComponent(refInput.value)) : ''; document.getElementById('refPreview').textContent = base + ref }
+function setStatus(msg, kind='info'){ statusEl.textContent = msg; statusEl.style.color = kind==='error' ? 'var(--bad)' : kind==='warn' ? 'var(--warn)' : kind==='success' ? 'var(--good)' : 'var(--muted)'; } function shorten(s){ return s ? (s.slice(0,4) + '...' + s.slice(-4)) : '—' } function toSol(n){ return (Math.round(n*100000)/100000).toFixed(5) } function lamportsToSol(l){ return l / solanaWeb3.LAMPORTS_PER_SOL } function safePubkey(s){ try{ return s ? new solanaWeb3.PublicKey(s) : null } catch(_) { return null } } function updateReferralPreview(){ const base = location.origin + location.pathname; const ref = refInput.value ? ('?ref=' + encodeURIComponent(refInput.value)) : ''; document.getElementById('refPreview').textContent = base + ref }
 
-    function getProvider(){ const p = window.solana; if(p && (p.isPhantom || p.isBackpack || p.isOKXWallet)) return p; return null }
+function getProvider(){ const p = window.solana; if(p && (p.isPhantom || p.isBackpack || p.isOKXWallet)) return p; return null }
 
-    window.addEventListener('load', () => {
-      if(window.solana && window.solana.isPhantom){
-        walletStatusBadge.textContent = 'Wallet: Phantom detected';
-        logDebug('Provider detected: Phantom');
-      } else if(window.solana){
-        walletStatusBadge.textContent = 'Wallet: provider found';
-        logDebug('Provider detected:', window.solana);
-      } else {
-        walletStatusBadge.textContent = 'Wallet: not detected';
-        logDebug('No provider detected');
-      }
-      const params = new URLSearchParams(window.location.search);
-      const refFromUrl = params.get('ref') || params.get('summoner');
-      if(refFromUrl) refInput.value = refFromUrl;
-      updateReferralPreview();
+window.addEventListener('load', () => { if(window.solana && window.solana.isPhantom){ walletStatusBadge.textContent = 'Wallet: Phantom detected'; logDebug('Provider detected: Phantom'); } else if(window.solana){ walletStatusBadge.textContent = 'Wallet: provider found'; logDebug('Provider detected:', window.solana); } else { walletStatusBadge.textContent = 'Wallet: not detected'; logDebug('No provider detected'); } const params = new URLSearchParams(window.location.search); const refFromUrl = params.get('ref') || params.get('summoner'); if(refFromUrl) refInput.value = refFromUrl; updateReferralPreview();
 
-      // kick off repo listing if projects.js not loaded
-      if(typeof window.listRepos === 'function') {
-        try{ window.listRepos() }catch(e){ logDebug('listRepos error', e) }
-      } else {
-        // fallback quick list (best effort)
-        try{ fetchAndRenderRepos() }catch(e){ logDebug('repo fallback failed', e) }
-      }
-    });
+if(typeof window.listRepos === 'function') { try{ window.listRepos() }catch(e){ logDebug('listRepos error', e) } } else { try{ fetchAndRenderRepos() }catch(e){ logDebug('repo fallback failed', e) } } });
 
-    /* ========== WALLET CONNECT (desktop + mobile) ========== */
-    async function connectWallet(){
-      const provider = getProvider();
-      if(!provider){
-        logDebug('No provider found (window.solana):', window.solana);
-        setStatus('Install Phantom/Backpack or enable extension on this site.');
-        return;
-      }
-      try{
-        logDebug('Invoking provider.connect({onlyIfTrusted:false})');
-        const resp = await provider.connect({ onlyIfTrusted: false });
-        wallet = resp.publicKey;
-        walletLabel.textContent = shorten(wallet.toBase58());
-        setStatus('Wallet connected.', 'success');
-        logDebug('Connected', wallet.toBase58());
-        // trigger scan and gate check
-        await scanAllHoldingsAndHistory();
-        await checkGateAccess();
-      } catch(e){
-        logDebug('connectWallet error', e);
-        setStatus('Wallet connection canceled or failed.', 'error');
-      }
-    }
+/* ========== WALLET CONNECT (desktop + mobile) ========== */ async function connectWallet(){ const provider = getProvider(); if(!provider){ logDebug('No provider found (window.solana):', window.solana); setStatus('Install Phantom/Backpack or enable extension on this site.'); return; } try{ logDebug('Invoking provider.connect({onlyIfTrusted:false})'); // provider.connect must be called from a user gesture; button click OK const resp = await provider.connect({ onlyIfTrusted: false }).catch(e=>{ throw e; }); // some wallets populate provider.publicKey instead of returning resp with publicKey wallet = (resp && resp.publicKey) ? resp.publicKey : (provider.publicKey || null); if(wallet && wallet.toBase58) { walletLabel.textContent = shorten(wallet.toBase58()); setStatus('Wallet connected.', 'success'); logDebug('Connected', wallet.toBase58()); await scanAllHoldingsAndHistoryImproved(); await checkGateAccess(); } else { throw new Error('No publicKey returned from provider'); } } catch(e){ logDebug('connectWallet error', e); setStatus('Wallet connection canceled or failed.', 'error'); } }
 
-    function resetConnection(){
-      const provider = getProvider();
-      if(provider){ try{ provider.disconnect() }catch(_){} }
-      wallet = null;
-      walletLabel.textContent = '—';
-      emptyTokenAccounts = [];
-      holdings = [];
-      refundEstimateBigEl.textContent = '0.00000 SOL';
-      emptyCountEl.textContent = '0';
-      refundEstimateEl.textContent = '0.00000 SOL';
-      llmAccessBadge.textContent = 'Access: locked';
-      openLLMBtn.disabled = true;
-      setStatus('Connection reset.');
-      logDebug('Connection reset');
-    }
+function resetConnection(){ const provider = getProvider(); if(provider){ try{ provider.disconnect() }catch(_){} } wallet = null; walletLabel.textContent = '—'; emptyTokenAccounts = []; holdings = []; refundEstimateBigEl.textContent = '0.00000 SOL'; emptyCountEl.textContent = '0'; refundEstimateEl.textContent = '0.00000 SOL'; llmAccessBadge.textContent = 'Access: locked'; openLLMBtn.disabled = true; setStatus('Connection reset.'); logDebug('Connection reset'); }
 
-    /* ========== ENHANCED SCAN: tokens + solscan history mapping ========== */
-    // Solscan endpoints (public; CORS or rate limiting may apply). For heavy usage, proxy or API key recommended.
-    const SOLSCAN_ACCOUNT_TXS = 'https://public-api.solscan.io/account/transactions'; // ?address=...&limit=...
-    const SOLSCAN_ACCOUNT_INFO = 'https://public-api.solscan.io/account';
-    const SOLSCAN_TOKEN_INFO = 'https://public-api.solscan.io/token/meta?tokenAddress=';
+/* ========== ENHANCED SCAN (robust RPC fallback + solscan) ========== */ const SOLSCAN_ACCOUNT_TXS = 'https://public-api.solscan.io/account/transactions'; const SOLSCAN_TOKEN_INFO = 'https://public-api.solscan.io/token/meta?tokenAddress=';
 
-    // fetch token accounts and holdings, find empty accounts (uiAmount = 0)
-    async function scanTokenAccounts(){
-      if(!wallet) { setStatus('Connect wallet first.', 'warn'); return {empty:[], holdings:[]}; }
-      setStatus('Scanning token accounts and holdings...');
-      try{
-        const res = await connection.getParsedTokenAccountsByOwner(wallet, { programId: splToken.TOKEN_PROGRAM_ID });
-        const parsed = res.value || [];
-        const empty = [];
-        const holds = {};
-        parsed.forEach(acc => {
-          const ui = Number(acc.account.data.parsed.info.tokenAmount?.uiAmount || 0);
-          const mint = acc.account.data.parsed.info.mint;
-          if(ui === 0) empty.push({ pubkey: acc.pubkey.toBase58(), mint });
-          else holds[mint] = (holds[mint] || 0) + ui;
-        });
-        const holdingsArr = Object.keys(holds).map(m => ({ mint: m, amount: holds[m] }));
-        emptyTokenAccounts = empty;
-        holdings = holdingsArr;
-        logDebug('scanTokenAccounts', { emptyCount: empty.length, holdingsCount: holdingsArr.length });
-        emptyCountEl.textContent = String(empty.length);
-        const est = empty.length * RENT_PER_EMPTY_ACCOUNT_SOL;
-        refundEstimateEl.textContent = toSol(est) + ' SOL';
-        refundEstimateBigEl.textContent = toSol(est) + ' SOL';
-        setStatus(`Scan complete. ${empty.length} empty account(s).`);
-        return { empty, holdings: holdingsArr };
-      } catch(e){
-        logDebug('scanTokenAccounts failed', e);
-        setStatus('Scan failed. Try again.', 'error');
-        return { empty:[], holdings:[] };
-      }
-    }
+async function scanTokenAccounts() { if (!wallet) { setStatus('Connect wallet first.', 'warn'); return { empty: [], holdings: [] }; } setStatus('Scanning token accounts and holdings...'); try { // prefer parsed method let res; try { res = await connection.getParsedTokenAccountsByOwner(wallet, { programId: splToken.TOKEN_PROGRAM_ID }); } catch (errParsed) { logDebug('getParsedTokenAccountsByOwner failed, falling back to getTokenAccountsByOwner', errParsed); const raw = await connection.getTokenAccountsByOwner(wallet, { programId: splToken.TOKEN_PROGRAM_ID }); const parsedFallback = raw.value.map(v => ({ pubkey: v.pubkey.toString ? v.pubkey.toString() : String(v.pubkey), account: { data: { parsed: { info: { tokenAmount: { uiAmount: 0 }, mint: 'unknown' } } } } })); res = { value: parsedFallback }; }
 
-    // fetch partial transaction history via Solscan public endpoint (best effort). We only fetch recent pages and aggregate.
-    async function fetchSolscanTransactions(limitPerPage = 50, pages = 3){
-      if(!wallet) return [];
-      setStatus('Fetching recent transactions (Solscan) — this may be slow...');
-      try{
-        const addr = wallet.toBase58();
-        let all = [];
-        for(let p=0;p<pages;p++){
-          const offset = p * limitPerPage;
-          const url = `${SOLSCAN_ACCOUNT_TXS}?address=${addr}&limit=${limitPerPage}&offset=${offset}`;
-          logDebug('Solscan fetch', url);
-          const r = await fetch(url);
-          if(!r.ok){ logDebug('Solscan fetch non-ok', r.status); break; }
-          const j = await r.json();
-          if(!Array.isArray(j) || j.length === 0) break;
-          all = all.concat(j);
-          if(j.length < limitPerPage) break;
-          // small delay to be polite
-          await new Promise(res => setTimeout(res, 250));
-        }
-        logDebug('Fetched transactions count:', all.length);
-        return all;
-      }catch(e){
-        logDebug('fetchSolscanTransactions failed', e);
-        return [];
-      }
-    }
+const parsed = res.value || []; const empty = []; const holdsMap = {}; for (const acc of parsed) { const info = acc.account && acc.account.data && acc.account.data.parsed && acc.account.data.parsed.info; const ui = Number(info?.tokenAmount?.uiAmount || 0); const mint = info?.mint || null; const pubkey = acc.pubkey?.toString ? acc.pubkey.toString() : String(acc.pubkey); if (ui === 0) empty.push({ pubkey, mint }); else if (mint) holdsMap[mint] = (holdsMap[mint] || 0) + ui; }
 
-    // analyze transactions to compute net SOL flow per counterparty and map probable loss
-    function analyzeTransactionsForFlows(txs){
-      // txs from Solscan: each item contains signatures, blockTime, change (maybe)
-      // We'll create a map of address => net lamports (received - sent) relative to our wallet
-      const flows = {}; // address => { inLamports, outLamports, net }
-      const our = wallet.toBase58();
-      for(const tx of txs){
-        // Solscan response has 'tokenTransfers' and 'nativeTransfers' etc; try to read native transfers
-        // Defensive: check multiple possible fields
-        const nativeTransfers = tx.nativeTransfers || tx.nativeTransfer || tx.native || [];
-        if(Array.isArray(nativeTransfers) && nativeTransfers.length){
-          for(const nt of nativeTransfers){
-            try {
-              const from = nt.from;
-              const to = nt.to;
-              const lamports = Math.floor((nt.amount || 0) * solanaWeb3.LAMPORTS_PER_SOL); // Solscan may return SOL value
-              if(from === our){
-                // outgoing from our wallet to 'to'
-                flows[to] = flows[to] || {in:0,out:0};
-                flows[to].out += lamports;
-              }
-              if(to === our){
-                flows[from] = flows[from] || {in:0,out:0};
-                flows[from].in += lamports;
-              }
-            } catch(e){
-              // ignore malformed
-            }
-          }
-        } else {
-          // fallback: check parsed instructions for SystemProgram transfer events
-          const instructions = tx.instructions || tx.instruction || [];
-          for(const ins of instructions){
-            try{
-              // many explorer formats differ; robust extraction is tricky — skip if missing
-              if(ins.type === 'transfer' && ins.info){
-                const from = ins.info.source || ins.info.from;
-                const to = ins.info.destination || ins.info.to;
-                const lamports = Number(ins.info.lamports || Math.floor((ins.info.amount || 0) * solanaWeb3.LAMPORTS_PER_SOL) || 0);
-                if(from === our){ flows[to] = flows[to] || {in:0,out:0}; flows[to].out += lamports }
-                if(to === our){ flows[from] = flows[from] || {in:0,out:0}; flows[from].in += lamports }
-              }
-            }catch(e){}
-          }
-        }
-      }
+const holdingsArr = Object.keys(holdsMap).map(m => ({ mint: m, amount: holdsMap[m] })); emptyTokenAccounts = empty; holdings = holdingsArr; emptyCountEl.textContent = String(empty.length); const est = empty.length * RENT_PER_EMPTY_ACCOUNT_SOL; refundEstimateEl.textContent = toSol(est) + ' SOL'; refundEstimateBigEl.textContent = toSol(est) + ' SOL'; setStatus(Scan complete. ${empty.length} empty account(s).); logDebug('scanTokenAccounts ok', { emptyCount: empty.length, holdingsCount: holdingsArr.length }); return { empty, holdings: holdingsArr }; } catch (e) { logDebug('scanTokenAccounts failed', e); setStatus('Scan failed. Try again.', 'error'); return { empty: [], holdings: [] }; } }
 
-      // Convert to net SOL and sort counterparties by net outflow from us (i.e., others that received most from us)
-      const summary = Object.keys(flows).map(addr => {
-        const inLam = flows[addr].in || 0;
-        const outLam = flows[addr].out || 0;
-        return { addr, inSol: lamportsToSol(inLam), outSol: lamportsToSol(outLam), netOutFromUs: lamportsToSol(outLam - inLam) };
-      }).sort((a,b) => (b.netOutFromUs || 0) - (a.netOutFromUs || 0));
+async function fetchTransactionsForWallet({ solscanPages = 2, solscanLimit = 50, rpcLimit = 150 } = {}) { if (!wallet) return { source:'none', txs: [] }; const addr = wallet.toBase58(); // Try Solscan first (best-effort) try { const all = []; for (let p = 0; p < solscanPages; p++) { const offset = p * solscanLimit; const url = ${SOLSCAN_ACCOUNT_TXS}?address=${addr}&limit=${solscanLimit}&offset=${offset}; logDebug('Solscan fetch', url); const r = await fetch(url); if (!r.ok) { logDebug('Solscan non-ok', r.status); throw new Error('Solscan non-ok ' + r.status); } const j = await r.json(); if (!Array.isArray(j) || j.length === 0) break; all.push(...j); if (j.length < solscanLimit) break; await new Promise(res => setTimeout(res, 250)); } logDebug('Solscan returned tx count', all.length); if (all.length > 0) return { source: 'solscan', txs: all }; } catch (e) { logDebug('Solscan fetch failed; falling back to RPC', e); }
 
-      return summary;
-    }
+// RPC fallback try { setStatus('Fetching transactions via RPC (may take a moment)...'); const sigs = await connection.getSignaturesForAddress(wallet, { limit: rpcLimit }); if (!Array.isArray(sigs) || sigs.length === 0) { logDebug('RPC returned no signatures'); return { source: 'rpc', txs: [] }; } const signatures = sigs.map(s => s.signature); const batches = []; const batchSize = 20; for (let i = 0; i < signatures.length; i += batchSize) { const chunk = signatures.slice(i, i + batchSize); const parsedChunk = await Promise.all(chunk.map(sig => connection.getParsedTransaction(sig, 'confirmed').catch(e => { logDebug('getParsedTransaction failed', sig, e); return null; }))); batches.push(...parsedChunk.filter(Boolean)); await new Promise(res => setTimeout(res, 150)); } logDebug('RPC parsed transactions fetched', batches.length); return { source: 'rpc', txs: batches }; } catch (e) { logDebug('RPC fallback failed', e); return { source: 'none', txs: [] }; } }
 
-    // full enhanced scan that ties token accounts + Solscan tx history
-    async function scanAllHoldingsAndHistory(){
-      setStatus('Starting comprehensive scan...');
-      const tokenResult = await scanTokenAccounts();
-      // holdings currently token mints; optionally enrich with token metadata via Solscan token meta endpoint (best effort)
-      // fetch a few token metadata entries (non-blocking)
-      for(const h of tokenResult.holdings.slice(0,6)){
-        try{
-          const r = await fetch(SOLSCAN_TOKEN_INFO + encodeURIComponent(h.mint));
-          if(r.ok){
-            const meta = await r.json();
-            h.meta = meta;
-          }
-        }catch(e){}
-      }
+function analyzeTransactionsForFlowsUnified(rawTxBundle) { if(!wallet) return []; const our = wallet.toBase58(); const flows = {}; // addr => { in: lam, out: lam } const txs = rawTxBundle.txs || [];
 
-      // fetch recent Solscan txs and analyze flows
-      const txs = await fetchSolscanTransactions(50, 4); // 200 txs max by default
-      const flowSummary = analyzeTransactionsForFlows(txs);
-      logDebug('Flow summary (top 8):', flowSummary.slice(0,8));
-      // present suspicious counterparties (top receivers from our wallet)
-      renderCounterpartySummary(flowSummary);
+if (rawTxBundle.source === 'solscan') { for (const tx of txs) { const native = tx.nativeTransfers || tx.nativeTransfer || tx.native || []; if (Array.isArray(native) && native.length) { for (const nt of native) { const from = nt.from, to = nt.to; const amountSol = Number(nt.amount || 0); const lam = Math.round(amountSol * solanaWeb3.LAMPORTS_PER_SOL); if (from === our) { flows[to] = flows[to] || { in: 0, out: 0 }; flows[to].out += lam; } if (to === our) { flows[from] = flows[from] || { in: 0, out: 0 }; flows[from].in += lam; } } } else { // best-effort: look for change arrays or skip const change = tx.change || []; for (const c of change) { try { const addr = c.address; // not reliable to map direction here; skip } catch(_) {} } } } } else if (rawTxBundle.source === 'rpc') { for (const tx of txs) { try { const meta = tx.meta; const message = tx.transaction?.message; if (!meta || !message) continue; const pre = meta.preBalances || []; const post = meta.postBalances || []; const accountKeys = message.accountKeys.map(k => (k.pubkey ? k.pubkey.toBase58() : k.toString ? k.toString() : String(k))); // Map native transfers from parsed instructions const instrs = message.instructions || []; for (const ins of instrs) { if (ins.parsed && ins.parsed.type === 'transfer' && ins.parsed.info) { const from = ins.parsed.info.source || ins.parsed.info.from; const to = ins.parsed.info.destination || ins.parsed.info.to; const lam = Number(ins.parsed.info.lamports || Math.round((ins.parsed.info.amount || 0) * solanaWeb3.LAMPORTS_PER_SOL || 0)); if (from === our) { flows[to] = flows[to] || { in: 0, out: 0 }; flows[to].out += lam; } if (to === our) { flows[from] = flows[from] || { in: 0, out: 0 }; flows[from].in += lam; } } } } catch (e) { logDebug('analyze RPC tx error', e); } } }
 
-      return { tokenResult, txCount: txs.length, flowSummary };
-    }
+const summary = Object.keys(flows).map(addr => { const inLam = flows[addr].in || 0; const outLam = flows[addr].out || 0; return { addr, inSol: lamportsToSol(inLam), outSol: lamportsToSol(outLam), netOutFromUs: lamportsToSol(outLam - inLam) }; }).sort((a,b)=> (b.netOutFromUs||0) - (a.netOutFromUs||0));
 
-    function renderCounterpartySummary(summary){
-      // create or update a small panel inside repoGroups for quick inspect
-      const existing = document.getElementById('counterpartyPanel');
-      if(existing) existing.remove();
-      const panel = document.createElement('div'); panel.id = 'counterpartyPanel'; panel.className = 'card';
-      panel.innerHTML = `<div style="font-weight:800;margin-bottom:6px">Counterparty flow (top receivers)</div>`;
-      const list = document.createElement('div');
-      list.className = 'list';
-      (summary.slice(0,10)).forEach(s=>{
-        const row = document.createElement('div'); row.className = 'item';
-        row.innerHTML = `<div><div class="mono">${shorten(s.addr)}</div><div class="small">net out: ${s.netOutFromUs} SOL; out: ${s.outSol} SOL; in: ${s.inSol} SOL</div></div><div><button class="btn ghost" onclick="window.open('https://explorer.solana.com/address/${s.addr}','_blank')">Explorer</button></div>`;
-        list.appendChild(row);
-      });
-      panel.appendChild(list);
-      repoGroups.parentNode.insertBefore(panel, repoGroups);
-      setStatus('Analysis complete. See counterparty panel.');
-    }
+return summary; }
 
-    /* ========== RECOVERY flow (existing) ========== */
-    async function recoverNow(){
-      if(!wallet){ setStatus('Connect a wallet first.','warn'); return }
-      if(emptyTokenAccounts.length === 0){ setStatus('No empty accounts to close.','warn'); return }
-      setStatus('Preparing recovery transactions...');
-      const ownerPubkey = wallet;
-      const chunkSize = 8;
-      let closed = 0, refundLamports = 0;
-      for(let i=0;i<emptyTokenAccounts.length;i+=chunkSize){
-        const slice = emptyTokenAccounts.slice(i,i+chunkSize);
-        const tx = new solanaWeb3.Transaction();
-        for(const acc of slice){
-          const ix = splToken.createCloseAccountInstruction(
-            new solanaWeb3.PublicKey(acc.pubkey),
-            ownerPubkey,
-            ownerPubkey,
-            []
-          );
-          tx.add(ix);
-        }
-        tx.feePayer = ownerPubkey;
-        tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
-        try{
-          const sig = await signSendConfirm(tx);
-          closed += slice.length;
-          refundLamports += Math.floor(slice.length * solanaWeb3.LAMPORTS_PER_SOL * RENT_PER_EMPTY_ACCOUNT_SOL);
-          addFeedItem(ownerPubkey.toBase58(), slice.length, slice.length * RENT_PER_EMPTY_ACCOUNT_SOL, sig, new Date());
-          setStatus(`Closed ${closed}/${emptyTokenAccounts.length} accounts...`);
-          logDebug('Recovered chunk', { closed, sig });
-        }catch(e){
-          logDebug('recover chunk failed', e);
-          setStatus('Some accounts failed to close. Retry the remaining ones.', 'warn');
-        }
-        // polite pause
-        await new Promise(r => setTimeout(r, 200));
-      }
+async function scanAllHoldingsAndHistoryImproved(){ setStatus('Starting comprehensive scan (improved)...'); const tokenResult = await scanTokenAccounts(); // enrich a few token metas (best-effort) for(const h of tokenResult.holdings.slice(0,6)){ try{ const r = await fetch(SOLSCAN_TOKEN_INFO + encodeURIComponent(h.mint)); if(r.ok) h.meta = await r.json(); }catch(_) {} } const txBundle = await fetchTransactionsForWallet({ solscanPages: 2, solscanLimit: 50, rpcLimit: 150 }); const flowSummary = analyzeTransactionsForFlowsUnified(txBundle); renderCounterpartySummary(flowSummary); logDebug('Improved scan finished', { tokenResult, txCount: (txBundle.txs||[]).length, flowSummaryLength: flowSummary.length }); return { tokenResult, txBundle, flowSummary }; }
 
-      // optional support + referral
-      if(donationToggle.checked && refundLamports>0){
-        const donationLamports = Math.floor(refundLamports * DONATION_PCT);
-        const referralLamports = Math.floor(donationLamports * REFERRAL_SPLIT_PCT_OF_DONATION);
-        const feeLamports = donationLamports - referralLamports;
-        const referralAddr = safePubkey(refInput.value);
-        const tipTx = new solanaWeb3.Transaction();
-        if(feeLamports>0) tipTx.add(solanaWeb3.SystemProgram.transfer({ fromPubkey: ownerPubkey, toPubkey: FEE_WALLET, lamports: feeLamports }));
-        if(referralAddr && referralLamports>0) tipTx.add(solanaWeb3.SystemProgram.transfer({ fromPubkey: ownerPubkey, toPubkey: referralAddr, lamports: referralLamports }));
-        try{
-          const sig = await signSendConfirm(tipTx);
-          addFeedItem(ownerPubkey.toBase58(), 0, lamportsToSol(donationLamports), sig, new Date());
-          setStatus('Support and referral sent.', 'success');
-        }catch(e){ logDebug('support failed', e); setStatus('Support send failed.', 'warn') }
-      }
+function renderCounterpartySummary(summary){ const existing = document.getElementById('counterpartyPanel'); if(existing) existing.remove(); const panel = document.createElement('div'); panel.id = 'counterpartyPanel'; panel.className = 'card'; panel.innerHTML = <div style="font-weight:800;margin-bottom:6px">Counterparty flow (top receivers)</div>; const list = document.createElement('div'); list.className = 'list'; (summary.slice(0,10)).forEach(s=>{ const row = document.createElement('div'); row.className = 'item'; row.innerHTML = <div><div class="mono">${shorten(s.addr)}</div><div class="small">net out: ${s.netOutFromUs} SOL; out: ${s.outSol} SOL; in: ${s.inSol} SOL</div></div><div><button class="btn ghost" onclick="window.open('https://explorer.solana.com/address/${s.addr}','_blank')">Explorer</button></div>; list.appendChild(row); }); panel.appendChild(list); repoGroups.parentNode.insertBefore(panel, repoGroups); setStatus('Analysis complete. See counterparty panel.'); }
 
-      sessionActions += 1;
-      sessionActionsEl.textContent = String(sessionActions);
-      await scanTokenAccounts();
-      setStatus('Recovery complete.', 'success');
-    }
+/* ========== RECOVERY flow ========== */ async function recoverNow(){ if(!wallet){ setStatus('Connect a wallet first.','warn'); return } if(emptyTokenAccounts.length === 0){ setStatus('No empty accounts to close.','warn'); return } setStatus('Preparing recovery transactions...'); const ownerPubkey = wallet; const chunkSize = 8; let closed = 0, refundLamports = 0; for(let i=0;i<emptyTokenAccounts.length;i+=chunkSize){ const slice = emptyTokenAccounts.slice(i,i+chunkSize); const tx = new solanaWeb3.Transaction(); for(const acc of slice){ const ix = splToken.createCloseAccountInstruction( new solanaWeb3.PublicKey(acc.pubkey), ownerPubkey, ownerPubkey, [] ); tx.add(ix); } tx.feePayer = ownerPubkey; tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash; try{ const sig = await signSendConfirm(tx); closed += slice.length; refundLamports += Math.floor(slice.length * solanaWeb3.LAMPORTS_PER_SOL * RENT_PER_EMPTY_ACCOUNT_SOL); addFeedItem(ownerPubkey.toBase58(), slice.length, slice.length * RENT_PER_EMPTY_ACCOUNT_SOL, sig, new Date()); setStatus(Closed ${closed}/${emptyTokenAccounts.length} accounts...); logDebug('Recovered chunk', { closed, sig }); }catch(e){ logDebug('recover chunk failed', e); setStatus('Some accounts failed to close. Retry the remaining ones.', 'warn'); } await new Promise(r=>setTimeout(r,200)); }
 
-    /* ========== TRANSACTION SIGN & SEND helper with fallbacks ========== */
-    async function signSendConfirm(tx){
-      const provider = getProvider();
-      if(!provider) { logDebug('No provider for signSendConfirm'); throw new Error('No provider') }
-      try{
-        // Some wallets implement signAndSendTransaction, others use signTransaction + sendRawTransaction
-        if(typeof provider.signAndSendTransaction === 'function'){
-          logDebug('Using provider.signAndSendTransaction');
-          const signed = await provider.signAndSendTransaction(tx);
-          const sig = signed.signature || signed;
-          await connection.confirmTransaction(sig, 'confirmed');
-          return sig;
-        } else if(typeof provider.signTransaction === 'function'){
-          logDebug('Using signTransaction + sendRawTransaction fallback');
-          const signedTx = await provider.signTransaction(tx);
-          const raw = signedTx.serialize();
-          const txid = await connection.sendRawTransaction(raw);
-          await connection.confirmTransaction(txid, 'confirmed');
-          return txid;
-        } else {
-          throw new Error('Provider has no signing method');
-        }
-      }catch(e){
-        logDebug('signSendConfirm failed', e);
-        throw e;
-      }
-    }
+if(donationToggle.checked && refundLamports>0){ const donationLamports = Math.floor(refundLamports * DONATION_PCT); const referralLamports = Math.floor(donationLamports * REFERRAL_SPLIT_PCT_OF_DONATION); const feeLamports = donationLamports - referralLamports; const referralAddr = safePubkey(refInput.value); const tipTx = new solanaWeb3.Transaction(); if(feeLamports>0) tipTx.add(solanaWeb3.SystemProgram.transfer({ fromPubkey: ownerPubkey, toPubkey: FEE_WALLET, lamports: feeLamports })); if(referralAddr && referralLamports>0) tipTx.add(solanaWeb3.SystemProgram.transfer({ fromPubkey: ownerPubkey, toPubkey: referralAddr, lamports: referralLamports })); try{ const sig = await signSendConfirm(tipTx); addFeedItem(ownerPubkey.toBase58(), 0, lamportsToSol(donationLamports), sig, new Date()); setStatus('Support and referral sent.', 'success'); }catch(e){ logDebug('support failed', e); setStatus('Support send failed.', 'warn') } }
 
-    /* ========== TOKEN-GATE & LLM UI ========== */
-    async function checkGateAccess(){
-      if(!wallet){ setStatus('Connect wallet to check access.', 'warn'); return }
-      if(GATE_MINTS.length === 0){
-        llmAccessBadge.textContent = 'Access: open (config pending)';
-        openLLMBtn.disabled = false;
-        return;
-      }
-      try{
-        const res = await connection.getParsedTokenAccountsByOwner(wallet, { programId: splToken.TOKEN_PROGRAM_ID });
-        const mints = new Set(res.value.map(acc => acc.account.data.parsed.info.mint));
-        const ok = GATE_MINTS.some(m => mints.has(m));
-        llmAccessBadge.textContent = ok ? 'Access: unlocked' : 'Access: locked';
-        openLLMBtn.disabled = !ok;
-      }catch(e){ logDebug('checkGateAccess fail', e); setStatus('Token-gate check failed.', 'error') }
-    }
-    function openLLM(){ llmBackdrop.style.display = 'flex'; llmBackdrop.setAttribute('aria-hidden','false'); if(!llmMessages.dataset.boot){ llmMessages.dataset.boot='1'; appendLLM('system','LLM demo active. Replace with backend.'); } llmInput.focus(); }
-    function closeLLM(){ llmBackdrop.style.display = 'none'; llmBackdrop.setAttribute('aria-hidden','true'); }
-    function appendLLM(role,text){ const wrap=document.createElement('div'); wrap.style.margin='6px 0'; wrap.innerHTML=`<div class="small mono" style="color:${role==='user'?'#9bd':'#a8b3c7'}">${role}</div><div>${escapeHtml(text)}</div>`; llmMessages.appendChild(wrap); llmMessages.scrollTop = llmMessages.scrollHeight }
-    function escapeHtml(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])) }
-    function llmRespond(prompt){ const hint = prompt.length>200 ? 'Please break into steps' : 'Try a focused next step'; appendLLM('assistant', `I hear: "${prompt.slice(0,240)}". ${hint}`) }
+sessionActions += 1; sessionActionsEl.textContent = String(sessionActions); await scanTokenAccounts(); setStatus('Recovery complete.', 'success'); }
 
-    /* ========== Repos listing (fallback quick) ========== */
-    async function fetchAndRenderRepos(){
-      if(!repoGroups) return;
-      repoGroups.innerHTML = '<div class="small">Loading projects…</div>';
-      try{
-        const res = await fetch('https://api.github.com/users/barbrickdesign/repos?per_page=100', { headers: { 'Accept':'application/vnd.github+json' }});
-        if(!res.ok) throw new Error('GitHub API fail ' + res.status);
-        const repos = await res.json();
-        repos.sort((a,b)=> new Date(b.pushed_at) - new Date(a.pushed_at));
-        repoGroups.innerHTML = '';
-        for(const r of repos){
-          const repoName = r.name;
-          const repoUrl = r.html_url;
-          // Determine live URL: check root index first, then gh-pages style subpath fallback
-          const candidate1 = `https://barbrickdesign.github.io/${repoName}/index.html`;
-          const candidateRoot = `https://barbrickdesign.github.io/${repoName}/`;
-          let indexExists = false;
-          try {
-            const h = await fetch(candidate1, { method:'HEAD' });
-            indexExists = h.ok;
-          } catch(e){
-            indexExists = false;
-          }
-          const liveUrl = indexExists ? candidateRoot : candidateRoot; // keep root; HEAD check flags existence
-          const row = document.createElement('div'); row.className = 'item';
-          row.innerHTML = `<div><div class="link"><a href="${repoUrl}" target="_blank" rel="noopener">${repoName}</a></div><div class="small">${r.description || 'No description'}</div></div>
-            <a class="btn ghost" href="${repoUrl}" target="_blank" rel="noopener">Repo</a>
-            ${indexExists ? `<a class="btn" href="${liveUrl}" target="_blank" rel="noopener">View</a>` : `<span class="badge" style="border-color:#f66;color:#f99">⚠ No index.html</span>`}`;
-          repoGroups.appendChild(row);
-        }
-      }catch(e){
-        logDebug('fetchAndRenderRepos failed', e);
-        repoGroups.innerHTML = `<div class="small">Failed to load projects. Ensure projects.json exists as fallback.</div>`;
-      }
-    }
+/* ========== signSendConfirm with multiple wallet API fallbacks ========== */ async function signSendConfirm(tx){ const provider = getProvider(); if(!provider) { logDebug('No provider available'); throw new Error('No provider') } try{ if(typeof provider.signAndSendTransaction === 'function'){ logDebug('Using signAndSendTransaction'); const res = await provider.signAndSendTransaction(tx); const sig = res.signature || res; await connection.confirmTransaction(sig, 'confirmed'); return sig; } else if(typeof provider.signTransaction === 'function'){ logDebug('Using signTransaction fallback'); const signed = await provider.signTransaction(tx); const raw = signed.serialize(); const txid = await connection.sendRawTransaction(raw); await connection.confirmTransaction(txid, 'confirmed'); return txid; } else { throw new Error('Provider has no signing methods'); } }catch(e){ logDebug('signSendConfirm error', e); throw e; } }
 
-    /* ========== Commit Viewer ========== */
-    const commitRepo = 'barbrickdesign/SOLRecovery';
-    const commitFilePath = 'index.html';
-    commitToggle.addEventListener('click', ()=>{
-      const show = commitViewer.style.display !== 'block';
-      commitViewer.style.display = show ? 'block' : 'none';
-      if(show && !commitSelector.dataset.loaded) fetchCommits();
-    });
-    async function fetchCommits(){
-      try{
-        const res = await fetch(`https://api.github.com/repos/${commitRepo}/commits?path=${commitFilePath}`);
-        const commits = await res.json();
-        commitSelector.innerHTML = '';
-        commits.forEach(c=>{
-          const opt = document.createElement('option');
-          opt.value = c.sha;
-          opt.text = `${c.commit.message} (${c.commit.author.date})`;
-          commitSelector.appendChild(opt);
-        });
-        commitSelector.dataset.loaded='1';
-      }catch(e){
-        commitSelector.innerHTML = '<option>Failed to load commits</option>';
-      }
-    }
-    async function loadCommit(){
-      const sha = commitSelector.value;
-      if(!sha) return;
-      try{
-        const res = await fetch(`https://api.github.com/repos/${commitRepo}/contents/${commitFilePath}?ref=${sha}`);
-        const data = await res.json();
-        const content = atob(data.content);
-        commitPreview.textContent = content;
-        const frame = document.createElement('iframe'); frame.style.width='100%'; frame.style.height='100%'; frame.style.border='none'; frame.srcdoc = content;
-        previewFrame.innerHTML=''; previewFrame.appendChild(frame);
-      }catch(e){
-        commitPreview.textContent = 'Failed to load commit content.';
-        previewFrame.innerHTML = '';
-      }
-    }
-    function copyCommitToClipboard(){ const text = commitPreview.textContent || ''; navigator.clipboard.writeText(text).then(()=> setStatus('Commit copied','success'), ()=> setStatus('Copy failed','warn')) }
+/* ========== TOKEN-GATE & LLM UI ========== */ async function checkGateAccess(){ if(!wallet){ setStatus('Connect wallet to check access.', 'warn'); return } if(GATE_MINTS.length === 0){ llmAccessBadge.textContent = 'Access: open (config pending)'; openLLMBtn.disabled = false; return; } try{ const res = await connection.getParsedTokenAccountsByOwner(wallet, { programId: splToken.TOKEN_PROGRAM_ID }); const mints = new Set(res.value.map(acc => acc.account.data.parsed.info.mint)); const ok = GATE_MINTS.some(m => mints.has(m)); llmAccessBadge.textContent = ok ? 'Access: unlocked' : 'Access: locked'; openLLMBtn.disabled = !ok; }catch(e){ logDebug('checkGateAccess fail', e); setStatus('Token-gate check failed.', 'error') } } function openLLM(){ llmBackdrop.style.display = 'flex'; llmBackdrop.setAttribute('aria-hidden','false'); if(!llmMessages.dataset.boot){ llmMessages.dataset.boot='1'; appendLLM('system','LLM demo active. Replace with backend.'); } llmInput.focus(); } function closeLLM(){ llmBackdrop.style.display = 'none'; llmBackdrop.setAttribute('aria-hidden','true'); } function appendLLM(role,text){ const wrap=document.createElement('div'); wrap.style.margin='6px 0'; wrap.innerHTML=<div class="small mono" style="color:${role==='user'?'#9bd':'#a8b3c7'}">${role}</div><div>${escapeHtml(text)}</div>; llmMessages.appendChild(wrap); llmMessages.scrollTop = llmMessages.scrollHeight } function escapeHtml(s){ return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])) } function llmRespond(prompt){ appendLLM('assistant', I hear: "${prompt.slice(0,240)}". Try a focused next step.) }
 
-    /* ========== Feed helpers ========== */
-    function addFeedItem(walletAddr, accounts, sol, sig, date){
-      sessionFeed.unshift({ wallet: walletAddr, accounts, sol, sig, date: date.toISOString() });
-      renderFeed();
-    }
-    function renderFeed(){
-      feedEl.innerHTML = '';
-      for(const it of sessionFeed.slice(0,24)){
-        const row = document.createElement('div'); row.className = 'feed-row';
-        row.innerHTML = `<span class="mono">${shorten(it.wallet)}</span><span>${it.accounts}</span><span>${toSol(it.sol)} SOL</span><span class="mono">${shorten(it.sig || '')}</span><span>${new Date(it.date).toLocaleString()}</span>`;
-        feedEl.appendChild(row);
-      }
-    }
-    function exportSession(){ const blob = new Blob([JSON.stringify({ feed: sessionFeed }, null, 2)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = `barbrick-session-${Date.now()}.json`; a.click(); URL.revokeObjectURL(url); }
+/* ========== Repos listing (fallback quick) ========== */ async function fetchAndRenderRepos(){ if(!repoGroups) return; repoGroups.innerHTML = '<div class="small">Loading projects…</div>'; try{ const res = await fetch('https://api.github.com/users/barbrickdesign/repos?per_page=100', { headers: { 'Accept':'application/vnd.github+json' }}); if(!res.ok) throw new Error('GitHub API fail ' + res.status); const repos = await res.json(); repos.sort((a,b)=> new Date(b.pushed_at) - new Date(a.pushed_at)); repoGroups.innerHTML = ''; for(const r of repos){ const repoName = r.name; const repoUrl = r.html_url; const candidateRoot = https://barbrickdesign.github.io/${repoName}/; let indexExists = false; try { const h = await fetch(candidateRoot, { method:'HEAD' }); indexExists = h.ok; } catch(e){ indexExists = false; } const row = document.createElement('div'); row.className = 'item'; row.innerHTML = <div><div class="link"><a href="${repoUrl}" target="_blank" rel="noopener">${repoName}</a></div><div class="small">${r.description || 'No description'}</div></div> <a class="btn ghost" href="${repoUrl}" target="_blank" rel="noopener">Repo</a> ${indexExists ?<a class="btn" href="${candidateRoot}" target="_blank" rel="noopener">View</a>:<span class="badge" style="border-color:#f66;color:#f99">⚠ No index.html</span>}; repoGroups.appendChild(row); } }catch(e){ logDebug('fetchAndRenderRepos failed', e); repoGroups.innerHTML = <div class="small">Failed to load projects. Ensure projects.json exists as fallback.</div>; } }
 
-    /* ========== signSendConfirm with multiple wallet API fallbacks ========== */
-    async function signSendConfirm(tx){
-      const provider = getProvider();
-      if(!provider) { logDebug('No provider available'); throw new Error('No provider') }
-      try{
-        if(typeof provider.signAndSendTransaction === 'function'){
-          logDebug('Using signAndSendTransaction');
-          const res = await provider.signAndSendTransaction(tx);
-          const sig = res.signature || res;
-          await connection.confirmTransaction(sig, 'confirmed');
-          return sig;
-        } else if(typeof provider.signTransaction === 'function'){
-          logDebug('Using signTransaction fallback');
-          const signed = await provider.signTransaction(tx);
-          const raw = signed.serialize();
-          const txid = await connection.sendRawTransaction(raw);
-          await connection.confirmTransaction(txid, 'confirmed');
-          return txid;
-        } else {
-          throw new Error('Provider has no signing methods');
-        }
-      }catch(e){
-        logDebug('signSendConfirm error', e);
-        throw e;
-      }
-    }
+/* ========== Commit Viewer ========== */ const commitRepo = 'barbrickdesign/SOLRecovery'; const commitFilePath = 'index.html'; commitToggle.addEventListener('click', ()=>{ const show = commitViewer.style.display !== 'block'; commitViewer.style.display = show ? 'block' : 'none'; if(show && !commitSelector.dataset.loaded) fetchCommits(); }); async function fetchCommits(){ try{ const res = await fetch(https://api.github.com/repos/${commitRepo}/commits?path=${commitFilePath}); const commits = await res.json(); commitSelector.innerHTML = ''; commits.forEach(c=>{ const opt = document.createElement('option'); opt.value = c.sha; opt.text = ${c.commit.message} (${c.commit.author.date}); commitSelector.appendChild(opt); }); commitSelector.dataset.loaded='1'; }catch(e){ commitSelector.innerHTML = '<option>Failed to load commits</option>'; } } async function loadCommit(){ const sha = commitSelector.value; if(!sha) return; try{ const res = await fetch(https://api.github.com/repos/${commitRepo}/contents/${commitFilePath}?ref=${sha}); const data = await res.json(); const content = atob(data.content); commitPreview.textContent = content; const frame = document.createElement('iframe'); frame.style.width='100%'; frame.style.height='100%'; frame.style.border='none'; frame.srcdoc = content; previewFrame.innerHTML=''; previewFrame.appendChild(frame); }catch(e){ commitPreview.textContent = 'Failed to load commit content.'; previewFrame.innerHTML = ''; } } function copyCommitToClipboard(){ const text = commitPreview.textContent || ''; navigator.clipboard.writeText(text).then(()=> setStatus('Commit copied','success'), ()=> setStatus('Copy failed','warn')) }
 
-    /* ========== Wire up UI ========== */
-    connectBtn.addEventListener('click', connectWallet);
-    resetBtn.addEventListener('click', resetConnection);
-    scanBtn.addEventListener('click', ()=> scanAllHoldingsAndHistory());
-    recoverBtn.addEventListener('click', recoverNow);
-    recoverInlineBtn.addEventListener('click', recoverNow);
-    exportSessionBtn.addEventListener('click', exportSession);
-    loadMoreBtn.addEventListener('click', ()=> setStatus('Session-only feed. Add a backend for global feed.', 'warn'));
-    openLLMBtn.addEventListener('click', openLLM);
-    llmClose.addEventListener('click', closeLLM);
-    llmBackdrop.addEventListener('click', (e)=> { if(e.target===llmBackdrop) closeLLM() });
-    llmSend.addEventListener('click', ()=> { const p = llmInput.value.trim(); if(!p) return; appendLLM('user', p); llmInput.value=''; llmRespond(p); });
-    llmInput.addEventListener('keydown', (e)=> { if(e.key==='Enter'){ e.preventDefault(); llmSend.click(); } });
-    commitLoadBtn.addEventListener('click', loadCommit);
-    commitCopyBtn.addEventListener('click', copyCommitToClipboard);
+/* ========== Feed helpers ========== */ function addFeedItem(walletAddr, accounts, sol, sig, date){ sessionFeed.unshift({ wallet: walletAddr, accounts, sol, sig, date: date.toISOString() }); renderFeed(); } function renderFeed(){ feedEl.innerHTML = ''; for(const it of sessionFeed.slice(0,24)){ const row = document.createElement('div'); row.className = 'feed-row'; row.innerHTML = <span class="mono">${shorten(it.wallet)}</span><span>${it.accounts}</span><span>${toSol(it.sol)} SOL</span><span class="mono">${shorten(it.sig || '')}</span><span>${new Date(it.date).toLocaleString()}</span>; feedEl.appendChild(row); } } function exportSession(){ const blob = new Blob([JSON.stringify({ feed: sessionFeed }, null, 2)], { type: 'application/json' }); const url = URL.createObjectURL(blob); const a = document.createElement('a'); a.href = url; a.download = barbrick-session-${Date.now()}.json; a.click(); URL.revokeObjectURL(url); }
 
-    // initialize quick repos listing if projects.js not present
-    async function initReposIfMissing(){
-      if(typeof window.listRepos === 'function') {
-        try{ window.listRepos() }catch(e){ logDebug('listRepos error', e) }
-      } else {
-        try{ await fetchAndRenderRepos() }catch(e){}
-      }
-    }
-    initReposIfMissing();
+/* ========== Wire up UI ========== */ connectBtn.addEventListener('click', connectWallet); resetBtn.addEventListener('click', resetConnection); scanBtn.addEventListener('click', ()=> scanAllHoldingsAndHistoryImproved()); recoverBtn.addEventListener('click', recoverNow); recoverInlineBtn.addEventListener('click', recoverNow); exportSessionBtn.addEventListener('click', exportSession); loadMoreBtn.addEventListener('click', ()=> setStatus('Session-only feed. Add a backend for global feed.', 'warn')); openLLMBtn.addEventListener('click', openLLM); llmClose.addEventListener('click', closeLLM); llmBackdrop.addEventListener('click', (e)=> { if(e.target===llmBackdrop) closeLLM() }); llmSend.addEventListener('click', ()=> { const p = llmInput.value.trim(); if(!p) return; appendLLM('user', p); llmInput.value=''; llmRespond(p); }); llmInput.addEventListener('keydown', (e)=> { if(e.key==='Enter'){ e.preventDefault(); llmSend.click(); } }); commitLoadBtn.addEventListener('click', loadCommit); commitCopyBtn.addEventListener('click', copyCommitToClipboard);
 
-    /* ========== Utilities ========== */
-    function logDebug(...args){ // duplicate to ensure available to inline onclicks if any
-      const el = document.getElementById('debugLog'); const t = '[' + new Date().toLocaleTimeString() + '] ' + args.map(a => (typeof a === 'object' ? JSON.stringify(a,null,2) : String(a))).join(' ');
-      const d = document.createElement('div'); d.textContent = t; el.appendChild(d); el.scrollTop = el.scrollHeight; console.log(...args);
-    }
+// init repos (async function initReposIfMissing(){ if(typeof window.listRepos === 'function'){ try{ window.listRepos() }catch(e){ logDebug('listRepos error', e) } } else { try{ await fetchAndRenderRepos() }catch(e){ logDebug('repo fallback failed', e) } } })();
 
-    // Expose some helpers to window for debugging convenience
-    window._bd = {
-      scanTokenAccounts,
-      fetchSolscanTransactions,
-      analyzeTransactionsForFlows,
-      scanAllHoldingsAndHistory,
-      logDebug
-    };
-
-  </script>
-</body>
-</html>
+// expose helpers window._bd = { scanTokenAccounts, fetchTransactionsForWallet, analyzeTransactionsForFlowsUnified, scanAllHoldingsAndHistoryImproved, logDebug }; </script> </body> </html>
