@@ -7,12 +7,12 @@
   <meta name="description" content="BarbrickDesign — recover SOL, inspect holdings, and showcase projects with initial valuations." />
   <style>
     :root{
-      --bg:#0a0c11; --panel:#0f131a; --muted:#a8b3c7; --text:#eaf1fb;
+      --bg:#071018; --panel:#0f131a; --muted:#9fb6c8; --text:#eaf1fb;
       --accent:#66fcf1; --good:#3be477; --warn:#fbbf24; --bad:#ff6b6b;
-      --stroke:rgba(255,255,255,0.08);
+      --stroke:rgba(255,255,255,0.06);
     }
     *{box-sizing:border-box}
-    html,body{margin:0;height:100%;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:radial-gradient(1200px 600px at 20% -20%, rgba(102,252,241,0.03), transparent),var(--bg);color:var(--text)}
+    html,body{margin:0;height:100%;font-family:Inter,system-ui,Roboto,Arial;background:radial-gradient(1200px 600px at 20% -20%, rgba(102,252,241,0.03), transparent),var(--bg);color:var(--text)}
     a{color:var(--accent);text-decoration:none}
     .wrap{max-width:1150px;margin:0 auto;padding:18px}
     .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
@@ -22,18 +22,17 @@
     .mono{font-family:ui-monospace,Menlo,Consolas}
     .small{font-size:13px;color:var(--muted)}
     .title{font-size:18px;font-weight:800}
-    .project{display:flex;justify-content:space-between;align-items:center;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.03)}
+    .project{display:flex;justify-content:space-between;gap:10px;align-items:center;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.03)}
     #projectsGrid{display:grid;gap:10px}
     @media(min-width:900px){ #projectsGrid{grid-template-columns:repeat(2,1fr)} }
     .value-pill{padding:6px 8px;border-radius:8px;background:rgba(255,255,255,0.02);font-weight:700}
-    #debugPanel{position:fixed;bottom:0;left:0;right:0;background:#071018;border-top:1px solid #0f1720;color:#9bd;font-family:ui-monospace,Menlo,Consolas;padding:8px;max-height:320px;overflow:auto;z-index:9999}
+    #debugPanel{position:fixed;bottom:0;left:0;right:0;background:#061218;border-top:1px solid #0b2130;color:#9bd;font-family:ui-monospace,Menlo,Consolas;padding:8px;max-height:340px;overflow:auto;z-index:9999}
     #debugLog{white-space:pre-wrap}
     .timestamp{font-size:12px;color:var(--muted);margin-top:6px}
-    .meta { display:flex; flex-direction:column; gap:4px; }
-    .links { display:flex; gap:8px; align-items:center; }
-    .site-link { color: #9be7ff; font-weight:700; text-decoration:none }
-    .spinner { display:inline-block;border:3px solid rgba(255,255,255,0.04);border-top:3px solid var(--accent);border-radius:50%;width:14px;height:14px;animation:spin 1s linear infinite; }
-    @keyframes spin { to { transform:rotate(360deg); } }
+    .meta { display:flex;flex-direction:column;gap:4px; }
+    .links { display:flex;gap:8px;align-items:center }
+    .spinner{display:inline-block;width:14px;height:14px;border-radius:50%;border:2px solid rgba(255,255,255,0.06);border-top-color:var(--accent);animation:spin 1s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
   </style>
 
   <script src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl.min.js"></script>
@@ -45,7 +44,7 @@
   <div class="wrap">
     <header style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
       <div style="display:flex;align-items:center;gap:12px">
-        <div id="glyphContainer" title="Enter the 3D world" style="width:72px;height:72px;border-radius:12px"></div>
+        <div id="glyphContainer" title="Open 3D world" style="width:72px;height:72px;border-radius:12px;"></div>
         <div>
           <div class="title mono">BarbrickDesign</div>
           <div class="small">Recover SOL, map project value, and empower contributors</div>
@@ -70,7 +69,7 @@
         <div style="display:flex;justify-content:space-between;align-items:center">
           <div>
             <div style="font-weight:800">Recover SOL</div>
-            <div class="small">Scan wallet, close empty SPL token accounts, prepare manual sells, and export a recovery report. All on-chain actions require your wallet approval.</div>
+            <div class="small">Scan wallet, close empty token accounts, prepare manual sells, and export a recovery report. All on-chain actions require your wallet approval.</div>
           </div>
           <div style="text-align:right">
             <div class="small">Estimated refund</div>
@@ -131,143 +130,124 @@
   </div>
 
   <script>
-    /* ----------------- Utilities & state ----------------- */
-    function logDebug(...args){
-      const el = document.getElementById('debugLog');
-      if(!el) return console.log(...args);
-      const line = document.createElement('div');
-      line.textContent = '[' + new Date().toLocaleTimeString() + '] ' + args.map(a => (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' ');
-      el.appendChild(line); el.scrollTop = el.scrollHeight; console.log(...args);
+    /* ================= Utilities & State ================= */
+    function logDebug(...parts){
+      const el=document.getElementById('debugLog');
+      const t=new Date().toLocaleTimeString();
+      const line=document.createElement('div');
+      line.textContent='['+t+'] '+parts.map(p=> typeof p==='object' ? JSON.stringify(p) : String(p)).join(' ');
+      if(el){ el.appendChild(line); el.scrollTop = el.scrollHeight; }
+      console.log(...parts);
     }
-    document.getElementById('dbgClear').addEventListener('click', ()=> document.getElementById('debugLog').innerHTML = '');
-    document.getElementById('dbgHide').addEventListener('click', (e)=>{
-      const d = document.getElementById('debugLog'); const hidden = d.style.display === 'none';
-      d.style.display = hidden ? 'block' : 'none'; e.target.textContent = hidden ? 'Hide' : 'Show';
-    });
+    document.getElementById('dbgClear').addEventListener('click', ()=> document.getElementById('debugLog').innerHTML='');
+    document.getElementById('dbgHide').addEventListener('click', (e)=>{ const d=document.getElementById('debugLog'); const hidden=d.style.display==='none'; d.style.display = hidden ? 'block' : 'none'; e.target.textContent = hidden ? 'Hide' : 'Show'; });
 
     const DEFAULT_RPC = 'https://rpc.ankr.com/solana';
     let connection = new solanaWeb3.Connection(DEFAULT_RPC, 'confirmed');
 
     const RENT_PER_EMPTY_ACCOUNT_SOL = 0.00204;
     const FEE_WALLET = new solanaWeb3.PublicKey('5hSWosj58ki4A6hSfQrvteQU5QvyCWmhHn4AuqgaQzqr');
+    const STARS_USD_MULT = 12;
 
     let wallet = null;
     let holdings = [];
     let emptyTokenAccounts = [];
     let sessionFeed = [];
 
-    function setStatus(msg, kind='info'){ const el=document.getElementById('walletStatus'); if(!el) return; el.textContent = wallet ? (wallet.toBase58().slice(0,8) + '...') : msg; el.style.color = kind==='error' ? 'var(--bad)' : kind==='warn' ? 'var(--warn)' : 'var(--muted)'; }
+    function setStatus(msg, kind='info'){
+      const el=document.getElementById('walletStatus');
+      if(!el) return;
+      el.textContent = wallet ? (wallet.toBase58 ? wallet.toBase58().slice(0,8)+'...' : String(wallet)) : msg;
+      el.style.color = kind==='error' ? 'var(--bad)' : kind==='warn' ? 'var(--warn)' : 'var(--muted)';
+    }
 
     function toSol(n){ return (Math.round(n*100000)/100000).toFixed(5); }
+    function safePubkey(p){ try{ if(!p) return null; if(p instanceof solanaWeb3.PublicKey) return p; if(p.publicKey && p.publicKey instanceof solanaWeb3.PublicKey) return p.publicKey; return new solanaWeb3.PublicKey(p); }catch{return null;} }
 
-    /* ----------------- Glyph (simple, non-blocking) ----------------- */
+    /* ================= Glyph (nonblocking) ================= */
     (function initGlyph(){
-      const container = document.getElementById('glyphContainer');
+      const container=document.getElementById('glyphContainer');
       if(!container) return;
-      container.style.cursor = 'pointer';
       container.addEventListener('click', ()=> window.open('https://barbrickdesign.github.io/city-3d/dist/index.html','_blank'));
       try{
-        const w=72,h=72;
-        const canvas = document.createElement('canvas'); canvas.width=w*devicePixelRatio; canvas.height=h*devicePixelRatio; canvas.style.width=w+'px'; canvas.style.height=h+'px';
-        container.appendChild(canvas);
-        const renderer = new THREE.WebGLRenderer({ canvas, alpha:true, antialias:true }); renderer.setPixelRatio(devicePixelRatio||1); renderer.setSize(w,h,false);
-        const scene = new THREE.Scene();
-        scene.add(new THREE.HemisphereLight(0xffffff,0x444444,0.6));
-        const dir = new THREE.DirectionalLight(0xffffff, 0.8); dir.position.set(5,10,7); scene.add(dir);
-        const camera = new THREE.PerspectiveCamera(45, w/h, 0.1, 50); camera.position.set(0,0,6);
-        const geom = new THREE.IcosahedronGeometry(1.2,1);
-        const mat = new THREE.MeshStandardMaterial({ color:0x66fcf1, metalness:0.25, roughness:0.18 });
-        const mesh = new THREE.Mesh(geom, mat); scene.add(mesh);
-        (function animate(t){ mesh.rotation.y += 0.01; renderer.render(scene, camera); requestAnimationFrame(animate); })();
-      }catch(e){ container.textContent = '3D'; }
+        const w=72,h=72; const canvas=document.createElement('canvas'); canvas.width=w*devicePixelRatio; canvas.height=h*devicePixelRatio; canvas.style.width=w+'px'; canvas.style.height=h+'px'; container.appendChild(canvas);
+        const renderer=new THREE.WebGLRenderer({ canvas, alpha:true, antialias:true }); renderer.setPixelRatio(devicePixelRatio||1); renderer.setSize(w,h,false);
+        const scene=new THREE.Scene(); scene.add(new THREE.HemisphereLight(0xffffff,0x444444,0.6)); const dir=new THREE.DirectionalLight(0xffffff,0.9); dir.position.set(5,10,7.5); scene.add(dir);
+        const camera=new THREE.PerspectiveCamera(45,w/h,0.1,50); camera.position.set(0,0,6);
+        const geom=new THREE.IcosahedronGeometry(1.2,1); const mat=new THREE.MeshStandardMaterial({ color:0x66fcf1, metalness:0.25, roughness:0.18 });
+        const mesh=new THREE.Mesh(geom,mat); scene.add(mesh);
+        (function animate(){ mesh.rotation.y += 0.012; renderer.render(scene,camera); requestAnimationFrame(animate); })();
+      }catch(e){ container.textContent='3D'; logDebug('glyph init failed', e); }
     })();
 
-    /* ----------------- Robust connect flow ----------------- */
+    /* ================= Robust connect flow ================= */
     (function connectGuard(){
-      let connecting = false, lastClick = 0;
-      async function waitForProvider(timeoutMs=2500){
-        const start = Date.now();
-        while(Date.now()-start < timeoutMs){
-          if(window.solana) return window.solana;
-          await new Promise(r=>setTimeout(r,120));
-        }
+      let connecting=false, lastClick=0;
+      async function waitProvider(timeout=2500){
+        const start=Date.now();
+        while(Date.now()-start < timeout){ if(window.solana) return window.solana; await new Promise(r=>setTimeout(r,120)); }
         return window.solana || null;
       }
-
-      async function providerConnect(provider){
+      async function providerConnectTolerant(provider){
         if(typeof provider.connect === 'function'){
-          try{ return await provider.connect({ onlyIfTrusted: false }); }catch(e){ logDebug('provider.connect error', e); }
+          try{ return await provider.connect({ onlyIfTrusted:false }); }catch(e){ logDebug('provider.connect error', e); }
         }
         if(typeof provider.request === 'function'){
-          try{ return await provider.request({ method: 'connect' }); }catch(e){ logDebug('provider.request(connect) error', e); }
+          try{ return await provider.request({ method:'connect' }); }catch(e){ logDebug('provider.request(connect) error', e); }
         }
         throw new Error('Provider has no connect method');
       }
-
-      async function connect() {
-        const now = Date.now();
-        if(now - lastClick < 600) { logDebug('connect suppressed: debounce'); return; }
-        lastClick = now;
-        if(connecting){ logDebug('connect suppressed: already connecting'); return; }
-        connecting = true;
-        const btn = document.getElementById('connectBtn'); btn.disabled = true; btn.textContent = 'Connecting…';
-        setStatus('connecting', 'info');
+      async function connect(){
+        const now=Date.now(); if(now - lastClick < 600){ logDebug('connect suppressed: debounce'); return; } lastClick = now;
+        if(connecting){ logDebug('connect suppressed: in-flight'); return; }
+        connecting=true;
+        const btn=document.getElementById('connectBtn'); btn.disabled=true; btn.textContent='Connecting…'; setStatus('connecting','info');
         try{
-          const provider = await waitForProvider();
-          if(!provider){ setStatus('No wallet injected', 'warn'); logDebug('no provider injected'); connecting=false; btn.disabled=false; btn.textContent='Connect Wallet'; return; }
+          const provider = await waitProvider();
+          if(!provider){ setStatus('No wallet injected','warn'); logDebug('no provider'); connecting=false; btn.disabled=false; btn.textContent='Connect Wallet'; return; }
           logDebug('calling provider connect');
-          const resp = await providerConnect(provider);
+          const resp = await providerConnectTolerant(provider);
           const pub = (resp && resp.publicKey) ? resp.publicKey : (provider.publicKey || null);
-          if(!pub) throw new Error('Provider did not return publicKey');
+          if(!pub) throw new Error('No publicKey returned');
           wallet = pub;
           document.getElementById('walletStatus').textContent = 'Wallet: ' + wallet.toBase58().slice(0,8) + '...';
           logDebug('connected', wallet.toBase58());
 
-          // sign to verify (best-effort)
+          // sign message verification (best-effort)
           const nonce = Math.floor(Math.random()*1e9).toString();
           const message = `BarbrickDesign sign-in\nnonce:${nonce}\naddress:${wallet.toBase58()}`;
           const msg = new TextEncoder().encode(message);
-          setStatus('requesting signature', 'info');
-          let signed = null;
-          if(typeof provider.signMessage === 'function'){
-            try{ signed = await provider.signMessage(msg, 'utf8'); }catch(e){ logDebug('signMessage failed', e); try{ signed = await provider.request({ method: 'signMessage', params: { message:Array.from(msg) } }); }catch(e2){ logDebug('signMessage fallback failed', e2); } }
-          } else if(typeof provider.request === 'function'){
-            try{ signed = await provider.request({ method: 'signMessage', params: { message: Array.from(msg) } }); }catch(e){ logDebug('provider.request(signMessage) failed', e); }
-          }
+          setStatus('requesting signature','info');
+          let signed=null;
+          try{
+            if(typeof provider.signMessage === 'function') signed = await provider.signMessage(msg,'utf8');
+            else if(typeof provider.request === 'function') signed = await provider.request({ method:'signMessage', params:{ message:Array.from(msg) } });
+          }catch(e){ logDebug('sign error', e); }
           if(signed && (signed.signature || signed.length)){
-            const sigBytes = signed.signature || signed;
-            const sigBuf = sigBytes instanceof Uint8Array ? sigBytes : Uint8Array.from(sigBytes);
+            const sigBytes = signed.signature || signed; const sigBuf = sigBytes instanceof Uint8Array ? sigBytes : Uint8Array.from(sigBytes);
             const pubBytes = wallet.toBytes ? wallet.toBytes() : new solanaWeb3.PublicKey(wallet).toBytes();
             const ok = nacl.sign.detached.verify(msg, sigBuf, pubBytes);
             logDebug('signature verified?', ok);
-          } else {
-            logDebug('no signature returned (non-fatal)');
-          }
+          }else logDebug('no signature returned (non-fatal)');
 
-          setStatus('connected', 'success');
+          setStatus('connected','success');
           if(typeof scanAllHoldingsAndHistoryImproved === 'function') scanAllHoldingsAndHistoryImproved().catch(e=>logDebug('post-connect scan error', e));
-        }catch(e){
-          logDebug('connect error', e && (e.message || e));
-          setStatus('Connection failed', 'error');
-        } finally {
-          connecting = false;
-          const btn2 = document.getElementById('connectBtn'); btn2.disabled = false; btn2.textContent = 'Connect Wallet';
-        }
+        }catch(e){ logDebug('connect error', e && (e.message || e)); setStatus('Connection failed','error'); }
+        connecting=false; btn.disabled=false; btn.textContent='Connect Wallet';
       }
-
       document.getElementById('connectBtn').addEventListener('click', connect);
     })();
 
-    /* ----------------- Projects: full GitHub paging and total value ----------------- */
+    /* ================= Projects (full GitHub paging + total) ================= */
     async function fetchAllGithubRepos(user, perPage=100, maxPages=20){
-      const out = [];
+      const out=[];
       for(let page=1; page<=maxPages; page++){
         try{
-          const url = `https://api.github.com/users/${encodeURIComponent(user)}/repos?per_page=${perPage}&page=${page}&type=owner&sort=updated`;
+          const url=`https://api.github.com/users/${encodeURIComponent(user)}/repos?per_page=${perPage}&page=${page}&type=owner&sort=updated`;
           const r = await fetch(url);
           if(!r.ok){ logDebug('GitHub API non-ok', r.status); break; }
           const j = await r.json();
-          if(!Array.isArray(j) || j.length === 0) break;
+          if(!Array.isArray(j) || j.length===0) break;
           out.push(...j);
           if(j.length < perPage) break;
         }catch(e){ logDebug('fetchAllGithubRepos error', e); break; }
@@ -276,31 +256,25 @@
     }
 
     async function renderProjects(){
-      const grid = document.getElementById('projectsGrid'); grid.innerHTML = '<div class="small">Loading projects…</div>';
+      const grid=document.getElementById('projectsGrid'); grid.innerHTML='<div class="small">Loading projects…</div>';
       try{
         const repos = await fetchAllGithubRepos('barbrickdesign', 100, 20);
-        if(!repos || repos.length===0){ grid.innerHTML = '<div class="small">No projects found.</div>'; document.getElementById('projectsTotal').textContent = '$0'; logDebug('projects loaded'); return; }
-        grid.innerHTML = '';
-        let total = 0;
+        if(!repos || repos.length===0){ grid.innerHTML = '<div class="small">No projects found.</div>'; document.getElementById('projectsTotal').textContent='$0'; return; }
+        grid.innerHTML=''; let total=0;
         repos.forEach(repo=>{
           const created = repo.created_at ? new Date(repo.created_at).toLocaleString() : '—';
           const updated = repo.updated_at ? new Date(repo.updated_at).toLocaleString() : '—';
-          const usd = Math.max(1, (repo.stargazers_count || 0) * STARS_USD_MULT);
+          const usd = Math.max(1, (repo.stargazers_count||0)*STARS_USD_MULT);
           total += usd;
-          const siteRoot = `https://barbrickdesign.github.io/${repo.name}/index.html`;
-          const div = document.createElement('div'); div.className = 'project';
+          const site = `https://barbrickdesign.github.io/${repo.name}/index.html`;
+          const div=document.createElement('div'); div.className='project';
           div.innerHTML = `<div class="meta" style="flex:1">
             <div style="font-weight:800">${repo.name}</div>
             <div class="small">${repo.description || 'No description'}</div>
             <div class="timestamp">Created: ${created} • Updated: ${updated}</div>
-            <div class="links" style="margin-top:6px">
-              <a class="repo-link" href="${repo.html_url}" target="_blank">Repo</a>
-              <a class="site-link" href="${siteRoot}" target="_blank" style="margin-left:8px">Site</a>
-            </div>
+            <div class="links" style="margin-top:6px"><a class="btn ghost" href="${repo.html_url}" target="_blank">Repo</a><a class="btn ghost" href="${site}" target="_blank">Site</a></div>
           </div>
-          <div style="text-align:right">
-            <div class="value-pill">$${Number(usd).toLocaleString()}</div>
-          </div>`;
+          <div style="text-align:right"><div class="value-pill">$${Number(usd).toLocaleString()}</div></div>`;
           grid.appendChild(div);
         });
         document.getElementById('projectsTotal').textContent = '$' + Number(total).toLocaleString();
@@ -308,45 +282,35 @@
       }catch(e){ logDebug('renderProjects error', e); grid.innerHTML = '<div class="small">Failed to load projects.</div>'; }
     }
 
-    const STARS_USD_MULT = 12;
-
-    /* ----------------- Robust scan (detailed, returns normalized result) ----------------- */
+    /* ================= Robust scan flows ================= */
     async function retry(fn, attempts=3, delay=300){
       let last;
       for(let i=0;i<attempts;i++){
-        try{ return await fn(); }catch(e){ last = e; await new Promise(r=>setTimeout(r, delay*(i+1))); }
+        try{ return await fn(); }catch(e){ last=e; await new Promise(r=>setTimeout(r, delay*(i+1))); }
       }
       throw last;
     }
 
-    function safePubkey(pk){
-      try{ if(pk instanceof solanaWeb3.PublicKey) return pk; if(pk && pk.toBase58) return pk; return new solanaWeb3.PublicKey(pk); }catch(e){ return null; }
-    }
-
-    async function fetchParsedTokenAccounts(ownerPubKey){
+    async function fetchParsedTokenAccounts(owner){
       try{
-        const res = await retry(()=> connection.getParsedTokenAccountsByOwner(ownerPubKey, { programId: splToken.TOKEN_PROGRAM_ID }), 2, 250);
+        const res = await retry(()=> connection.getParsedTokenAccountsByOwner(owner, { programId: splToken.TOKEN_PROGRAM_ID }), 2, 250);
         return res && res.value ? res.value : [];
       }catch(e){
-        logDebug('getParsedTokenAccountsByOwner failed, trying fallback', e);
+        logDebug('getParsedTokenAccountsByOwner failed, fallback to raw', e);
         try{
-          const raw = await retry(()=> connection.getTokenAccountsByOwner(ownerPubKey, { programId: splToken.TOKEN_PROGRAM_ID }), 2, 300);
-          return (raw.value || []).map(v => ({ pubkey: v.pubkey, account: v.account }));
-        }catch(e2){
-          logDebug('fallback getTokenAccountsByOwner failed', e2);
-          return [];
-        }
+          const raw = await retry(()=> connection.getTokenAccountsByOwner(owner, { programId: splToken.TOKEN_PROGRAM_ID }), 2, 300);
+          return (raw.value || []).map(v=>({ pubkey: v.pubkey, account: v.account }));
+        }catch(e2){ logDebug('fallback TT failed', e2); return []; }
       }
     }
 
-    async function fetchRecentParsedTxs(ownerPubKey, limit=200){
+    async function fetchRecentParsedTxs(owner, limit=200){
       try{
-        const sigInfos = await retry(()=> connection.getSignaturesForAddress(ownerPubKey, { limit }), 2, 350);
-        const signatures = (sigInfos || []).map(s=>s.signature).slice(0, limit);
-        const parsed = [];
-        for(let i=0;i<signatures.length;i+=20){
-          const chunk = signatures.slice(i,i+20);
-          const resolved = await Promise.all(chunk.map(sig => retry(()=> connection.getParsedTransaction(sig,'confirmed'), 2, 200).catch(e=>{ logDebug('getParsedTransaction fail', sig, e); return null; })));
+        const sigInfos = await retry(()=> connection.getSignaturesForAddress(owner, { limit }), 2, 350);
+        const sigs = (sigInfos || []).map(s=>s.signature).slice(0,limit);
+        const parsed=[]; for(let i=0;i<sigs.length;i+=20){
+          const chunk=sigs.slice(i,i+20);
+          const resolved = await Promise.all(chunk.map(sig=> retry(()=> connection.getParsedTransaction(sig,'confirmed'), 2, 200).catch(e=>{ logDebug('getParsedTransaction fail', sig, e); return null; })));
           parsed.push(...resolved.filter(Boolean));
           await new Promise(r=>setTimeout(r,120));
         }
@@ -355,144 +319,102 @@
     }
 
     async function scanAllHoldingsAndHistoryImproved(){
-      setStatus('Starting comprehensive scan...', 'info');
+      setStatus('Starting scan...','info');
       try{
-        if(!wallet){ setStatus('Connect wallet first', 'warn'); logDebug('scan aborted: no wallet'); return { empty:[], holdings:[], transactions:[] }; }
-        const pk = safePubkey(wallet);
-        if(!pk){ setStatus('Invalid wallet', 'error'); logDebug('scan aborted: invalid wallet', wallet); return { empty:[], holdings:[], transactions:[] }; }
-
-        logDebug('scan: fetching parsed token accounts for', pk.toBase58());
-        const parsed = await fetchParsedTokenAccounts(pk);
+        if(!wallet){ setStatus('Connect wallet first','warn'); logDebug('scan aborted: no wallet'); return; }
+        const owner = safePubkey(wallet);
+        if(!owner){ setStatus('Invalid wallet','error'); logDebug('invalid wallet', wallet); return; }
+        logDebug('scan: fetching token accounts for', owner.toBase58());
+        const parsed = await fetchParsedTokenAccounts(owner);
         logDebug('parsed accounts count', parsed.length);
-
-        const empty = []; const mintMap = {};
-        for(const acc of parsed){
+        const empty=[]; const mintMap={};
+        parsed.forEach(acc=>{
           try{
             const info = acc.account?.data?.parsed?.info;
             const ui = Number(info?.tokenAmount?.uiAmount || 0);
             const mint = info?.mint || null;
             const pub = acc.pubkey?.toString ? acc.pubkey.toString() : String(acc.pubkey);
-            if(ui === 0) empty.push({ pubkey: pub, mint });
+            if(ui===0) empty.push({ pubkey: pub, mint });
             else if(mint) mintMap[mint] = (mintMap[mint] || 0) + ui;
-          }catch(e){ logDebug('parse account error', e, acc); }
-        }
-        const holdingsArr = Object.keys(mintMap).map(m => ({ mint: m, amount: mintMap[m] }));
-
-        // update UI for holdings
+          }catch(e){ logDebug('account parse error', e, acc); }
+        });
+        const holdingsArr = Object.keys(mintMap).map(m=>({ mint:m, amount: mintMap[m] }));
         emptyTokenAccounts = empty; holdings = holdingsArr;
-        document.getElementById('emptyCount')?.setAttribute ? document.getElementById('emptyCount').textContent = String(empty.length) : null;
+        document.getElementById('emptyCount')?.textContent = String(empty.length);
         const est = empty.length * RENT_PER_EMPTY_ACCOUNT_SOL;
         document.getElementById('refundEstimateBig').textContent = toSol(est) + ' SOL';
-
-        const hp = document.getElementById('holdingsPanel'); hp.innerHTML = '';
-        if(holdingsArr.length === 0) hp.innerHTML = '<div class="small">No token holdings found.</div>';
-        else {
-          const list = document.createElement('div'); list.className = 'list';
-          holdingsArr.forEach(h => {
-            const item = document.createElement('div'); item.className = 'project';
-            item.innerHTML = `<div style="flex:1"><div class="mono">${h.mint}</div><div class="small">Balance: ${h.amount}</div></div><div><span class="value-pill muted">Est $0</span></div>`;
-            list.appendChild(item);
-          });
-          hp.appendChild(list);
-        }
-
-        logDebug('scan: fetching recent parsed transactions for', pk.toBase58());
-        const parsedTxs = await fetchRecentParsedTxs(pk, 200);
-        logDebug('parsed txs count', parsedTxs.length);
-
-        const txBundle = { source: 'rpc', txs: parsedTxs };
-        const flows = analyzeTransactionsForFlowsUnified(txBundle);
-        renderCounterpartySummary(flows);
-
-        setStatus(`Scan complete — ${holdingsArr.length} mints found`, 'success');
-        logDebug('scan finished', { emptyCount: empty.length, holdingsCount: holdingsArr.length, txCount: parsedTxs.length });
-
-        return { empty, holdings: holdingsArr, transactions: parsedTxs };
-      }catch(e){
-        logDebug('scanAll error', e && (e.stack || e.message || e));
-        setStatus('Scan failed — see debug log', 'error');
-        return { empty:[], holdings:[], transactions:[] };
-      }
+        const hp=document.getElementById('holdingsPanel'); hp.innerHTML='';
+        if(holdingsArr.length===0) hp.innerHTML = '<div class="small">No token holdings found.</div>';
+        else{ const list=document.createElement('div'); list.className='list'; holdingsArr.forEach(h=>{ const item=document.createElement('div'); item.className='project'; item.innerHTML = `<div style="flex:1"><div class="mono">${h.mint}</div><div class="small">Balance: ${h.amount}</div></div>`; list.appendChild(item); }); hp.appendChild(list); }
+        logDebug('scan: fetching transactions for', owner.toBase58());
+        const txs = await fetchRecentParsedTxs(owner, 200);
+        logDebug('parsed txs count', txs.length);
+        const txBundle={ source:'rpc', txs }; const flows = analyzeTransactionsForFlowsUnified(txBundle); renderCounterpartySummary(flows);
+        setStatus('Scan complete','success');
+        logDebug('scan finished', { emptyCount: empty.length, holdingsCount: holdingsArr.length, txCount: txs.length });
+        return { empty, holdings: holdingsArr, transactions: txs };
+      }catch(e){ logDebug('scanAll error', e && (e.stack||e.message||e)); setStatus('Scan failed — see debug log','error'); return { empty:[], holdings:[], transactions:[] }; }
     }
 
     function analyzeTransactionsForFlowsUnified(raw){
       if(!wallet) return [];
       const our = safePubkey(wallet).toBase58();
-      const flows = {}; const txs = raw.txs || [];
-      for(const tx of txs){
+      const flows={}; const txs = raw.txs || [];
+      txs.forEach(tx=>{
         try{
-          const message = tx.transaction?.message;
-          if(!message) continue;
+          const message = tx.transaction?.message; if(!message) return;
           const instrs = message.instructions || [];
-          for(const ins of instrs){
-            if(ins.parsed && ins.parsed.type === 'transfer' && ins.parsed.info){
+          instrs.forEach(ins=>{
+            if(ins.parsed && ins.parsed.type==='transfer' && ins.parsed.info){
               const from = ins.parsed.info.source || ins.parsed.info.from;
-              const to   = ins.parsed.info.destination || ins.parsed.info.to;
-              const lam  = Number(ins.parsed.info.lamports || 0);
-              if(from === our){ flows[to] = flows[to] || { in:0, out:0 }; flows[to].out += lam; }
-              if(to === our){ flows[from] = flows[from] || { in:0, out:0 }; flows[from].in += lam; }
+              const to = ins.parsed.info.destination || ins.parsed.info.to;
+              const lam = Number(ins.parsed.info.lamports || 0);
+              if(from===our){ flows[to]=flows[to]||{in:0,out:0}; flows[to].out += lam; }
+              if(to===our){ flows[from]=flows[from]||{in:0,out:0}; flows[from].in += lam; }
             }
-          }
+          });
         }catch(e){ logDebug('analyze tx error', e); }
-      }
-      return Object.keys(flows).map(addr=>{
-        const inLam = flows[addr].in || 0; const outLam = flows[addr].out || 0;
-        return { addr, inSol: (inLam/solanaWeb3.LAMPORTS_PER_SOL).toFixed(5), outSol: (outLam/solanaWeb3.LAMPORTS_PER_SOL).toFixed(5), netOutFromUs: ((outLam-inLam)/solanaWeb3.LAMPORTS_PER_SOL).toFixed(5) };
-      }).sort((a,b)=> Number(b.netOutFromUs) - Number(a.netOutFromUs));
+      });
+      return Object.keys(flows).map(addr=>{ const inLam = flows[addr].in||0, outLam = flows[addr].out||0; return { addr, inSol:(inLam/solanaWeb3.LAMPORTS_PER_SOL).toFixed(5), outSol:(outLam/solanaWeb3.LAMPORTS_PER_SOL).toFixed(5), netOutFromUs:((outLam-inLam)/solanaWeb3.LAMPORTS_PER_SOL).toFixed(5) }; }).sort((a,b)=> Number(b.netOutFromUs)-Number(a.netOutFromUs));
     }
 
     function renderCounterpartySummary(summary){
-      const panel = document.getElementById('counterpartyPanel'); panel.innerHTML = '';
-      if(!summary || summary.length === 0){ panel.innerHTML = '<div class="small">No recent SOL flows found for this wallet.</div>'; return; }
-      const list = document.createElement('div'); list.className = 'list';
-      summary.slice(0,10).forEach(s=>{
-        const item = document.createElement('div'); item.className = 'project';
-        item.innerHTML = `<div style="flex:1"><div class="mono">${s.addr}</div><div class="small">net out: ${s.netOutFromUs} SOL — out ${s.outSol} / in ${s.inSol}</div></div><div><button class="btn" onclick="window.open('https://explorer.solana.com/address/${s.addr}','_blank')">Explorer</button></div>`;
-        list.appendChild(item);
-      });
+      const panel=document.getElementById('counterpartyPanel'); panel.innerHTML='';
+      if(!summary || summary.length===0){ panel.innerHTML='<div class="small">No recent SOL flows found for this wallet.</div>'; return; }
+      const list=document.createElement('div'); list.className='list';
+      summary.slice(0,10).forEach(s=>{ const item=document.createElement('div'); item.className='project'; item.innerHTML = `<div style="flex:1"><div class="mono">${s.addr}</div><div class="small">net out: ${s.netOutFromUs} SOL • out ${s.outSol} / in ${s.inSol}</div></div><div><button class="btn" onclick="window.open('https://explorer.solana.com/address/${s.addr}','_blank')">Explorer</button></div>`; list.appendChild(item); });
       panel.appendChild(list);
     }
 
-    // helper UI wiring
     document.getElementById('scanBtn').addEventListener('click', ()=> scanAllHoldingsAndHistoryImproved().catch(e=>logDebug('scan click error', e)));
-    document.getElementById('recoverBtn').addEventListener('click', async ()=> {
+    document.getElementById('exportReport').addEventListener('click', ()=>{ const report={ when:new Date().toISOString(), wallet: wallet? (wallet.toBase58?wallet.toBase58():String(wallet)) : null, holdings, emptyTokenAccounts, feed: sessionFeed }; const blob=new Blob([JSON.stringify(report,null,2)],{ type:'application/json' }); const a=document.createElement('a'); a.href=URL.createObjectURL(blob); a.download=`recovery-report-${Date.now()}.json`; a.click(); setStatus('Recovery report exported','success'); });
+
+    document.getElementById('recoverBtn').addEventListener('click', async ()=>{
       try{
         if(!wallet){ setStatus('Connect wallet first','warn'); return; }
-        if(!emptyTokenAccounts || emptyTokenAccounts.length === 0){ setStatus('No empty accounts to close','warn'); return; }
+        if(!emptyTokenAccounts || emptyTokenAccounts.length===0){ setStatus('No empty accounts to close','warn'); return; }
         if(!confirm(`Close ${emptyTokenAccounts.length} empty account(s)? Each requires wallet approval.`)) return;
         setStatus('Preparing close transactions...','info');
         for(const acc of emptyTokenAccounts){
           const tx = new solanaWeb3.Transaction().add(splToken.createCloseAccountInstruction(new solanaWeb3.PublicKey(acc.pubkey), wallet, wallet, []));
           tx.feePayer = wallet; tx.recentBlockhash = (await connection.getLatestBlockhash()).blockhash;
           const provider = window.solana;
-          if(!provider) throw new Error('No provider to sign');
-          if(typeof provider.signAndSendTransaction === 'function'){
-            const res = await provider.signAndSendTransaction(tx); const sig = res.signature || res; await connection.confirmTransaction(sig,'confirmed'); addFeedItem(wallet.toBase58(),1,RENT_PER_EMPTY_ACCOUNT_SOL,sig,new Date());
-          } else if(typeof provider.signTransaction === 'function'){
-            const signed = await provider.signTransaction(tx); const raw = signed.serialize(); const id = await connection.sendRawTransaction(raw); await connection.confirmTransaction(id,'confirmed'); addFeedItem(wallet.toBase58(),1,RENT_PER_EMPTY_ACCOUNT_SOL,id,new Date());
-          } else { throw new Error('Provider cannot sign transactions'); }
+          if(!provider) throw new Error('No provider');
+          if(typeof provider.signAndSendTransaction === 'function'){ const res=await provider.signAndSendTransaction(tx); const sig=res.signature||res; await connection.confirmTransaction(sig,'confirmed'); sessionFeed.unshift({ action:'close', pubkey:acc.pubkey, sig, time:new Date().toISOString() }); }
+          else if(typeof provider.signTransaction === 'function'){ const signed=await provider.signTransaction(tx); const raw=signed.serialize(); const id=await connection.sendRawTransaction(raw); await connection.confirmTransaction(id,'confirmed'); sessionFeed.unshift({ action:'close', pubkey:acc.pubkey, sig:id, time:new Date().toISOString() }); }
+          else throw new Error('Provider cannot sign');
           await new Promise(r=>setTimeout(r,200));
         }
-        setStatus('Close process finished','success');
+        setStatus('Close finished','success');
         await scanAllHoldingsAndHistoryImproved();
-      }catch(e){ logDebug('closeEmptyAccounts error', e); setStatus('Close failed','error'); }
+      }catch(e){ logDebug('recover error', e); setStatus('Close failed','error'); }
     });
 
-    document.getElementById('exportReport').addEventListener('click', ()=>{
-      const report = { when: new Date().toISOString(), wallet: wallet ? wallet.toBase58() : null, holdings: holdings || [], empty: emptyTokenAccounts || [], feed: sessionFeed || [] };
-      const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
-      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `recovery-report-${Date.now()}.json`; a.click();
-      setStatus('Recovery report exported','success');
-    });
-
-    /* ----------------- Init ----------------- */
-    (async function init(){
-      try{ await renderProjects(); logDebug('projects loaded'); }catch(e){ logDebug('init projects error', e); }
-    })();
-
-    // constants reused
+    /* ================= Helpers & Init ================= */
     const RENT_PER_EMPTY_ACCOUNT_SOL = 0.00204;
     function safePubkeyStr(pk){ try{ return pk.toBase58 ? pk.toBase58() : String(pk); }catch{return String(pk||'');} }
+    function safePubkey(p){ try{ if(!p) return null; if(p instanceof solanaWeb3.PublicKey) return p; if(p.publicKey && p.publicKey instanceof solanaWeb3.PublicKey) return p.publicKey; return new solanaWeb3.PublicKey(p); }catch{return null;} }
+
+    (async function init(){ try{ await renderProjects(); logDebug('projects loaded'); }catch(e){ logDebug('init error', e); } })();
   </script>
 </body>
-</html>
