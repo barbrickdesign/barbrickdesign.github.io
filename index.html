@@ -593,35 +593,6 @@ function copyToClipboard() {
 
 fetchCommits();
   <script>
-document.getElementById("connectBtn").addEventListener("click", async () => {
-  // Try Phantom first (Solana)
-  if (window.solana && window.solana.isPhantom) {
-    try {
-      const response = await window.solana.connect();
-      console.log("Phantom connected:", response.publicKey.toString());
-      alert("Phantom wallet connected!");
-    } catch (err) {
-      console.error("Phantom connection failed:", err);
-    }
-  }
-
-  // Then try MetaMask (Ethereum)
-  else if (window.ethereum) {
-    try {
-      const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
-      console.log("MetaMask connected:", accounts[0]);
-      alert("MetaMask wallet connected!");
-    } catch (err) {
-      console.error("MetaMask connection failed:", err);
-    }
-  }
-
-  else {
-    alert("No wallet detected. Please install Phantom or MetaMask.");
-  }
-});
-</script>
-  <script>
 async function scanReposForIndex() {
   const res = await fetch("https://api.github.com/users/barbrickdesign/repos?per_page=100");
   const repos = await res.json();
@@ -651,6 +622,5 @@ async function scanReposForIndex() {
   }
 }
 scanReposForIndex();
-</script>
 </body>
 </html>
