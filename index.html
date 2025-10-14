@@ -210,6 +210,7 @@
             text-transform: uppercase;
             letter-spacing: 4px;
             background: linear-gradient(90deg, #00ffff, #ff00ff);
+            background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             word-break: keep-all;
@@ -588,20 +589,86 @@
             }, 3000);
         });
 
-        // Universal wallet connection
+        // Universal wallet connection with improved detection
         async function connectWallet() {
             const btn = document.getElementById('walletBtn');
             const btnText = document.getElementById('btnText');
             const walletInfo = document.getElementById('walletInfo');
             
             try {
-                btnText.textContent = '⏳ CONNECTING...';
+                btnText.textContent = '⏳ DETECTING...';
                 btn.disabled = true;
                 
-                // Use universal wallet connector
-                const result = await window.walletConnector.connect();
+                // Check if walletConnector is loaded
+                if (!window.walletConnector) {
+                    throw new Error('Wallet connector not loaded. Please refresh the page.');
+                }
                 
-                if (result.success) {
+                // Detect available wallets
+                await window.walletConnector.detectWallets();
+                const detected = window.walletConnector.detectedWallets;
+                
+                console.log('🔍 Detected wallets:', detected);
+                
+                // If multiple wallets detected, let user choose
+                let result;
+                if (detected.length > 1) {
+                    const choice = confirm(
+                        `Multiple wallets detected:\n\n` +
+                        detected.map((w, i) => `${i + 1}. ${w.name} ${w.icon}`).join('\n') +
+                        `\n\nClick OK for ${detected[0].name} or Cancel for ${detected[1].name}`
+                    );
+                    
+                    if (choice) {
+                        // Use first wallet (usually Phantom)
+                        if (detected[0].type === 'solana') {
+                            result = await window.walletConnector.connectPhantom();
+                        } else {
+                            result = await window.walletConnector.connectMetaMask();
+                        }
+                    } else {
+                        // Use second wallet
+                        if (detected[1].type === 'solana') {
+                            result = await window.walletConnector.connectPhantom();
+                        } else {
+                            result = await window.walletConnector.connectMetaMask();
+                        }
+                    }
+                } else if (detected.length === 1) {
+                    // Single wallet detected
+                    btnText.textContent = `⏳ CONNECTING TO ${detected[0].name.toUpperCase()}...`;
+                    if (detected[0].type === 'solana') {
+                        result = await window.walletConnector.connectPhantom();
+                    } else {
+                        result = await window.walletConnector.connectMetaMask();
+                    }
+                } else {
+                    // No wallets detected - check manually
+                    console.log('No auto-detected wallets, checking manually...');
+                    
+                    // Try Phantom first
+                    if (window.solana && window.solana.isPhantom) {
+                        btnText.textContent = '⏳ CONNECTING TO PHANTOM...';
+                        result = await window.walletConnector.connectPhantom();
+                    }
+                    // Then MetaMask
+                    else if (window.ethereum) {
+                        btnText.textContent = '⏳ CONNECTING TO METAMASK...';
+                        result = await window.walletConnector.connectMetaMask();
+                    }
+                    // No wallet found
+                    else {
+                        throw new Error(
+                            'No wallet detected!\n\n' +
+                            'Please install:\n' +
+                            '• Phantom (for Solana) - phantom.app\n' +
+                            '• MetaMask (for Ethereum) - metamask.io\n\n' +
+                            'Then refresh this page.'
+                        );
+                    }
+                }
+                
+                if (result && result.success) {
                     // Update UI
                     btn.classList.add('connected');
                     btnText.textContent = '✅ CONNECTED';
@@ -609,7 +676,7 @@
                     // Show wallet info
                     walletInfo.style.display = 'inline-flex';
                     document.getElementById('walletType').textContent = 
-                        result.type === 'solana' ? '👻' : '🦊';
+                        result.type === 'solana' ? '👻 Phantom' : '🦊 MetaMask';
                     const shortAddr = result.address.slice(0, 6) + '...' + result.address.slice(-4);
                     document.getElementById('walletAddress').textContent = shortAddr;
                     document.getElementById('walletBalance').textContent = 
@@ -618,23 +685,61 @@
                     // Save state
                     window.walletConnector.saveState();
                     
-                    console.log('✅ Wallet connected:', result.address);
+                    console.log('✅ Wallet connected:', result);
+                    
+                    // Sign verification message
+                    setTimeout(() => signVerificationMessage(result), 1000);
                 } else {
-                    throw new Error(result.error || 'Connection failed');
+                    throw new Error(result?.error || 'Connection failed');
                 }
                 
                 btn.disabled = false;
             } catch (error) {
-                console.error('Wallet connection error:', error);
-                btnText.textContent = '❌ FAILED - TRY AGAIN';
+                console.error('❌ Wallet connection error:', error);
+                btnText.textContent = '❌ CONNECTION FAILED';
                 btn.disabled = false;
                 
-                // Show error message
-                alert('Wallet Connection Failed\n\n' + error.message + '\n\nPlease install Phantom, MetaMask, or another Web3 wallet.');
+                // Show detailed error
+                alert('Wallet Connection Failed\n\n' + error.message);
                 
                 setTimeout(() => {
                     btnText.textContent = '🔗 CONNECT WALLET';
+                    btn.disabled = false;
                 }, 3000);
+            }
+        }
+        
+        // Sign verification message for authenticated access
+        async function signVerificationMessage(walletResult) {
+            try {
+                const message = `BARBRICKDESIGN Authentication\n\nTimestamp: ${new Date().toISOString()}\nAddress: ${walletResult.address}\n\nBy signing, you verify ownership of this wallet.`;
+                
+                let signature;
+                if (walletResult.type === 'solana' && window.solana) {
+                    // Solana signature
+                    const encodedMessage = new TextEncoder().encode(message);
+                    const signedMessage = await window.solana.signMessage(encodedMessage, 'utf8');
+                    signature = signedMessage.signature;
+                    console.log('✅ Solana message signed');
+                } else if (walletResult.type === 'ethereum' && window.ethereum) {
+                    // Ethereum signature
+                    signature = await window.ethereum.request({
+                        method: 'personal_sign',
+                        params: [message, walletResult.address]
+                    });
+                    console.log('✅ Ethereum message signed');
+                }
+                
+                // Store verification
+                if (signature) {
+                    localStorage.setItem('wallet_verified', 'true');
+                    localStorage.setItem('wallet_signature', JSON.stringify(signature));
+                    localStorage.setItem('wallet_verified_at', new Date().toISOString());
+                    console.log('✅ Wallet verified and authenticated');
+                }
+            } catch (error) {
+                console.warn('⚠️ Message signing failed (optional):', error.message);
+                // Don't fail the connection if signing fails
             }
         }
         

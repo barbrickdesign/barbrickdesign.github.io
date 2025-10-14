@@ -24,59 +24,76 @@ class UniversalWalletConnector {
     }
 
     /**
-     * Auto-detect all available wallets
+     * Auto-detect all available wallets (improved for desktop browsers)
      */
     async detectWallets() {
         this.detectedWallets = [];
 
-        // Check for Phantom (Solana)
-        if (window.solana && window.solana.isPhantom) {
+        console.log('🔍 Scanning for wallets...');
+        console.log('window.solana:', !!window.solana, 'isPhantom:', window.solana?.isPhantom);
+        console.log('window.ethereum:', !!window.ethereum, 'isMetaMask:', window.ethereum?.isMetaMask);
+
+        // Check for Phantom (Solana) - check both window.solana and window.phantom
+        if ((window.solana && window.solana.isPhantom) || window.phantom?.solana) {
+            const provider = window.phantom?.solana || window.solana;
             this.detectedWallets.push({
                 name: 'Phantom',
                 type: 'solana',
                 icon: '👻',
-                provider: window.solana
+                provider: provider
             });
+            console.log('✅ Phantom detected');
         }
 
-        // Check for MetaMask (Ethereum)
-        if (window.ethereum && window.ethereum.isMetaMask) {
-            this.detectedWallets.push({
-                name: 'MetaMask',
-                type: 'ethereum',
-                icon: '🦊',
-                provider: window.ethereum
-            });
+        // Check for MetaMask (Ethereum) - be more flexible
+        if (window.ethereum) {
+            // MetaMask specific check
+            if (window.ethereum.isMetaMask) {
+                this.detectedWallets.push({
+                    name: 'MetaMask',
+                    type: 'ethereum',
+                    icon: '🦊',
+                    provider: window.ethereum
+                });
+                console.log('✅ MetaMask detected');
+            }
+            // Coinbase Wallet
+            else if (window.ethereum.isCoinbaseWallet) {
+                this.detectedWallets.push({
+                    name: 'Coinbase Wallet',
+                    type: 'ethereum',
+                    icon: '🔷',
+                    provider: window.ethereum
+                });
+                console.log('✅ Coinbase Wallet detected');
+            }
+            // Trust Wallet
+            else if (window.ethereum.isTrust) {
+                this.detectedWallets.push({
+                    name: 'Trust Wallet',
+                    type: 'ethereum',
+                    icon: '🛡️',
+                    provider: window.ethereum
+                });
+                console.log('✅ Trust Wallet detected');
+            }
+            // Generic Ethereum provider (catch-all)
+            else {
+                this.detectedWallets.push({
+                    name: 'Ethereum Wallet',
+                    type: 'ethereum',
+                    icon: '🔗',
+                    provider: window.ethereum
+                });
+                console.log('✅ Generic Ethereum wallet detected');
+            }
         }
 
-        // Check for Coinbase Wallet
-        if (window.ethereum && window.ethereum.isCoinbaseWallet) {
-            this.detectedWallets.push({
-                name: 'Coinbase Wallet',
-                type: 'ethereum',
-                icon: '🔷',
-                provider: window.ethereum
-            });
-        }
-
-        // Check for Trust Wallet
-        if (window.ethereum && window.ethereum.isTrust) {
-            this.detectedWallets.push({
-                name: 'Trust Wallet',
-                type: 'ethereum',
-                icon: '🛡️',
-                provider: window.ethereum
-            });
-        }
-
-        // Check for generic Ethereum provider
-        if (window.ethereum && this.detectedWallets.length === 0) {
-            this.detectedWallets.push({
-                name: 'Web3 Wallet',
-                type: 'ethereum',
-                icon: '🔗',
-                provider: window.ethereum
-            });
+        // Log what we found
+        if (this.detectedWallets.length === 0) {
+            console.warn('⚠️ No wallets detected on this page');
+        } else {
+            console.log(`✅ Total wallets found: ${this.detectedWallets.length}`);
         }
 
         return this.detectedWallets;
@@ -87,10 +104,20 @@ class UniversalWalletConnector {
      */
     async connectPhantom() {
         try {
-            const resp = await window.solana.connect();
-            this.connectedWallet = window.solana;
+            // Use window.phantom.solana if available, otherwise window.solana
+            const provider = window.phantom?.solana || window.solana;
+            
+            if (!provider) {
+                throw new Error('Phantom wallet not found. Please install from phantom.app');
+            }
+
+            console.log('🔗 Connecting to Phantom...');
+            const resp = await provider.connect();
+            this.connectedWallet = provider;
             this.walletType = 'Phantom';
             this.address = resp.publicKey.toString();
+            
+            console.log('✅ Phantom connected:', this.address);
             
             // Get SOL balance
             await this.getSolanaBalance();
@@ -102,8 +129,11 @@ class UniversalWalletConnector {
                 type: 'solana'
             };
         } catch (error) {
-            console.error('Phantom connection error:', error);
-            return { success: false, error: error.message };
+            console.error('❌ Phantom connection error:', error);
+            return { 
+                success: false, 
+                error: error.message || 'Phantom connection failed. Make sure the extension is unlocked.' 
+            };
         }
     }
 
@@ -112,18 +142,31 @@ class UniversalWalletConnector {
      */
     async connectMetaMask() {
         try {
+            if (!window.ethereum) {
+                throw new Error('Ethereum wallet not found. Please install MetaMask from metamask.io');
+            }
+
+            console.log('🔗 Connecting to Ethereum wallet...');
             const accounts = await window.ethereum.request({ 
                 method: 'eth_requestAccounts' 
             });
             
+            if (!accounts || accounts.length === 0) {
+                throw new Error('No accounts found. Please unlock your wallet.');
+            }
+            
             this.connectedWallet = window.ethereum;
-            this.walletType = 'MetaMask';
+            this.walletType = window.ethereum.isMetaMask ? 'MetaMask' : 'Ethereum Wallet';
             this.address = accounts[0];
+            
+            console.log('✅ Ethereum wallet connected:', this.address);
             
             // Get chain ID
             this.chainId = await window.ethereum.request({ 
                 method: 'eth_chainId' 
             });
+            
+            console.log('📡 Chain ID:', this.chainId);
             
             // Get ETH balance
             await this.getEthereumBalance();
@@ -136,8 +179,11 @@ class UniversalWalletConnector {
                 type: 'ethereum'
             };
         } catch (error) {
-            console.error('MetaMask connection error:', error);
-            return { success: false, error: error.message };
+            console.error('❌ Ethereum wallet connection error:', error);
+            return { 
+                success: false, 
+                error: error.message || 'Ethereum wallet connection failed. Make sure the extension is unlocked.' 
+            };
         }
     }
 
