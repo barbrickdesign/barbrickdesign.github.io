@@ -17,14 +17,32 @@ class SecurityClearanceAuth {
         this.currentUser = {
             authenticated: false,
             clearanceLevel: 'PUBLIC',
-            cardType: null,
+            walletAddress: null,
             commonName: null,
             organization: null,
             expirationDate: null,
             caveatCodes: []  // Special access programs
         };
         
-        this.pivCardReader = null;
+        // WALLET-BASED CLEARANCE REGISTRY
+        this.ADMIN_WALLET = '6HTjfgWZYMbENnMAJJFhxWR2VZDxdze3qV7zznSAsfk';
+        
+        this.clearanceRegistry = {
+            // ADMIN WALLET - Full TS/SCI Access
+            [this.ADMIN_WALLET]: {
+                level: 'TS_SCI',
+                caveats: ['NOFORN', 'NATO', 'FVEY', 'ORCON'],
+                name: 'Admin',
+                organization: 'BarbrickDesign',
+                verified: true,
+                issuer: 'Self-Sovereign',
+                expires: '2099-12-31',
+                accessAll: true
+            }
+            // Add more wallets here as needed
+        };
+        
+        this.walletConnector = window.walletConnector;
         this.classifiedContracts = [];
     }
 
@@ -146,7 +164,78 @@ class SecurityClearanceAuth {
     }
 
     /**
-     * Authenticate user with PIV/CAC card
+     * Authenticate using connected wallet (PRIMARY METHOD)
+     */
+    async authenticateWithWallet() {
+        try {
+            console.log('🔐 Authenticating with wallet...');
+            
+            // Check if wallet connector is available
+            if (!this.walletConnector) {
+                throw new Error('Wallet connector not initialized');
+            }
+            
+            // Connect wallet
+            const walletResult = await this.walletConnector.connect();
+            if (!walletResult.success) {
+                throw new Error('Wallet connection failed: ' + walletResult.error);
+            }
+            
+            const walletAddress = walletResult.address;
+            console.log(`💼 Wallet connected: ${walletAddress}`);
+            
+            // Look up clearance in registry
+            const clearance = this.clearanceRegistry[walletAddress];
+            if (!clearance) {
+                throw new Error('No security clearance registered for this wallet address. Contact admin to register your clearance.');
+            }
+            
+            console.log(`🔍 Clearance found: ${clearance.level}`);
+            
+            // Verify ownership with signature
+            const message = `Authorize classified access at ${new Date().toISOString()}`;
+            const signature = await this.walletConnector.signMessage(message);
+            
+            if (!signature) {
+                throw new Error('Signature verification failed. Please sign the authorization message.');
+            }
+            
+            // Verify expiration
+            const expirationDate = new Date(clearance.expires);
+            if (expirationDate < new Date()) {
+                throw new Error('Clearance has expired. Please renew your credentials.');
+            }
+            
+            // Update current user
+            this.currentUser = {
+                authenticated: true,
+                walletAddress: walletAddress,
+                clearanceLevel: clearance.level,
+                commonName: clearance.name,
+                organization: clearance.organization,
+                expirationDate: clearance.expires,
+                caveatCodes: clearance.caveats,
+                verified: clearance.verified,
+                signature: signature
+            };
+            
+            console.log(`✅ Authenticated: ${clearance.name} (${clearance.level})`);
+            
+            return {
+                success: true,
+                user: this.currentUser
+            };
+        } catch (error) {
+            console.error('Wallet authentication error:', error);
+            return {
+                success: false,
+                error: error.message
+            };
+        }
+    }
+    
+    /**
+     * Authenticate user with PIV/CAC card (LEGACY METHOD)
      */
     async authenticate() {
         try {

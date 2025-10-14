@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Classified Contracts - Security Clearance Required</title>
+    
+    <!-- Wallet Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iife.min.js"></script>
+    <script src="universal-wallet-connect.js"></script>
     <script src="security-clearance-auth.js"></script>
     <link rel="stylesheet" href="mobile-responsive.css">
     <style>
@@ -305,14 +309,17 @@
 
         <div id="authSection" class="auth-section">
             <div class="card-icon">🎫</div>
-            <h2 style="color: #ff6666; margin-bottom: 20px;">PIV/CAC Authentication Required</h2>
+            <h2 style="color: #ff6666; margin-bottom: 20px;">Wallet Authentication Required</h2>
             <p style="color: #ff9999; margin-bottom: 30px; line-height: 1.8;">
-                Insert your Personal Identity Verification (PIV) or Common Access Card (CAC)<br>
-                to authenticate and view contracts matching your clearance level.
+                Connect your crypto wallet to authenticate<br>
+                and view classified contracts matching your clearance level.
             </p>
             <button id="authBtn" class="auth-btn" onclick="authenticateCard()">
-                🔐 AUTHENTICATE WITH PIV/CAC
+                💼 AUTHENTICATE WITH WALLET
             </button>
+            <p style="margin-top: 15px; color: #ff9999; font-size: 0.9em;">
+                Your wallet address is your security clearance credential
+            </p>
             <p id="authStatus" style="margin-top: 20px; color: #ff9999;"></p>
         </div>
 
@@ -368,10 +375,11 @@
             
             try {
                 btn.disabled = true;
-                status.textContent = '⏳ Reading PIV/CAC card...';
+                status.textContent = '⏳ Connecting wallet...';
                 status.style.color = '#ffff00';
                 
-                const result = await window.securityClearanceAuth.authenticate();
+                // Use wallet authentication (PRIMARY METHOD)
+                const result = await window.securityClearanceAuth.authenticateWithWallet();
                 
                 if (result.success) {
                     status.textContent = '✅ Authentication successful!';
