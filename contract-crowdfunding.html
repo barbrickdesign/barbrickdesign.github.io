@@ -1,0 +1,620 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contract Crowdfunding - Back Government Contracts</title>
+    
+    <!-- Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iife.min.js"></script>
+    <script src="universal-wallet-connect.js"></script>
+    <script src="samgov-integration.js"></script>
+    <link rel="stylesheet" href="mobile-responsive.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: linear-gradient(135deg, #0a0a1a, #1a1a3e);
+            color: #00ffff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, rgba(0,255,255,0.1), rgba(0,200,255,0.05));
+            border: 2px solid rgba(0,255,255,0.3);
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            color: #00ffff;
+            text-shadow: 0 0 20px rgba(0,255,255,0.6);
+            margin-bottom: 10px;
+        }
+        
+        .stats-banner {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .stat-box {
+            background: rgba(0,50,50,0.3);
+            border: 2px solid rgba(0,255,255,0.3);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .stat-label {
+            color: #66ffff;
+            font-size: 0.9em;
+            margin-bottom: 8px;
+        }
+        
+        .stat-value {
+            font-size: 2em;
+            font-weight: 900;
+            color: #00ffff;
+            text-shadow: 0 0 15px rgba(0,255,255,0.6);
+        }
+        
+        .filter-section {
+            background: rgba(0,30,30,0.5);
+            border: 2px solid rgba(0,255,255,0.3);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+        
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        select, input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0,0,0,0.5);
+            border: 2px solid rgba(0,255,255,0.3);
+            border-radius: 8px;
+            color: #00ffff;
+            font-family: 'Orbitron', sans-serif;
+        }
+        
+        .contracts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+        
+        .contract-card {
+            background: linear-gradient(135deg, rgba(0,30,40,0.9), rgba(0,50,60,0.9));
+            border: 2px solid rgba(0,255,255,0.3);
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .contract-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0,255,255,0.4);
+            border-color: #00ffff;
+        }
+        
+        .contract-header {
+            margin-bottom: 15px;
+        }
+        
+        .contract-title {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: #00ffff;
+            margin-bottom: 8px;
+        }
+        
+        .contract-agency {
+            color: #66ffff;
+            font-size: 0.9em;
+        }
+        
+        .contract-value {
+            font-size: 2em;
+            font-weight: 900;
+            color: #00ff00;
+            text-shadow: 0 0 15px rgba(0,255,0,0.6);
+            margin: 15px 0;
+        }
+        
+        .funding-progress {
+            margin: 20px 0;
+        }
+        
+        .progress-bar-container {
+            width: 100%;
+            height: 30px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 10px 0;
+            position: relative;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #00ffff, #00ff00);
+            border-radius: 15px;
+            transition: width 0.5s;
+            box-shadow: 0 0 20px rgba(0,255,255,0.6);
+        }
+        
+        .progress-text {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #fff;
+            font-weight: 700;
+            text-shadow: 0 0 5px #000;
+        }
+        
+        .funding-stats {
+            display: flex;
+            justify-content: space-between;
+            margin: 10px 0;
+            font-size: 0.9em;
+        }
+        
+        .backers {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 15px 0;
+        }
+        
+        .backer-avatar {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00ffff, #00ff00);
+            display: inline-block;
+            border: 2px solid rgba(0,255,255,0.5);
+        }
+        
+        .back-btn {
+            width: 100%;
+            padding: 15px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1em;
+            font-weight: 700;
+            background: linear-gradient(90deg, #00ffff, #00ff00);
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 15px;
+        }
+        
+        .back-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(0,255,255,0.6);
+        }
+        
+        .contract-tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 15px 0;
+        }
+        
+        .tag {
+            padding: 5px 12px;
+            background: rgba(0,255,255,0.2);
+            border: 1px solid rgba(0,255,255,0.4);
+            border-radius: 15px;
+            font-size: 0.85em;
+        }
+        
+        .deadline-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 8px 15px;
+            background: rgba(255,0,0,0.3);
+            border: 2px solid rgba(255,0,0,0.5);
+            border-radius: 20px;
+            font-size: 0.85em;
+            color: #ff6666;
+        }
+        
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: linear-gradient(135deg, rgba(0,30,40,0.95), rgba(0,50,60,0.95));
+            border: 2px solid rgba(0,255,255,0.5);
+            border-radius: 15px;
+            padding: 40px;
+            max-width: 600px;
+            width: 90%;
+        }
+        
+        .close-btn {
+            float: right;
+            font-size: 2em;
+            cursor: pointer;
+            color: #ff6666;
+        }
+        
+        @media (max-width: 768px) {
+            h1 { font-size: 2em; }
+            .contracts-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 CONTRACT CROWDFUNDING</h1>
+            <p style="color: #66ffff; margin-top: 10px;">Back Government Contracts with Crypto - Earn When We Win</p>
+        </header>
+
+        <div class="stats-banner">
+            <div class="stat-box">
+                <div class="stat-label">Total Contracts</div>
+                <div class="stat-value" id="totalContracts">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Total Value</div>
+                <div class="stat-value" id="totalValue">$0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Active Backers</div>
+                <div class="stat-value" id="activeBackers">0</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-label">Funded So Far</div>
+                <div class="stat-value" id="totalFunded">$0</div>
+            </div>
+        </div>
+
+        <div class="filter-section">
+            <h3 style="color: #00ffff; margin-bottom: 15px;">🔍 Filter Contracts</h3>
+            <div class="filter-grid">
+                <div>
+                    <label style="color: #66ffff; display: block; margin-bottom: 5px;">Agency</label>
+                    <select id="agencyFilter" onchange="filterContracts()">
+                        <option value="all">All Agencies</option>
+                        <option value="DOD">Department of Defense</option>
+                        <option value="DHS">Homeland Security</option>
+                        <option value="VA">Veterans Affairs</option>
+                        <option value="NASA">NASA</option>
+                        <option value="GSA">General Services</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="color: #66ffff; display: block; margin-bottom: 5px;">Category</label>
+                    <select id="categoryFilter" onchange="filterContracts()">
+                        <option value="all">All Categories</option>
+                        <option value="it">Information Technology</option>
+                        <option value="cybersecurity">Cybersecurity</option>
+                        <option value="construction">Construction</option>
+                        <option value="research">Research & Development</option>
+                        <option value="services">Professional Services</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="color: #66ffff; display: block; margin-bottom: 5px;">Min Value</label>
+                    <input type="number" id="minValue" placeholder="$0" onchange="filterContracts()">
+                </div>
+                <div>
+                    <label style="color: #66ffff; display: block; margin-bottom: 5px;">Search</label>
+                    <input type="text" id="searchBox" placeholder="Search contracts..." onkeyup="filterContracts()">
+                </div>
+            </div>
+        </div>
+
+        <div class="contracts-grid" id="contractsGrid">
+            <!-- Populated by JavaScript -->
+        </div>
+    </div>
+
+    <!-- Backing Modal -->
+    <div id="backModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h2 style="color: #00ffff; margin-bottom: 20px;">💰 Back This Contract</h2>
+            <div id="modalContract"></div>
+            
+            <div style="margin: 25px 0;">
+                <label style="color: #66ffff; display: block; margin-bottom: 10px;">Amount to Back (SOL/USDC)</label>
+                <input type="number" id="backAmount" placeholder="Enter amount" min="0.1" step="0.1" style="width: 100%; font-size: 1.2em;">
+            </div>
+            
+            <div style="background: rgba(0,100,100,0.3); padding: 20px; border-radius: 10px; margin: 20px 0;">
+                <h4 style="color: #00ffff; margin-bottom: 10px;">Your Benefits:</h4>
+                <ul style="color: #66ffff; line-height: 2;">
+                    <li>✅ Earn % of contract profits when won</li>
+                    <li>✅ Governance rights on project decisions</li>
+                    <li>✅ Project tokens upon completion</li>
+                    <li>✅ Full refund if contract not won</li>
+                    <li>✅ Transparent blockchain tracking</li>
+                </ul>
+            </div>
+            
+            <button class="back-btn" onclick="submitBacking()">
+                🚀 BACK THIS CONTRACT
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Sample contract data (would fetch from SAM.gov API in production)
+        const sampleContracts = [
+            {
+                id: 'SAM-2024-001',
+                title: 'Cybersecurity Monitoring Platform',
+                agency: 'Department of Homeland Security',
+                agencyCode: 'DHS',
+                category: 'cybersecurity',
+                value: 4500000,
+                deadline: '2025-03-15',
+                description: 'Real-time threat monitoring and response system for critical infrastructure',
+                fundingGoal: 150000,
+                currentFunding: 87500,
+                backers: 23,
+                tags: ['Cybersecurity', 'Cloud', 'Real-time'],
+                requirements: ['Security Clearance', 'Cloud Experience']
+            },
+            {
+                id: 'SAM-2024-002',
+                title: 'Veteran Healthcare Platform',
+                agency: 'Department of Veterans Affairs',
+                agencyCode: 'VA',
+                category: 'it',
+                value: 8200000,
+                deadline: '2025-04-20',
+                description: 'Integrated healthcare management system for VA hospitals nationwide',
+                fundingGoal: 250000,
+                currentFunding: 195000,
+                backers: 45,
+                tags: ['Healthcare', 'Database', 'Integration'],
+                requirements: ['HIPAA Compliance', 'Healthcare IT']
+            },
+            {
+                id: 'SAM-2024-003',
+                title: 'Space Communication Network',
+                agency: 'NASA',
+                agencyCode: 'NASA',
+                category: 'research',
+                value: 12000000,
+                deadline: '2025-06-30',
+                description: 'Next-generation satellite communication infrastructure',
+                fundingGoal: 400000,
+                currentFunding: 125000,
+                backers: 18,
+                tags: ['Space Tech', 'Satellites', 'Communications'],
+                requirements: ['Aerospace Experience', 'Top Secret Clearance']
+            },
+            {
+                id: 'SAM-2024-004',
+                title: 'Federal Building Modernization',
+                agency: 'General Services Administration',
+                agencyCode: 'GSA',
+                category: 'construction',
+                value: 6700000,
+                deadline: '2025-02-28',
+                description: 'Energy-efficient renovation of federal office buildings',
+                fundingGoal: 200000,
+                currentFunding: 180000,
+                backers: 31,
+                tags: ['Construction', 'Green Energy', 'Architecture'],
+                requirements: ['Construction License', 'LEED Certification']
+            },
+            {
+                id: 'SAM-2024-005',
+                title: 'AI-Powered Logistics System',
+                agency: 'Department of Defense',
+                agencyCode: 'DOD',
+                category: 'it',
+                value: 15000000,
+                deadline: '2025-09-15',
+                description: 'Machine learning system for military supply chain optimization',
+                fundingGoal: 500000,
+                currentFunding: 325000,
+                backers: 52,
+                tags: ['AI/ML', 'Logistics', 'Optimization'],
+                requirements: ['Secret Clearance', 'AI Experience']
+            },
+            {
+                id: 'SAM-2024-006',
+                title: 'Blockchain Voting Infrastructure',
+                agency: 'General Services Administration',
+                agencyCode: 'GSA',
+                category: 'it',
+                value: 3400000,
+                deadline: '2025-05-10',
+                description: 'Secure blockchain-based voting system for federal elections',
+                fundingGoal: 120000,
+                currentFunding: 45000,
+                backers: 12,
+                tags: ['Blockchain', 'Security', 'Voting'],
+                requirements: ['Blockchain Development', 'Security Audit']
+            }
+        ];
+
+        let allContracts = sampleContracts;
+        let selectedContract = null;
+
+        // Load contracts on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            loadContracts();
+            updateStats();
+        });
+
+        function loadContracts() {
+            const grid = document.getElementById('contractsGrid');
+            grid.innerHTML = '';
+            
+            allContracts.forEach(contract => {
+                const fundingPercent = (contract.currentFunding / contract.fundingGoal) * 100;
+                const daysLeft = Math.ceil((new Date(contract.deadline) - new Date()) / (1000 * 60 * 60 * 24));
+                
+                const card = document.createElement('div');
+                card.className = 'contract-card';
+                card.innerHTML = `
+                    <div class="deadline-badge">${daysLeft} days left</div>
+                    <div class="contract-header">
+                        <div class="contract-title">${contract.title}</div>
+                        <div class="contract-agency">${contract.agency}</div>
+                    </div>
+                    
+                    <div class="contract-value">$${(contract.value / 1000000).toFixed(1)}M</div>
+                    
+                    <p style="color: #66ffff; margin: 15px 0;">${contract.description}</p>
+                    
+                    <div class="contract-tags">
+                        ${contract.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                    </div>
+                    
+                    <div class="funding-progress">
+                        <div class="funding-stats">
+                            <span style="color: #00ff00;">$${contract.currentFunding.toLocaleString()} raised</span>
+                            <span style="color: #66ffff;">Goal: $${contract.fundingGoal.toLocaleString()}</span>
+                        </div>
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" style="width: ${Math.min(fundingPercent, 100)}%"></div>
+                            <div class="progress-text">${fundingPercent.toFixed(0)}%</div>
+                        </div>
+                    </div>
+                    
+                    <div class="backers">
+                        <span style="color: #66ffff;">${contract.backers} backers</span>
+                        ${Array(Math.min(contract.backers, 5)).fill().map(() => 
+                            '<div class="backer-avatar"></div>'
+                        ).join('')}
+                        ${contract.backers > 5 ? `<span style="color: #66ffff;">+${contract.backers - 5} more</span>` : ''}
+                    </div>
+                    
+                    <button class="back-btn" onclick='openBackModal(${JSON.stringify(contract)})'>
+                        💰 BACK THIS CONTRACT
+                    </button>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        function updateStats() {
+            const totalValue = allContracts.reduce((sum, c) => sum + c.value, 0);
+            const totalFunded = allContracts.reduce((sum, c) => sum + c.currentFunding, 0);
+            const totalBackers = new Set(allContracts.flatMap(c => 
+                Array(c.backers).fill().map((_, i) => `${c.id}-${i}`)
+            )).size;
+            
+            document.getElementById('totalContracts').textContent = allContracts.length;
+            document.getElementById('totalValue').textContent = '$' + (totalValue / 1000000).toFixed(1) + 'M';
+            document.getElementById('activeBackers').textContent = totalBackers;
+            document.getElementById('totalFunded').textContent = '$' + totalFunded.toLocaleString();
+        }
+
+        function filterContracts() {
+            const agency = document.getElementById('agencyFilter').value;
+            const category = document.getElementById('categoryFilter').value;
+            const minValue = parseFloat(document.getElementById('minValue').value) || 0;
+            const search = document.getElementById('searchBox').value.toLowerCase();
+            
+            allContracts = sampleContracts.filter(contract => {
+                const matchesAgency = agency === 'all' || contract.agencyCode === agency;
+                const matchesCategory = category === 'all' || contract.category === category;
+                const matchesValue = contract.value >= minValue;
+                const matchesSearch = search === '' || 
+                    contract.title.toLowerCase().includes(search) ||
+                    contract.description.toLowerCase().includes(search);
+                
+                return matchesAgency && matchesCategory && matchesValue && matchesSearch;
+            });
+            
+            loadContracts();
+            updateStats();
+        }
+
+        function openBackModal(contract) {
+            selectedContract = contract;
+            const modal = document.getElementById('backModal');
+            const modalContract = document.getElementById('modalContract');
+            
+            modalContract.innerHTML = `
+                <div style="background: rgba(0,50,50,0.3); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                    <h3 style="color: #00ffff;">${contract.title}</h3>
+                    <p style="color: #66ffff; margin: 10px 0;">${contract.agency}</p>
+                    <div style="font-size: 1.5em; color: #00ff00; font-weight: 900;">$${(contract.value / 1000000).toFixed(1)}M Contract</div>
+                    <p style="color: #66ffff; margin-top: 10px;">Currently funded: $${contract.currentFunding.toLocaleString()} / $${contract.fundingGoal.toLocaleString()}</p>
+                </div>
+            `;
+            
+            modal.style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('backModal').style.display = 'none';
+            document.getElementById('backAmount').value = '';
+        }
+
+        async function submitBacking() {
+            const amount = parseFloat(document.getElementById('backAmount').value);
+            
+            if (!amount || amount <= 0) {
+                alert('Please enter a valid amount');
+                return;
+            }
+            
+            // In production, this would:
+            // 1. Connect wallet
+            // 2. Transfer SOL/USDC to contract escrow
+            // 3. Mint backer NFT
+            // 4. Update backing records
+            // 5. Grant governance tokens
+            
+            alert(`🎉 Successfully backed ${selectedContract.title}!\n\nAmount: ${amount} SOL/USDC\n\nYou will receive:\n• Profit share when contract is won\n• Governance voting rights\n• Project completion tokens\n• Full refund if not awarded\n\nTransaction recorded on blockchain.`);
+            
+            // Update UI
+            selectedContract.currentFunding += (amount * 200); // Convert to USD estimate
+            selectedContract.backers += 1;
+            
+            closeModal();
+            loadContracts();
+            updateStats();
+        }
+    </script>
+</body>
+</html>
