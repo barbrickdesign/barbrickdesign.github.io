@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classified Contracts - Security Clearance Required</title>
+    <script src="security-clearance-auth.js"></script>
+    <link rel="stylesheet" href="mobile-responsive.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: #000;
+            color: #ff0000;
+            min-height: 100vh;
+        }
+        
+        .classified-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(0deg, transparent 24%, rgba(255,0,0,.03) 25%, rgba(255,0,0,.03) 26%, transparent 27%),
+                linear-gradient(90deg, transparent 24%, rgba(255,0,0,.03) 25%, rgba(255,0,0,.03) 26%, transparent 27%);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+            z-index: -1;
+        }
+        
+        @keyframes gridMove {
+            0% { transform: perspective(500px) rotateX(60deg) translateZ(0); }
+            100% { transform: perspective(500px) rotateX(60deg) translateZ(50px); }
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(180deg, rgba(255,0,0,0.1), transparent);
+            border: 2px solid rgba(255,0,0,0.5);
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            color: #ff0000;
+            text-shadow: 0 0 20px rgba(255,0,0,0.8);
+            margin-bottom: 10px;
+        }
+        
+        .warning-banner {
+            background: rgba(255,0,0,0.2);
+            border: 2px solid #ff0000;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .warning-text {
+            color: #ff6666;
+            font-size: 0.9em;
+            line-height: 1.6;
+        }
+        
+        .auth-section {
+            background: linear-gradient(135deg, rgba(20,0,0,0.9), rgba(40,0,0,0.9));
+            border: 2px solid rgba(255,0,0,0.3);
+            border-radius: 15px;
+            padding: 40px;
+            margin: 30px 0;
+            text-align: center;
+        }
+        
+        .card-icon {
+            font-size: 5em;
+            margin-bottom: 20px;
+        }
+        
+        .auth-btn {
+            padding: 20px 50px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.2em;
+            font-weight: 700;
+            background: linear-gradient(90deg, #ff0000, #ff6666);
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        .auth-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(255,0,0,0.6);
+        }
+        
+        .auth-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .clearance-badge {
+            display: inline-block;
+            padding: 10px 20px;
+            border-radius: 25px;
+            font-weight: 700;
+            margin: 10px;
+        }
+        
+        .badge-ts-sci {
+            background: rgba(139,0,0,0.3);
+            color: #ff0000;
+            border: 2px solid #8b0000;
+        }
+        
+        .badge-top-secret {
+            background: rgba(255,69,0,0.3);
+            color: #ff4500;
+            border: 2px solid #ff4500;
+        }
+        
+        .badge-secret {
+            background: rgba(255,165,0,0.3);
+            color: #ffa500;
+            border: 2px solid #ffa500;
+        }
+        
+        .badge-confidential {
+            background: rgba(255,255,0,0.3);
+            color: #ffff00;
+            border: 2px solid #ffff00;
+        }
+        
+        .contracts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(400px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+        
+        .contract-card {
+            background: linear-gradient(135deg, rgba(20,0,0,0.9), rgba(30,0,0,0.9));
+            border: 2px solid rgba(255,0,0,0.3);
+            border-radius: 15px;
+            padding: 25px;
+            transition: all 0.3s;
+        }
+        
+        .contract-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(255,0,0,0.4);
+            border-color: #ff0000;
+        }
+        
+        .contract-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .contract-title {
+            font-size: 1.3em;
+            font-weight: 700;
+            color: #ff6666;
+        }
+        
+        .contract-value {
+            font-size: 1.5em;
+            font-weight: 900;
+            color: #ff0000;
+            text-shadow: 0 0 10px rgba(255,0,0,0.6);
+            margin: 15px 0;
+        }
+        
+        .contract-details {
+            color: #ff9999;
+            line-height: 1.8;
+            margin: 10px 0;
+        }
+        
+        .contract-meta {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin: 15px 0;
+        }
+        
+        .meta-tag {
+            padding: 5px 12px;
+            background: rgba(255,0,0,0.2);
+            border: 1px solid rgba(255,0,0,0.4);
+            border-radius: 15px;
+            font-size: 0.85em;
+        }
+        
+        .access-denied {
+            background: rgba(139,0,0,0.3);
+            border: 2px solid #8b0000;
+            padding: 30px;
+            border-radius: 15px;
+            text-align: center;
+            margin: 30px 0;
+        }
+        
+        .access-denied h2 {
+            color: #ff0000;
+            margin-bottom: 15px;
+        }
+        
+        .user-info {
+            background: rgba(0,50,0,0.3);
+            border: 2px solid rgba(0,255,0,0.5);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        
+        .user-info h3 {
+            color: #00ff00;
+            margin-bottom: 10px;
+        }
+        
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid rgba(0,255,0,0.2);
+        }
+        
+        .info-label {
+            color: #66ff66;
+        }
+        
+        .info-value {
+            color: #00ff00;
+            font-weight: 700;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .stat-card {
+            background: rgba(20,0,0,0.8);
+            border: 2px solid rgba(255,0,0,0.3);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 2em;
+            font-weight: 900;
+            color: #ff0000;
+            text-shadow: 0 0 15px rgba(255,0,0,0.6);
+        }
+        
+        .stat-label {
+            color: #ff9999;
+            margin-top: 10px;
+            font-size: 0.9em;
+        }
+        
+        @media (max-width: 768px) {
+            h1 { font-size: 1.8em; }
+            .contracts-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="classified-grid"></div>
+    
+    <div class="container">
+        <header>
+            <h1>🔒 CLASSIFIED CONTRACTS ACCESS</h1>
+            <p style="color: #ff6666; margin-top: 10px;">Security Clearance Required</p>
+        </header>
+
+        <div class="warning-banner">
+            <p class="warning-text">
+                <strong>⚠️ WARNING ⚠️</strong><br>
+                This system contains classified information requiring appropriate security clearance.<br>
+                Unauthorized access is prohibited and punishable under federal law.<br>
+                All access attempts are logged and monitored.
+            </p>
+        </div>
+
+        <div id="authSection" class="auth-section">
+            <div class="card-icon">🎫</div>
+            <h2 style="color: #ff6666; margin-bottom: 20px;">PIV/CAC Authentication Required</h2>
+            <p style="color: #ff9999; margin-bottom: 30px; line-height: 1.8;">
+                Insert your Personal Identity Verification (PIV) or Common Access Card (CAC)<br>
+                to authenticate and view contracts matching your clearance level.
+            </p>
+            <button id="authBtn" class="auth-btn" onclick="authenticateCard()">
+                🔐 AUTHENTICATE WITH PIV/CAC
+            </button>
+            <p id="authStatus" style="margin-top: 20px; color: #ff9999;"></p>
+        </div>
+
+        <div id="authenticatedSection" style="display: none;">
+            <div class="user-info">
+                <h3>✅ AUTHENTICATED USER</h3>
+                <div class="info-row">
+                    <span class="info-label">Name:</span>
+                    <span class="info-value" id="userName">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Organization:</span>
+                    <span class="info-value" id="userOrg">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Clearance Level:</span>
+                    <span class="info-value" id="userClearance">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Special Access:</span>
+                    <span class="info-value" id="userCaveats">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Card Expiration:</span>
+                    <span class="info-value" id="userExpiration">-</span>
+                </div>
+                <button onclick="logout()" style="margin-top: 15px; padding: 10px 20px; background: #8b0000; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-family: 'Orbitron', sans-serif;">
+                    🔓 LOGOUT
+                </button>
+            </div>
+
+            <h2 style="color: #ff6666; margin: 40px 0 20px 0; text-align: center;">ACCESSIBLE CLASSIFIED CONTRACTS</h2>
+            
+            <div class="stats-grid" id="statsGrid"></div>
+            
+            <div class="contracts-grid" id="contractsGrid"></div>
+        </div>
+
+        <div style="margin-top: 60px; padding: 30px; text-align: center; border-top: 2px solid rgba(255,0,0,0.3);">
+            <p style="color: #ff6666;">
+                <a href="index.html" style="color: #ff0000;">← Back to Main Hub</a>
+            </p>
+            <p style="color: #ff9999; margin-top: 10px; font-size: 0.9em;">
+                All access logged | Monitored 24/7 | Unauthorized use prohibited
+            </p>
+        </div>
+    </div>
+
+    <script>
+        async function authenticateCard() {
+            const btn = document.getElementById('authBtn');
+            const status = document.getElementById('authStatus');
+            
+            try {
+                btn.disabled = true;
+                status.textContent = '⏳ Reading PIV/CAC card...';
+                status.style.color = '#ffff00';
+                
+                const result = await window.securityClearanceAuth.authenticate();
+                
+                if (result.success) {
+                    status.textContent = '✅ Authentication successful!';
+                    status.style.color = '#00ff00';
+                    
+                    // Hide auth section, show authenticated content
+                    setTimeout(() => {
+                        document.getElementById('authSection').style.display = 'none';
+                        document.getElementById('authenticatedSection').style.display = 'block';
+                        displayUserInfo(result.user);
+                        loadClassifiedContracts();
+                    }, 1000);
+                } else {
+                    throw new Error(result.error);
+                }
+            } catch (error) {
+                status.textContent = '❌ ' + error.message;
+                status.style.color = '#ff0000';
+                btn.disabled = false;
+            }
+        }
+
+        function displayUserInfo(user) {
+            document.getElementById('userName').textContent = user.commonName;
+            document.getElementById('userOrg').textContent = user.organization;
+            document.getElementById('userClearance').textContent = user.clearanceLevel.replace('_', '/');
+            document.getElementById('userCaveats').textContent = user.caveatCodes.join(', ') || 'None';
+            document.getElementById('userExpiration').textContent = user.expirationDate;
+        }
+
+        async function loadClassifiedContracts() {
+            try {
+                const contracts = await window.securityClearanceAuth.getClassifiedContracts();
+                const summary = window.securityClearanceAuth.getAccessSummary();
+                
+                // Display stats
+                displayStats(summary);
+                
+                // Display contracts
+                const grid = document.getElementById('contractsGrid');
+                grid.innerHTML = '';
+                
+                if (contracts.length === 0) {
+                    grid.innerHTML = '<div class="access-denied"><h2>⛔ NO ACCESSIBLE CONTRACTS</h2><p>No contracts match your current clearance level.</p></div>';
+                    return;
+                }
+                
+                contracts.forEach(contract => {
+                    const card = document.createElement('div');
+                    card.className = 'contract-card';
+                    card.innerHTML = `
+                        <div class="contract-header">
+                            <div class="contract-title">${contract.title}</div>
+                        </div>
+                        <div class="clearance-badge badge-${contract.classification.toLowerCase().replace('_', '-')}">
+                            ${contract.classification.replace('_', '/')}
+                        </div>
+                        <div class="contract-value">$${(contract.value / 1000000).toFixed(1)}M</div>
+                        <div class="contract-details">
+                            <strong>Agency:</strong> ${contract.agency}<br>
+                            <strong>ID:</strong> ${contract.id}<br>
+                            <strong>Deadline:</strong> ${contract.deadline}<br>
+                            <strong>Status:</strong> ${contract.status}
+                        </div>
+                        <p style="color: #ff9999; margin: 15px 0;">${contract.description}</p>
+                        <div class="contract-meta">
+                            ${contract.requirements.map(req => 
+                                `<span class="meta-tag">${req}</span>`
+                            ).join('')}
+                        </div>
+                        ${contract.caveats.length > 0 ? 
+                            `<div style="margin-top: 15px; padding: 10px; background: rgba(139,0,0,0.3); border-radius: 5px;">
+                                <strong style="color: #ff6666;">Caveats:</strong> ${contract.caveats.join(', ')}
+                            </div>` : ''
+                        }
+                    `;
+                    grid.appendChild(card);
+                });
+            } catch (error) {
+                console.error('Error loading contracts:', error);
+                document.getElementById('contractsGrid').innerHTML = 
+                    '<div class="access-denied"><h2>❌ ERROR</h2><p>' + error.message + '</p></div>';
+            }
+        }
+
+        function displayStats(summary) {
+            const grid = document.getElementById('statsGrid');
+            grid.innerHTML = `
+                <div class="stat-card">
+                    <div class="stat-value">${summary.totalContracts}</div>
+                    <div class="stat-label">Accessible Contracts</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">$${(summary.totalValue / 1000000).toFixed(1)}M</div>
+                    <div class="stat-label">Total Contract Value</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${summary.clearanceLevel.replace('_', '/')}</div>
+                    <div class="stat-label">Your Clearance</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">${summary.caveats.length || 0}</div>
+                    <div class="stat-label">Special Access Programs</div>
+                </div>
+            `;
+        }
+
+        function logout() {
+            window.securityClearanceAuth.logout();
+            document.getElementById('authenticatedSection').style.display = 'none';
+            document.getElementById('authSection').style.display = 'block';
+            document.getElementById('authBtn').disabled = false;
+            document.getElementById('authStatus').textContent = '';
+        }
+    </script>
+</body>
+</html>
