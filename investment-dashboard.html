@@ -319,6 +319,75 @@
     </div>
 
     <script>
+        // API Configuration
+        const COINGECKO_API = 'https://api.coingecko.com/api/v3';
+        const UPDATE_INTERVAL = 60000; // Update every 60 seconds
+        let lastUpdateTime = null;
+
+        // Add timestamp display
+        function addTimestampDisplay() {
+            const header = document.querySelector('header');
+            const timestampDiv = document.createElement('div');
+            timestampDiv.id = 'lastUpdate';
+            timestampDiv.style.cssText = 'margin-top: 10px; font-size: 0.9em; color: #8affff;';
+            timestampDiv.innerHTML = '⏱️ Last Updated: Loading...';
+            header.appendChild(timestampDiv);
+        }
+
+        function updateTimestamp() {
+            const now = new Date();
+            lastUpdateTime = now;
+            const timestampDiv = document.getElementById('lastUpdate');
+            if (timestampDiv) {
+                timestampDiv.innerHTML = `⏱️ Last Updated: ${now.toLocaleTimeString()} | 🔄 Auto-refresh in 60s`;
+            }
+        }
+
+        // Fetch real-time crypto prices from CoinGecko
+        async function fetchCryptoPrice(symbol) {
+            try {
+                // Map project symbols to CoinGecko IDs
+                const coinMap = {
+                    'SOL': 'solana',
+                    'ETH': 'ethereum',
+                    'BTC': 'bitcoin',
+                    'MATIC': 'matic-network'
+                };
+                
+                const coinId = coinMap[symbol] || 'solana';
+                const response = await fetch(`${COINGECKO_API}/simple/price?ids=${coinId}&vs_currencies=usd&include_24hr_change=true`);
+                
+                if (!response.ok) throw new Error('API request failed');
+                
+                const data = await response.json();
+                return {
+                    price: data[coinId]?.usd || 0,
+                    change24h: data[coinId]?.usd_24h_change || 0
+                };
+            } catch (error) {
+                console.warn('Failed to fetch real-time price:', error);
+                return { price: 0, change24h: 0 };
+            }
+        }
+
+        // Fetch market data for Solana ecosystem
+        async function fetchSolanaMarketData() {
+            try {
+                const response = await fetch(`${COINGECKO_API}/coins/solana`);
+                if (!response.ok) throw new Error('Failed to fetch Solana data');
+                
+                const data = await response.json();
+                return {
+                    marketCap: data.market_data?.market_cap?.usd || 0,
+                    volume24h: data.market_data?.total_volume?.usd || 0,
+                    priceChange24h: data.market_data?.price_change_percentage_24h || 0
+                };
+            } catch (error) {
+                console.warn('Failed to fetch Solana market data:', error);
+                return { marketCap: 0, volume24h: 0, priceChange24h: 0 };
+            }
+        }
+
         // BarbrickDesign Projects Data
         const projects = [
             {
@@ -514,8 +583,27 @@
             // window.open(pumpFunUrl, '_blank');
         }
 
-        // Initialize on load
-        window.addEventListener('DOMContentLoaded', initializeDashboard);
+        // Initialize on load with API integration
+        window.addEventListener('DOMContentLoaded', async function() {
+            // Add timestamp display
+            addTimestampDisplay();
+            
+            // Fetch real-time Solana data
+            const solanaData = await fetchSolanaMarketData();
+            console.log('Solana Market Data:', solanaData);
+            
+            // Initialize dashboard
+            await initializeDashboard();
+            
+            // Update timestamp
+            updateTimestamp();
+            
+            // Set up auto-refresh
+            setInterval(async () => {
+                await initializeDashboard();
+                updateTimestamp();
+            }, UPDATE_INTERVAL);
+        });
     </script>
 </body>
 </html>
