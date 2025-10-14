@@ -53,6 +53,14 @@ class LocalScanner {
     findGitRepos(dir, found, depth, maxDepth) {
         if (depth > maxDepth) return;
         
+        // SECURITY: Validate directory path to prevent traversal attacks
+        const resolvedDir = path.resolve(dir);
+        const homeDir = path.resolve(this.homeDir);
+        if (!resolvedDir.startsWith(homeDir)) {
+            console.warn(`⚠️ Security: Skipping directory outside home: ${dir}`);
+            return;
+        }
+        
         try {
             const items = fs.readdirSync(dir, { withFileTypes: true });
             
@@ -131,13 +139,16 @@ class LocalScanner {
                 // Could not count lines
             }
             
-            // Calculate dev hours
+            // Calculate dev hours - FIXED: Use weighted average instead of max to prevent inflation
             const monthsActive = Math.max(1, 
                 (new Date(lastCommit) - new Date(firstCommit)) / (1000 * 60 * 60 * 24 * 30)
             );
-            const commitHours = commitCount * 2;
-            const linesHours = (totalLines / 50);
-            const devHours = Math.max(commitHours, linesHours, monthsActive * 20);
+            // FIXED: More realistic time estimates
+            const commitHours = commitCount * 0.5; // 30 min per commit (was 2h - inflated!)
+            const linesHours = (totalLines / 100); // 100 lines per hour (was 50 - too generous)
+            const activityHours = monthsActive * 10; // 10h per month baseline
+            // FIXED: Use weighted average instead of max to prevent massive inflation
+            const devHours = (commitHours * 0.4 + linesHours * 0.4 + activityHours * 0.2);
             
             this.results.totalDevHours += devHours;
             
@@ -151,7 +162,7 @@ class LocalScanner {
                 lastCommit: new Date(lastCommit),
                 monthsActive: Math.round(monthsActive),
                 estimatedHours: Math.round(devHours),
-                estimatedValue: Math.round(devHours * 100) // $100/hour
+                estimatedValue: Math.round(devHours * 75) // $75/hour (realistic rate)
             };
         } catch (error) {
             console.error(`    Error analyzing repo: ${error.message}`);
@@ -200,7 +211,7 @@ class LocalScanner {
             totalConversations,
             totalTokens,
             estimatedHours: Math.round(estimatedHours),
-            estimatedValue: Math.round(estimatedHours * 100)
+            estimatedValue: Math.round(estimatedHours * 75) // $75/hour (realistic rate)
         });
         
         console.log(`  ✅ Found ${totalConversations} AI conversations`);
@@ -253,6 +264,13 @@ class LocalScanner {
     }
 
     getAllFiles(dir, extensions, files = []) {
+        // SECURITY: Validate directory path
+        const resolvedDir = path.resolve(dir);
+        const homeDir = path.resolve(this.homeDir);
+        if (!resolvedDir.startsWith(homeDir)) {
+            return files; // Skip directories outside home
+        }
+        
         try {
             const items = fs.readdirSync(dir, { withFileTypes: true });
             
@@ -356,11 +374,11 @@ class LocalScanner {
         // Calculate total value
         const aiHours = this.results.aiConversations[0]?.estimatedHours || 0;
         const totalHours = Math.round(this.results.totalDevHours + aiHours);
-        const totalValue = totalHours * 100; // $100/hour
+        const totalValue = totalHours * 75; // $75/hour (realistic market average)
         
         console.log('\n💰 COMPENSATION CALCULATION:');
         console.log(`  Total Development Hours: ${totalHours.toLocaleString()}`);
-        console.log(`  Base Rate: $100/hour`);
+        console.log(`  Base Rate: $75/hour (realistic market average)`);
         console.log(`  Base Compensation: $${totalValue.toLocaleString()}`);
         
         // Add pioneer bonus if applicable
@@ -404,10 +422,11 @@ class LocalScanner {
     }
 
     calculatePioneerMultiplier(years) {
-        if (years >= 15) return 10; // Pre-2010: 10x
-        if (years >= 10) return 5;  // 2010-2015: 5x
-        if (years >= 5) return 2;   // 2015-2020: 2x
-        return 1;
+        // FIXED: More reasonable pioneer bonuses to prevent budget inflation
+        if (years >= 15) return 2.0; // Pre-2010: 2x (was 10x - way too high!)
+        if (years >= 10) return 1.5; // 2010-2015: 1.5x (was 5x)
+        if (years >= 5) return 1.2;  // 2015-2020: 1.2x (was 2x)
+        return 1.0;
     }
 
     // Export results
