@@ -18,9 +18,29 @@ class LocalScanner {
             aiConversations: [],
             projects: [],
             totalDevHours: 0,
-            estimatedValue: 0
+            estimatedValue: 0,
+            dataProvenance: {
+                sources: [],
+                validationMethod: 'multi-source-cross-reference',
+                calculatedAt: new Date().toISOString(),
+                architect: {
+                    role: 'Grand Architect',
+                    recognized: false,
+                    complexity: 0
+                }
+            }
         };
         this.extensions = ['.js', '.ts', '.jsx', '.tsx', '.py', '.java', '.cpp', '.c', '.rs', '.go', '.rb', '.php', '.cs', '.swift'];
+        
+        // Architect-level rates based on system complexity and integration work
+        this.rates = {
+            'junior-developer': 75,
+            'mid-developer': 100,
+            'senior-developer': 150,
+            'lead-architect': 200,
+            'system-architect': 250,
+            'grand-architect': 350  // For multi-system integration & design
+        };
     }
 
     // Scan for all git repositories
