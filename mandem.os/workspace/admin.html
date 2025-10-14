@@ -51,7 +51,24 @@
     </div>
   </div>
   <script>
-    const ADMIN_PASSWORD = '500004813';
+    const ADMIN_VAULT = '6HTjfgWZYMbENnMAJJFhxWR2VZDxdze3qV7zznSAsfk';
+    
+    // Check wallet authentication on page load
+    window.addEventListener('DOMContentLoaded', function() {
+      checkWalletAuth();
+    });
+    
+    function checkWalletAuth() {
+      const adminAuth = localStorage.getItem('admin_authenticated');
+      const adminWallet = localStorage.getItem('admin_wallet');
+      
+      if (adminAuth === 'true' && adminWallet === ADMIN_VAULT) {
+        document.getElementById('admin-login').classList.add('hidden');
+        document.getElementById('admin-panel').classList.remove('hidden');
+        loadUsers();
+        setTimeout(refreshChatLog, 100);
+      }
+    }
     async function logFailedAttempt() {
       try {
         // Get location info from ipinfo.io (free, limited)
@@ -87,15 +104,26 @@
         attempts.map(a => `${a.time} - ${a.ip || ''} ${a.city ? a.city + ', ' : ''}${a.region ? a.region + ', ' : ''}${a.country || ''} ${a.loc ? '(' + a.loc + ')' : ''}`).join('<br>');
     }
     function checkAdminPassword() {
-      const input = document.getElementById('admin-password').value;
-      if (input === ADMIN_PASSWORD) {
+      // Wallet-based authentication
+      const user = JSON.parse(localStorage.getItem('currentUser') || 'null');
+      
+      if (!user || !user.walletAddress) {
+        document.getElementById('login-error').textContent = 'Please connect your wallet first. Return to main page and connect wallet.';
+        logFailedAttempt();
+        sendFailedAttemptToServer();
+        return;
+      }
+      
+      if (user.walletAddress === ADMIN_VAULT) {
+        localStorage.setItem('admin_authenticated', 'true');
+        localStorage.setItem('admin_wallet', user.walletAddress);
         document.getElementById('admin-login').classList.add('hidden');
         document.getElementById('admin-panel').classList.remove('hidden');
         loadUsers();
+        setTimeout(refreshChatLog, 100);
       } else {
-        document.getElementById('login-error').textContent = 'Incorrect password.';
+        document.getElementById('login-error').textContent = 'Access denied. Admin vault wallet required: ' + ADMIN_VAULT.slice(0,8) + '...';
         logFailedAttempt();
-        // Send failed attempt to server
         sendFailedAttemptToServer();
       }
     }

@@ -1171,11 +1171,15 @@
           usernameCell.style.textDecoration = 'underline';
           usernameCell.onclick = function(e) {
             e.stopPropagation();
-            const input = prompt('Enter admin password for portal access:');
-            if (input === '500004813') {
+            // Wallet-based admin authentication
+            const ADMIN_VAULT = '6HTjfgWZYMbENnMAJJFhxWR2VZDxdze3qV7zznSAsfk';
+            const user = JSON.parse(localStorage.getItem('currentUser') || 'null');
+            if (user && user.walletAddress === ADMIN_VAULT) {
+              localStorage.setItem('admin_authenticated', 'true');
+              localStorage.setItem('admin_wallet', user.walletAddress);
               window.location.href = 'admin.html';
-            } else if (input !== null) {
-              alert('Incorrect password.');
+            } else {
+              alert('Access denied. Admin vault wallet required.');
             }
           };
         }

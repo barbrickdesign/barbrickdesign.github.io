@@ -331,12 +331,12 @@
                 <span class="project-status status-active">ACTIVE</span>
             </div>
 
-            <div class="project-card" onclick="window.location.href='mandem.os/workspace/admin.html'">
+            <div class="project-card" onclick="accessAdminPortal()">
                 <div class="project-icon">👑</div>
                 <div class="project-title">Admin Portal</div>
                 <div class="project-desc">
                     God mode access with user management, chat moderation,
-                    and system monitoring. (Password: 500004813)
+                    and system monitoring. (Requires vault wallet authentication)
                 </div>
                 <span class="project-status status-active">ACTIVE</span>
             </div>
@@ -418,6 +418,27 @@
                 btn.disabled = false;
                 status.textContent = 'Connection failed';
                 status.style.color = '#ff6b6b';
+            }
+        }
+        
+        // Admin portal access with wallet validation
+        async function accessAdminPortal() {
+            const ADMIN_VAULT = '6HTjfgWZYMbENnMAJJFhxWR2VZDxdze3qV7zznSAsfk';
+            const walletState = typeof getWalletState === 'function' ? getWalletState() : null;
+            
+            if (!walletState || !walletState.connected) {
+                alert('Please connect your wallet first to access the admin portal.');
+                return;
+            }
+            
+            // Check if connected wallet matches admin vault
+            if (walletState.publicKey === ADMIN_VAULT) {
+                // Authenticate and redirect
+                localStorage.setItem('admin_authenticated', 'true');
+                localStorage.setItem('admin_wallet', walletState.publicKey);
+                window.location.href = 'mandem.os/workspace/admin.html';
+            } else {
+                alert('Access denied. This wallet is not authorized for admin access.');
             }
         }
         
