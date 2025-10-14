@@ -288,6 +288,7 @@
                     <span id="walletType">🔷</span>
                     <span id="walletAddress">0x0000...0000</span>
                     <span id="walletBalance">0.00</span>
+                    <button onclick="disconnectWallet()" style="margin-left: 10px; padding: 5px 10px; background: rgba(255,0,0,0.3); border: 1px solid #ff0000; color: #ff0000; cursor: pointer; border-radius: 5px; font-size: 0.8em;">Disconnect</button>
                 </div>
             </div>
         </header>
@@ -740,6 +741,34 @@
             } catch (error) {
                 console.warn('⚠️ Message signing failed (optional):', error.message);
                 // Don't fail the connection if signing fails
+            }
+        }
+        
+        // Disconnect wallet
+        async function disconnectWallet() {
+            const btn = document.getElementById('walletBtn');
+            const btnText = document.getElementById('btnText');
+            const walletInfo = document.getElementById('walletInfo');
+            
+            try {
+                // Disconnect via connector
+                if (window.walletConnector) {
+                    await window.walletConnector.disconnect();
+                }
+                
+                // Clear UI
+                btn.classList.remove('connected');
+                btnText.textContent = '🔗 CONNECT WALLET';
+                walletInfo.style.display = 'none';
+                
+                // Clear verification
+                localStorage.removeItem('wallet_verified');
+                localStorage.removeItem('wallet_signature');
+                localStorage.removeItem('wallet_verified_at');
+                
+                console.log('✅ Wallet disconnected');
+            } catch (error) {
+                console.error('Disconnect error:', error);
             }
         }
         

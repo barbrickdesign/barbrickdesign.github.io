@@ -112,7 +112,27 @@ class UniversalWalletConnector {
             }
 
             console.log('🔗 Connecting to Phantom...');
-            const resp = await provider.connect();
+            
+            // Check if already connected
+            if (provider.isConnected && provider.publicKey) {
+                console.log('✅ Phantom already connected, using existing session');
+                this.connectedWallet = provider;
+                this.walletType = 'Phantom';
+                this.address = provider.publicKey.toString();
+                
+                // Get SOL balance
+                await this.getSolanaBalance();
+                
+                return {
+                    success: true,
+                    address: this.address,
+                    balance: this.balance,
+                    type: 'solana'
+                };
+            }
+            
+            // Not connected, request connection
+            const resp = await provider.connect({ onlyIfTrusted: false });
             this.connectedWallet = provider;
             this.walletType = 'Phantom';
             this.address = resp.publicKey.toString();
@@ -130,9 +150,26 @@ class UniversalWalletConnector {
             };
         } catch (error) {
             console.error('❌ Phantom connection error:', error);
+            
+            // Handle user rejection
+            if (error.message?.includes('User rejected') || error.code === 4001) {
+                return {
+                    success: false,
+                    error: 'Connection cancelled by user'
+                };
+            }
+            
+            // Handle wallet locked
+            if (error.message?.includes('locked')) {
+                return {
+                    success: false,
+                    error: 'Phantom wallet is locked. Please unlock it and try again.'
+                };
+            }
+            
             return { 
                 success: false, 
-                error: error.message || 'Phantom connection failed. Make sure the extension is unlocked.' 
+                error: error.message || 'Phantom connection failed. Try refreshing the page.' 
             };
         }
     }
@@ -147,9 +184,18 @@ class UniversalWalletConnector {
             }
 
             console.log('🔗 Connecting to Ethereum wallet...');
-            const accounts = await window.ethereum.request({ 
-                method: 'eth_requestAccounts' 
-            });
+            
+            // Check if already connected
+            let accounts = await window.ethereum.request({ method: 'eth_accounts' });
+            
+            if (accounts && accounts.length > 0) {
+                console.log('✅ Ethereum wallet already connected, using existing session');
+            } else {
+                // Request connection
+                accounts = await window.ethereum.request({ 
+                    method: 'eth_requestAccounts' 
+                });
+            }
             
             if (!accounts || accounts.length === 0) {
                 throw new Error('No accounts found. Please unlock your wallet.');
@@ -180,6 +226,15 @@ class UniversalWalletConnector {
             };
         } catch (error) {
             console.error('❌ Ethereum wallet connection error:', error);
+            
+            // Handle user rejection
+            if (error.code === 4001) {
+                return {
+                    success: false,
+                    error: 'Connection cancelled by user'
+                };
+            }
+            
             return { 
                 success: false, 
                 error: error.message || 'Ethereum wallet connection failed. Make sure the extension is unlocked.' 
