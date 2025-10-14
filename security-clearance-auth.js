@@ -38,6 +38,17 @@ class SecurityClearanceAuth {
                 issuer: 'Self-Sovereign',
                 expires: '2099-12-31',
                 accessAll: true
+            },
+            // METAMASK WALLET - Full TS/SCI Access
+            '0xEFc6910e7624F164dAe9d0F799954aa69c943c8d': {
+                level: 'TS_SCI',
+                caveats: ['NOFORN', 'NATO', 'FVEY', 'ORCON'],
+                name: 'Ryan Barbrick',
+                organization: 'BarbrickDesign',
+                verified: true,
+                issuer: 'Self-Sovereign',
+                expires: '2099-12-31',
+                accessAll: true
             }
             // Add more wallets here as needed
         };
