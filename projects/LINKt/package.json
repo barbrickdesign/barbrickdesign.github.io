@@ -1,0 +1,11 @@
+{
+  "name": "sanctumlink-smoke-tests",
+  "version": "0.1.0",
+  "description": "Puppeteer smoke tests for SanctumLink UI",
+  "scripts": {
+    "test:smoke": "node ./test/smoke.test.js"
+  },
+  "devDependencies": {
+    "puppeteer": "^20.0.0"
+  }
+}

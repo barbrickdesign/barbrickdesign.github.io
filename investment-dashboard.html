@@ -56,6 +56,7 @@
         h1 {
             font-size: 3em;
             background: linear-gradient(90deg, #00ff00, #00ffff);
+            background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             text-transform: uppercase;
@@ -311,6 +312,11 @@
             <p style="color: #00ff00; font-size: 1.1em; margin-bottom: 10px;">
                 All tokens created on pump.fun | Powered by Solana
             </p>
+            <p style="color: #8affff; margin-bottom: 10px;">
+                📊 Data Sources: <a href="https://www.coingecko.com" target="_blank" style="color: #00ffff;">CoinGecko API</a> (prices & market data), 
+                <a href="https://solana.com" target="_blank" style="color: #00ffff;">Solana</a> (ecosystem data), 
+                project-tokenomics.js (valuations)
+            </p>
             <p style="color: #8affff;">
                 <a href="index.html" style="color: #00ffff;">← Back to Hub</a> | 
                 <a href="https://pump.fun" target="_blank" style="color: #00ffff;">Visit pump.fun</a>
@@ -508,7 +514,13 @@
                     dashboard.overview.totalProjects;
                 document.getElementById('totalMarketCap').textContent = 
                     '$' + dashboard.overview.totalMarketCap.toLocaleString();
-                document.getElementById('avgROI').textContent = '5.0x';
+                
+                // Calculate average ROI from actual results
+                const avgROI = results.reduce((sum, r) => {
+                    if (r.error) return sum;
+                    return sum + (r.investment?.roi?.moderate || 5);
+                }, 0) / results.filter(r => !r.error).length;
+                document.getElementById('avgROI').textContent = avgROI.toFixed(1) + 'x';
                 
                 // Display projects
                 const grid = document.getElementById('projectsGrid');

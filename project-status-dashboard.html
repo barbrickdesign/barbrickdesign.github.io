@@ -323,10 +323,13 @@
             </div>
         </div>
 
-        <div class="compensation-highlight">
-            💰 MAJOR DISCOVERY: $9,370,400 Total Compensation Calculated!
-            <div style="font-size: 0.6em; margin-top: 10px;">
-                17,446 files | 4,685,054 lines of code | 6 AI conversations
+        <div class="compensation-highlight" id="compensationHighlight">
+            💰 MAJOR DISCOVERY: Loading...
+            <div style="font-size: 0.6em; margin-top: 10px;" id="compensationDetails">
+                Loading scan data...
+            </div>
+            <div style="font-size: 0.5em; margin-top: 5px; opacity: 0.8;" id="dataSources">
+                
             </div>
         </div>
 
@@ -418,11 +421,48 @@
             ]
         };
 
+        async function loadScanResults() {
+            try {
+                const response = await fetch('development-scan-results.json');
+                if (response.ok) {
+                    const scanData = await response.json();
+                    
+                    // Update compensation highlight with real data
+                    const highlight = document.getElementById('compensationHighlight');
+                    const details = document.getElementById('compensationDetails');
+                    const sources = document.getElementById('dataSources');
+                    
+                    const totalCompensation = scanData.summary?.finalValue || scanData.summary?.baseValue || 0;
+                    const codeFiles = scanData.summary?.codeFiles || 0;
+                    const conversations = scanData.summary?.conversations || 0;
+                    const timestamp = scanData.timestamp ? new Date(scanData.timestamp).toLocaleString() : 'Unknown';
+                    
+                    highlight.innerHTML = `💰 MAJOR DISCOVERY: $${totalCompensation.toLocaleString()} Total Compensation Calculated!`;
+                    details.innerHTML = `${codeFiles.toLocaleString()} files | ${conversations} AI conversations`;
+                    sources.innerHTML = `📊 Sources: development-scan-results.json (${timestamp}), Git commit history`;
+                    
+                    console.log('✅ Loaded scan results:', scanData.summary);
+                } else {
+                    throw new Error('Scan results not found');
+                }
+            } catch (error) {
+                console.warn('⚠️ Could not load scan results:', error);
+                // Fallback to placeholder
+                document.getElementById('compensationHighlight').innerHTML = 
+                    '💰 MAJOR DISCOVERY: Scan data unavailable (run local-scanner.js)';
+                document.getElementById('compensationDetails').innerHTML = 
+                    'Development scan results not found';
+                document.getElementById('dataSources').innerHTML = 
+                    '⚠️ Run: node local-scanner.js to generate data';
+            }
+        }
+
         function initializeDashboard() {
             updateTimestamp();
             renderTasks();
             updateStats();
             updateProgress();
+            loadScanResults();
         }
 
         function updateTimestamp() {

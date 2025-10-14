@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integration Test - All Systems</title>
+    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iife.min.js"></script>
+    <script src="universal-wallet-connect.js"></script>
+    <script src="universal-dev-tracker-complete.js"></script>
+    <script src="project-tokenomics.js"></script>
+    <script src="pumpfun-integration.js"></script>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000;
+            color: #00ff00;
+            padding: 20px;
+        }
+        .container { max-width: 1200px; margin: 0 auto; }
+        h1 { color: #00ffff; margin-bottom: 20px; }
+        .test-section {
+            background: rgba(0,255,0,0.1);
+            border: 2px solid #00ff00;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 10px;
+        }
+        .test-item {
+            padding: 10px;
+            margin: 10px 0;
+            background: rgba(0,0,0,0.5);
+            border-left: 4px solid #ffff00;
+        }
+        .test-item.pass { border-left-color: #00ff00; }
+        .test-item.fail { border-left-color: #ff0000; }
+        .test-item.running { border-left-color: #00ffff; }
+        button {
+            background: linear-gradient(135deg, #00ff00, #00cc00);
+            color: #000;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px 5px;
+        }
+        button:hover { transform: scale(1.05); }
+        .results { margin-top: 20px; white-space: pre-wrap; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🧪 INTEGRATION TEST SUITE</h1>
+        <p style="margin-bottom: 20px;">Testing all systems for proper functionality and data sources</p>
+
+        <button onclick="runAllTests()">▶️ RUN ALL TESTS</button>
+        <button onclick="clearResults()">🗑️ CLEAR RESULTS</button>
+
+        <div class="test-section">
+            <h2>📋 Test Results</h2>
+            <div id="testResults"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>📊 Detailed Output</h2>
+            <div id="detailedOutput" class="results"></div>
+        </div>
+    </div>
+
+    <script>
+        const tests = [];
+        const results = { passed: 0, failed: 0, total: 0 };
+
+        function logTest(name, status, message) {
+            const item = document.createElement('div');
+            item.className = `test-item ${status}`;
+            item.innerHTML = `
+                <strong>${status === 'pass' ? '✅' : status === 'fail' ? '❌' : '⏳'} ${name}</strong>
+                <div style="font-size: 0.9em; margin-top: 5px;">${message}</div>
+            `;
+            document.getElementById('testResults').appendChild(item);
+            
+            if (status === 'pass') results.passed++;
+            if (status === 'fail') results.failed++;
+            results.total++;
+        }
+
+        function logOutput(message) {
+            const output = document.getElementById('detailedOutput');
+            output.textContent += message + '\n';
+            output.scrollTop = output.scrollHeight;
+        }
+
+        async function runAllTests() {
+            clearResults();
+            logOutput('🚀 Starting integration tests...\n');
+
+            // Test 1: Wallet Connector
+            try {
+                logOutput('\n📝 Test 1: Wallet Connector Detection');
+                await window.walletConnector.detectWallets();
+                const wallets = window.walletConnector.detectedWallets;
+                if (wallets.length > 0) {
+                    logTest('Wallet Detection', 'pass', `Detected ${wallets.length} wallet(s): ${wallets.map(w => w.name).join(', ')}`);
+                    logOutput(`✅ Found wallets: ${JSON.stringify(wallets.map(w => w.name))}`);
+                } else {
+                    logTest('Wallet Detection', 'pass', 'No wallets detected (install Phantom/MetaMask for full test)');
+                    logOutput('⚠️ No wallets found - install browser extensions for full testing');
+                }
+            } catch (error) {
+                logTest('Wallet Detection', 'fail', error.message);
+                logOutput(`❌ Wallet detection error: ${error.message}`);
+            }
+
+            // Test 2: Development Tracker
+            try {
+                logOutput('\n📝 Test 2: Development Tracker Engine');
+                if (typeof window.devTracker !== 'undefined') {
+                    const baseRate = window.devTracker.BASE_RATE;
+                    const pioneerMultiplier = window.devTracker.calculatePioneerMultiplier(15);
+                    logTest('Dev Tracker Engine', 'pass', `Base rate: $${baseRate}/hr, Pioneer 15y multiplier: ${pioneerMultiplier}x`);
+                    logOutput(`✅ Dev tracker initialized: $${baseRate}/hr base, ${pioneerMultiplier}x for 15+ years`);
+                } else {
+                    logTest('Dev Tracker Engine', 'fail', 'window.devTracker not found');
+                    logOutput('❌ Dev tracker not loaded');
+                }
+            } catch (error) {
+                logTest('Dev Tracker Engine', 'fail', error.message);
+                logOutput(`❌ Dev tracker error: ${error.message}`);
+            }
+
+            // Test 3: Project Tokenomics
+            try {
+                logOutput('\n📝 Test 3: Project Tokenomics System');
+                if (typeof window.projectTokenomics !== 'undefined') {
+                    logTest('Project Tokenomics', 'pass', 'Tokenomics engine loaded successfully');
+                    logOutput('✅ Tokenomics system operational');
+                } else {
+                    logTest('Project Tokenomics', 'fail', 'window.projectTokenomics not found');
+                    logOutput('❌ Tokenomics not loaded');
+                }
+            } catch (error) {
+                logTest('Project Tokenomics', 'fail', error.message);
+                logOutput(`❌ Tokenomics error: ${error.message}`);
+            }
+
+            // Test 4: Pump.fun Integration
+            try {
+                logOutput('\n📝 Test 4: Pump.fun Integration');
+                if (typeof window.pumpFun !== 'undefined') {
+                    const coins = window.pumpFun.getAllCoins();
+                    const portfolio = window.pumpFun.generatePortfolioSummary();
+                    logTest('Pump.fun Integration', 'pass', `${coins.length} coins loaded, $${portfolio.totalMarketCap} total market cap`);
+                    logOutput(`✅ Pump.fun: ${coins.length} coins, total cap: $${portfolio.totalMarketCap}`);
+                } else {
+                    logTest('Pump.fun Integration', 'fail', 'window.pumpFun not found');
+                    logOutput('❌ Pump.fun not loaded');
+                }
+            } catch (error) {
+                logTest('Pump.fun Integration', 'fail', error.message);
+                logOutput(`❌ Pump.fun error: ${error.message}`);
+            }
+
+            // Test 5: Development Scan Results
+            try {
+                logOutput('\n📝 Test 5: Development Scan Data');
+                const response = await fetch('development-scan-results.json');
+                if (response.ok) {
+                    const data = await response.json();
+                    const summary = data.summary;
+                    logTest('Scan Results JSON', 'pass', `${summary.codeFiles} files, ${summary.conversations} conversations, $${summary.finalValue.toLocaleString()} value`);
+                    logOutput(`✅ Scan data: ${summary.codeFiles} files, ${summary.conversations} AI convos, $${summary.finalValue}`);
+                    logOutput(`   Sources: ${data.timestamp}`);
+                } else {
+                    logTest('Scan Results JSON', 'fail', 'development-scan-results.json not found');
+                    logOutput('❌ Scan results file missing - run: node local-scanner.js');
+                }
+            } catch (error) {
+                logTest('Scan Results JSON', 'fail', error.message);
+                logOutput(`❌ Scan results error: ${error.message}`);
+            }
+
+            // Test 6: TODO List Parsing
+            try {
+                logOutput('\n📝 Test 6: TODO List File');
+                const response = await fetch('COMPREHENSIVE-FIX-TODO.md');
+                if (response.ok) {
+                    const content = await response.text();
+                    const criticalCount = (content.match(/- \[ \]/g) || []).length;
+                    const completedCount = (content.match(/- \[x\]/g) || []).length;
+                    logTest('TODO List', 'pass', `${criticalCount} pending, ${completedCount} completed tasks`);
+                    logOutput(`✅ TODO: ${criticalCount} open, ${completedCount} done`);
+                } else {
+                    logTest('TODO List', 'fail', 'COMPREHENSIVE-FIX-TODO.md not found');
+                    logOutput('❌ TODO file missing');
+                }
+            } catch (error) {
+                logTest('TODO List', 'fail', error.message);
+                logOutput(`❌ TODO error: ${error.message}`);
+            }
+
+            // Test 7: GitHub API (Mock test)
+            try {
+                logOutput('\n📝 Test 7: GitHub API Connectivity');
+                const testUrl = 'https://api.github.com/zen';
+                const response = await fetch(testUrl);
+                if (response.ok) {
+                    const zen = await response.text();
+                    logTest('GitHub API', 'pass', `API accessible (zen: "${zen.substring(0, 50)}...")`);
+                    logOutput(`✅ GitHub API: ${zen}`);
+                } else {
+                    logTest('GitHub API', 'fail', 'API not accessible');
+                    logOutput('❌ GitHub API unreachable');
+                }
+            } catch (error) {
+                logTest('GitHub API', 'fail', error.message);
+                logOutput(`❌ GitHub API error: ${error.message}`);
+            }
+
+            // Summary
+            logOutput(`\n${'='.repeat(60)}`);
+            logOutput(`📊 FINAL RESULTS: ${results.passed}/${results.total} tests passed`);
+            logOutput(`✅ Passed: ${results.passed}`);
+            logOutput(`❌ Failed: ${results.failed}`);
+            logOutput(`Success Rate: ${((results.passed/results.total)*100).toFixed(1)}%`);
+            logOutput(`${'='.repeat(60)}`);
+            
+            if (results.passed === results.total) {
+                logOutput('\n🎉 ALL SYSTEMS OPERATIONAL! Ready for deployment.');
+            } else {
+                logOutput('\n⚠️ Some tests failed. Review errors above.');
+            }
+        }
+
+        function clearResults() {
+            document.getElementById('testResults').innerHTML = '';
+            document.getElementById('detailedOutput').textContent = '';
+            results.passed = 0;
+            results.failed = 0;
+            results.total = 0;
+        }
+
+        // Auto-run on load
+        window.addEventListener('DOMContentLoaded', () => {
+            setTimeout(runAllTests, 1000);
+        });
+    </script>
+</body>
+</html>

@@ -23,6 +23,7 @@
 html {
     -webkit-text-size-adjust: 100%;
     -ms-text-size-adjust: 100%;
+    text-size-adjust: 100%; /* Added for broader compatibility */
     font-size: var(--mobile-font-size);
 }
 
@@ -293,6 +294,14 @@ code, pre {
     
     .nav-bottom {
         position: relative !important;
+    }
+}
+
+/* Specific fix for .section-title on mobile */
+@media (max-width: 768px) {
+    .section-title {
+        word-break: break-word;
+        white-space: normal;
     }
 }
 

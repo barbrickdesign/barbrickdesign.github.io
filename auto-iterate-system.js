@@ -346,21 +346,61 @@ class AutoIterateSystem {
         }
     }
 
-    // Update TODO list
+    // Update TODO list with improved matching
     updateTodoList(completedTasks) {
         if (completedTasks.length === 0) return;
         
         console.log('\n📝 Updating TODO list...');
         let content = fs.readFileSync(this.todoPath, 'utf8');
+        let updatedCount = 0;
+        
+        // Map test names to TODO item keywords for fuzzy matching
+        const taskMappings = {
+            'Mobile Text Breaking': ['text breaking', 'CORE SYSTEMS', 'word-break'],
+            'Section Title Styling': ['section title', 'section-title'],
+            'Wallet Connect Script': ['wallet', 'universal-wallet-connect'],
+            'CoinGecko API Integration': ['coingecko', 'api integration'],
+            'Service Worker Registration': ['service worker', 'serviceWorker.register']
+        };
         
         completedTasks.forEach(task => {
-            // Find the task and mark it complete
-            const taskRegex = new RegExp(`- \\[ \\] ${task}`, 'g');
-            content = content.replace(taskRegex, `- [x] ${task}`);
+            // First try exact match
+            let taskRegex = new RegExp(`- \\[ \\] (.*)${this.escapeRegex(task)}(.*)`, 'i');
+            if (content.match(taskRegex)) {
+                content = content.replace(taskRegex, (match, before, after) => {
+                    updatedCount++;
+                    return `- [x] ${before}${task}${after}`;
+                });
+                console.log(`    ✓ Matched exact: ${task}`);
+                return;
+            }
+            
+            // Try fuzzy matching using mappings
+            const keywords = taskMappings[task];
+            if (keywords) {
+                keywords.forEach(keyword => {
+                    const fuzzyRegex = new RegExp(`- \\[ \\] ([^\\n]*${this.escapeRegex(keyword)}[^\\n]*)`, 'i');
+                    const match = content.match(fuzzyRegex);
+                    if (match) {
+                        content = content.replace(fuzzyRegex, `- [x] ${match[1]}`);
+                        updatedCount++;
+                        console.log(`    ✓ Matched fuzzy "${keyword}": ${match[1]}`);
+                    }
+                });
+            }
         });
         
-        fs.writeFileSync(this.todoPath, content);
-        console.log(`  ✅ Updated ${completedTasks.length} tasks in TODO list`);
+        if (updatedCount > 0) {
+            fs.writeFileSync(this.todoPath, content);
+            console.log(`  ✅ Updated ${updatedCount} tasks in TODO list`);
+        } else {
+            console.log(`  ⚠️ No matching tasks found to update`);
+        }
+    }
+    
+    // Helper to escape regex special characters
+    escapeRegex(string) {
+        return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     }
 
     // Main iteration loop

@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>SanctumLink ✝️ — Sovereign Atlas + $LINK Hub (Deployable + Auto-Populate + Watchdogs)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<style>
+  :root{
+    --sol-purple:#9945FF; --sol-green:#14F195; --sol-blue:#00D1FF; --sol-red:#FF3B3B; --gold:#f9c846;
+    --bg:#0a0b14; --bg2:#121536; --paper:rgba(255,255,255,.98);
+  }
+  html,body{margin:0;height:100%;background:radial-gradient(1200px 600px at 50% 0%, #0a0b14 0%, #121536 60%, #0a0b14 100%);color:#0c0f14;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Arial}
+  a{color:var(--sol-purple);text-decoration:none;font-weight:700}
+  .wrap{max-width:1200px;margin:0 auto;padding:16px}
+  .card{background:var(--paper);border-radius:16px;padding:14px;box-shadow:0 18px 50px rgba(0,0,0,.30);margin:12px 0}
+  .hdr{display:flex;gap:12px;align-items:center;justify-content:space-between}
+  .brand{display:flex;gap:12px;align-items:center}
+  .dot{width:14px;height:14px;border-radius:50%;background:linear-gradient(180deg,var(--sol-purple),#6f35ff);box-shadow:0 0 12px var(--sol-purple)}
+  .btn{background:linear-gradient(180deg,var(--sol-purple),#6f35ff);color:#fff;border:0;border-radius:12px;padding:10px 14px;font-weight:800;cursor:pointer}
+  .btn-secondary{background:#111827;color:#fff}
+  .btn-ghost{background:transparent;border:1px solid #e5e7eb;color:#111}
+  .btn[disabled]{opacity:.6;cursor:not-allowed}
+  .tabbar{display:flex;gap:8px;flex-wrap:wrap}
+  .tab{border:0;background:#e5e7eb;color:#111;padding:8px 12px;border-radius:10px;font-weight:800;cursor:pointer}
+  .tab.active{background:var(--sol-purple);color:#fff}
+  .row{margin:8px 0}
+  .grid{display:grid;gap:12px}
+  .g-2{grid-template-columns:1fr 1fr}
+  .g-3{grid-template-columns:repeat(3,1fr)}
+  .small{font-size:12px;color:#555}
+  .mono{font-family:ui-monospace,Menlo,Consolas,monospace}
+  .pill{display:inline-block;padding:3px 8px;border-radius:999px;background:#f3f4f6;font-size:12px;margin-right:6px}
+  input,select,textarea{width:100%;padding:10px 12px;border:1px solid #d1d5db;border-radius:12px}
+  textarea{min-height:80px}
+  .item{border-top:1px solid #eee;padding:10px 0}
+  .name{font-weight:900}
+  .addr{color:#374151;font-size:12px;margin-top:2px}
+  .ok{color:#059669}.warn{color:#b45309}.bad{color:#dc2626}
+  .bar{height:10px;border-radius:6px;background:#e5e7eb;overflow:hidden}
+  .fill{height:100%;width:0;background:linear-gradient(90deg,var(--sol-green),#0ac684)}
+  .fill.bad{background:linear-gradient(90deg,var(--sol-red),#ff6b6b)}
+  .fill.warn{background:linear-gradient(90deg,#f59e0b,#fbbf24)}
+  /* Stage */
+  #stage{position:relative;height:560px;border-radius:16px;overflow:hidden;background:#05060b;border:1px solid rgba(255,255,255,.08)}
+  #globe{position:absolute;inset:0}
+  #helix3d{position:absolute;right:0;top:0;width:100%;height:100%;pointer-events:auto}
+  #legend{position:absolute;bottom:10px;left:10px;display:flex;gap:8px;align-items:center;z-index:3;background:rgba(255,255,255,.92);
+    border-radius:10px;padding:8px 10px;box-shadow:0 10px 28px rgba(0,0,0,.25)}
+  .lg{display:flex;align-items:center;gap:6px;font-size:12px}
+  .c{width:10px;height:10px;border-radius:50%}
+  .c-buy{background:#14F195;box-shadow:0 0 8px #14F195}
+  .c-sell{background:#FF3B3B;box-shadow:0 0 8px #FF3B3B}
+  .c-xfer{background:#00D1FF;box-shadow:0 0 8px #00D1FF}
+  .c-peace{background:#ffffff;box-shadow:0 0 10px #fff, 0 0 16px #b4e1ff}
+  .c-offgrid{background:#14F195;box-shadow:0 0 10px #ffd100}
+  /* Tooltip */
+  .tip{position:relative;display:inline-flex;align-items:center;gap:6px}
+  .tip .bubble{visibility:hidden;opacity:0;transition:opacity .2s;position:absolute;z-index:10;left:50%;transform:translateX(-50%);bottom:125%;background:#111827;color:#fff;border-radius:10px;padding:10px;min-width:200px;box-shadow:0 16px 28px rgba(0,0,0,.35)}
+  .tip .bubble::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border-width:6px;border-style:solid;border-color:#111827 transparent transparent transparent}
+  .tip:hover .bubble{visibility:visible;opacity:1}
+  /* Mobile */
+  @media (max-width: 900px){
+    .g-2,.g-3{grid-template-columns:1fr}
+    #stage{height:480px}
+    .tabbar{overflow:auto}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="card hdr">
+    <div class="brand">
+      <span class="dot"></span>
+      <div>
+        <div style="font-size:20px;font-weight:900">SanctumLink ✝️ — Sovereign Atlas + $LINK Hub</div>
+        <div class="small">Auto‑populated global sanctums, next‑gen visuals, live ingestion, wallet validation, QR, orders, tooltips, watchdogs</div>
+      </div>
+    </div>
+    <div class="tabbar">
+      <button class="tab active" data-tab="atlas">Atlas</button>
+      <button class="tab" data-tab="hub">LINK✝️ Hub</button>
+      <button class="tab" data-tab="orders">Orders</button>
+      <button class="tab" data-tab="help">Guide</button>
+    </div>
+  </div>
+
+  <!-- ATLAS -->
+  <div class="card panel" id="panel-atlas">
+    <h2>Global atlas</h2>
+    <div class="grid g-2">
+      <div>
+        <div class="row tip">
+          <b>Connect wallet</b> <span class="small">(Phantom)</span>
+          <div class="bubble">Connect your Solana wallet for validation, peace marking, and orders.</div>
+        </div>
+        <div class="row" style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn" id="connectPhantom">Connect Phantom</button>
+          <button class="btn btn-secondary" id="disconnectPhantom" disabled>Disconnect</button>
+          <span class="small mono" id="walletView">—</span>
+        </div>
+
+        <div class="row tip">
+          <b>Geoapify API key (optional)</b>
+          <div class="bubble">Enter your API key to ingest places of worship in real time. Otherwise, auto‑populated sanctums are shown.</div>
+        </div>
+        <div class="row"><input id="geoKey" placeholder="Enter Geoapify API key for live ingestion"></div>
+
+        <div class="row tip">
+          <b>Ingest sanctums</b>
+          <div class="bubble">Use your location or coordinates + radius to fetch sanctums. Auto‑seeded sanctums are already loaded.</div>
+        </div>
+        <div class="row"><button class="btn" id="detect">Detect & ingest</button></div>
+        <div class="row" style="display:flex;gap:6px;flex-wrap:wrap">
+          <input id="lat" placeholder="Lat" />
+          <input id="lon" placeholder="Lon" />
+          <input id="rad" value="20000" placeholder="Radius m" />
+        </div>
+        <div class="row"><button class="btn btn-secondary" id="ingest">Ingest region</button> <span class="small" id="ingestStatus"></span></div>
+
+        <div class="row tip">
+          <b>Add my place of worship</b>
+          <div class="bubble">Submit a sanctum. 3+ coin holders must verify to illuminate it.</div>
+        </div>
+        <div class="row"><input id="addName" placeholder="Sanctum name" /></div>
+        <div class="row"><input id="addAddr" placeholder="Address (optional)" /></div>
+        <div class="row" style="display:flex;gap:6px">
+          <input id="addLat" placeholder="Lat" /><input id="addLon" placeholder="Lon" />
+        </div>
+        <div class="row"><textarea id="addDesc" placeholder="Description / denomination (optional)"></textarea></div>
+        <div class="row"><button class="btn" id="addSubmit">Submit sanctum for verification</button> <span class="small" id="addStatus"></span></div>
+
+        <div class="row">
+          <div class="pill">Self‑checks</div>
+          <div class="row small">• <span id="t-wallet" class="warn">Wallet connected</span></div>
+          <div class="row small">• <span id="t-geo" class="warn">Places ingested</span></div>
+          <div class="row small">• <span id="t-qr" class="warn">QR working</span></div>
+          <div class="row small">• <span id="t-helix" class="warn">Helix live (tx stream)</span></div>
+          <div class="row small">• <span id="t-watch" class="warn">Watchdog healthy</span></div>
+          <div class="row small">• <span id="t-seed" class="warn">Auto‑populated sanctums loaded</span></div>
+        </div>
+
+        <div class="row" style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="btn-ghost" id="exportState">Export state</button>
+          <input id="importFile" type="file" accept="application/json" style="display:none"/>
+          <button class="btn-ghost" id="importState">Import state</button>
+          <span class="small mono" id="createdStamp"></span>
+        </div>
+      </div>
+
+      <div>
+        <div id="stage">
+          <div id="globe" aria-label="Global map"></div>
+          <div id="helix3d" aria-label="Double helix visualization"></div>
+          <div id="legend">
+            <div class="lg"><span class="c c-buy"></span> Buy</div>
+            <div class="lg"><span class="c c-sell"></span> Sale</div>
+            <div class="lg"><span class="c c-xfer"></span> Transfer</div>
+            <div class="lg"><span class="c c-peace"></span> Peace mark ✌️</div>
+            <div class="lg"><span class="c c-offgrid"></span> Off‑grid beacon</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <h3>Sanctums</h3>
+    <div class="grid g-2">
+      <div>
+        <div id="list"></div>
+      </div>
+      <div>
+        <h4>Pending sanctums (need verification)</h4>
+        <div id="pendingList" class="small">None pending.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HUB -->
+  <div class="card panel" id="panel-hub" style="display:none">
+    <h2>$LINK✝️ hub</h2>
+    <div class="grid g-3">
+      <div>
+        <div class="row"><b>Sanctum Vault</b><div class="mono" id="mainVault">BVnVEfipjrx8cDVqUSCJ1ZjwyrU3kVMebwac3cnGhLB</div></div>
+        <div class="row"><b>Top sanctuaries</b><div id="topList"></div></div>
+      </div>
+      <div>
+        <div class="row tip">
+          <b>Generate QR for sanctum</b>
+          <div class="bubble">Create a scannable beacon for presence and donations. Download and place physically or share virtually.</div>
+        </div>
+        <div class="row" style="display:flex;gap:6px;flex-wrap:wrap">
+          <select id="qrSelect"></select>
+          <button class="btn" id="mkQR">Generate QR</button>
+          <button class="btn btn-secondary" id="dlQR" disabled>Download QR</button>
+        </div>
+        <canvas id="qrCanvas" style="background:#fff;border-radius:10px;display:none"></canvas>
+      </div>
+      <div>
+        <div class="row tip">
+          <b>Wallet validation via Pump.fun</b>
+          <div class="bubble">Open Pump.fun with your wallet as referrer to validate activity and presence.</div>
+        </div>
+        <div class="small">Create or verify a token on Pump.fun:</div>
+        <div class="row" style="display:flex;gap:6px;flex-wrap:wrap">
+          <input id="pfName" placeholder="Proposed token name (optional)" />
+          <button class="btn" id="openPump">Open Pump.fun</button>
+        </div>
+      </div>
+    </div>
+
+    <h3>Link checks</h3>
+    <div class="grid g-2">
+      <div>
+        <div class="row"><label>Solscan vault URL</label><input id="linkSolscan" placeholder="https://solscan.io/account/BVnV..."><div class="bar"><div class="fill" id="sbSolscan"></div></div></div>
+        <div class="row"><label>Public site URL</label><input id="linkSite" placeholder="https://sanctum.link"><div class="bar"><div class="fill" id="sbSite"></div></div></div>
+      </div>
+      <div>
+        <div class="row"><label>Data API health (optional)</label><input id="linkAPI" placeholder="https://api.sanctum.link/health"><div class="bar"><div class="fill" id="sbAPI"></div></div></div>
+        <div class="row"><button class="btn" id="testAll">Test all links</button> <span class="small" id="testAllResult"></span></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ORDERS -->
+  <div class="card panel" id="panel-orders" style="display:none">
+    <h2>Orders — Stickers and Eternal Plaques</h2>
+    <div class="grid g-2">
+      <div>
+        <div class="pill">Order QR stickers (drop‑ship; dual‑signature)</div>
+        <div class="row"><label>Sanctum</label><select id="ordSanctum"></select></div>
+        <div class="row"><label>Quantity</label><input id="ordQty" type="number" min="10" value="50"></div>
+        <div class="row"><label>Ship to (place of worship)</label><textarea id="ordShip" placeholder="Sanctum shipping address"></textarea></div>
+        <div class="row"><button class="btn" id="genNonce">Generate validation nonce</button> <span class="mono small" id="nonceView"></span></div>
+        <div class="row"><label>Donation signature (TXID)</label><input id="donTxid" placeholder="Paste transaction signature"></div>
+        <div class="row"><label>Donation memo (nonce)</label><input id="donMemo" placeholder="Paste the nonce you included in memo"></div>
+        <div class="row"><button class="btn btn-secondary" id="validateOrder">Validate donation & create order</button> <span class="small" id="orderStatus"></span></div>
+        <h4>Drop‑shipper receipt (required)</h4>
+        <div class="row"><label>Drop‑shipper wallet</label><input id="dsWallet" placeholder="e.g., walletDS1"></div>
+        <div class="row"><label>Drop‑shipper signature</label><input id="dsSig" placeholder="Paste receipt signature"></div>
+        <div class="row"><button class="btn" id="fulfillOrder">Mark fulfilled</button> <span class="small" id="fulfillStatus"></span></div>
+      </div>
+
+      <div>
+        <div class="pill">Order eternal plaque (Thai metals; dual‑signature)</div>
+        <div class="row"><label>Sanctum</label><select id="plqSanctum"></select></div>
+        <div class="row"><label>Material</label>
+          <select id="plqMaterial">
+            <option value="bronze">Bronze</option>
+            <option value="stainless">Stainless steel</option>
+            <option value="titanium">Titanium</option>
+            <option value="copper">Copper alloy</option>
+          </select>
+        </div>
+        <div class="row"><label>Size (mm)</label><input id="plqSize" placeholder="e.g., 200 x 200 x 3"></div>
+        <div class="row"><label>Mounting</label><input id="plqMount" placeholder="Wall / pedestal / stone embed"></div>
+        <div class="row"><label>Ship to (place of worship)</label><textarea id="plqShip" placeholder="Sanctum shipping address"></textarea></div>
+        <div class="row"><button class="btn" id="plqNonce">Generate validation nonce</button> <span class="mono small" id="plqNonceView"></span></div>
+        <div class="row"><label>Donation signature (TXID)</label><input id="plqTxid" placeholder="Paste transaction signature"></div>
+        <div class="row"><label>Donation memo (nonce)</label><input id="plqMemo" placeholder="Paste the nonce you included in memo"></div>
+        <div class="row"><label>Thai metals wallet</label><input id="thaiWallet" placeholder="walletTHAI"></div>
+        <div class="row"><label>Thai metals signature</label><input id="thaiSig" placeholder="Maker receipt signature"></div>
+        <div class="row"><button class="btn btn-secondary" id="placePlaque">Validate & place plaque order</button> <span class="small" id="plqStatus"></span></div>
+      </div>
+    </div>
+
+    <h3>Order ledger</h3>
+    <div id="orderLedger" class="small">No orders yet.</div>
+    <h3>Drop‑shipper trust scores</h3>
+    <div id="trustBoard" class="small">No data yet.</div>
+  </div>
+
+  <!-- GUIDE -->
+  <div class="card panel" id="panel-help" style="display:none">
+    <h2>Guide: begin in peace</h2>
+    <ol>
+      <li><b>Connect wallet:</b> tap “Connect Phantom” and approve.</li>
+      <li><b>Auto‑populated sanctums:</b> the globe and list are preloaded; you can ingest more via Geoapify or add your own.</li>
+      <li><b>Support sanctums:</b> generate QR, share or place physically; open Pump.fun for token validation.</li>
+      <li><b>Mark peace:</b> use “Mark At Peace ✌️” to affirm a location; your nod animates in the helix.</li>
+      <li><b>Order stickers/plaques:</b> donate with nonce in memo, paste TXID, collect drop‑shipper signature.</li>
+    </ol>
+    <div class="small">The helix lights up as transactions flow: green buys, red sales, blue transfers, white‑gold peace marks. Off‑grid sanctums glow bright green with lightning‑yellow embers.</div>
+  </div>
+
+  <div class="card">
+    <div class="small">SanctumLink ✝️ — Timestamped, auto‑seeded, self‑checking, resilient. Dedicated to sustainers of sacred spaces.</div>
+  </div>
+</div>
+
+<link href="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Widgets/widgets.css" rel="stylesheet"/>
+<script defer src="https://cesium.com/downloads/cesiumjs/releases/1.114/Build/Cesium/Cesium.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.152.2/examples/js/postprocessing/EffectComposer.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.152.2/examples/js/postprocessing/RenderPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/three@0.152.2/examples/js/postprocessing/UnrealBloomPass.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.1/build/qrcode.min.js"></script>
+
+<script type="module">
+  import { Connection, PublicKey, clusterApiUrl } from "https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.3/lib/index.browser.esm.js";
+
+  // ====== Timestamp anchor ======
+  const CREATED_AT = new Date().toISOString();
+  document.getElementById("createdStamp").textContent = `Created: ${CREATED_AT}`;
+  localStorage.setItem("createdAt", CREATED_AT);
+
+  // ====== State ======
+  const S = {
+    wallet: null,
+    connection: new Connection(clusterApiUrl("mainnet-beta"), "confirmed"),
+    geoKey: localStorage.getItem("geoKey")||"",
+    mainVault: "BVnVEfipjrx8cDVqUSCJ1ZjwyrU3kVMebwac3cnGhLB",
+    places: JSON.parse(localStorage.getItem("places")||"[]"),
+    pending: JSON.parse(localStorage.getItem("pending")||"[]"),
+    offGrid: new Set(JSON.parse(localStorage.getItem("offgrid")||"[]")),
+    orders: JSON.parse(localStorage.getItem("orders")||"[]"),
+    trust: JSON.parse(localStorage.getItem("trust")||"{}"),
+    txFeedAddrs: new Set(),
+    helix: { scene:null, renderer:null, camera:null, composer:null, particles:[] },
+    watchers: { wallet:false, globe:false, helix:false, qr:false, seed:false }
+  };
+
+  // ====== Auto-populate known sanctums (global seed) ======
+  const KNOWN_SANCTUMS = [
+    { id:'auto-001', name:'St. Peter’s Basilica', address:'Vatican City', lat:41.9022, lon:12.4539, mcapUSD:25000, rank:100 },
+    { id:'auto-002', name:'Great Mosque of Mecca', address:'Mecca, Saudi Arabia', lat:21.4225, lon:39.8262, mcapUSD:25000, rank:100 },
+    { id:'auto-003', name:'Golden Temple', address:'Amritsar, India', lat:31.6200, lon:74.8765, mcapUSD:20000, rank:95 },
+    { id:'auto-004', name:'Western Wall', address:'Jerusalem, Israel', lat:31.7767, lon:35.2345, mcapUSD:17000, rank:85 },
+    { id:'auto-005', name:'Shwedagon Pagoda', address:'Yangon, Myanmar', lat:16.7983, lon:96.1497, mcapUSD:16000, rank:82 },
+    { id:'auto-006', name:'Notre-Dame Cathedral', address:'Paris, France', lat:48.8530, lon:2.3499, mcapUSD:16000, rank:82 },
+    { id:'auto-007', name:'Sagrada Família', address:'Barcelona, Spain', lat:41.4036, lon:2.1744, mcapUSD:15000, rank:80 },
+    { id:'auto-008', name:'Angkor Wat', address:'Siem Reap, Cambodia', lat:13.4125, lon:103.8670, mcapUSD:18000, rank:88 },
+    { id:'auto-009', name:'Borobudur Temple', address:'Magelang, Indonesia', lat:-7.6079, lon:110.2038, mcapUSD:17500, rank:87 },
+    { id:'auto-010', name:'St. Basil’s Cathedral', address:'Moscow, Russia', lat:55.7525, lon:37.6231, mcapUSD:15500, rank:81 },
+    { id:'auto-011', name:'Kashi Vishwanath Temple', address:'Varanasi, India', lat:25.3109, lon:82.9739, mcapUSD:16500, rank:83 },
+    { id:'auto-012', name:'Uluru Sacred Site', address:'Uluru, Australia', lat:-25.3450, lon:131.0360, mcapUSD:14000, rank:75 },
+    { id:'auto-013', name:'La Sagrada Catedral Metropolitana', address:'Mexico City, Mexico', lat:19.4340, lon:-99.1332, mcapUSD:14800, rank:78 },
+    { id:'auto-014', name:'Haghia Sophia', address:'Istanbul, Türkiye', lat:41.0086, lon:28.9802, mcapUSD:19000, rank:90 },
+    { id:'auto-015', name:'Kiyomizu-dera', address:'Kyoto, Japan', lat:34.9949, lon:135.7850, mcapUSD:15800, rank:79 },
+    { id:'auto-016', name:'Shrine of Fatima', address:'Fátima, Portugal', lat:39.6329, lon:-8.6716, mcapUSD:14200, rank:76 },
+    { id:'auto-017', name:'Christ the Redeemer', address:'Rio de Janeiro, Brazil', lat:-22.9519, lon:-43.2105, mcapUSD:16200, rank:82 },
+    { id:'auto-018', name:'St. Paul’s Cathedral', address:'London, UK', lat:51.5138, lon:-0.0984, mcapUSD:15100, rank:80 },
+    { id:'auto-019', name:'Lotus Temple', address:'New Delhi, India', lat:28.5535, lon:77.2588, mcapUSD:14900, rank:79 },
+    { id:'auto-020', name:'Sri Padmanabhaswamy Temple', address:'Thiruvananthapuram, India', lat:8.4820, lon:76.9433, mcapUSD:16000, rank:82 },
+    { id:'auto-021', name:'Canterbury Cathedral', address:'Canterbury, UK', lat:51.2798, lon:1.0837, mcapUSD:14000, rank:75 },
+    { id:'auto-022', name:'St. Patrick’s Cathedral', address:'New York, USA', lat:40.758465, lon:-73.975993, mcapUSD:15500, rank:81 },
+    { id:'auto-023', name:'Masjid al-Nabawi', address:'Medina, Saudi Arabia', lat:24.4672, lon:39.6111, mcapUSD:23000, rank:98 },
+    { id:'auto-024', name:'Fushimi Inari Taisha', address:'Kyoto, Japan', lat:34.9671, lon:135.7727, mcapUSD:15000, rank:80 },
+    { id:'auto-025', name:'Jokhang Temple', address:'Lhasa, Tibet', lat:29.6540, lon:91.1165, mcapUSD:17000, rank:86 }
+  ];
+  (function seedKnown(){
+    const existing = new Set(S.places.map(p=>p.id));
+    let added = 0;
+    KNOWN_SANCTUMS.forEach(s => { if(!existing.has(s.id)){ S.places.push(s); added++; } });
+    if(added>0){
+      localStorage.setItem("places", JSON.stringify(S.places));
+      document.getElementById('t-seed').className='ok';
+    }
+    S.watchers.seed = true;
+  })();
+
+  // ====== Wallet (Phantom) ======
+  const phantom = window.solana;
+  const connectBtn = document.getElementById("connectPhantom");
+  const disconnectBtn = document.getElementById("disconnectPhantom");
+  const walletView = document.getElementById("walletView");
+
+  async function connectWallet(){
+    if(!phantom || !phantom.isPhantom){ alert("Install Phantom wallet to continue."); return; }
+    const res = await phantom.connect({ onlyIfTrusted: false });
+    S.wallet = new PublicKey(res.publicKey.toString());
+    walletView.textContent = S.wallet.toBase58();
+    connectBtn.disabled = true; disconnectBtn.disabled = false;
+    markOk("t-wallet"); S.watchers.wallet = true;
+    S.txFeedAddrs.add(S.wallet.toBase58());
+  }
+  async function disconnectWallet(){
+    try{ await phantom.disconnect(); }catch{}
+    S.wallet=null; walletView.textContent="—";
+    connectBtn.disabled=false; disconnectBtn.disabled=true;
+    S.watchers.wallet = false;
+  }
+  connectBtn.addEventListener("click", connectWallet);
+  disconnectBtn.addEventListener("click", disconnectWallet);
+
+  // ====== Geo Ingestion (optional) ======
+  const geoKeyInput = document.getElementById("geoKey");
+  geoKeyInput.value = S.geoKey;
+  geoKeyInput.addEventListener("input", e=>{ S.geoKey = e.target.value.trim(); localStorage.setItem("geoKey", S.geoKey); });
+
+  async function ingestByCircle(lat, lon, radius=20000){
+    const status = document.getElementById("ingestStatus");
+    if(!S.geoKey){ status.textContent="Add Geoapify key (optional) — skipped"; return; }
+    status.textContent="Fetching…";
+    const url = `https://api.geoapify.com/v2/places?categories=religion.place_of_worship&filter=circle:${lon},${lat},${radius}&limit=200&apiKey=${S.geoKey}`;
+    const res = await fetch(url);
+    if(!res.ok){ status.textContent="Geoapify error"; return; }
+    const data = await res.json();
+    const incoming = (data.features||[]).map(f=>{
+      const p=f.properties||{};
+      const id=(p.place_id ?? `${p.osm_id}-${p.name??'unnamed'}`).toString();
+      return { id, name:p.name||"Unnamed Place", address:p.address_line1||p.formatted||"", lat:f.geometry.coordinates[1], lon:f.geometry.coordinates[0], rank:0, mcapUSD: 2500+Math.random()*9000 };
+    });
+    const map = new Map(S.places.map(x=>[x.id, x]));
+    incoming.forEach(x=> map.set(x.id, {...map.get(x.id), ...x}) );
+    S.places = Array.from(map.values());
+    localStorage.setItem("places", JSON.stringify(S.places));
+    status.textContent="Ingested";
+    markOk("t-geo");
+    renderList();
+    drawGlobePins();
+  }
+  document.getElementById("detect").addEventListener("click", ()=>{
+    const st=document.getElementById("ingestStatus");
+    if(!navigator.geolocation){ st.textContent="Geolocation unavailable"; return; }
+    st.textContent="Locating…";
+    navigator.geolocation.getCurrentPosition(pos=>{
+      ingestByCircle(pos.coords.latitude, pos.coords.longitude, 20000);
+    }, err=> st.textContent = "Error: "+err.message);
+  });
+  document.getElementById("ingest").addEventListener("click", ()=>{
+    const lat = parseFloat(document.getElementById("lat").value);
+    const lon = parseFloat(document.getElementById("lon").value);
+    const rad = parseInt(document.getElementById("rad").value||"20000", 10);
+    if(Number.isNaN(lat)||Number.isNaN(lon)){ document.getElementById("ingestStatus").textContent = "Enter valid lat/lon"; return; }
+    ingestByCircle(lat, lon, rad);
+  });
+
+  // ====== Add + Verify Sanctum ======
+  function distanceKm(lat1, lon1, lat2, lon2){
+    const R=6371; const dLat=(lat2-lat1)*Math.PI/180; const dLon=(lon2-lon1)*Math.PI/180;
+    const a= Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLon/2)**2;
+    return 2*R*Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  }
+  document.getElementById("addSubmit").addEventListener("click", ()=>{
+    const name = document.getElementById("addName").value.trim();
+    const addr = document.getElementById("addAddr").value.trim();
+    const lat = parseFloat(document.getElementById("addLat").value);
+    const lon = parseFloat(document.getElementById("addLon").value);
+    const desc = document.getElementById("addDesc").value.trim();
+    const st = document.getElementById("addStatus");
+    if(!name || Number.isNaN(lat) || Number.isNaN(lon)){ st.textContent="Enter name and valid coordinates"; return; }
+    const dup = S.places.find(p=> distanceKm(p.lat,p.lon,lat,lon) < 0.1);
+    if(dup){ st.textContent="Already exists within ~100m"; return; }
+    const id = "pending-"+Math.random().toString(36).slice(2);
+    const submittedBy = S.wallet ? S.wallet.toBase58() : "anonymous";
+    S.pending.push({ id, name, address:addr, lat, lon, desc, submittedBy, verifiers:[], status:"unverified", mcapUSD:2400, rank:10, createdAt:new Date().toISOString() });
+    localStorage.setItem("pending", JSON.stringify(S.pending));
+    st.textContent="Submitted. Awaiting verification (3+).";
+    renderPending();
+    drawGlobePins();
+  });
+  function verifyPending(id){
+    const p = S.pending.find(x=>x.id===id); if(!p) return;
+    const who = S.wallet ? S.wallet.toBase58() : "anonymous";
+    if(!p.verifiers.includes(who)) p.verifiers.push(who);
+    const threshold=3;
+    if(p.verifiers.length>=threshold){
+      const newId="s-"+Math.random().toString(36).slice(2);
+      const v={ id:newId, name:p.name, address:p.address, lat:p.lat, lon:p.lon, rank:p.rank+10, mcapUSD:p.mcapUSD+1200, verifiedAt:new Date().toISOString() };
+      S.places.push(v);
+      S.pending = S.pending.filter(x=>x.id!==id);
+      localStorage.setItem("places", JSON.stringify(S.places));
+    }
+    localStorage.setItem("pending", JSON.stringify(S.pending));
+    renderPending(); renderList(); drawGlobePins();
+  }
+
+  // ====== Globe (Cesium) ======
+  let viewer=null;
+  function initGlobe(){
+    viewer = new Cesium.Viewer('globe',{terrainProvider:Cesium.createWorldTerrain(),animation:false,timeline:false,baseLayerPicker:false,geocoder:false,homeButton:false,sceneModePicker:false,navigationHelpButton:false});
+    S.watchers.globe = true;
+    if(navigator.geolocation){
+      navigator.geolocation.getCurrentPosition(pos=>{
+        viewer.camera.flyTo({ destination: Cesium.Cartesian3.fromDegrees(pos.coords.longitude, pos.coords.latitude, 300000.0) });
+      });
+    }
+    drawGlobePins();
+  }
+  function bubbleSize(m){ const base=Math.log10(Math.max(100,m||1000))-2; return Math.min(28, 6+base*9); }
+  function drawGlobePins(){
+    if(!viewer) return;
+    viewer.entities.removeAll();
+    S.places.forEach(p=>{
+      const size = bubbleSize(p.mcapUSD);
+      const isOG = S.offGrid.has(p.id);
+      const color = isOG ? "rgba(20,241,149,0.95)" : "rgba(249,200,70,0.85)";
+      viewer.entities.add({
+        position: Cesium.Cartesian3.fromDegrees(p.lon, p.lat),
+        point: { pixelSize:size, color: Cesium.Color.fromCssColorString(color), outlineColor: Cesium.Color.BLACK, outlineWidth: isOG?2:0 },
+        label: {
+          text: p.name, font:'12px Inter, sans-serif',
+          fillColor: Cesium.Color.WHITE, outlineColor: Cesium.Color.BLACK, outlineWidth:2,
+          style: Cesium.LabelStyle.FILL_AND_OUTLINE, pixelOffset: new Cesium.Cartesian2(0, -(14+size))
+        },
+        description: `
+          <b>${p.name}</b><br/>${p.address||""}<br/>
+          Light: ${p.rank||0}<br/>mcap est: $${(p.mcapUSD||0).toFixed(0)}<br/>
+          <button onclick="window.__peace('${p.id}')">Mark At Peace ✌️</button>
+          <button onclick="window.__offgrid('${p.id}')">${isOG?'Unmark off‑grid':'Mark off‑grid'}</button>
+        `
+      });
+    });
+  }
+  window.__peace = (id)=>{ logPeace(id); };
+  window.__offgrid = (id)=>{ toggleOffGrid(id); };
+
+  // ====== Three.js Double Helix with bloom ======
+  function initHelix3D(){
+    const container = document.getElementById("helix3d");
+    const scene = new THREE.Scene();
+    scene.background = new THREE.Color(0x05060b);
+
+    const camera = new THREE.PerspectiveCamera(48, container.clientWidth/container.clientHeight, 0.1, 3000);
+    camera.position.set(0, 0, 260);
+
+    const renderer = new THREE.WebGLRenderer({ antialias:true, powerPreference:"high-performance" });
+    renderer.setPixelRatio(Math.min(2, window.devicePixelRatio));
+    renderer.setSize(container.clientWidth, container.clientHeight);
+    container.innerHTML=""; container.appendChild(renderer.domElement);
+
+    const composer = new THREE.EffectComposer(renderer);
+    const renderPass = new THREE.RenderPass(scene, camera);
+    const bloomPass = new THREE.UnrealBloomPass(new THREE.Vector2(container.clientWidth, container.clientHeight), 0.9, 0.45, 0.85);
+    composer.addPass(renderPass); composer.addPass(bloomPass);
+
+    scene.add(new THREE.AmbientLight(0xffffff, 0.55));
+    const key = new THREE.DirectionalLight(0xffffff, 0.7); key.position.set(80,120,100); scene.add(key);
+
+    const nebulaGeo = new THREE.PlaneGeometry(1200, 800);
+    const nebulaMat = new THREE.MeshBasicMaterial({ color:0x0b0c1a, transparent:true, opacity:0.35 });
+    const nebula = new THREE.Mesh(nebulaGeo, nebulaMat); nebula.position.set(0,0,-260); scene.add(nebula);
+
+    const radius=42, pitch=26, turns=7, points=600;
+    const matA = new THREE.MeshStandardMaterial({ color:0x9945FF, emissive:0x331155, metalness:0.6, roughness:0.25 });
+    const matB = new THREE.MeshStandardMaterial({ color:0x00D1FF, emissive:0x113355, metalness:0.6, roughness:0.25 });
+
+    function helixCurve(phase=0){
+      const path = new THREE.Curve();
+      path.getPoint = function(t){
+        const angle = t * turns * Math.PI * 2 + phase;
+        const x = radius*Math.cos(angle);
+        const y = (t-0.5)*turns*pitch;
+        const z = radius*Math.sin(angle);
+        return new THREE.Vector3(x,y,z);
+      };
+      return path;
+    }
+    function makeTube(path, mat){
+      const geom = new THREE.TubeGeometry(path, points, 1.6, 24, false);
+      return new THREE.Mesh(geom, mat);
+    }
+    const tubeA = makeTube(helixCurve(0), matA);
+    const tubeB = makeTube(helixCurve(Math.PI), matB);
+    scene.add(tubeA); scene.add(tubeB);
+
+    const maxParticles = 700;
+    const pGeo = new THREE.SphereGeometry(1.2, 12, 12);
+    const pMat = new THREE.MeshBasicMaterial({ color:0xffffff });
+    const instanced = new THREE.InstancedMesh(pGeo, pMat, maxParticles);
+    scene.add(instanced);
+
+    const particles = [];
+    const palette = {
+      buy: new THREE.Color(0x14F195),
+      sell: new THREE.Color(0xFF3B3B),
+      xfer: new THREE.Color(0x00D1FF),
+      peace: new THREE.Color(0xffffff)
+    };
+    const dummy = new THREE.Object3D();
+
+    function addParticle(kind="xfer", magnitude=40){
+      const t = Math.random();
+      const angle = t*turns*Math.PI*2;
+      const x = (radius-3)*Math.cos(angle);
+      const y = (t-0.5)*turns*pitch;
+      const z = (radius-3)*Math.sin(angle);
+      const s = 0.8 + Math.min(2.2, Math.sqrt(magnitude)/12);
+      particles.push({ kind, t, speed: 0.0045 + Math.random()*0.010, x, y, z, s });
+      markOk("t-helix"); S.watchers.helix = true;
+      if(particles.length>maxParticles) particles.shift();
+    }
+    S.addParticle = addParticle;
+
+    function renderParticles(){
+      for(let i=0;i<particles.length;i++){
+        const p = particles[i];
+        p.t += p.speed; if(p.t>1) p.t=0;
+        const angle = p.t*turns*Math.PI*2 + (p.kind==="peace" ? Math.sin(Date.now()*0.003)*0.25 : 0);
+        const x = (radius-3)*Math.cos(angle);
+        const z = (radius-3)*Math.sin(angle);
+        const y = (p.t-0.5)*turns*pitch;
+
+        dummy.position.set(x,y,z);
+        dummy.scale.setScalar(p.s);
+        dummy.updateMatrix();
+        instanced.setMatrixAt(i, dummy.matrix);
+        const col = palette[p.kind] || palette.xfer;
+        instanced.setColorAt?.(i, col);
+      }
+      instanced.instanceMatrix.needsUpdate = true;
+      if(instanced.instanceColor) instanced.instanceColor.needsUpdate = true;
+    }
+
+    function animate(){
+      requestAnimationFrame(animate);
+      tubeA.rotation.y += 0.0018;
+      tubeB.rotation.y -= 0.0018;
+      nebula.rotation.z += 0.0003;
+      renderParticles();
+      composer.render();
+    }
+    animate();
+
+    window.addEventListener('resize', ()=>{
+      const w=container.clientWidth, h=container.clientHeight;
+      renderer.setSize(w,h);
+      composer.setSize(w,h);
+      camera.aspect=w/h; camera.updateProjectionMatrix();
+    });
+  }
+
+  // ====== TX Stream poll ======
+  async function pollTx(){
+    const addrs = Array.from(S.txFeedAddrs);
+    if(addrs.length===0) return;
+    try{
+      for(const a of addrs){
+        const pk = new PublicKey(a);
+        const sigs = await S.connection.getSignaturesForAddress(pk, { limit: 4 });
+        sigs.slice(0,3).forEach(()=> S.addParticle(Math.random()<0.33?'buy':(Math.random()<0.5?'sell':'xfer'), 60));
+      }
+    }catch(e){}
+  }
+  setInterval(pollTx, 3500);
+
+  // ====== Peace / Off-grid ======
+  function logPeace(placeId){
+    const who = S.wallet ? S.wallet.toBase58() : "anonymous";
+    const key = "peace:"+placeId+":"+who+":"+new Date().toISOString().slice(0,10);
+    if(localStorage.getItem(key)) { alert("Already marked today."); return; }
+    localStorage.setItem(key, "1");
+    S.addParticle("peace", 100);
+    drawGlobePins();
+  }
+  function toggleOffGrid(id){
+    if(S.offGrid.has(id)) S.offGrid.delete(id); else S.offGrid.add(id);
+    localStorage.setItem("offgrid", JSON.stringify(Array.from(S.offGrid)));
+    drawGlobePins(); renderList();
+  }
+  window.logPeace = logPeace;
+  window.toggleOffGrid = toggleOffGrid;
+
+  // ====== Lists ======
+  function renderList(){
+    const root=document.getElementById("list");
+    root.innerHTML = S.places
+      .sort((a,b)=>(b.mcapUSD||0)-(a.mcapUSD||0))
+      .map(s=>`
+      <div class="item">
+        <div class="name">${s.name}</div>
+        <div class="addr">${s.address||""}</div>
+        <div class="small">
+          <span class="pill">Light ${s.rank||0}</span>
+          <span class="pill">mcap $${(s.mcapUSD||0).toFixed(0)}</span>
+          ${S.offGrid.has(s.id)?'<span class="pill" style="background:#14F195">Off‑grid ⚡</span>':''}
+        </div>
+        <div class="row" style="display:flex;gap:6px;flex-wrap:wrap">
+          <button class="btn" data-peace="${s.id}">Mark At Peace ✌️</button>
+          <button class="btn btn-secondary" data-og="${s.id}">${S.offGrid.has(s.id)?'Unmark off‑grid':'Mark off‑grid'}</button>
+          <a class="btn btn-secondary" target="_blank" href="https://solscan.io/account/${encodeURIComponent(S.mainVault)}">Vault</a>
+        </div>
+      </div>
+    `).join("");
+    root.querySelectorAll("[data-peace]").forEach(b=> b.onclick=()=> logPeace(b.getAttribute("data-peace")));
+    root.querySelectorAll("[data-og]").forEach(b=> b.onclick=()=> toggleOffGrid(b.getAttribute("data-og")));
+    renderHub();
+  }
+  function renderPending(){
+    const root=document.getElementById("pendingList");
+    if(!S.pending.length){ root.textContent="None pending."; return; }
+    root.innerHTML = S.pending.map(p=>`
+      <div class="item">
+        <div class="name">${p.name}</div>
+        <div class="addr">${p.address||""}</div>
+        <div class="small">Submitted by: <span class="mono">${p.submittedBy}</span> • Verifiers: ${p.verifiers.length}/3</div>
+        <div class="row"><button class="btn" data-verify="${p.id}">Verify Sanctum</button></div>
+      </div>
+    `).join("");
+    root.querySelectorAll("[data-verify]").forEach(b=> b.onclick=()=> verifyPending(b.getAttribute("data-verify")));
+  }
+
+  // ====== Hub: Pump.fun link, QR, link checks ======
+  function renderHub(){
+    const top=document.getElementById("topList");
+    const arr = [...S.places].sort((a,b)=>(b.mcapUSD||0)-(a.mcapUSD||0)).slice(0,6);
+    top.innerHTML = arr.map(p=>`<div class="item"><div class="name">${p.name}</div><div class="small">mcap: $${(p.mcapUSD||0).toFixed(0)}</div></div>`).join("");
+    const sel=document.getElementById("qrSelect");
+    sel.innerHTML = S.places.map(s=>`<option value="${s.id}">${s.name}</option>`).join("");
+    document.getElementById("ordSanctum").innerHTML = sel.innerHTML;
+    document.getElementById("plqSanctum").innerHTML = sel.innerHTML;
+  }
+  function markOk(id){ const el=document.getElementById(id); if(el){ el.className="ok"; } }
+  document.getElementById("mkQR").addEventListener("click", ()=>{
+    const id=document.getElementById("qrSelect").value;
+    const url=`https://sanctum.link/place/${encodeURIComponent(id)}`;
+    const canvas=document.getElementById("qrCanvas"); canvas.style.display="block";
+    window.QRCode.toCanvas(canvas, url, { width:260, margin:0 }, ()=>{ document.getElementById("dlQR").disabled=false; markOk("t-qr"); S.watchers.qr = true; });
+  });
+  document.getElementById("dlQR").addEventListener("click", ()=>{
+    const a=document.createElement("a"); a.download="SanctumQR.png"; a.href=document.getElementById("qrCanvas").toDataURL(); a.click();
+  });
+  document.getElementById("openPump").addEventListener("click", ()=>{
+    const name = (document.getElementById("pfName").value||"Sanctum").trim();
+    const ref = S.wallet ? S.wallet.toBase58() : "";
+    const href = `https://pump.fun/?name=${encodeURIComponent(name)}${ref?`&referrer=${encodeURIComponent(ref)}`:""}`;
+    window.open(href, "_blank");
+  });
+  async function testURL(url, fillEl, timeoutMs=8000){
+    const fill = document.getElementById(fillEl);
+    if(!url || !/^https?:\/\//.test(url)){ fill.style.width='100%'; fill.className='fill bad'; return false; }
+    const ctrl = new AbortController(); const timer=setTimeout(()=>ctrl.abort(),timeoutMs);
+    try{
+      const res = await fetch(url, { method:'GET', mode:'no-cors', signal:ctrl.signal });
+      clearTimeout(timer); fill.style.width='100%';
+      if(res.type==='opaque'){ fill.className='fill warn'; return true; }
+      if(res.ok){ fill.className='fill'; return true; }
+      fill.className='fill bad'; return false;
+    }catch{ clearTimeout(timer); fill.style.width='100%'; fill.className='fill bad'; return false; }
+  }
+  document.getElementById("testAll").addEventListener("click", async ()=>{
+    const ok = await Promise.all([
+      testURL(document.getElementById("linkSolscan").value.trim(),'sbSolscan'),
+      testURL(document.getElementById("linkSite").value.trim(),'sbSite'),
+      testURL(document.getElementById("linkAPI").value.trim(),'sbAPI')
+    ]);
+    document.getElementById("testAllResult").textContent = `${ok.filter(Boolean).length}/${ok.length} reachable`;
+  });
+  document.getElementById("linkSolscan").value = `https://solscan.io/account/${S.mainVault}`;
+
+  // ====== Orders & trust ======
+  function renderOrderLedger(){
+    const root=document.getElementById("orderLedger");
+    if(!S.orders.length){ root.textContent="No orders yet."; return; }
+    root.innerHTML = S.orders.slice().reverse().map(o=>{
+      const when = o.fulfilledAt ? new Date(o.fulfilledAt).toLocaleString() : "-";
+      if(o.type==='qr_order'){
+        return `<div>• [Stickers] ${o.orderId} — Sanctum: ${o.placeId} — Qty: ${o.qty} — Status: ${o.status} — TXID ${o.txid?.slice(0,8)||'-'}… — DS: ${o.dropShipper||'-'} — ${when}</div>`;
+      } else {
+        return `<div>• [Plaque] ${o.orderId} — Sanctum: ${o.placeId} — ${o.material} — ${o.size} — Mount: ${o.mount} — Status: ${o.status} — Maker: ${o.dropShipper||'-'} — ${when}</div>`;
+      }
+    }).join("");
+  }
+  function renderTrustBoard(){
+    const root=document.getElementById("trustBoard");
+    const entries = Object.entries(S.trust||{});
+    if(!entries.length){ root.textContent="No data yet."; return; }
+    root.innerHTML = entries.sort((a,b)=>b[1]-a[1]).map(([w,s])=>`<div>• ${w} — Trust score: ${s}</div>`).join("");
+  }
+  function genNonce(){ return Math.floor(100000 + Math.random()*900000).toString(); }
+  document.getElementById("genNonce").addEventListener("click", ()=>{
+    const n=genNonce(); localStorage.setItem("lastNonce", n);
+    document.getElementById("nonceView").textContent = n;
+  });
+  document.getElementById("validateOrder").addEventListener("click", ()=>{
+    const placeId=document.getElementById("ordSanctum").value;
+    const qty=parseInt(document.getElementById("ordQty").value||"50",10);
+    const ship=document.getElementById("ordShip").value.trim();
+    const txid=document.getElementById("donTxid").value.trim();
+    const memo=document.getElementById("donMemo").value.trim();
+    const nonce=localStorage.getItem("lastNonce");
+    const st=document.getElementById("orderStatus");
+    if(!placeId||!qty||!ship||!txid||!memo||!nonce){ st.textContent="Fill all fields + generate nonce"; return; }
+    if(memo!==nonce){ st.textContent="Nonce mismatch"; return; }
+    const orderId = "ord-"+Math.random().toString(36).slice(2);
+    S.orders.push({ type:"qr_order", orderId, placeId, wallet:S.wallet?.toBase58()||"anonymous", qty, ship, txid, memo, status:"validated", createdAt:new Date().toISOString() });
+    localStorage.setItem("orders", JSON.stringify(S.orders));
+    st.textContent="Order validated. Awaiting drop‑shipper signature.";
+    renderOrderLedger();
+    S.txFeedAddrs.add(S.mainVault);
+  });
+  document.getElementById("fulfillOrder").addEventListener("click", ()=>{
+    const dsWallet=document.getElementById("dsWallet").value.trim();
+    const dsSig=document.getElementById("dsSig").value.trim();
+    const st=document.getElementById("fulfillStatus");
+    const last = S.orders.slice().reverse().find(o=>o.type==='qr_order' && o.status==='validated');
+    if(!last){ st.textContent="No validated order to fulfill"; return; }
+    if(!dsWallet||!dsSig){ st.textContent="Enter drop‑shipper wallet + signature"; return; }
+    last.status="fulfilled"; last.dropShipper=dsWallet; last.signature=dsSig; last.fulfilledAt=new Date().toISOString();
+    S.trust[dsWallet]=(S.trust[dsWallet]||0)+1;
+    localStorage.setItem("orders", JSON.stringify(S.orders));
+    localStorage.setItem("trust", JSON.stringify(S.trust));
+    st.textContent="Fulfilled. Trust updated.";
+    renderOrderLedger(); renderTrustBoard();
+  });
+  document.getElementById("plqNonce").addEventListener("click", ()=>{
+    const n=genNonce(); localStorage.setItem("lastNoncePlaque", n);
+    document.getElementById("plqNonceView").textContent = n;
+  });
+  document.getElementById("placePlaque").addEventListener("click", ()=>{
+    const placeId=document.getElementById("plqSanctum").value;
+    const material=document.getElementById("plqMaterial").value;
+    const size=document.getElementById("plqSize").value.trim();
+    const mount=document.getElementById("plqMount").value.trim();
+    const ship=document.getElementById("plqShip").value.trim();
+    const txid=document.getElementById("plqTxid").value.trim();
+    const memo=document.getElementById("plqMemo").value.trim();
+    const thaiWallet=document.getElementById("thaiWallet").value.trim();
+    const thaiSig=document.getElementById("thaiSig").value.trim();
+    const nonce=localStorage.getItem("lastNoncePlaque");
+    const st=document.getElementById("plqStatus");
+    if(!placeId||!material||!size||!mount||!ship||!txid||!memo||!thaiWallet||!thaiSig||!nonce){ st.textContent='Fill all fields + generate nonce'; return; }
+    if(memo!==nonce){ st.textContent='Nonce mismatch'; return; }
+    const orderId='plq-'+Math.random().toString(36).slice(2);
+    S.orders.push({ type:'plaque_order', orderId, placeId, wallet:S.wallet?.toBase58()||"anonymous", material, size, mount, ship, txid, memo, dropShipper:thaiWallet, signature:thaiSig, status:'fulfilled', fulfilledAt:new Date().toISOString() });
+    S.trust[thaiWallet]=(S.trust[thaiWallet]||0)+2;
+    localStorage.setItem("orders", JSON.stringify(S.orders));
+    localStorage.setItem("trust", JSON.stringify(S.trust));
+    st.textContent='Plaque order placed & signed.';
+    renderOrderLedger(); renderTrustBoard();
+    const s=S.places.find(x=>x.id===placeId); if(s){ s.mcapUSD+=(material==='titanium'?1400:900); localStorage.setItem("places", JSON.stringify(S.places)); renderList(); drawGlobePins(); }
+  });
+
+  // ====== Export/Import ======
+  document.getElementById("exportState").addEventListener("click", ()=>{
+    const state = {
+      createdAt: localStorage.getItem("createdAt") || CREATED_AT,
+      places: S.places, pending: S.pending, offGrid: Array.from(S.offGrid),
+      orders: S.orders, trust: S.trust
+    };
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(new Blob([JSON.stringify(state,null,2)],{type:"application/json"}));
+    a.download=`sanctumlink_state_${new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')}.json`;
+    a.click();
+  });
+  document.getElementById("importState").addEventListener("click", ()=>{
+    document.getElementById("importFile").click();
+  });
+  document.getElementById("importFile").addEventListener("change", async (e)=>{
+    const file = e.target.files[0]; if(!file) return;
+    const txt = await file.text(); const data = JSON.parse(txt);
+    S.places = data.places||S.places; S.pending = data.pending||S.pending; S.offGrid = new Set(data.offGrid||Array.from(S.offGrid));
+    S.orders = data.orders||S.orders; S.trust = data.trust||S.trust;
+    localStorage.setItem("places", JSON.stringify(S.places));
+    localStorage.setItem("pending", JSON.stringify(S.pending));
+    localStorage.setItem("offgrid", JSON.stringify(Array.from(S.offGrid)));
+    localStorage.setItem("orders", JSON.stringify(S.orders));
+    localStorage.setItem("trust", JSON.stringify(S.trust));
+    renderList(); renderPending(); renderOrderLedger(); renderTrustBoard(); drawGlobePins();
+  });
+
+  // ====== Watchdog (uptime) ======
+  function heartbeat(){
+    const ok = S.watchers.wallet && S.watchers.globe && S.watchers.helix && S.watchers.qr && S.watchers.seed;
+    const el = document.getElementById("t-watch");
+    el.className = ok ? "ok" : "warn";
+  }
+  setInterval(heartbeat, 30000);
+
+  // ====== Tabs ======
+  document.querySelectorAll('.tab').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+      b.classList.add('active');
+      const tab = b.dataset.tab;
+      document.querySelectorAll('.panel').forEach(p=>p.style.display='none');
+      document.getElementById(`panel-${tab}`).style.display='block';
+      if(tab==='hub') renderHub();
+      if(tab==='orders'){ renderOrderLedger(); renderTrustBoard(); }
+    });
+  });
+
+  // ====== Boot ======
+  function boot(){
+    document.getElementById("linkSolscan").value = `https://solscan.io/account/${S.mainVault}`;
+    initGlobe();
+    initHelix3D();
+    renderList();
+    renderPending();
+    renderHub();
+    setInterval(()=> S.addParticle(Math.random()<0.5?'buy':(Math.random()<0.5?'sell':'xfer'), 40+Math.random()*120), 1800);
+  }
+  window.addEventListener('DOMContentLoaded', boot);
+</script>
+</body>
+</html>

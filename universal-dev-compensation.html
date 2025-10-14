@@ -313,6 +313,9 @@
             <div class="terminal-subtitle">
                 Fair Payment for ALL Developers - Past, Present, Future
             </div>
+            <div style="text-align: center; margin-top: 10px; padding: 10px; background: rgba(0,255,255,0.1); border: 1px solid #00ffff; border-radius: 5px;">
+                <span style="color: #00ffff; font-size: 0.9em;">📊 Real-time GitHub API integration | Sources cited in reports</span>
+            </div>
 
             <div class="stats-grid">
                 <div class="stat-card">
@@ -563,44 +566,56 @@
             }, 200);
         }
 
-        function completeScan(repoUrl) {
-            // Simulate scan results
-            const mockData = {
-                url: repoUrl,
-                commits: Math.floor(Math.random() * 500) + 100,
-                hours: Math.floor(Math.random() * 1000) + 200,
-                linesOfCode: Math.floor(Math.random() * 50000) + 10000,
-                isPioneer: Math.random() > 0.7
-            };
-
-            // Calculate compensation
-            const baseRate = 100;
-            const baseComp = mockData.hours * baseRate;
-            const pioneerMultiplier = mockData.isPioneer ? 5 : 1;
-            const total = baseComp * pioneerMultiplier;
-
-            // Update totals
-            totalStats.hours += mockData.hours;
-            totalStats.repos += 1;
-            totalStats.commits += mockData.commits;
-            totalStats.compensation += total;
-
-            // Update display
-            updateStats();
-            addRepoToList(mockData, total);
-            updateCompensation(baseComp, baseComp * (pioneerMultiplier - 1), total);
-
-            // Hide progress, show dashboard
-            setTimeout(() => {
-                document.getElementById('scanProgress').style.display = 'none';
-                document.getElementById('compensationDashboard').style.display = 'block';
-                document.getElementById('repoUrl').value = '';
+        async function completeScan(repoUrl) {
+            try {
+                // Use real GitHub API scanner
+                const yearsInCrypto = parseInt(prompt('How many years have you been in crypto? (0-15+)', '0')) || 0;
+                const scanResult = await window.devTracker.scanRepository(repoUrl, yearsInCrypto);
                 
-                alert('✅ Repository scanned successfully!\n\n' +
-                      `Commits: ${mockData.commits}\n` +
-                      `Hours: ${mockData.hours}\n` +
-                      `Compensation: $${total.toLocaleString()}`);
-            }, 500);
+                if (scanResult.error) {
+                    throw new Error(scanResult.error);
+                }
+
+                const realData = {
+                    url: repoUrl,
+                    commits: scanResult.repoData.commits,
+                    hours: scanResult.devHours.totalHours,
+                    linesOfCode: scanResult.repoData.size,
+                    isPioneer: scanResult.compensation.pioneerMultiplier > 1
+                };
+
+                const total = scanResult.compensation.totalCompensation;
+                const baseComp = scanResult.compensation.basePay;
+                const pioneerBonus = scanResult.compensation.pioneerBonus;
+
+                // Update totals
+                totalStats.hours += realData.hours;
+                totalStats.repos += 1;
+                totalStats.commits += realData.commits;
+                totalStats.compensation += total;
+
+                // Update display
+                updateStats();
+                addRepoToList(realData, total);
+                updateCompensation(baseComp, pioneerBonus, total);
+
+                // Hide progress, show dashboard
+                setTimeout(() => {
+                    document.getElementById('scanProgress').style.display = 'none';
+                    document.getElementById('compensationDashboard').style.display = 'block';
+                    document.getElementById('repoUrl').value = '';
+                    
+                    alert('✅ Repository scanned successfully!\n\n' +
+                          `Source: GitHub API v3\n` +
+                          `Commits: ${realData.commits}\n` +
+                          `Hours: ${realData.hours}\n` +
+                          `Compensation: $${Math.round(total).toLocaleString()}`);
+                }, 500);
+            } catch (error) {
+                document.getElementById('scanProgress').style.display = 'none';
+                alert('❌ Scan failed: ' + error.message + '\n\nPlease check the repository URL and try again.');
+                console.error('Scan error:', error);
+            }
         }
 
         function updateStats() {
@@ -714,6 +729,19 @@
         }
 
         function viewDetails() {
+            // Generate detailed report with sources
+            const report = {
+                wallet: connectedWallet,
+                stats: totalStats,
+                timestamp: new Date().toISOString(),
+                dataSources: [
+                    'GitHub REST API v3 (commit history, repo data)',
+                    'Git timestamp analysis',
+                    'Industry standard rates ($100/hr base)',
+                    'Pioneer multiplier (1x-10x based on years in crypto)'
+                ]
+            };
+            console.log('📊 Detailed Report:', report);
             window.open('universal-dev-tracker.html', '_blank');
         }
 

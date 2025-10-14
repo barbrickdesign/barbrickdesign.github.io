@@ -267,15 +267,57 @@ class UniversalWalletConnector {
         }
         return false;
     }
+
+    /**
+     * Attempt auto-reconnect on page load
+     */
+    async autoReconnect() {
+        const wasConnected = this.loadState();
+        if (!wasConnected) return { success: false, message: 'No previous connection' };
+
+        try {
+            // Try to reconnect silently
+            if (this.walletType === 'Phantom' && window.solana) {
+                const result = await this.connectPhantom();
+                if (result.success) {
+                    console.log('✅ Auto-reconnected to Phantom');
+                    this.saveState();
+                    return result;
+                }
+            } else if (this.walletType === 'MetaMask' && window.ethereum) {
+                const result = await this.connectMetaMask();
+                if (result.success) {
+                    console.log('✅ Auto-reconnected to MetaMask');
+                    this.saveState();
+                    return result;
+                }
+            }
+        } catch (error) {
+            console.warn('Auto-reconnect failed:', error.message);
+        }
+
+        return { success: false, message: 'Auto-reconnect failed' };
+    }
 }
 
 // Create global instance
 window.walletConnector = new UniversalWalletConnector();
 
-// Auto-load previous connection
-window.addEventListener('DOMContentLoaded', function() {
-    if (window.walletConnector.loadState()) {
-        console.log('Previous wallet connection restored');
+// Auto-reconnect on page load
+window.addEventListener('DOMContentLoaded', async function() {
+    console.log('🔗 Universal Wallet Connector loaded');
+    await window.walletConnector.detectWallets();
+    console.log('💼 Detected wallets:', window.walletConnector.detectedWallets.map(w => w.name).join(', ') || 'None');
+    
+    // Try auto-reconnect
+    const reconnect = await window.walletConnector.autoReconnect();
+    if (reconnect.success) {
+        console.log('✅ Wallet auto-connected:', window.walletConnector.address);
+        
+        // Dispatch event for pages to update UI
+        window.dispatchEvent(new CustomEvent('walletAutoConnected', {
+            detail: window.walletConnector.getState()
+        }));
     }
 });
 
