@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mandem.OS - Project Launcher</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #030616 0%, #041022 50%, #021124 100%);
+            color: #cfe9ff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 30px;
+            background: linear-gradient(90deg, rgba(124,92,255,0.1), rgba(0,212,255,0.1));
+            border-radius: 15px;
+            border: 1px solid rgba(124,92,255,0.3);
+        }
+        
+        h1 {
+            font-size: 3em;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #7c5cff, #00d4ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            font-size: 1.2em;
+            color: #9aa4b2;
+        }
+        
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .project-card {
+            background: linear-gradient(135deg, #041022, #031426);
+            border-radius: 15px;
+            padding: 25px;
+            border: 1px solid rgba(124,92,255,0.2);
+            transition: all 0.3s ease;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .project-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #7c5cff, #00d4ff);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+        
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(124,92,255,0.3);
+            border-color: rgba(124,92,255,0.5);
+        }
+        
+        .project-card:hover::before {
+            opacity: 1;
+        }
+        
+        .project-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        
+        .project-title {
+            font-size: 1.5em;
+            margin-bottom: 10px;
+            color: #7c5cff;
+        }
+        
+        .project-desc {
+            color: #9aa4b2;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .project-status {
+            display: inline-block;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            margin-top: 10px;
+        }
+        
+        .status-active {
+            background: rgba(0,255,0,0.2);
+            color: #00ff00;
+            border: 1px solid rgba(0,255,0,0.3);
+        }
+        
+        .status-integrated {
+            background: rgba(0,212,255,0.2);
+            color: #00d4ff;
+            border: 1px solid rgba(0,212,255,0.3);
+        }
+        
+        .status-pending {
+            background: rgba(255,204,0,0.2);
+            color: #ffcc00;
+            border: 1px solid rgba(255,204,0,0.3);
+        }
+        
+        .section-title {
+            font-size: 2em;
+            margin: 40px 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(124,92,255,0.3);
+        }
+        
+        .terminal-link {
+            display: inline-block;
+            padding: 15px 30px;
+            background: linear-gradient(90deg, #7c5cff, #00d4ff);
+            color: #021024;
+            text-decoration: none;
+            border-radius: 10px;
+            font-weight: bold;
+            margin: 20px 10px;
+            transition: all 0.3s ease;
+        }
+        
+        .terminal-link:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 20px rgba(124,92,255,0.5);
+        }
+        
+        .info-box {
+            background: rgba(124,92,255,0.1);
+            border-left: 4px solid #7c5cff;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 MANDEM.OS PROJECT LAUNCHER</h1>
+            <p class="subtitle">Integrated CSW2025 & Gem Bot Universe</p>
+            <div style="margin-top: 20px;">
+                <a href="../ember-terminal/app.html" class="terminal-link">🔥 Ember Terminal</a>
+                <a href="index.html" class="terminal-link">⚡ Mandem.OS Terminal</a>
+                <a href="workspace/index.html" class="terminal-link">🌍 Gem Bot Universe</a>
+                <a href="../index.html" class="terminal-link">💰 SOL Recovery</a>
+            </div>
+        </header>
+
+        <div class="info-box">
+            <strong>🎯 Integration Status:</strong> All CSW2025 projects have been merged with the Mandem.OS application. 
+            The workspace folder contains the complete Gem Bot Universe with all environments, forge system, and user management.
+        </div>
+
+        <h2 class="section-title">🌟 Core Applications</h2>
+        <div class="grid">
+            <div class="project-card" onclick="window.location.href='index.html'">
+                <div class="project-icon">🔥</div>
+                <div class="project-title">Mandem.OS Terminal</div>
+                <div class="project-desc">
+                    Zero-touch bootstrapper with Copper Key detection, Web3 integration, 
+                    leaderboard system, and mythic 3D flame visuals.
+                </div>
+                <span class="project-status status-active">ACTIVE</span>
+            </div>
+
+            <div class="project-card" onclick="window.location.href='workspace/index.html'">
+                <div class="project-icon">🌍</div>
+                <div class="project-title">Gem Bot Universe Hub</div>
+                <div class="project-desc">
+                    Main control center with 3D globe navigation, authentication system,
+                    and access to all virtual environments.
+                </div>
+                <span class="project-status status-integrated">INTEGRATED</span>
+            </div>
+
+            <div class="project-card" onclick="window.location.href='workspace/profile.html'">
+                <div class="project-icon">👤</div>
+                <div class="project-title">User Profile & Wallet</div>
+                <div class="project-desc">
+                    Phantom wallet integration, MGC balance tracking, location logs,
+                    and user authentication system.
+                </div>
+                <span class="project-status status-integrated">INTEGRATED</span>
+            </div>
+        </div>
+
+        <h2 class="section-title">🏭 Virtual Environments</h2>
+        <div class="grid">
+            <div class="project-card" onclick="window.location.href='workspace/laboratory.html'">
+                <div class="project-icon">🔬</div>
+                <div class="project-title">Laboratory</div>
+                <div class="project-desc">
+                    Advanced 3D lab environment with faceting machines, 3D printer farm,
+                    and automated Gem Bot production systems.
+                </div>
+                <span class="project-status status-integrated">INTEGRATED</span>
+            </div>
+
+            <div class="project-card" onclick="window.location.href='workspace/warehouse.html'">
+                <div class="project-icon">📦</div>
+                <div class="project-title">Warehouse</div>
+                <div class="project-desc">
+                    Storage facility for components, finished bots, and inventory management
+                    with 3D visualization.
+                </div>
+                <span class="project-status status-integrated">INTEGRATED</span>
+            </div>
+
+            <div class="project-card" onclick="window.location.href='workspace/forge.html'">
+                <div class="project-icon">🔨</div>
+                <div class="project-title">The Forge</div>
+                <div class="project-desc">
+                    NFT minting and asset creation system. Forge 3D models into tradeable
+                    assets with mint limits and special abilities.
+                </div>
+                <span class="project-status status-integrated">INTEGRATED</span>
+            </div>
+
+            <div class="project-card" onclick="window.location.href='workspace/grand_exchange.html'">
+                <div class="project-icon">💎</div>
+                <div class="project-title">Grand Exchange</div>
+                <div class="project-desc">
+                    High-tech trading center for resources, bots, and forged assets.
+                    Real-time market with MGC transactions.
+                </div>
+                <span class="project-status status-integrated">INTEGRATED</span>
+            </div>
+
+            <div class="project-card" onclick="window.location.href='workspace/outdoor.html'">
+                <div class="project-icon">🗺️</div>
+                <div class="project-title">Explorer Mode</div>
+                <div class="project-desc">
+                    Real-time geo-location exploration with MGC mining portals and
+                    outdoor environment visualization.
+                </div>
+                <span class="project-status status-integrated">INTEGRATED</span>
+            </div>
+
+            <div class="project-card" onclick="window.location.href='workspace/high_cafe.html'">
+                <div class="project-icon">☕</div>
+                <div class="project-title">High Cafe</div>
+                <div class="project-desc">
+                    Social hub environment for player interactions and community events.
+                </div>
+                <span class="project-status status-integrated">INTEGRATED</span>
+            </div>
+        </div>
+
+        <h2 class="section-title">⚙️ Admin & Management</h2>
+        <div class="grid">
+            <div class="project-card" onclick="window.location.href='workspace/admin.html'">
+                <div class="project-icon">👑</div>
+                <div class="project-title">Admin Portal</div>
+                <div class="project-desc">
+                    God mode admin access with user management, chat moderation,
+                    system monitoring, and database controls.
+                </div>
+                <span class="project-status status-integrated">INTEGRATED</span>
+            </div>
+
+            <div class="project-card" onclick="window.location.href='workspace/admin-forge.html'">
+                <div class="project-icon">🛠️</div>
+                <div class="project-title">Admin Forge Controls</div>
+                <div class="project-desc">
+                    Advanced forge management, asset verification, and mint limit adjustments.
+                </div>
+                <span class="project-status status-integrated">INTEGRATED</span>
+            </div>
+
+            <div class="project-card" onclick="window.location.href='workspace/realm_management.html'">
+                <div class="project-icon">🌐</div>
+                <div class="project-title">Realm Management</div>
+                <div class="project-desc">
+                    Collaborate on realms, manage permissions, and coordinate multi-user projects.
+                </div>
+                <span class="project-status status-integrated">INTEGRATED</span>
+            </div>
+        </div>
+
+        <h2 class="section-title">🔧 Backend Services</h2>
+        <div class="info-box">
+            <strong>Server Status:</strong> The workspace includes a full Node.js backend with:
+            <ul style="margin-top: 10px; margin-left: 20px;">
+                <li>Express server (server.js) on port 3000</li>
+                <li>SQLite database for user management</li>
+                <li>WebSocket support for real-time updates</li>
+                <li>Forge system with asset storage</li>
+                <li>Chat logging and moderation</li>
+                <li>Location tracking and geo-services</li>
+                <li>Admin authentication and controls</li>
+            </ul>
+            <p style="margin-top: 15px;">
+                <strong>To start the server:</strong><br>
+                <code style="background: rgba(0,0,0,0.3); padding: 5px 10px; border-radius: 5px; display: inline-block; margin-top: 5px;">
+                    cd mandem.os/workspace && npm install && node server.js
+                </code>
+            </p>
+        </div>
+
+        <h2 class="section-title">📁 Additional Projects</h2>
+        <div class="grid">
+            <div class="project-card" onclick="alert('3D Room project available at: C:\\Users\\barbr\\Desktop\\CSW2025\\3d-room')">
+                <div class="project-icon">🏠</div>
+                <div class="project-title">3D Room</div>
+                <div class="project-desc">
+                    Interactive 3D room environment with custom controls and visualization.
+                    Located in CSW2025 folder.
+                </div>
+                <span class="project-status status-pending">DESKTOP</span>
+            </div>
+
+            <div class="project-card" onclick="alert('GBU project available at: C:\\Users\\barbr\\Desktop\\CSW2025\\GBU')">
+                <div class="project-icon">💠</div>
+                <div class="project-title">GBU (Gem Bot Universe)</div>
+                <div class="project-desc">
+                    Alternative Gem Bot deployment portal with extended features.
+                    Located in CSW2025 folder.
+                </div>
+                <span class="project-status status-pending">DESKTOP</span>
+            </div>
+
+            <div class="project-card" onclick="alert('Projects folder available at: C:\\Users\\barbr\\Desktop\\CSW2025\\Projects')">
+                <div class="project-icon">📂</div>
+                <div class="project-title">Additional Projects</div>
+                <div class="project-desc">
+                    Collection of specialized projects including AdvancedGameCode, GemBotV3,
+                    GemPath, GeoTrigStop, Rdata, and more. Located in CSW2025 folder.
+                </div>
+                <span class="project-status status-pending">DESKTOP</span>
+            </div>
+        </div>
+
+        <div class="info-box" style="margin-top: 40px; background: rgba(0,212,255,0.1); border-left-color: #00d4ff;">
+            <strong>✅ Integration Complete!</strong><br>
+            All CSW2025 projects have been successfully merged with the Mandem.OS application.
+            The workspace folder contains the fully functional Gem Bot Universe with all environments,
+            backend services, and admin controls properly linked and configured.
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Mandem.OS Ember Terminal</title>
+  <meta name="description" content="Ember Terminal — connect EVM wallet, verify Copper Key 45, signed LLM prompts via relay, calm 3D blue flame visuals." />
+  <style>
+    :root{ --bg:#030616; --panel:#041022; --muted:#9aa4b2; --accent:#7c5cff; --text:#cfe9ff; --mono: ui-monospace, Menlo, Monaco, "Roboto Mono", monospace; }
+    html,body{height:100%;margin:0;background:linear-gradient(180deg,#000814,#021124 40%,#041022 100%);font-family:Inter,Segoe UI,Roboto,system-ui,Arial,sans-serif;color:var(--text);-webkit-font-smoothing:antialiased}
+    .wrap{min-height:100vh;display:flex;gap:20px;padding:18px;box-sizing:border-box}
+    .stage{position:relative;flex:1;display:flex;justify-content:center;align-items:flex-start}
+    canvas#flameCanvas{position:absolute;inset:0;width:100%;height:100%;z-index:1;pointer-events:none}
+    .card{position:relative;z-index:3;width:100%;max-width:1100px;background:linear-gradient(180deg,rgba(2,8,20,0.88),rgba(2,6,18,0.96));border-radius:14px;padding:18px;box-shadow:0 20px 80px rgba(2,6,23,0.7);border:1px solid rgba(255,255,255,0.03)}
+    .header{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:8px}
+    h1{margin:0;font-size:18px}
+    .small{font-size:12px;color:var(--muted)}
+    .terminal{font-family:var(--mono);background:linear-gradient(180deg,rgba(0,0,0,0.16),rgba(0,0,0,0.10));border-radius:10px;padding:12px;color:var(--text);min-height:340px;max-height:72vh;overflow:auto;position:relative;z-index:4}
+    .controls{display:flex;gap:8px;margin-top:12px}
+    button{cursor:pointer;border:0;padding:8px 12px;border-radius:8px;background:linear-gradient(90deg,var(--accent),#00d4ff);color:#021024;font-weight:700}
+    .ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted);padding:8px 10px;border-radius:8px}
+    textarea.cmdInput{flex:1;background:rgba(0,0,0,0.28);border:1px solid rgba(255,255,255,0.03);padding:10px;border-radius:8px;color:var(--text);font-family:var(--mono);font-size:13px;min-height:48px;resize:vertical}
+    .contribs{max-height:160px;overflow:auto;margin-top:8px;font-family:var(--mono);font-size:12px;color:var(--muted);z-index:4}
+    .panel{margin-left:18px;width:360px;max-width:40vw;display:flex;flex-direction:column;gap:12px;z-index:4}
+    .box{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));padding:12px;border-radius:10px}
+    table{width:100%;font-family:var(--mono);font-size:13px;border-collapse:collapse}
+    th{color:var(--muted);text-align:left;padding:8px 6px;font-weight:600;font-size:12px}
+    td{padding:8px 6px;border-top:1px dashed rgba(255,255,255,0.02);word-break:break-all}
+    pre{white-space:pre-wrap}
+    @media (max-width:1000px){ .wrap{flex-direction:column} .panel{width:100%;max-width:none;margin-left:0} canvas#flameCanvas{height:60vh} }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="stage" id="stage">
+      <canvas id="flameCanvas" aria-hidden="true"></canvas>
+
+      <div class="card" role="application" aria-label="Mandem.OS Ember Terminal">
+        <div class="header">
+          <div>
+            <h1>Mandem.OS Ember Terminal</h1>
+            <div class="small">Connect wallet, verify Copper Key 45, signed LLM prompts and deploy requests via relay</div>
+          </div>
+          <div class="small" id="connectedStatus">Not connected</div>
+        </div>
+
+        <div style="display:flex;gap:18px">
+          <div style="flex:1">
+            <div class="terminal" id="terminal" aria-live="polite">
+              <div id="welcome" class="small">Welcome — connect an EVM wallet (MetaMask) to proceed.</div>
+              <div id="holderInfo" class="small" style="margin-top:8px"></div>
+              <div id="log" class="small" style="margin-top:10px"></div>
+
+              <div id="gatedArea" style="display:none;margin-top:12px">
+                <div class="small" id="gatedNote">You are verified locally; sign to persist or request relay actions.</div>
+
+                <div style="margin-top:10px">
+                  <label class="small">Contribution</label>
+                  <div style="display:flex;gap:8px;margin-top:8px">
+                    <textarea id="cmdInput" class="cmdInput" placeholder="Type a message to record"></textarea>
+                    <div style="display:flex;flex-direction:column;gap:8px">
+                      <button id="cmdSubmit" class="ghost">Submit</button>
+                      <button id="deployRequestBtn" class="ghost">Request Deploy</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div style="margin-top:12px">
+                  <strong class="small">Contributions (local)</strong>
+                  <div id="contribList" class="contribs"></div>
+                </div>
+
+                <div style="margin-top:12px">
+                  <strong class="small">LLM</strong>
+                  <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
+                    <select id="llmModel" style="font-family:var(--mono);padding:6px;border-radius:6px">
+                      <option value="gpt-4o-mini">gpt-4o-mini</option>
+                      <option value="gpt-4o">gpt-4o</option>
+                    </select>
+                    <button id="llmSend" class="ghost">Send Prompt</button>
+                    <button id="llmStop" class="ghost" disabled>Stop</button>
+                    <div class="small" id="llmStatus">LLM: idle</div>
+                  </div>
+                  <div style="margin-top:8px">
+                    <textarea id="llmPrompt" placeholder="Enter LLM prompt..." style="width:100%;min-height:88px;font-family:var(--mono);padding:8px;border-radius:8px"></textarea>
+                  </div>
+                  <pre id="llmOutput" style="margin-top:8px;background:rgba(0,0,0,0.06);padding:10px;border-radius:8px;font-family:var(--mono)"></pre>
+                </div>
+              </div>
+
+            </div>
+
+            <div class="controls" style="margin-top:12px">
+              <button id="connectBtn">Connect MetaMask</button>
+              <button id="linkGuide" class="ghost">Relay Guide</button>
+              <button id="refreshBtn" class="ghost">Refresh Leaderboard</button>
+              <button id="checkinBtn" class="ghost">Check-in</button>
+            </div>
+          </div>
+
+          <div class="panel" id="panel">
+            <div class="box">
+              <h3 style="margin:0 0 8px 0">Identity</h3>
+              <div class="small">Wallet: <div id="addr" style="font-family:var(--mono)"></div></div>
+              <div class="small" style="margin-top:6px">Relay: <span id="relayBadge">Not configured</span></div>
+            </div>
+
+            <div class="box">
+              <h3 style="margin:0 0 8px 0">Repositories (server)</h3>
+              <div id="repos" style="display:flex;flex-direction:column;gap:6px"></div>
+            </div>
+
+            <div class="box">
+              <h3 style="margin:0 0 8px 0">Leaderboard</h3>
+              <table id="leaderboard"><thead><tr><th>#</th><th>Wallet</th><th>Keys</th><th style="text-align:right">Score</th></tr></thead><tbody id="leaderRows"><tr><td colspan="4" class="small">No data yet</td></tr></tbody></table>
+            </div>
+
+            <div class="box">
+              <h3 style="margin:0 0 8px 0">Diagnostics</h3>
+              <div class="small" id="diag">Flame: pending; Relay: not configured</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js" crossorigin="anonymous"></script>
+
+  <script>
+  (function(){
+    // If you have relay server running, set its URL here or before this script with window.__RELAY_BASE__
+    const RELAY_BASE = (window.__RELAY_BASE__ || '').replace(/\/$/, '') || '';
+
+    const CONTRACT = '0x45a328572b2a06484e02EB5D4e4cb6004136eB16';
+    const GOD_TOKEN_ID = 45;
+    const RPCS = ['https://cloudflare-eth.com','https://rpc.ankr.com/eth','https://eth.llamarpc.com'];
+
+    // DOM
+    const connectBtn = document.getElementById('connectBtn');
+    const linkGuide = document.getElementById('linkGuide');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const checkinBtn = document.getElementById('checkinBtn');
+    const connectedStatus = document.getElementById('connectedStatus');
+    const addrEl = document.getElementById('addr');
+    const holderInfo = document.getElementById('holderInfo');
+    const gatedArea = document.getElementById('gatedArea');
+    const cmdInput = document.getElementById('cmdInput');
+    const cmdSubmit = document.getElementById('cmdSubmit');
+    const deployRequestBtn = document.getElementById('deployRequestBtn');
+    const contribList = document.getElementById('contribList');
+    const relayBadge = document.getElementById('relayBadge');
+    const diag = document.getElementById('diag');
+
+    // LLM DOM
+    const llmModel = document.getElementById('llmModel');
+    const llmSend = document.getElementById('llmSend');
+    const llmStop = document.getElementById('llmStop');
+    const llmStatus = document.getElementById('llmStatus');
+    const llmPrompt = document.getElementById('llmPrompt');
+    const llmOutput = document.getElementById('llmOutput');
+
+    function chooseEvmProvider(){
+      if(window.ethereum && Array.isArray(window.ethereum.providers)){
+        const p = window.ethereum.providers;
+        return p.find(x=>x.isMetaMask) || p.find(x=>typeof x.request === 'function');
+      }
+      if(window.ethereum && typeof window.ethereum.request === 'function') return window.ethereum;
+      return null;
+    }
+
+    async function signPayload(payload){
+      const prov = chooseEvmProvider();
+      if(!prov) throw new Error('No EVM provider');
+      const accounts = await prov.request({ method: 'eth_requestAccounts' });
+      const address = accounts && accounts[0];
+      if(!address) throw new Error('No account');
+      const payloadString = typeof payload === 'string' ? payload : JSON.stringify(payload);
+      let signature;
+      try{ signature = await prov.request({ method:'personal_sign', params:[payloadString, address] }); }
+      catch(e){ signature = await prov.request({ method:'eth_sign', params:[address, payloadString] }); }
+      return { address, signature, payloadString };
+    }
+
+    function toHex32(n){ return "0x" + BigInt(n).toString(16).padStart(64,'0'); }
+    function encodeAddress(a){ return a.toLowerCase().replace(/^0x/,'').padStart(64,'0'); }
+    async function rpcCall(rpc,payload){
+      const res = await fetch(rpc, { method:'POST', headers:{'Content-Type':'application/json'}, body: JSON.stringify({ jsonrpc:'2.0', id:1, method:'eth_call', params:[payload,'latest'] }) });
+      if(!res.ok) throw new Error(res.statusText);
+      const j = await res.json();
+      if(j.error) throw new Error(JSON.stringify(j.error));
+      return j.result;
+    }
+    async function readERC1155Balance(address, tokenId){
+      const data = '0x00fdd58e' + encodeAddress(address) + toHex32(tokenId).slice(2);
+      let last;
+      for(const r of RPCS){
+        try{ const v = await rpcCall(r, { to: CONTRACT, data }); return v ? BigInt(v) : 0n; }catch(e){ last = e; }
+      }
+      throw last || new Error('no rpc');
+    }
+
+    // Local storage helpers
+    function loadContribs(){ try{ return JSON.parse(localStorage.getItem('mandem_contribs')||'[]'); }catch(e){ return []; } }
+    function saveContribs(arr){ localStorage.setItem('mandem_contribs', JSON.stringify(arr.slice(0,1000))); }
+    function renderContribs(){ const arr=loadContribs(); contribList.innerHTML=''; arr.forEach(c=>{ const d=document.createElement('div'); d.className='small'; d.textContent = `[${new Date(c.ts*1000).toISOString()}] ${c.address}: ${c.text}`; contribList.appendChild(d); }); }
+
+    function appendLog(text){ const el = document.getElementById('log'); const d = document.createElement('div'); d.className='small'; d.textContent = text; el.parentNode.insertBefore(d, el.nextSibling); }
+
+    // Connect wallet and client-side key check
+    async function connectWallet(){
+      try{
+        const prov = chooseEvmProvider(); if(!prov) return alert('Install MetaMask');
+        const accs = await prov.request({ method:'eth_requestAccounts' }); const addr = accs && accs[0];
+        if(!addr) return;
+        connectedStatus.textContent = addr;
+        addrEl.textContent = addr;
+        appendLog('Connected: ' + addr);
+
+        try{
+          const bal = await readERC1155Balance(addr, GOD_TOKEN_ID);
+          if(bal > 0n){
+            holderInfo.textContent = `Verified local: holds Key ${GOD_TOKEN_ID} (client read)`;
+            gatedArea.style.display = 'block';
+            if(window.__mandemVisual && window.__mandemVisual.setUnlocked) window.__mandemVisual.setUnlocked(true);
+          } else {
+            holderInfo.textContent = `No local proof of Key ${GOD_TOKEN_ID}. Server verification required.`;
+            gatedArea.style.display = 'none';
+            if(window.__mandemVisual && window.__mandemVisual.setUnlocked) window.__mandemVisual.setUnlocked(false);
+          }
+        }catch(e){ holderInfo.textContent = 'RPC key check failed: ' + (e.message||e); }
+
+        renderContribs();
+        if(RELAY_BASE) { relayBadge.textContent = RELAY_BASE; await checkRelayHealth(); }
+      }catch(e){ appendLog('Connect error: ' + (e.message||e)); }
+    }
+
+    // Submit contribution locally and optionally to relay
+    async function submitContribution(){
+      const text = cmdInput.value && cmdInput.value.trim();
+      if(!text) return alert('Type something');
+      try{
+        const prov = chooseEvmProvider(); if(!prov) return alert('No EVM wallet');
+        const accounts = await prov.request({ method:'eth_requestAccounts' }); const addr = accounts && accounts[0];
+        const ts = Math.floor(Date.now()/1000);
+        const payload = { type:'cmd', address: addr, ts, text };
+        const { signature } = await signPayload(payload);
+        const arr = loadContribs(); arr.unshift({ address: addr, ts, text, signature }); saveContribs(arr); renderContribs();
+        appendLog('Signed locally and stored.');
+        cmdInput.value = '';
+        if(RELAY_BASE){
+          try{
+            const r = await fetch(RELAY_BASE + '/relay/contribution', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ payload: JSON.stringify(payload), signature, address: addr }) });
+            if(r.ok) appendLog('Relay accepted contribution'); else appendLog('Relay error: ' + await r.text());
+          }catch(e){ appendLog('Relay persist failed: ' + e.message); }
+        }
+      }catch(e){ appendLog('Submit failed: ' + (e.message||e)); }
+    }
+
+    // Relay health check
+    async function checkRelayHealth(){
+      if(!RELAY_BASE){ diag.textContent = 'Flame: active; Relay: not configured'; return; }
+      try{
+        const r = await fetch(RELAY_BASE + '/relay/health', { cache:'no-store' });
+        if(!r.ok) throw new Error('health failed');
+        const j = await r.json();
+        diag.textContent = `Flame: active; Relay: online; LLM provider: ${j.llm || 'unknown'}`;
+      }catch(e){
+        diag.textContent = 'Flame: active; Relay: unreachable';
+      }
+    }
+
+    // Deploy request (signed -> relay)
+    async function requestDeploy(){
+      if(!RELAY_BASE) return alert('Relay not configured');
+      try{
+        const prov = chooseEvmProvider(); if(!prov) return alert('Install MetaMask');
+        const accs = await prov.request({ method:'eth_requestAccounts' }); const addr = accs && accs[0];
+        const chal = await (await fetch(RELAY_BASE + '/relay/challenge')).json();
+        const payload = { action:'deploy-request', challenge: chal.challenge, requestedBy: addr, ts: Date.now() };
+        const { signature, payloadString } = await signPayload(payload);
+        const res = await fetch(RELAY_BASE + '/relay/deploy', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ payload: payloadString, signature, address: addr }) });
+        const txt = await res.text(); try{ const j = JSON.parse(txt); appendLog('Deploy response: ' + JSON.stringify(j)); }catch(e){ appendLog('Deploy raw: ' + txt); }
+      }catch(e){ appendLog('Deploy failed: ' + (e.message||e)); }
+    }
+
+    // ===== LLM client =====
+    let activeEventSource = null;
+    async function sendLLMPrompt(){
+      if(!RELAY_BASE) return alert('Relay not configured');
+      const prompt = llmPrompt.value && llmPrompt.value.trim(); if(!prompt) return alert('Enter prompt');
+      try{
+        llmStatus.textContent = 'LLM: getting challenge';
+        const chalResp = await fetch(RELAY_BASE + '/relay/challenge'); if(!chalResp.ok) throw new Error('challenge failed');
+        const chal = await chalResp.json();
+        const payloadObj = { prompt, challenge: chal.challenge, ts: Date.now() };
+        const { address, signature, payloadString } = await signPayload(payloadObj);
+        llmStatus.textContent = 'LLM: submitting';
+        const resp = await fetch(RELAY_BASE + '/relay/llm-request', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ payload: payloadString, signature, address, model: llmModel.value }) });
+        const txt = await resp.text(); let j;
+        try{ j = JSON.parse(txt); } catch(e){ j = { error: txt }; }
+        if(!j || !j.ok || !j.jobId){ llmStatus.textContent = 'LLM: request failed'; llmOutput.textContent = '[ERROR] ' + JSON.stringify(j); return; }
+        subscribeLLMStream(j.jobId);
+      }catch(e){ llmStatus.textContent = 'LLM: error'; llmOutput.textContent = '[ERROR] ' + (e.message||e); console.error(e); }
+    }
+
+    function subscribeLLMStream(jobId){
+      if(activeEventSource){ activeEventSource.close(); activeEventSource = null; }
+      llmOutput.textContent = ''; llmStatus.textContent = 'LLM: streaming'; llmStop.disabled = false;
+      const es = new EventSource(RELAY_BASE + '/relay/llm-stream/' + jobId);
+      activeEventSource = es;
+      es.addEventListener('status', e => { try{ const d = JSON.parse(e.data); llmStatus.textContent = 'LLM: ' + (d.status||'running'); }catch{} });
+      es.addEventListener('chunk', e => { try{ const d = JSON.parse(e.data); llmOutput.textContent += d.chunk; llmOutput.scrollTop = llmOutput.scrollHeight; }catch{} });
+      es.addEventListener('done', e => { try{ const d = JSON.parse(e.data); if(d.output) llmOutput.textContent += '\n' + d.output; }catch{}; llmStatus.textContent = 'LLM: done'; llmStop.disabled = true; es.close(); activeEventSource=null; });
+      es.addEventListener('error', e => { try{ const d = JSON.parse(e.data||'{}'); llmOutput.textContent += '\n[ERROR] ' + (d.error||e.data||'unknown'); }catch{ llmOutput.textContent += '\n[ERROR] unknown'; } llmStatus.textContent = 'LLM: error'; llmStop.disabled = true; es.close(); activeEventSource=null; });
+    }
+
+    // LLM stop
+    llmStop.addEventListener('click', ()=>{ if(activeEventSource) activeEventSource.close(); activeEventSource = null; llmStatus.textContent='LLM: stopped'; llmStop.disabled=true; });
+
+    // ===== Leaderboard (client attempt) =====
+    async function fetchLeaderboard(){
+      try{
+        const r = await fetch('/holders.json').catch(()=>null);
+        const holders = r ? await r.json() : [];
+        const rows = Array.isArray(holders) ? holders.slice(0,50).map((a,i)=>({ address:a, keys:[GOD_TOKEN_ID], score:10000-i })) : [];
+        renderLeaderboard(rows);
+      }catch(e){ appendLog('Leaderboard failed: ' + (e.message||e)); }
+    }
+    function renderLeaderboard(rows){
+      const tbody = document.createElement('tbody'); let i=1;
+      for(const r of rows){ const tr=document.createElement('tr'); tr.innerHTML = `<td>${i++}</td><td class="addr">${r.address}</td><td>${r.keys.join(',')}</td><td style="text-align:right">${r.score}</td>`; tbody.appendChild(tr); }
+      const old = document.getElementById('leaderRows'); if(old && old.parentNode) old.parentNode.replaceChild(tbody, old); else document.getElementById('leaderboard').appendChild(tbody);
+    }
+
+    // ===== Flame visuals =====
+    function initFlame(){
+      const canvas = document.getElementById('flameCanvas');
+      if(!canvas) return;
+      if(typeof THREE === 'undefined' || !THREE.WebGLRenderer){
+        // fallback 2D
+        try{
+          const ctx = canvas.getContext('2d');
+          let t=0;
+          function resize(){ canvas.width = canvas.clientWidth; canvas.height = canvas.clientHeight; }
+          window.addEventListener('resize', resize); resize();
+          function loop(){ t+=0.02; const w=canvas.width, h=canvas.height; ctx.clearRect(0,0,w,h); const g=ctx.createRadialGradient(w/2,h/2,10,w/2,h/2,Math.max(w,h)/1.1); g.addColorStop(0,`rgba(102,212,255,${0.28+0.06*Math.sin(t*0.6)})`); g.addColorStop(0.5,`rgba(60,140,255,${0.07+0.03*Math.cos(t*0.4)})`); g.addColorStop(1,'rgba(0,0,0,0)'); ctx.fillStyle=g; ctx.fillRect(0,0,w,h); requestAnimationFrame(loop); }
+          loop(); diag.textContent = 'Flame: 2D fallback active';
+        }catch(e){ diag.textContent = 'Flame: unavailable'; }
+        return;
+      }
+
+      const renderer = new THREE.WebGLRenderer({ canvas, alpha:true, antialias:true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      renderer.setClearColor(0x000000, 0);
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(38,1,0.1,100);
+      camera.position.set(0,6,18);
+      const amb = new THREE.AmbientLight(0x08182a, 0.22);
+      const lightA = new THREE.PointLight(0x3ea7ff, 0.8, 80); lightA.position.set(-12,8,6);
+      const lightB = new THREE.PointLight(0x66d4ff, 0.5, 80); lightB.position.set(12,6,-6);
+      scene.add(amb, lightA, lightB);
+      const ground = new THREE.Mesh(new THREE.PlaneGeometry(36,24,32,32), new THREE.MeshStandardMaterial({ color:0x021622, metalness:0.02, roughness:0.95 }));
+      ground.rotation.x = -Math.PI/2; ground.position.y = -1; scene.add(ground);
+      const loader = new THREE.TextureLoader();
+      const sprite = loader.load('https://cdn.jsdelivr.net/gh/mrdoob/three.js@master/examples/textures/sprites/spark1.png');
+
+      const layers = [];
+      const defs = [{count:160,opacity:0.24,speed:0.6,hue:0.52},{count:320,opacity:0.16,speed:0.42,hue:0.50},{count:640,opacity:0.10,speed:0.30,hue:0.48}];
+
+      defs.forEach(def=>{
+        const geom = new THREE.BufferGeometry();
+        const pos = new Float32Array(def.count*3);
+        const sizes = new Float32Array(def.count);
+        for(let i=0;i<def.count;i++){ const a=Math.random()*Math.PI*2; const r=0.6+Math.random()*3.6; pos[i*3+0]=Math.cos(a)*r; pos[i*3+1]=0.1+Math.random()*2.6; pos[i*3+2]=Math.sin(a)*r -1.2; sizes[i]=6+Math.random()*18; }
+        geom.setAttribute('position', new THREE.BufferAttribute(pos,3));
+        geom.setAttribute('size', new THREE.BufferAttribute(sizes,1));
+        const color = new THREE.Color().setHSL(def.hue,0.7,0.6);
+        const mat = new THREE.PointsMaterial({ map:sprite, transparent:true, blending:THREE.AdditiveBlending, depthWrite:false, sizeAttenuation:true, color, opacity:def.opacity });
+        const pts = new THREE.Points(geom, mat); pts.userData={speed:def.speed}; layers.push(pts); scene.add(pts);
+      });
+
+      let t=0; let unlocked=false;
+      window.__mandemVisual = { setUnlocked(v){ unlocked = !!v; if(unlocked) camera.position.set(0,5.3,15.6); else camera.position.set(0,6,18); } };
+
+      function resize(){ const rect=canvas.getBoundingClientRect(); const w=Math.max(200,Math.round(rect.width)), h=Math.max(160,Math.round(rect.height)); renderer.setSize(w,h,false); camera.aspect=w/h; camera.updateProjectionMatrix(); layers.forEach(layer=>{ const sizes=layer.geometry.attributes.size; for(let i=0;i<sizes.count;i++) sizes.setX(i, sizes.getX(i) * Math.min(w,h)/800 ); sizes.needsUpdate=true; }); }
+      window.addEventListener('resize', resize, { passive:true }); resize();
+
+      function animate(){ t += 0.012; camera.position.x = Math.sin(t*0.08)*0.45; camera.lookAt(0,1,-1.2); layers.forEach((layer,idx)=>{ const pos = layer.geometry.attributes.position; for(let i=0;i<pos.count;i++){ const iy=i*3+1; pos.array[iy] = pos.array[iy] + Math.sin(t*layer.userData.speed + i*0.01) * 0.002 + 0.001; if(pos.array[iy] > 3.6) pos.array[iy] = 0.1 + Math.random()*0.6; pos.array[i*3+0] += Math.sin((t + i)*0.0009) * 0.0009 * (idx+1); pos.array[i*3+2] += Math.cos((t + i)*0.0011) * 0.0009 * (idx+1); } pos.needsUpdate=true; layer.material.opacity = unlocked ? Math.min(0.9, layer.material.opacity + 0.006) : Math.max(0.06, layer.material.opacity - 0.003); layer.rotation.y = Math.sin(t * (0.01 + idx*0.005)) * 0.06; }); renderer.render(scene, camera); requestAnimationFrame(animate); }
+      requestAnimationFrame(animate); diag.textContent = 'Flame: 3D active';
+    }
+
+    // Debug helper exposed to console
+    window.mandemDebugFlame = function(){ try{ const c=document.getElementById('flameCanvas'); console.log('canvas rect', c && c.getBoundingClientRect()); if(typeof THREE==='undefined') return console.warn('Three.js missing'); const rr=new THREE.WebGLRenderer({ canvas:c, alpha:true }); rr.setSize(300,160); const s=new THREE.Scene(); const cam=new THREE.PerspectiveCamera(50,300/160,0.1,100); cam.position.set(0,0,5); const g=new THREE.BoxGeometry(1,1,1); const m=new THREE.MeshBasicMaterial({ color:0x66d4ff }); const mesh=new THREE.Mesh(g,m); s.add(mesh); rr.render(s, cam); console.log('test render done'); }catch(e){ console.error(e); } };
+
+    // Wire UI
+    connectBtn.addEventListener('click', connectWallet);
+    cmdSubmit.addEventListener('click', submitContribution);
+    deployRequestBtn.addEventListener('click', requestDeploy);
+    linkGuide.addEventListener('click', ()=> window.open('data:text/plain,To configure the relay: deploy relay-server.js from your repo on a secure host and set window.__RELAY_BASE__ to its URL. The relay holds secrets and verifies wallet ownership on-chain before performing actions.','_blank'));
+    llmSend.addEventListener('click', sendLLMPrompt);
+    refreshBtn.addEventListener('click', fetchLeaderboard);
+    checkinBtn.addEventListener('click', async ()=> {
+      if(!RELAY_BASE) return alert('Relay not configured');
+      try{
+        const prov = chooseEvmProvider(); if(!prov) return alert('Install MetaMask');
+        const accs = await prov.request({ method:'eth_requestAccounts' }); const addr = accs && accs[0];
+        const chal = await (await fetch(RELAY_BASE + '/relay/challenge')).json();
+        const payload = { type:'checkin', address: addr, challenge: chal.challenge, ts: Date.now() };
+        const { signature, payloadString } = await signPayload(payload);
+        const r = await fetch(RELAY_BASE + '/relay/checkin', { method:'POST', headers:{ 'Content-Type':'application/json' }, body: JSON.stringify({ payload: payloadString, signature, address: addr }) });
+        const txt = await r.text(); appendLog('Check-in: ' + txt);
+      }catch(e){ appendLog('Check-in failed: ' + (e.message||e)); }
+    });
+
+    // Init
+    (async function init(){
+      try{ renderContribs(); initFlame(); if(RELAY_BASE) await checkRelayHealth(); await fetchLeaderboard(); }catch(e){ console.error(e); }
+    })();
+
+    // Expose small API
+    window.Mandem = { signPayload, sendLLMPrompt, requestDeploy, debugFlame: window.mandemDebugFlame };
+  })();
+  </script>
+</body>
+</html>

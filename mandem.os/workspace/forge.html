@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GemBot - The Forge</title>
+  <link rel="stylesheet" href="public/styles.css">
+  <link rel="manifest" href="public/manifest.json">
+  <link rel="apple-touch-icon" href="public/images/icon-192x192.png">
+  <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/GLTFLoader.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/postprocessing/EffectComposer.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/postprocessing/RenderPass.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/postprocessing/UnrealBloomPass.js"></script>
+  <script src="https://ga.jspm.io/npm:es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+  <script type="importmap-shim">
+    {
+      "imports": {
+        "three": "https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.module.js",
+        "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.132.2/examples/jsm/"
+      }
+    }
+  </script>
+</head>
+<body>
+  <script>
+    // Check for both authentication methods
+    function checkAuthentication() {
+        const currentUser = localStorage.getItem('currentUser');
+        const userLoggedIn = localStorage.getItem('userLoggedIn') === 'true';
+
+        if (!currentUser && !userLoggedIn) {
+            // Save this page as the redirect target after login
+            localStorage.setItem('authRedirect', 'forge.html');
+            // Redirect to login page
+            window.location.href = 'login.html';
+            return false;
+        }
+        return true;
+    }
+
+    // Run authentication check immediately
+    if (!checkAuthentication()) {
+        // Stop further script execution if authentication failed
+        throw new Error('Authentication required');
+    }
+  </script>
+
+  <script>
+    console.log('[DEBUG] forge.html loaded');
+    console.log('[DEBUG] currentUser:', localStorage.getItem('currentUser'));
+    console.log('[DEBUG] userProfile:', localStorage.getItem('userProfile'));
+    console.log('[DEBUG] userLoggedIn:', localStorage.getItem('userLoggedIn'));
+    console.log('[DEBUG] lastWalletAuth:', localStorage.getItem('lastWalletAuth'));
+  </script>
+
+  <div id="app">
+    <header>
+      <div class="logo">GemBot Portal</div>
+      <nav>
+        <ul>
+          <li><a href="index.html">Home</a></li>
+          <li><a href="laboratory.html">Laboratory</a></li>
+          <li><a href="warehouse.html">Warehouse</a></li>
+          <li><a href="outdoor.html">Outdoor</a></li>
+          <li><a href="forge.html" class="active">Forge</a></li>
+        </ul>
+      </nav>
+      <div class="user-controls">
+        <div id="mgc-balance">MGC: <span>0</span></div>
+        <button id="profile-btn">Profile</button>
+        <button id="logout-btn">Logout</button>
+      </div>
+    </header>
+
+    <div id="forge-container">
+      <canvas id="forge-canvas"></canvas>
+      
+      <div id="external-gem-list" class="interface-panel">
+        <h3>Available Gem Types (Live from Merlin's Gem Exchange)</h3>
+        <div id="merlin-gem-list">Loading gem list...</div>
+      </div>
+
+      <div id="forge-ui" class="interface-panel">
+        <h2>The Forge</h2>
+        <div id="forge-tabs">
+          <button class="tab-btn active" data-tab="view-tokens">View Tokens</button>
+          <button class="tab-btn" data-tab="forge-tokens">Forge New Token</button>
+          <button class="tab-btn" data-tab="marketplace">Marketplace</button>
+          <button class="tab-btn" data-tab="mining-map">Mining Map</button>
+        </div>
+        
+        <div id="view-tokens" class="tab-content active">
+          <h3>Forged Mineral Tokens</h3>
+          <div class="token-filter">
+            <select id="token-sort" aria-label="Sort tokens by">
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+              <option value="value-high">Highest Value</option>
+              <option value="value-low">Lowest Value</option>
+              <option value="rarity">Rarity</option>
+            </select>
+            <input type="search" id="token-search" placeholder="Search tokens...">
+          </div>
+          <div id="tokens-gallery" class="tokens-container">
+            <!-- Tokens will be populated here -->
+          </div>
+        </div>
+        
+        <div id="forge-tokens" class="tab-content">
+          <h3>Forge New Token</h3>
+          <p class="forge-note">Only authorized forgers can create new tokens.</p>
+          
+          <form id="forge-form">
+            <div class="form-group">
+              <label>Token Name:</label>
+              <input type="text" id="token-name" placeholder="Enter token name">
+            </div>
+            <div class="form-group">
+              <label for="token-color">Gem Color:</label>
+              <select id="token-color">
+                <option value="Deep Blue">Deep Blue</option>
+                <option value="Ruby Red">Ruby Red</option>
+                <option value="Emerald Green">Emerald Green</option>
+                <option value="Amethyst Purple">Amethyst Purple</option>
+                <option value="Diamond Clear">Diamond Clear</option>
+                <option value="Amber Gold">Amber Gold</option>
+                <option value="Opal Rainbow">Opal Rainbow</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="token-clarity">Clarity:</label>
+              <select id="token-clarity">
+                <option value="Flawless">Flawless</option>
+                <option value="VVS1">VVS1</option>
+                <option value="VVS2">VVS2</option>
+                <option value="VS1">VS1</option>
+                <option value="VS2">VS2</option>
+                <option value="SI1">SI1</option>
+                <option value="SI2">SI2</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="token-quality">Quality:</label>
+              <select id="token-quality" aria-label="Token quality">
+                <option value="Masterpiece">Masterpiece</option>
+                <option value="Museum">Museum</option>
+                <option value="Collection">Collection</option>
+                <option value="Premium">Premium</option>
+                <option value="Fine">Fine</option>
+                <option value="Standard">Standard</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label for="token-size">Size (carats):</label>
+              <input type="number" id="token-size" min="0.1" max="50" step="0.1" value="1.0" placeholder="Enter gem size in carats">
+            </div>
+            <div class="form-group">
+              <label for="token-mgc">Base MGC Value:</label>
+              <input type="number" id="token-mgc" min="100" step="100" value="1000" placeholder="Enter MGC value">
+            </div>
+            <div class="form-group">
+              <label>eBay Auction URL:</label>
+              <input type="url" id="token-ebay-url" placeholder="https://www.ebay.com/itm/...">
+            </div>
+            <div class="form-group">
+              <label>Physical Specimen ID:</label>
+              <input type="text" id="token-specimen-id" placeholder="Enter ID from your collection">
+            </div>
+            <div class="form-group">
+              <label>Wallet Address:</label>
+              <input type="text" id="token-wallet" placeholder="Enter Solana wallet address">
+            </div>
+            
+            <button type="submit" id="forge-submit">Forge Token</button>
+          </form>
+        </div>
+        
+        <div id="marketplace" class="tab-content">
+          <h3>Token Marketplace</h3>
+          <div class="market-tabs">
+            <button class="market-tab active" data-market="all">All Listings</button>
+            <button class="market-tab" data-market="ebay">eBay Auctions</button>
+            <button class="market-tab" data-market="mgc">MGC Direct Purchase</button>
+          </div>
+          
+          <div id="token-marketplace" class="tokens-container">
+            <!-- Marketplace listings will be displayed here -->
+          </div>
+        </div>
+        
+        <div id="mining-map" class="tab-content">
+          <h3>Global Mining Map</h3>
+          <div id="world-map-container">
+            <!-- World map will be displayed here -->
+            <div id="map-canvas"></div>
+          </div>
+          <div class="mining-locations">
+            <h4>Active Mining Locations</h4>
+            <ul id="mining-locations-list">
+              <!-- Mining locations will be listed here -->
+            </ul>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Token Detail Modal -->
+      <div id="token-detail-modal" class="modal">
+        <div class="modal-content">
+          <span class="close-modal">&times;</span>
+          <h2 id="detail-token-name">Token Name</h2>
+          
+          <div class="token-detail-container">
+            <div class="token-model-viewer">
+              <!-- 3D model will be displayed here -->
+            </div>
+            
+            <div class="token-info">
+              <div class="info-group">
+                <label>ID:</label>
+                <span id="detail-token-id"></span>
+              </div>
+              <div class="info-group">
+                <label>Forged:</label>
+                <span id="detail-token-date"></span>
+              </div>
+              <div class="info-group">
+                <label>Forger:</label>
+                <span id="detail-token-forger"></span>
+              </div>
+              <div class="info-group">
+                <label>Color:</label>
+                <span id="detail-token-color"></span>
+              </div>
+              <div class="info-group">
+                <label>Clarity:</label>
+                <span id="detail-token-clarity"></span>
+              </div>
+              <div class="info-group">
+                <label>Quality:</label>
+                <span id="detail-token-quality"></span>
+              </div>
+              <div class="info-group">
+                <label>Size:</label>
+                <span id="detail-token-size"></span> carats
+              </div>
+              <div class="info-group">
+                <label>Possible Cuts:</label>
+                <span id="detail-token-cuts"></span>
+              </div>
+              <div class="info-group">
+                <label>MGC Value:</label>
+                <span id="detail-token-mgc"></span> MGC
+              </div>
+            </div>
+          </div>
+          
+          <div class="token-actions">
+            <button id="detail-purchase-mgc" class="action-btn">Purchase with MGC</button>
+            <button id="detail-view-ebay" class="action-btn">View on eBay</button>
+            <button id="detail-view-wallet" class="action-btn">View Wallet</button>
+            <button id="detail-transfer" class="action-btn">Transfer Ownership</button>
+          </div>
+          
+          <!-- Ownership section -->
+          <div class="token-ownership">
+            <h3>Ownership</h3>
+            <div id="ownership-details">
+              <!-- Ownership details will be displayed here -->
+            </div>
+            
+            <!-- Transfer form (hidden by default) -->
+            <div id="transfer-form" class="hidden">
+              <h4>Transfer Ownership</h4>
+              <input type="text" id="transfer-recipient" placeholder="Recipient's username">
+              <input type="password" id="transfer-key-phrase" placeholder="Enter your key phrase">
+              <button id="confirm-transfer">Confirm Transfer</button>
+              <button id="cancel-transfer" class="secondary-btn">Cancel</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section id="forgeSection" style="margin:2em 0;">
+    <h2>Forge a 3D Game Asset</h2>
+    <input id="forgeSearchInput" type="text" placeholder="Search 3D assets..." style="width:220px;padding:6px;margin-bottom:1em;" />
+    <div id="forgeAssetGrid" style="display:flex;flex-wrap:wrap;gap:18px;"></div>
+    <div id="forgeModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.8);z-index:6000;align-items:center;justify-content:center;">
+      <div style="background:#222;padding:1.5em 1em;border-radius:12px;max-width:95vw;width:480px;text-align:center;position:relative;">
+        <button id="closeForgeModal" style="position:absolute;top:8px;right:12px;font-size:20px;background:none;border:none;color:#fff;cursor:pointer;">&times;</button>
+        <h3 id="forgeModelName"></h3>
+        <div id="forgeModelViewer" style="width:100%;height:320px;background:#111;"></div>
+        <div id="forgeModelMeta" style="color:#aaa;font-size:13px;margin-top:8px;"></div>
+        <div id="forgeSpecialAbility"></div>
+        <button id="forgeBtn" class="auth-button" style="margin-top:1em;">Forge Asset</button>
+        <div id="forgeStatusMsg" style="margin-top:1em;color:#0f6;"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Scripts -->
+  <script src="public/environment.js"></script>
+  <script src="public/uptimeRewards.js"></script>
+  <script src="public/globalChat.js"></script>
+  <script src="public/floatingTokens.js"></script>
+  <script src="public/phantomLogin.js"></script>
+  <script src="forge.js"></script>
+</body>
+</html>

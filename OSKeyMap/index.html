@@ -1,0 +1,395 @@
+```html
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>mandem.os Key Holders Mapper</title>
+  <style>
+    :root{--bg:#0f1724;--card:#0b1220;--muted:#9aa4b2;--accent:#7c5cff;--accent-2:#00d4ff;--glass:rgba(255,255,255,0.03)}
+    *{box-sizing:border-box;font-family:Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial}
+    html,body{height:100%;margin:0;background:
+      radial-gradient(1200px 600px at 10% 10%, rgba(124,92,255,0.12), transparent 8%),
+      radial-gradient(900px 400px at 90% 90%, rgba(0,212,255,0.06), transparent 6%),
+      var(--bg);color:#e6eef6}
+    .wrap{max-width:1100px;margin:32px auto;padding:28px;background:linear-gradient(180deg,rgba(255,255,255,0.02),transparent);border-radius:14px;border:1px solid rgba(255,255,255,0.03);box-shadow:0 10px 30px rgba(2,6,23,0.6)}
+    header{display:flex;gap:18px;align-items:center;margin-bottom:18px}
+    .logo{width:64px;height:64px;border-radius:10px;background:linear-gradient(135deg,var(--accent),var(--accent-2));display:flex;align-items:center;justify-content:center;font-weight:700;color:#051025}
+    h1{font-size:20px;margin:0}
+    p.lead{margin:6px 0 0;color:var(--muted);font-size:13px}
+    .grid{display:grid;grid-template-columns:1fr 420px;gap:18px}
+    .card{background:var(--card);padding:16px;border-radius:12px;border:1px solid var(--glass)}
+    label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px}
+    input[type=text], input[type=number], select{width:100%;padding:10px;border-radius:8px;border:1px solid rgba(255,255,255,0.04);background:transparent;color:inherit;font-size:14px}
+    .row{display:flex;gap:10px}
+    .btn{display:inline-flex;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;border:0;background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#021024;font-weight:600;cursor:pointer}
+    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted)}
+    .small{font-size:13px}
+    .progress{height:8px;background:rgba(255,255,255,0.03);border-radius:6px;overflow:hidden;margin-top:10px}
+    .progress > i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));width:0%}
+    table{width:100%;border-collapse:collapse;margin-top:12px;font-size:13px}
+    th,td{padding:8px 10px;text-align:left;border-bottom:1px dashed rgba(255,255,255,0.02)}
+    th{font-size:12px;color:var(--muted);font-weight:600}
+    tfoot td{padding-top:12px;color:var(--muted)}
+    .muted{color:var(--muted)}
+    .footer{display:flex;justify-content:space-between;align-items:center;margin-top:14px;color:var(--muted);font-size:13px}
+    pre{white-space:pre-wrap;word-break:break-word;background:rgba(255,255,255,0.02);padding:10px;border-radius:8px;font-size:12px;color:var(--muted)}
+    .flex-col{display:flex;flex-direction:column;gap:12px}
+    @media (max-width:980px){.grid{grid-template-columns:1fr;}.wrap{margin:14px}}
+  </style>
+</head>
+<body>
+  <div class="wrap" role="main">
+    <header>
+      <div class="logo">MD</div>
+      <div>
+        <h1>mandem.os Key Holders Mapper</h1>
+        <p class="lead">Scan an ERC-1155 contract for Transfer events, reconstruct tokenId balances, and export holder CSV.</p>
+      </div>
+    </header>
+
+    <div class="grid">
+      <section class="card">
+        <div class="flex-col">
+          <div>
+            <label>RPC URL</label>
+            <input id="rpc" type="text" placeholder="https://eth-mainnet.g.alchemy.com/v2/yourKey or https://cloudflare-eth.com" value="https://cloudflare-eth.com" />
+          </div>
+
+          <div>
+            <label>Contract Address</label>
+            <input id="contract" type="text" value="0x45a328572b2a06484e02EB5D4e4cb6004136eB16" />
+          </div>
+
+          <div class="row">
+            <div style="flex:1">
+              <label>Token ID</label>
+              <input id="tokenId" type="number" value="1" />
+            </div>
+            <div style="width:160px">
+              <label>Start Block</label>
+              <input id="startBlock" type="number" placeholder="deployment block (optional)" />
+            </div>
+          </div>
+
+          <div class="row">
+            <button id="scanBtn" class="btn">Scan and Reconstruct</button>
+            <button id="fetchHoldersBtn" class="btn ghost">Fetch Verified Holders</button>
+            <button id="downloadBtn" class="btn ghost">Download CSV</button>
+          </div>
+
+          <div>
+            <label>Progress</label>
+            <div class="progress" aria-hidden="true"><i id="bar" style="width:0%"></i></div>
+            <div style="display:flex;justify-content:space-between;margin-top:8px">
+              <div class="muted small" id="status">idle</div>
+              <div class="muted small" id="eta"></div>
+            </div>
+          </div>
+
+          <div>
+            <label>Logs</label>
+            <pre id="log">Ready.</pre>
+          </div>
+        </div>
+      </section>
+
+      <aside class="card">
+        <div style="display:flex;justify-content:space-between;align-items:center">
+          <div>
+            <div style="font-size:13px;color:var(--muted)">Contract</div>
+            <div id="contractDisplay" style="font-weight:700;word-break:break-all">0x45a32857...6eB16</div>
+          </div>
+          <div style="text-align:right">
+            <div class="muted small">Total Holders (recon)</div>
+            <div id="count" style="font-weight:700;font-size:20px">0</div>
+          </div>
+        </div>
+
+        <div style="margin-top:12px">
+          <table aria-live="polite">
+            <thead>
+              <tr><th>address</th><th style="width:110px">balance</th></tr>
+            </thead>
+            <tbody id="tableBody">
+            </tbody>
+            <tfoot>
+              <tr><td colspan="2" id="tableFooter" class="muted">No data</td></tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <div class="footer">
+          <div class="muted small">Note: browser RPC providers can rate-limit large log queries.</div>
+          <div class="muted small">Output: CSV</div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <script type="module">
+    import { ethers } from 'https://cdn.jsdelivr.net/npm/ethers@6.8.1/dist/ethers.esm.min.js';
+
+    const $ = id => document.getElementById(id);
+    const logEl = $('log'), bar = $('bar'), statusEl = $('status'), etaEl = $('eta');
+    const scanBtn = $('scanBtn'), fetchHoldersBtn = $('fetchHoldersBtn'), downloadBtn = $('downloadBtn');
+    const tableBody = $('tableBody'), countEl = $('count'), contractDisplay = $('contractDisplay'), tableFooter = $('tableFooter');
+
+    let reconHolders = []; // {address, balance}
+    function appendLog(msg){
+      const now = new Date().toISOString().slice(11,23);
+      logEl.textContent = `${now}  ${msg}\n` + logEl.textContent;
+    }
+    function setProgress(p){ bar.style.width = Math.max(0, Math.min(100,p)) + '%'; }
+    function toCSV(rows){
+      const header = ['address','balance'];
+      const lines = [header.join(',')].concat(rows.map(r => `${r.address},${r.balance}`));
+      return lines.join('\n');
+    }
+
+    async function queryLogs(provider, contractAddress, topics, fromBlock, toBlock, step=5000){
+      const logs = [];
+      const latest = toBlock ?? await provider.getBlockNumber();
+      let start = fromBlock;
+      if (!start) start = 0;
+      appendLog(`queryLogs: scanning ${start} → ${latest} in steps of ${step}`);
+      for (let from = start; from <= latest; from += step){
+        const to = Math.min(from + step - 1, latest);
+        try {
+          appendLog(`fetching ${from}→${to}`);
+          const chunk = await provider.getLogs({ fromBlock: from, toBlock: to, address: contractAddress, topics });
+          logs.push(...chunk);
+          setProgress( Math.round( (to / latest) * 60 ) );
+        } catch (err){
+          appendLog(`log error ${from}-${to} ${err.message || err}`);
+          // backoff small wait
+          await new Promise(r=>setTimeout(r, 800));
+          // try smaller step on failure
+          if (step > 1000) step = Math.max(1000, Math.floor(step/2));
+          from -= step; // retry this range
+        }
+      }
+      setProgress(70);
+      return logs;
+    }
+
+    function decodeTransferSingle(iface, log){
+      try {
+        return iface.parseLog(log);
+      } catch { return null; }
+    }
+
+    function decodeTransferBatch(iface, log){
+      try {
+        return iface.parseLog(log);
+      } catch { return null; }
+    }
+
+    function processEventsToBalances(logs, iface, tokenId){
+      const balances = new Map();
+      for (const l of logs){
+        const parsed = decodeTransferSingle(iface, l) || decodeTransferBatch(iface, l);
+        if (!parsed) continue;
+        const name = parsed.name;
+        if (name === 'TransferSingle'){
+          const from = parsed.args.from.toLowerCase();
+          const to = parsed.args.to.toLowerCase();
+          const id = parsed.args.id.toString();
+          const value = BigInt(parsed.args.value.toString());
+          if (id !== tokenId) continue;
+          if (from !== ethers.ZeroAddress){
+            const a = BigInt(balances.get(from) ?? 0n) - value;
+            balances.set(from, a.toString());
+          }
+          if (to !== ethers.ZeroAddress){
+            const a = BigInt(balances.get(to) ?? 0n) + value;
+            balances.set(to, a.toString());
+          }
+        } else if (name === 'TransferBatch'){
+          const from = parsed.args.from.toLowerCase();
+          const to = parsed.args.to.toLowerCase();
+          const ids = parsed.args.ids;
+          const values = parsed.args.values;
+          for (let i=0;i<ids.length;i++){
+            const id = ids[i].toString();
+            if (id !== tokenId) continue;
+            const value = BigInt(values[i].toString());
+            if (from !== ethers.ZeroAddress){
+              const a = BigInt(balances.get(from) ?? 0n) - value;
+              balances.set(from, a.toString());
+            }
+            if (to !== ethers.ZeroAddress){
+              const a = BigInt(balances.get(to) ?? 0n) + value;
+              balances.set(to, a.toString());
+            }
+          }
+        }
+      }
+      const out = [];
+      for (const [addr, balStr] of balances.entries()){
+        const bal = BigInt(balStr);
+        if (bal > 0n) out.push({ address: addr, balance: bal.toString() });
+      }
+      out.sort((a,b)=> (BigInt(b.balance) > BigInt(a.balance) ? 1 : -1));
+      return out;
+    }
+
+    async function verifyOnChain(provider, contractAddress, iface, candidates, tokenId){
+      const out = [];
+      appendLog(`verifying ${candidates.length} addresses on-chain`);
+      let i = 0;
+      for (const c of candidates){
+        try {
+          const data = iface.encodeFunctionData('balanceOf',[c.address, tokenId]);
+          const res = await provider.call({ to: contractAddress, data });
+          const decoded = iface.decodeFunctionResult('balanceOf', res)[0];
+          const bal = BigInt(decoded.toString());
+          if (bal > 0n) out.push({ address: c.address, balance: bal.toString() });
+        } catch (err){
+          appendLog(`verify error ${c.address} ${err.message || err}`);
+        }
+        i++;
+        if (i % 10 === 0) setProgress(70 + Math.round((i / candidates.length) * 20));
+      }
+      out.sort((a,b)=> (BigInt(b.balance) > BigInt(a.balance) ? 1 : -1));
+      setProgress(95);
+      return out;
+    }
+
+    scanBtn.addEventListener('click', async ()=>{
+      const rpc = $('rpc').value.trim();
+      const contractAddress = $('contract').value.trim();
+      const tokenId = $('tokenId').value.toString();
+      const startBlockInput = $('startBlock').value.trim();
+
+      if (!rpc || !contractAddress || !tokenId) { appendLog('missing input'); return; }
+      contractDisplay.textContent = contractAddress;
+      appendLog('creating provider');
+      statusEl.textContent = 'initializing';
+      try{
+        const provider = new ethers.JsonRpcProvider(rpc);
+        const iface = new ethers.Interface([
+          "event TransferSingle(address indexed operator, address indexed from, address indexed to, uint256 id, uint256 value)",
+          "event TransferBatch(address indexed operator, address indexed from, address indexed to, uint256[] ids, uint256[] values)",
+          "function balanceOf(address account, uint256 id) view returns (uint256)"
+        ]);
+        const topicSingle = iface.getEventTopic('TransferSingle');
+        const topicBatch = iface.getEventTopic('TransferBatch');
+        const startBlock = startBlockInput ? Number(startBlockInput) : 0;
+        const latest = await provider.getBlockNumber();
+
+        appendLog(`latest block ${latest}`);
+        statusEl.textContent = 'querying logs';
+        const logsSingle = await queryLogs(provider, contractAddress, [topicSingle], startBlock, latest, 50000);
+        const logsBatch = await queryLogs(provider, contractAddress, [topicBatch], startBlock, latest, 50000);
+        appendLog(`logs fetched: single=${logsSingle.length} batch=${logsBatch.length}`);
+        const allLogs = logsSingle.concat(logsBatch).sort((a,b)=> (a.blockNumber - b.blockNumber));
+        appendLog(`total events ${allLogs.length}`);
+        statusEl.textContent = 'reconstructing';
+        reconHolders = processAndDisplay(allLogs, iface, tokenId);
+        setProgress(90);
+        statusEl.textContent = 'reconstruction complete';
+        tableFooter.textContent = `Reconstructed ${reconHolders.length} candidate holders (verify to confirm on-chain balances)`;
+        appendLog('reconstruction finished');
+      } catch (err){
+        appendLog('scan failed: ' + (err.message || err));
+        statusEl.textContent = 'error';
+      }
+    });
+
+    function processAndDisplay(allLogs, iface, tokenId){
+      const parsed = allLogs.map(l=>{
+        try { return iface.parseLog(l); } catch { return null; }
+      }).filter(x=>x);
+      // Because parseLog returns same shape for both TransferSingle and TransferBatch we can reuse
+      const holders = processEventsToBalances(allLogs, iface, tokenId);
+      tableBody.innerHTML = '';
+      for (const h of holders.slice(0,2000)){
+        const tr = document.createElement('tr');
+        const a = document.createElement('td'); a.textContent = h.address;
+        const b = document.createElement('td'); b.textContent = h.balance;
+        tr.appendChild(a); tr.appendChild(b);
+        tableBody.appendChild(tr);
+      }
+      countEl.textContent = holders.length.toString();
+      return holders;
+    }
+
+    fetchHoldersBtn.addEventListener('click', async ()=>{
+      if (!reconHolders || reconHolders.length === 0){ appendLog('no candidates to verify'); return; }
+      const rpc = $('rpc').value.trim();
+      const contractAddress = $('contract').value.trim();
+      const tokenId = $('tokenId').value.toString();
+      const provider = new ethers.JsonRpcProvider(rpc);
+      const iface = new ethers.Interface([
+        "function balanceOf(address account, uint256 id) view returns (uint256)"
+      ]);
+      try {
+        statusEl.textContent = 'verifying on-chain';
+        const verified = await verifyOnChain(provider, contractAddress, iface, reconHolders, tokenId);
+        reconHolders = verified;
+        tableBody.innerHTML = '';
+        for (const h of verified){
+          const tr = document.createElement('tr');
+          const a = document.createElement('td'); a.textContent = h.address;
+          const b = document.createElement('td'); b.textContent = h.balance;
+          tr.appendChild(a); tr.appendChild(b);
+          tableBody.appendChild(tr);
+        }
+        countEl.textContent = verified.length.toString();
+        tableFooter.textContent = `Verified ${verified.length} on-chain holders`;
+        appendLog(`verification complete: ${verified.length} holders`);
+        setProgress(100);
+        statusEl.textContent = 'done';
+      } catch (err){
+        appendLog('verify failed: ' + (err.message || err));
+        statusEl.textContent = 'error';
+      }
+    });
+
+    downloadBtn.addEventListener('click', ()=>{
+      if (!reconHolders || reconHolders.length === 0){ appendLog('no data to download'); return; }
+      const csv = toCSV(reconHolders);
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      const tokenId = $('tokenId').value.toString().replace(/[^\d]/g,'') || 'token';
+      a.href = url;
+      a.download = `holders_token_${tokenId}.csv`;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      appendLog('CSV download initiated');
+    });
+
+    // small helper to attempt an automatic start-block guess by reading contract creation logs via provider.getLogs for the address
+    (async function trySuggestStart(){
+      try {
+        const rpc = $('rpc').value.trim();
+        const provider = new ethers.JsonRpcProvider(rpc);
+        const address = $('contract').value.trim();
+        if (!address) return;
+        const latest = await provider.getBlockNumber();
+        const now = latest;
+        // rough binary search for first non-zero logs presence for address (best-effort)
+        let low = now - 8000000; if (low < 0) low = 0;
+        let high = now;
+        let foundBlock = null;
+        for (let i=0;i<6;i++){
+          const mid = Math.floor((low+high)/2);
+          try {
+            const logs = await provider.getLogs({address, fromBlock: mid, toBlock: high, limit: 1});
+            if (logs.length>0){ foundBlock = logs[0].blockNumber; high = mid; }
+            else { low = Math.max(0, mid+1); }
+            if (high - low < 2000) break;
+          } catch { break; }
+        }
+        if (foundBlock) { $('startBlock').value = Math.max(0, foundBlock - 20); appendLog('suggested start block ' + $('startBlock').value); }
+      } catch {}
+    })();
+
+  </script>
+</body>
+</html>
+```

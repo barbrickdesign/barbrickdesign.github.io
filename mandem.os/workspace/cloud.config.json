@@ -1,0 +1,13 @@
+{
+  "supabase": {
+    "url": "https://YOUR_SUPABASE_PROJECT.supabase.co",
+    "anonKey": "YOUR_SUPABASE_ANON_KEY"
+  },
+  "cloudflareR2": {
+    "accountId": "YOUR_ACCOUNT_ID",
+    "accessKeyId": "YOUR_ACCESS_KEY_ID",
+    "secretAccessKey": "YOUR_SECRET_ACCESS_KEY",
+    "bucket": "YOUR_BUCKET_NAME",
+    "publicUrl": "https://YOUR_BUCKET.r2.cloudflarestorage.com"
+  }
+}

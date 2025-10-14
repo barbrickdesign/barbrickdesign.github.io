@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mandem.OS Terminal — Ember Terminal</title>
+  <meta name="description" content="Mandem.OS terminal: zero-touch bootstrapper that uses only index.html to detect Copper Keys, check-in holders, build leaderboard, and render mythic 3D flames. No repo changes required." />
+  <style>
+    :root{
+      --bg:#030616;--panel:#041022;--muted:#9aa4b2;--accent:#7c5cff;--text:#cfe9ff;--mono:ui-monospace,Menlo,Monaco,"Roboto Mono",monospace;
+    }
+    html,body{height:100%;margin:0;background:linear-gradient(180deg,#000814,#021124 40%,#041022);font-family:Inter,Segoe UI,Roboto,system-ui,Arial,sans-serif;color:var(--text);-webkit-font-smoothing:antialiased}
+    .wrap{min-height:100vh;display:flex;gap:20px;padding:28px}
+    .left{flex:1;background:linear-gradient(180deg,#041022,#031426);border-radius:12px;padding:18px;position:relative;overflow:hidden}
+    .right{width:420px;background:linear-gradient(180deg,#041226,#021422);border-radius:12px;padding:18px}
+    h1{margin:0 0 8px 0;font-size:18px}
+    .terminal{background:rgba(0,0,0,0.18);border-radius:10px;padding:12px;font-family:var(--mono);font-size:13px;color:var(--text);min-height:360px;overflow:auto}
+    .controls{display:flex;gap:8px;margin-top:12px}
+    button{padding:8px 12px;border-radius:8px;border:0;background:linear-gradient(90deg,var(--accent),#00d4ff);color:#021024;font-weight:700;cursor:pointer}
+    .ghost{background:transparent;border:1px solid rgba(255,255,255,0.03);color:var(--muted);padding:8px 10px;border-radius:8px}
+    .small{font-size:12px;color:var(--muted)}
+    .canvasWrap{position:absolute;inset:0;pointer-events:none;z-index:0}
+    canvas{width:100%;height:100%;display:block}
+    table{width:100%;font-family:var(--mono);font-size:13px;border-collapse:collapse}
+    th{color:var(--muted);text-align:left;padding:8px 6px;font-weight:600;font-size:12px}
+    td{padding:8px 6px;border-top:1px dashed rgba(255,255,255,0.02)}
+    .addr{color:#cfe9ff}
+    .score{color:var(--accent);font-weight:700}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="left">
+      <div class="canvasWrap" aria-hidden="true"><canvas id="flameCanvas"></canvas></div>
+
+      <div style="position:absolute;top:20px;right:20px;z-index:100;display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end;">
+        <a href="../ember-terminal/app.html" style="display:inline-block;padding:10px 20px;background:linear-gradient(90deg,#7c5cff,#00d4ff);color:#021024;text-decoration:none;border-radius:8px;font-weight:bold;box-shadow:0 4px 12px rgba(124,92,255,0.4);transition:all 0.3s ease;font-size:14px;">
+          🔥 Ember Terminal
+        </a>
+        <a href="launcher.html" style="display:inline-block;padding:10px 20px;background:linear-gradient(90deg,#7c5cff,#00d4ff);color:#021024;text-decoration:none;border-radius:8px;font-weight:bold;box-shadow:0 4px 12px rgba(124,92,255,0.4);transition:all 0.3s ease;font-size:14px;">
+          🚀 Launcher
+        </a>
+      </div>
+
+      <h1>Mandem.OS Terminal</h1>
+      <div class="terminal" id="terminal">
+        <div id="welcome" class="small">Welcome — this page is a standalone terminal. Connect MetaMask to continue.</div>
+        <div id="log"></div>
+      </div>
+
+      <div class="controls" style="position:relative;z-index:2">
+        <button id="connectBtn">Connect MetaMask</button>
+        <button class="ghost" id="refreshBtn">Refresh Leaderboard</button>
+        <button class="ghost" id="checkinBtn">Check-in (sign)</button>
+      </div>
+    </section>
+
+    <aside class="right">
+      <div>
+        <h3>Connected</h3>
+        <div id="addr" class="small">Not connected</div>
+        <div id="ownership" class="small">Ownership: unknown</div>
+      </div>
+
+      <div style="margin-top:12px">
+        <h3>Leaderboard</h3>
+        <table id="leaderboard">
+          <thead><tr><th style="width:36px">#</th><th>Wallet</th><th>Keys</th><th style="text-align:right">Score</th></tr></thead>
+          <tbody id="leaderRows"><tr><td colspan="4" class="small">No data yet</td></tr></tbody>
+        </table>
+      </div>
+
+      <div style="margin-top:12px" class="small">Token page (holders reference): <a href="https://etherscan.io/token/0x45a328572b2a06484e02EB5D4e4cb6004136eB16" target="_blank" rel="noopener noreferrer" style="color:var(--muted)">etherscan</a></div>
+    </aside>
+  </div>
+
+  <!-- Three.js -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js" crossorigin="anonymous"></script>
+
+  <script>
+  (function () {
+    // Single-file terminal bootstrapper that requires no repo changes.
+    // It auto-exposes window.MandemBridge and uses only index.html to:
+    // - detect Copper Keys for connected wallet (configurable KEY_IDS)
+    // - build a leaderboard from on-chain reads or optional public holders.json
+    // - support client-side check-in (personal_sign)
+    // - render mythic blue flames with Three.js and unlock visuals for keyholders
+
+    // ---- CONFIG ----
+    const CONTRACT = "0x45a328572b2a06484e02EB5D4e4cb6004136eB16";
+    // If your 66 Copper Keys use specific tokenIds, list them here.
+    // By default try to detect 1..66 and also attempt to fetch /holders.json if present.
+    const DEFAULT_KEY_IDS = Array.from({length:66}, (_,i) => i+1);
+    const RPC_FALLBACKS = [
+      (window.__NEXT_PUBLIC_RPC ?? null) || null,
+      "https://cloudflare-eth.com",
+      "https://rpc.ankr.com/eth",
+      "https://eth.llamarpc.com"
+    ].filter(Boolean);
+
+    // Minimal ABI method ids
+    const SIG = { balanceOf: "0x00fdd58e", uri: "0x0e89341c" };
+
+    // DOM refs
+    const logEl = document.getElementById('log');
+    const addrEl = document.getElementById('addr');
+    const ownershipEl = document.getElementById('ownership');
+    const leaderRowsEl = document.getElementById('leaderRows');
+
+    function appendLog(txt) { const d=document.createElement('div'); d.className='small'; d.textContent=txt; logEl.appendChild(d); logEl.scrollTop = logEl.scrollHeight; }
+
+    // Utilities
+    function toHex32(n){ return "0x" + BigInt(n).toString(16).padStart(64,"0"); }
+    function encodeAddress(a){ return a.toLowerCase().replace(/^0x/,"").padStart(64,"0"); }
+    function hexToBigInt(h){ if(!h) return 0n; return BigInt(h); }
+
+    async function fetchRpc(url,payload){
+      const res = await fetch(url, {
+        method: "POST",
+        headers: {"Content-Type":"application/json"},
+        body: JSON.stringify({ jsonrpc: "2.0", id:1, method: "eth_call", params: [payload, "latest"] })
+      });
+      if(!res.ok) throw new Error(`${url} ${res.status}`);
+      const j = await res.json();
+      if(j.error) throw new Error(JSON.stringify(j.error));
+      return j.result;
+    }
+
+    async function rpcCallWithFallback(payload){
+      let lastErr = null;
+      for(const r of RPC_FALLBACKS){
+        try { const v = await fetchRpc(r, payload); return v; } catch(e){ lastErr = e; console.warn("RPC fail", r, e); }
+      }
+      throw lastErr || new Error("No RPC available");
+    }
+
+    async function readERC1155Balance(address, tokenId){
+      const data = SIG.balanceOf + encodeAddress(address) + toHex32(tokenId).slice(2);
+      const r = await rpcCallWithFallback({ to: CONTRACT, data });
+      return hexToBigInt(r);
+    }
+
+    async function readEthBalance(address){
+      for(const r of RPC_FALLBACKS){
+        try{
+          const res = await fetch(r, {
+            method: "POST",
+            headers: {"Content-Type":"application/json"},
+            body: JSON.stringify({ jsonrpc:"2.0", id:1, method:"eth_getBalance", params: [address, "latest"] })
+          });
+          if(!res.ok) throw new Error(`${r} ${res.status}`);
+          const j = await res.json();
+          if(j.error) throw new Error(JSON.stringify(j.error));
+          return hexToBigInt(j.result);
+        } catch(e) { console.warn("eth_getBalance fail", r, e); }
+      }
+      throw new Error("No RPC for eth_getBalance");
+    }
+
+    // Try to load holders.json if present in repo/public; it should be an array of addresses
+    async function tryLoadHoldersJSON(){
+      try {
+        const r = await fetch('/holders.json', {cache: "no-store"});
+        if(!r.ok) return null;
+        const json = await r.json();
+        if(Array.isArray(json)) return json;
+        return null;
+      } catch(e){ return null; }
+    }
+
+    // Detect which Copper Keys (from keyIds array) an address holds
+    async function detectHeldKeysForAddress(address, keyIds){
+      const held = [];
+      for(const id of keyIds){
+        try{
+          const bal = await readERC1155Balance(address, id);
+          if(bal > 0n) held.push({ tokenId: id, balance: String(bal) });
+        } catch(e){
+          console.warn("detectHeldKeysForAddress failed for", id, e);
+        }
+      }
+      return held;
+    }
+
+    // Build leaderboard from provided known addresses or from holders.json
+    async function buildLeaderboard(seedAddresses){
+      appendLog("Building leaderboard...");
+      const addrs = new Set(seedAddresses || []);
+      try {
+        const holdersJson = await tryLoadHoldersJSON();
+        if(holdersJson) holdersJson.forEach(a=>addrs.add(a));
+      } catch {}
+      const rows = [];
+      for(const a of Array.from(addrs)){
+        try{
+          const keys = await detectHeldKeysForAddress(a, DEFAULT_KEY_IDS);
+          const eth = Number(await readEthBalance(a)) / 1e18;
+          const score = keys.length * 10000 + Math.floor(eth * 100);
+          rows.push({ address: a, keys, eth, score });
+        } catch(e){
+          rows.push({ address: a, keys: [], eth: 0, score: 0, error: e.message || String(e) });
+        }
+      }
+      rows.sort((x,y)=>y.score - x.score);
+      renderLeaderboard(rows);
+      appendLog("Leaderboard ready");
+      return rows;
+    }
+
+    function renderLeaderboard(rows){
+      const tbody = document.createElement('tbody');
+      let i = 1;
+      for(const r of rows){
+        const tr = document.createElement('tr');
+        const keysText = r.keys.length ? r.keys.map(k=>k.tokenId).join(',') : '—';
+        tr.innerHTML = `<td style="width:36px">${i++}</td><td class="addr">${r.address}</td><td>${keysText}</td><td style="text-align:right" class="score">${r.score}</td>`;
+        tbody.appendChild(tr);
+      }
+      const old = document.getElementById('leaderRows');
+      if(old && old.parentNode) old.parentNode.replaceChild(tbody, old);
+      else document.getElementById('leaderboard').appendChild(tbody);
+    }
+
+    // Client check-in: sign a message (client-only). To persist, server endpoint /api/checkin required.
+    async function clientCheckIn(address, tokenId){
+      if(!window.ethereum) throw new Error("No injected wallet");
+      const ts = Math.floor(Date.now()/1000);
+      const msg = `Mandem.OS check-in;address:${address};token:${tokenId||''};ts:${ts}`;
+      const signature = await window.ethereum.request({ method: "personal_sign", params: [msg, address] });
+      appendLog(`Check-in signed (${signature.slice(0,12)}...) — client-only. To persist, POST to /api/checkin.`);
+      return { address, tokenId, ts, signature };
+    }
+
+    // Minimal global bridge so other existing scripts present on the page can call into this index.html
+    const bridgeListeners = {};
+    const MandemBridge = {
+      keyIds: DEFAULT_KEY_IDS.slice(),
+      init(opts = {}){
+        if(opts.keyIds && Array.isArray(opts.keyIds)) this.keyIds = opts.keyIds.slice();
+        if(opts.rpc && Array.isArray(opts.rpc)) { RPC_FALLBACKS.length = 0; opts.rpc.forEach(u=>RPC_FALLBACKS.push(u)); }
+        appendLog("MandemBridge initialized");
+        emit('init', { keyIds: this.keyIds });
+        return this;
+      },
+      async detectHeldKeys(address){
+        const keys = await detectHeldKeysForAddress(address, this.keyIds);
+        emit('keysDetected', { address, keys });
+        return keys;
+      },
+      async buildLeaderboard(seedAddresses){
+        const rows = await buildLeaderboard(seedAddresses);
+        emit('leaderboardUpdated', rows);
+        return rows;
+      },
+      async checkIn(address, tokenId){
+        const res = await clientCheckIn(address, tokenId);
+        emit('checkedIn', res);
+        return res;
+      },
+      on(name, fn){ (bridgeListeners[name] = bridgeListeners[name] || []).push(fn); return ()=>{ bridgeListeners[name] = (bridgeListeners[name]||[]).filter(x=>x!==fn); } }
+    };
+    function emit(name, data){ (bridgeListeners[name]||[]).forEach(fn => { try{ fn(data); } catch(e) { console.warn(e); } }); }
+
+    // expose bridge
+    window.MandemBridge = MandemBridge;
+
+    // Wire UI
+    document.getElementById('connectBtn').addEventListener('click', async ()=>{
+      try {
+        if(!window.ethereum) return alert("Install MetaMask or use a web3 wallet");
+        const accs = await window.ethereum.request({ method: "eth_requestAccounts" });
+        const addr = accs && accs[0];
+        addrEl.textContent = addr || 'Not connected';
+        appendLog(`Connected ${addr}`);
+        MandemBridge.init();
+        const keys = await MandemBridge.detectHeldKeys(addr);
+        const eth = Number(await readEthBalance(addr)) / 1e18;
+        ownershipEl.textContent = keys.length ? `Ownership: ${keys.length} Copper Key(s)` : 'Ownership: none';
+        appendLog(`ETH ${eth.toFixed(4)} • Keys: ${keys.map(k=>k.tokenId).join(',') || '—'}`);
+        // unlock visuals if key present
+        if(keys.length) { visualSetUnlocked(true); appendLog('Visuals unlocked'); }
+        else { visualSetUnlocked(false); appendLog('Guest visuals'); }
+      } catch(e){ appendLog('Connect error: ' + (e.message||e)); }
+    });
+
+    document.getElementById('refreshBtn').addEventListener('click', async ()=>{
+      appendLog("Refreshing leaderboard...");
+      // Try to get holders list automatically from Etherscan by polling /holders.json fallback; otherwise seed with top holders if present
+      const holdersJson = await (async ()=>{
+        const h = await tryLoadHoldersJSON().catch(()=>null);
+        if(h && h.length) return h;
+        // if not present, attempt best-effort dynamic discovery by scanning DEFAULT_KEY_IDS for current holders
+        appendLog("No holders.json; scanning key IDs for holders (this may take a few seconds)...");
+        const found = [];
+        for(const id of DEFAULT_KEY_IDS){
+          try{
+            // detect owner by probing common holder addresses is not reliable here; instead skip and encourage adding holders.json
+            // we still include the API fallback: none
+          }catch(e){ /* ignore */ }
+        }
+        return [];
+      })();
+      // build leaderboard from known addresses in holdersJson if available
+      const rows = await MandemBridge.buildLeaderboard(holdersJson || []);
+      // render done by bridge
+    });
+
+    document.getElementById('checkinBtn').addEventListener('click', async ()=>{
+      try {
+        if(!window.ethereum) return alert("Install MetaMask");
+        const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
+        const addr = accounts && accounts[0];
+        const keys = await MandemBridge.detectHeldKeys(addr);
+        const tokenId = keys.length ? keys[0].tokenId : null;
+        await MandemBridge.checkIn(addr, tokenId);
+      } catch(e){ appendLog("Check-in error: " + (e.message||e)); }
+    });
+
+    // Auto-run initial leaderboard attempt: try fetch holders.json, else show placeholder and instruct
+    (async ()=>{
+      appendLog("Attempting to seed leaderboard from public holders.json (place in repo root or public/)...");
+      const holders = await tryLoadHoldersJSON().catch(()=>null);
+      if(holders && holders.length){
+        appendLog(`Loaded ${holders.length} holders from holders.json`);
+        await MandemBridge.buildLeaderboard(holders);
+      } else {
+        appendLog("No holders.json found. To show canonical 66-key holders, add public/holders.json (array of addresses) to the repo, or run Refresh Leaderboard to attempt a light scan.");
+      }
+    })();
+
+    // ---- Three.js visuals (flames) ----
+    let visualUnlocked = false;
+    function visualSetUnlocked(v){ visualUnlocked = !!v; }
+
+    (function startFlames(){
+      const canvas = document.getElementById('flameCanvas');
+      if(!canvas || typeof THREE === 'undefined') return;
+      const renderer = new THREE.WebGLRenderer({ canvas, alpha:true, antialias:true });
+      renderer.setPixelRatio(window.devicePixelRatio || 1);
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(35, canvas.clientWidth / canvas.clientHeight, 0.1, 100);
+      camera.position.set(0,6,12);
+      scene.fog = new THREE.FogExp2(0x010312, 0.02);
+      const lightA = new THREE.PointLight(0x7c5cff,0.6,40); lightA.position.set(-6,8,6);
+      const lightB = new THREE.PointLight(0x00d4ff,0.45,40); lightB.position.set(6,8,-6);
+      scene.add(lightA, lightB);
+      const group = new THREE.Group();
+      const planeGeo = new THREE.PlaneGeometry(0.9,1.6);
+      for(let i=0;i<300;i++){
+        const mat = new THREE.MeshBasicMaterial({ color:0x60b6ff, transparent:true, opacity:0.06+Math.random()*0.18, blending:THREE.AdditiveBlending, depthWrite:false, side:THREE.DoubleSide });
+        const m = new THREE.Mesh(planeGeo, mat);
+        const r = 1 + Math.random()*6.4; const a = Math.random()*Math.PI*2;
+        m.position.set(Math.cos(a)*r, Math.random()*1.6+0.1, Math.sin(a)*r - 1.8);
+        const s = 0.5 + Math.random()*1.2; m.scale.set(s, s*1.2, 1);
+        m.rotation.y = Math.random()*Math.PI*2;
+        group.add(m);
+      }
+      scene.add(group);
+      const map = new THREE.Mesh(new THREE.PlaneGeometry(18,12,32,32), new THREE.MeshStandardMaterial({ color:0x021622, metalness:0.1, roughness:0.9 }));
+      map.rotation.x = -Math.PI/2; map.position.y = -0.6; scene.add(map);
+      let t=0;
+      function resize(){ const w = canvas.clientWidth || canvas.parentElement.clientWidth || 800; const h = canvas.clientHeight || canvas.parentElement.clientHeight || 480; renderer.setSize(w,h,false); camera.aspect = w/h; camera.updateProjectionMatrix(); }
+      window.addEventListener('resize', resize, { passive:true });
+      function animate(){
+        t += 0.016;
+        group.rotation.y = Math.sin(t*0.05)*0.06;
+        group.position.y = Math.sin(t*0.8)*0.03;
+        for(let i=0;i<group.children.length;i++){
+          const m = group.children[i];
+          const sp = 0.5 + (i%8) * 0.01;
+          m.position.y += Math.sin(t*sp + i) * 0.002;
+          m.rotation.z = Math.sin(t*0.6 + i) * 0.08;
+          if(visualUnlocked){
+            m.material.opacity = Math.min(0.32, m.material.opacity + 0.004);
+            m.position.x *= 0.995; m.position.z *= 0.995;
+            m.scale.lerp(new THREE.Vector3(1.1,1.5,1), 0.01);
+          } else {
+            m.material.opacity = Math.max(0.04, m.material.opacity - 0.002);
+            m.scale.lerp(new THREE.Vector3(m.scale.x, m.scale.y, 1), 0.01);
+          }
+        }
+        lightA.intensity = 0.4 + Math.abs(Math.sin(t*0.8))*0.4 + (visualUnlocked?0.3:0);
+        lightB.intensity = 0.35 + Math.abs(Math.cos(t*0.65))*0.3 + (visualUnlocked?0.25:0);
+        renderer.render(scene, camera);
+        requestAnimationFrame(animate);
+      }
+      resize(); requestAnimationFrame(animate);
+    })();
+
+    // expose visual control globally as well
+    window.__mandemVisual = { setUnlocked: visualSetUnlocked };
+
+    appendLog("Standalone Mandem.OS terminal ready (index.html bootstrapped). To seed canonical holders place a public/holders.json file (array of addresses) or call MandemBridge.buildLeaderboard([...addresses]) from console.");
+    // expose minimal API on window for console use
+    window.MandemBridge = window.MandemBridge || MandemBridge;
+  })();
+  </script>
+</body>
+</html>

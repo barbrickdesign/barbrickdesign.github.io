@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gem Warehouse</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            background-color: #121212; /* Darker background to match app.cline.bot */
+        }
+        #error {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background-color: rgba(255, 0, 0, 0.7);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+            z-index: 100;
+        }
+        .location-label {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 18px;
+            font-family: Arial, sans-serif;
+            z-index: 50;
+        }
+        .interactive-hint {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 14px;
+            font-family: Arial, sans-serif;
+            z-index: 50;
+            max-width: 300px;
+        }
+        @keyframes reward-pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+        .auth-header {
+            padding: 8px 16px !important;
+        }
+        /* View Toggle button styles */
+        .view-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background-color: rgba(26, 144, 255, 0.8);
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            z-index: 100;
+            transition: all 0.3s ease;
+            font-family: 'Orbitron', sans-serif;
+        }
+        .view-toggle:hover {
+            background-color: rgba(31, 122, 255, 1);
+            transform: scale(1.05);
+        }
+        /* Control instructions */
+        .control-instructions {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 10px 15px;
+            border-radius: 5px;
+            font-size: 13px;
+            z-index: 100;
+            max-width: 250px;
+            pointer-events: none;
+            font-family: Arial, sans-serif;
+            opacity: 0.8;
+            transition: opacity 0.3s ease;
+        }
+        .control-instructions:hover {
+            opacity: 1;
+        }
+    </style>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div id="error"></div>
+    <div class="location-label">Gem Warehouse</div>
+    <div class="interactive-hint">Transparent machines are locked. Click on highlighted machines to interact.</div>
+    
+    <!-- View toggle button -->
+    <button class="view-toggle" id="viewToggleBtn">Switch to First Person</button>
+    
+    <!-- Control instructions -->
+    <div class="control-instructions" id="controlInstructions">
+        <strong>Controls:</strong><br>
+        - WASD: Move around<br>
+        - Mouse: Look around<br>
+        - Space: Jump<br>
+        - E: Interact with objects<br>
+        - Tab: Switch view
+    </div>
+    
+    <!-- Load THREE.js first to ensure it's available globally -->
+    <script src="https://unpkg.com/three@0.153.0/build/three.min.js"></script>
+    
+    <!-- Load THREE.js addons that are needed -->
+    <script src="https://unpkg.com/three@0.153.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://unpkg.com/three@0.153.0/examples/js/loaders/STLLoader.js"></script>
+
+
+    <script src="https://unpkg.com/three@0.153.0/examples/js/loaders/GLTFLoader.js"></script>
+    
+
+    <script src="https://unpkg.com/three@0.153.0/examples/js/loaders/OBJLoader.js"></script>
+    <script src="https://unpkg.com/three@0.153.0/examples/js/loaders/MTLLoader.js"></script>                            
+    <script src="https://unpkg.com/three@0.153.0/examples/js/loaders/FBXLoader.js"></script>
+    <script src="https://unpkg.com/three@0.153.0/examples/js/loaders/GLTF2Loader.js"></script>          
+
+    
+    <!-- Include helper scripts next -->
+    <script src="public/sceneHelper.js"></script>
+    
+    
+    <!-- Include authentication scripts -->
+    <script src="src/auth.js"></script>
+    <script src="public/environment.js"></script>
+    <script src="public/uptimeRewards.js"></script>
+    
+    <!-- Add TVDisplay script before loading warehouse.js -->
+    <script src="public/tvDisplay.js"></script>
+    
+    <!-- Include the background effects -->
+    <script src="public/backgroundEffects.js"></script>
+    
+    <!-- Include Phantom wallet login script -->
+    <script src="public/phantomLogin.js"></script>
+    
+    <!-- Script to ensure THREE.js is properly loaded -->
+    <script>
+        // Check if THREE is properly loaded
+        if (typeof THREE === 'undefined') {
+            console.error('THREE.js not loaded properly, trying to fix...');
+            window.THREE = window.THREE || {};
+        }
+        // Wait for THREE.js to load completely
+        function ensureThreeJsLoaded() {
+            return new Promise((resolve) => {
+                if (typeof THREE !== 'undefined' && THREE.Scene && THREE.PerspectiveCamera) {
+                    resolve();
+                } else {
+                    console.log("Waiting for THREE.js to load...");
+                    setTimeout(() => ensureThreeJsLoaded().then(resolve), 100);
+                }
+            });
+        }
+    </script>
+    
+    <!-- Main warehouse logic: use only global THREE, no ESM imports -->
+    <script>
+        // Unified authentication check
+        function checkAuthentication() {
+            const currentUser = localStorage.getItem('currentUser');
+            const userLoggedIn = localStorage.getItem('userLoggedIn') === 'true';
+            if (!currentUser && !userLoggedIn) {
+                localStorage.setItem('authRedirect', 'warehouse.html');
+                window.location.href = 'login.html';
+                return false;
+            }
+            return true;
+        }
+        if (!checkAuthentication()) {
+            throw new Error('Authentication required');
+        }
+        // Show login modal (unchanged)
+        function showLoginModal() {
+            const currentUser = JSON.parse(localStorage.getItem('currentUser'));
+            const userLoggedIn = localStorage.getItem('userLoggedIn') === 'true';
+            
+            // Use either authentication method
+            if (!currentUser && !userLoggedIn) {
+                const modalOverlay = document.createElement('div');
+                modalOverlay.style.position = 'fixed';
+                modalOverlay.style.top = '0';
+                modalOverlay.style.left = '0';
+                modalOverlay.style.width = '100%';
+                modalOverlay.style.height = '100%';
+                modalOverlay.style.backgroundColor = 'rgba(0, 0, 0, 0.8)';
+                modalOverlay.style.display = 'flex';
+                modalOverlay.style.justifyContent = 'center';
+                modalOverlay.style.alignItems = 'center';
+                modalOverlay.style.zIndex = '1000';
+                
+                const modalContent = document.createElement('div');
+                modalContent.style.backgroundColor = 'rgba(0, 0, 0, 0.9)';
+                modalContent.style.padding = '20px';
+                modalContent.style.borderRadius = '10px';
+                modalContent.style.color = 'white';
+                modalContent.style.textAlign = 'center';
+                modalContent.style.maxWidth = '500px';
+                
+                modalContent.innerHTML = `
+                    <h2>Enhanced Warehouse Access</h2>
+                    <p>To access all machines and features in the warehouse environment, please login or create an account.</p>
+                    <p>As a guest, you can still explore but some machines will remain locked.</p>
+                    <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+                        <button id="login-btn" style="flex: 1; margin-right: 10px; padding: 10px; background-color: #2196f3; color: white; border: none; border-radius: 5px; cursor: pointer;">Login</button>
+                        <button id="guest-btn" style="flex: 1; margin-left: 10px; padding: 10px; background-color: rgba(255,255,255,0.2); color: white; border: none; border-radius: 5px; cursor: pointer;">Continue as Guest</button>
+                    </div>
+                `;
+                
+                modalOverlay.appendChild(modalContent);
+                document.body.appendChild(modalOverlay);
+                
+                document.getElementById('login-btn').addEventListener('click', () => {
+                    window.location.href = 'login.html';
+                });
+                
+                document.getElementById('guest-btn').addEventListener('click', () => {
+                    // Set a basic guest flag so we don't keep prompting
+                    localStorage.setItem('userLoggedIn', 'true');
+                    document.body.removeChild(modalOverlay);
+                });
+                
+                // Auto-remove after 10 seconds if no action
+                setTimeout(() => {
+                    if (document.body.contains(modalOverlay)) {
+                        document.body.removeChild(modalOverlay);
+                    }
+                }, 10000);
+            }
+        }
+        // Initialize background effects
+        document.addEventListener('DOMContentLoaded', () => {
+            window.backgroundEffects = new BackgroundEffects({
+                color: '#1a90ff',
+                particleCount: 100,
+                particleSize: 2.5,
+                connectionDistance: 180,
+                speed: 0.4
+            });
+            document.addEventListener('click', (e) => {
+                window.backgroundEffects.addParticleBurst(e.clientX, e.clientY, 8);
+            });
+        });
+        // Ensure THREE.js and GLTFLoader are loaded before loading the main script
+        function ensureThreeAndGLTFLoaderLoaded() {
+            return new Promise((resolve) => {
+                if (
+                    typeof THREE !== 'undefined' &&
+                    THREE.Scene &&
+                    THREE.PerspectiveCamera &&
+                    (typeof GLTFLoader !== 'undefined' || (window.GLTFLoader || (window.THREE && window.THREE.GLTFLoader)))
+                ) {
+                    resolve();
+                } else {
+                    setTimeout(() => ensureThreeAndGLTFLoaderLoaded().then(resolve), 100);
+                }
+            });
+        }
+        ensureThreeAndGLTFLoaderLoaded().then(() => {
+            // Load main warehouse logic (global THREE, not ESM)
+            const script = document.createElement('script');
+            script.src = 'warehouse.js';
+            script.onload = () => {
+                if (typeof window.initWarehouseScene === 'function') {
+                    window.initWarehouseScene();
+                } else if (typeof window.exports === 'object' && typeof window.exports.initWarehouseScene === 'function') {
+                    window.exports.initWarehouseScene();
+                }
+                setTimeout(() => { showLoginModal(); }, 2000);
+                // Hide control instructions after 10 seconds
+                setTimeout(() => {
+                    const instructions = document.getElementById('controlInstructions');
+                    if (instructions) {
+                        instructions.style.opacity = '0';
+                        setTimeout(() => { instructions.style.display = 'none'; }, 1000);
+                    }
+                }, 10000);
+            };
+            script.onerror = (e) => {
+                const errorDiv = document.getElementById('error');
+                if (errorDiv) {
+                    errorDiv.textContent = 'Failed to load warehouse.js';
+                    errorDiv.style.display = 'block';
+                }
+            };
+            document.body.appendChild(script);
+        });
+    </script>
+    <script>
+        console.log('[DEBUG] warehouse.html loaded');
+        console.log('[DEBUG] currentUser:', localStorage.getItem('currentUser'));
+        console.log('[DEBUG] userProfile:', localStorage.getItem('userProfile'));
+        console.log('[DEBUG] userLoggedIn:', localStorage.getItem('userLoggedIn'));
+        console.log('[DEBUG] lastWalletAuth:', localStorage.getItem('lastWalletAuth'));
+    </script>
+</body>
+</html>

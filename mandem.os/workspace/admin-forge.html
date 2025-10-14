@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>GemBot Admin Forge Access</title>
+  <link rel="stylesheet" href="public/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/GLTFLoader.js"></script>
+  <style>
+    body {
+      font-family: 'Arial', sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #0a0a1a;
+      color: #e0e0ff;
+      overflow-x: hidden;
+    }
+    
+    .flex-container-with-gap {
+      display: flex;
+      gap: 10px;
+    }
+    
+    .flex-grow {
+      flex: 1;
+    }
+    
+    .auto-width {
+      width: auto;
+    }
+    
+    .hidden {
+      display: none;
+    }
+    
+    .login-container {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      width: 100%;
+      background: linear-gradient(45deg, #0a0a1a, #1a1a3a);
+    }
+    
+    .login-panel {
+      background-color: rgba(10, 20, 50, 0.95);
+      padding: 30px 40px;
+      border-radius: 10px;
+      box-shadow: 0 0 20px rgba(0, 100, 255, 0.5);
+      width: 400px;
+      max-width: 90%;
+    }
+    
+    h1 {
+      color: #00aaff;
+      text-align: center;
+      margin-bottom: 30px;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 8px;
+      color: #aaccff;
+    }
+    
+    input {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #336699;
+      border-radius: 4px;
+      background-color: #0a1428;
+      color: #ffffff;
+      font-size: 16px;
+    }
+    
+    input:focus {
+      outline: none;
+      border-color: #00aaff;
+      box-shadow: 0 0 5px rgba(0, 170, 255, 0.5);
+    }
+    
+    button {
+      background-color: #00aaff;
+      color: white;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 4px;
+      width: 100%;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    
+    button:hover {
+      background-color: #0088cc;
+    }
+    
+    .error-message {
+      color: #ff3366;
+      font-size: 14px;
+      text-align: center;
+      margin-top: 15px;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    
+    .error-message.visible {
+      opacity: 1;
+    }
+    
+    .security-icon {
+      text-align: center;
+      font-size: 64px;
+      margin-bottom: 20px;
+      color: #00aaff;
+    }
+    
+    .admin-dashboard {
+      display: none;
+      padding: 20px;
+    }
+    
+    .admin-header {
+      background-color: #101040;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      border-radius: 5px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+    
+    .admin-title h1 {
+      margin: 0;
+      padding: 0;
+      text-align: left;
+    }
+    
+    .admin-controls button {
+      width: auto;
+      margin-left: 10px;
+    }
+    
+    .admin-container {
+      display: grid;
+      grid-template-columns: 1fr 3fr;
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    
+    .sidebar {
+      background-color: #101035;
+      padding: 20px;
+      border-radius: 5px;
+    }
+    
+    .main-content {
+      background-color: #101035;
+      padding: 20px;
+      border-radius: 5px;
+    }
+    
+    .sidebar-menu {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    
+    .sidebar-menu li {
+      padding: 10px 15px;
+      margin-bottom: 5px;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+    
+    .sidebar-menu li:hover, .sidebar-menu li.active {
+      background-color: #1e1e5f;
+    }
+    
+    .sidebar-menu li i {
+      margin-right: 10px;
+    }
+    
+    .token-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 20px;
+    }
+    
+    .token-card {
+      background-color: #1a1a4a;
+      border-radius: 8px;
+      padding: 15px;
+      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .token-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+    }
+    
+    .token-image {
+      width: 100%;
+      height: 150px;
+      background-color: #252560;
+      border-radius: 5px;
+      margin-bottom: 10px;
+      background-position: center;
+      background-size: cover;
+    }
+    
+    .token-info h3 {
+      margin-top: 0;
+      margin-bottom: 10px;
+      color: #00ccff;
+    }
+    
+    .token-stats {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 10px;
+    }
+    
+    .token-actions {
+      display: flex;
+      justify-content: space-between;
+    }
+    
+    .token-actions button {
+      width: 48%;
+      padding: 8px 0;
+      font-size: 14px;
+    }
+    
+    .token-form {
+      margin-top: 20px;
+    }
+    
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 15px;
+    }
+    
+    .form-grid .full-width {
+      grid-column: span 2;
+    }
+    
+    .token-details-panel {
+      display: none;
+      background-color: #15153a;
+      padding: 20px;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+    
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      margin-top: 15px;
+    }
+    
+    .detail-grid .detail-image {
+      height: 300px;
+      background-color: #252560;
+      border-radius: 5px;
+      background-position: center;
+      background-size: cover;
+    }
+    
+    .detail-grid .detail-info {
+      padding: 0 20px;
+    }
+    
+    .detail-item {
+      margin-bottom: 10px;
+    }
+    
+    .detail-item label {
+      font-weight: bold;
+      margin-bottom: 5px;
+    }
+    
+    .status-indicator {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 5px;
+    }
+    
+    .status-available {
+      background-color: #00cc66;
+    }
+    
+    .status-sold {
+      background-color: #ff3366;
+    }
+    
+    .status-reserved {
+      background-color: #ffaa00;
+    }
+    
+    .token-stats-boxes {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    
+    .stat-box {
+      background-color: #1e1e5f;
+      padding: 15px;
+      border-radius: 8px;
+      text-align: center;
+    }
+    
+    .stat-value {
+      font-size: 24px;
+      font-weight: bold;
+      color: #00ccff;
+      margin: 10px 0;
+    }
+    
+    .stat-label {
+      font-size: 14px;
+      color: #aaccff;
+    }
+    
+    #ebay-import-panel {
+      margin-top: 20px;
+    }
+    
+    #ebay-listings {
+      margin-top: 15px;
+    }
+    
+    .listing-item {
+      display: grid;
+      grid-template-columns: 100px 1fr auto;
+      gap: 15px;
+      margin-bottom: 10px;
+      padding: 10px;
+      background-color: #1a1a4a;
+      border-radius: 5px;
+      align-items: center;
+    }
+    
+    .listing-image {
+      width: 100px;
+      height: 100px;
+      background-color: #252560;
+      border-radius: 5px;
+      background-position: center;
+      background-size: cover;
+    }
+    
+    .listing-details h4 {
+      margin-top: 0;
+      margin-bottom: 5px;
+    }
+    
+    .listing-actions button {
+      padding: 5px 10px;
+      margin-right: 5px;
+    }
+
+    /* Loading Spinner */
+    .loader {
+      border: 5px solid rgba(0, 0, 0, 0.1);
+      border-top: 5px solid #00aaff;
+      border-radius: 50%;
+      width: 40px;
+      height: 40px;
+      animation: spin 1s linear infinite;
+      margin: 20px auto;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container" id="login-screen">
+    <div class="login-panel">
+      <div class="security-icon">🔒</div>
+      <h1>Lab Supercomputer Access</h1>
+      <div class="form-group">
+        <label for="username">Username</label>
+        <input type="text" id="username" placeholder="Enter your username">
+      </div>
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" placeholder="Enter your password">
+      </div>
+      <button id="login-button">Access Forge Systems</button>
+      <div class="error-message" id="error-message">
+        Incorrect credentials. Access denied.
+      </div>
+    </div>
+  </div>
+
+  <div class="admin-dashboard" id="admin-dashboard">
+    <div class="admin-header">
+      <div class="admin-title">
+        <h1>Forge Admin Dashboard</h1>
+      </div>
+      <div class="admin-controls">
+        <button id="refresh-data-btn">Refresh Data</button>
+        <button id="logout-btn">Logout</button>
+      </div>
+    </div>
+
+    <div class="token-stats-boxes">
+      <div class="stat-box">
+        <div class="stat-value" id="total-tokens">0</div>
+        <div class="stat-label">Total Tokens</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value" id="available-tokens">0</div>
+        <div class="stat-label">Available</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value" id="sold-tokens">0</div>
+        <div class="stat-label">Sold</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-value" id="total-value">0</div>
+        <div class="stat-label">Total MGC Value</div>
+      </div>
+    </div>
+
+    <div class="admin-container">
+      <div class="sidebar">
+        <ul class="sidebar-menu">
+          <li class="active" data-panel="token-management">🔶 Token Management</li>
+          <li data-panel="forge-new-token">🔨 Forge New Token</li>
+          <li data-panel="ebay-import">🌐 eBay Import</li>
+          <li data-panel="sales-tracking">📊 Sales Tracking</li>
+          <li data-panel="vault-locations">📍 Vault Locations</li>
+          <li data-panel="settings">⚙️ Settings</li>
+        </ul>
+      </div>
+
+      <div class="main-content">
+        <!-- Token Management Panel -->
+        <div class="content-panel active" id="token-management">
+          <h2>Token Management</h2>
+          <div class="form-group">
+            <input type="text" id="token-search" placeholder="Search tokens...">
+          </div>
+          
+          <div class="token-grid" id="token-grid">
+            <!-- Tokens will be loaded here -->
+            <div class="loader" id="tokens-loader"></div>
+          </div>
+          
+          <div class="token-details-panel" id="token-details-panel">
+            <h2 id="token-detail-title">Token Details</h2>
+            <div class="detail-grid">
+              <div class="detail-image" id="token-detail-image"></div>
+              <div class="detail-info">
+                <div class="detail-item">
+                  <label>Token ID:</label>
+                  <div id="token-detail-id"></div>
+                </div>
+                <div class="detail-item">
+                  <label>Name:</label>
+                  <div id="token-detail-name"></div>
+                </div>
+                <div class="detail-item">
+                  <label>Status:</label>
+                  <div id="token-detail-status"></div>
+                </div>
+                <div class="detail-item">
+                  <label>Weight:</label>
+                  <div id="token-detail-weight"></div>
+                </div>
+                <div class="detail-item">
+                  <label>Color/Type:</label>
+                  <div id="token-detail-color"></div>
+                </div>
+                <div class="detail-item">
+                  <label>MGC Value:</label>
+                  <div id="token-detail-mgc"></div>
+                </div>
+                <div class="detail-item">
+                  <label>Real World Sale Price:</label>
+                  <div id="token-detail-sale-price"></div>
+                </div>
+                <div class="detail-item">
+                  <label>Vault Location ID:</label>
+                  <div id="token-detail-location"></div>
+                </div>
+                <div class="detail-item">
+                  <label>Connected Wallet:</label>
+                  <div id="token-detail-wallet"></div>
+                </div>
+                <div class="detail-item">
+                  <label>eBay Listing:</label>
+                  <div id="token-detail-ebay"><a href="#" target="_blank" id="token-detail-ebay-link">View Listing</a></div>
+                </div>
+                
+                <div class="token-actions" style="margin-top: 20px;">
+                  <button id="edit-token-btn">Edit Token</button>
+                  <button id="delete-token-btn">Delete Token</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Forge New Token Panel -->
+        <div class="content-panel" id="forge-new-token">
+          <h2>Forge New Token</h2>
+          <div class="token-form">
+            <form id="new-token-form">
+              <div class="form-grid">
+                <div class="form-group">
+                  <label for="token-name">Token Name</label>
+                  <input type="text" id="token-name" required>
+                </div>
+                <div class="form-group">
+                  <label for="token-color">Color/Type</label>
+                  <select id="token-color" required>
+                    <option value="">Select a type...</option>
+                    <option value="Deep Blue">Deep Blue</option>
+                    <option value="Ruby Red">Ruby Red</option>
+                    <option value="Emerald Green">Emerald Green</option>
+                    <option value="Amethyst Purple">Amethyst Purple</option>
+                    <option value="Diamond Clear">Diamond Clear</option>
+                    <option value="Amber Gold">Amber Gold</option>
+                    <option value="Opal Rainbow">Opal Rainbow</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label for="token-weight">Weight (carats)</label>
+                  <input type="number" id="token-weight" step="0.01" min="0.1" required>
+                </div>
+                <div class="form-group">
+                  <label for="token-mgc">MGC Value</label>
+                  <input type="number" id="token-mgc" min="100" step="100" required>
+                </div>
+                <div class="form-group">
+                  <label for="token-location">Vault Location ID</label>
+                  <input type="text" id="token-location" required>
+                </div>
+                <div class="form-group">
+                  <label for="token-wallet">Connected Wallet (SOL)</label>
+                  <input type="text" id="token-wallet" placeholder="Solana wallet address">
+                </div>
+                <div class="form-group full-width">
+                  <label for="token-image">Token Image URL</label>
+                  <input type="url" id="token-image" placeholder="https://example.com/image.jpg">
+                </div>
+            <div class="form-group flex-container-with-gap">
+              <input type="text" id="ebay-username" value="junglejoints" class="flex-grow">
+              <button id="fetch-ebay-btn" class="auto-width" type="button">Fetch Listings</button>
+            </div>
+          </div>
+        </div>
+
+            <div class="form-group flex-container-with-gap">
+              <input type="text" id="ebay-username" value="junglejoints" style="flex: 1;">
+              <button id="fetch-ebay-btn" style="width: auto;">Fetch Listings</button>
+            </div>
+          <div id="ebay-import-panel">
+            <div class="loader hidden" id="ebay-loader"></div>
+            <div id="ebay-listings">
+              <!-- eBay listings will be loaded here -->
+            </div>
+          </div>
+          
+          <div id="ebay-import-panel">
+            <div class="loader" id="ebay-loader" style="display: none;"></div>
+            <div id="ebay-listings">
+              <!-- eBay listings will be loaded here -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Sales Tracking Panel -->
+        <div class="content-panel" id="sales-tracking">
+          <h2>Sales Tracking</h2>
+          <div class="form-group">
+            <input type="text" id="sales-search" placeholder="Search sales...">
+          </div>
+          
+          <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+            <thead>
+              <tr>
+                <th style="text-align: left; padding: 10px; border-bottom: 1px solid #336699;">Token Name</th>
+                <th style="text-align: left; padding: 10px; border-bottom: 1px solid #336699;">Sale Date</th>
+                <th style="text-align: right; padding: 10px; border-bottom: 1px solid #336699;">Sale Amount</th>
+                <th style="text-align: right; padding: 10px; border-bottom: 1px solid #336699;">MGC Value</th>
+                <th style="text-align: center; padding: 10px; border-bottom: 1px solid #336699;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="sales-table-body">
+              <!-- Sales data will be loaded here -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Vault Locations Panel -->
+        <div class="content-panel" id="vault-locations">
+          <h2>Vault Locations</h2>
+          <div class="form-group">
+            <button id="add-location-btn" style="width: auto;">Add New Location</button>
+          </div>
+          
+          <table style="width: 100%; border-collapse: collapse; margin-top: 15px;">
+            <thead>
+              <tr>
+                <th style="text-align: left; padding: 10px; border-bottom: 1px solid #336699;">Location ID</th>
+                <th style="text-align: left; padding: 10px; border-bottom: 1px solid #336699;">Description</th>
+                <th style="text-align: center; padding: 10px; border-bottom: 1px solid #336699;">Tokens Stored</th>
+                <th style="text-align: center; padding: 10px; border-bottom: 1px solid #336699;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="locations-table-body">
+              <!-- Location data will be loaded here -->
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Settings Panel -->
+        <div class="content-panel" id="settings">
+          <h2>Dashboard Settings</h2>
+          <div class="form-group">
+            <label for="default-mgc-percentage">Default MGC Percentage from Sales</label>
+            <input type="number" id="default-mgc-percentage" value="25" min="1" max="100" step="1">
+            <p style="font-size: 14px; color: #aaccff;">Percentage of sale value to lock as MGC value (default: 25%)</p>
+          </div>
+          
+          <div class="form-group">
+            <label for="admin-username">Change Admin Username</label>
+            <input type="text" id="admin-username">
+          </div>
+          
+          <div class="form-group">
+            <label for="admin-password">Change Admin Password</label>
+            <input type="password" id="admin-password">
+          </div>
+          
+          <div class="form-group">
+            <button id="save-settings-btn">Save Settings</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="admin-forge.js"></script>
+</body>
+</html>

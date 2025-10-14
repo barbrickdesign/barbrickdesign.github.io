@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Laboratory</title>
+    <link rel="stylesheet" href="public/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            width: 100vw;
+            height: 100vh;
+            font-family: 'Orbitron', Arial, sans-serif;
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            background-size: 600% 600%;
+            animation: gradient 15s ease infinite;
+        }
+        @keyframes gradient {
+          0% {background-position: 0% 50%;}
+          50% {background-position: 100% 50%;}
+          100% {background-position: 0% 50%;}
+        }
+        header {
+            background-color: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 15px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 1000;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+            text-align: center;
+            border-bottom: 2px solid #2196f3;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
+        }
+        header h1 {
+            margin: 0;
+            font-size: 28px;
+            font-family: 'Orbitron', sans-serif;
+            background: linear-gradient(45deg, #2196f3, #21f3c7);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+            display: inline-block;
+            vertical-align: middle;
+        }
+        .auth-links {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1001;
+        }
+        .auth-button {
+            background-color: #2196f3;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            padding: 8px 15px;
+            margin-left: 10px;
+            text-decoration: none;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .auth-button:hover {
+            background-color: #0d8aee;
+        }
+        #mgcBalanceDisplay {
+            margin-top: 8px;
+            font-size: 16px;
+            color: #00ff99;
+            font-family: 'Orbitron', monospace;
+            display: none;
+        }
+        .tip-tag {
+            background:#21f3c7; color:#222; border-radius:6px; padding:4px 10px; margin-right:8px; font-size:15px; display:inline-block; margin-bottom:8px;
+        }
+        .desc-box {
+            background:rgba(0,0,0,0.7);border-radius:10px;padding:18px;margin:80px auto 24px auto;max-width:700px;
+        }
+        #error {
+            position: fixed;
+            top: 10px;
+            left: 10px;
+            background-color: rgba(255, 0, 0, 0.7);
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            display: none;
+            z-index: 100;
+        }
+        #loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            z-index: 90;
+        }
+        .location-label {
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 18px;
+            z-index: 50;
+        }
+        .interactive-hint {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: rgba(0, 0, 0, 0.6);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 5px;
+            font-size: 14px;
+            z-index: 50;
+            max-width: 300px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+      <h1>Laboratory</h1>
+      <div id="mgcBalanceDisplay">
+        <a id="mgcBalanceLink" href="#" style="color: #00ff99; text-decoration: underline; cursor: pointer;">
+          MGC Balance: <span id="mgcBalance">0</span>
+        </a>
+      </div>
+    </header>
+    <div class="auth-links">
+      <a href="index.html" class="auth-button">Home</a>
+      <a href="profile.html" class="auth-button">Profile</a>
+      <a href="login.html" class="auth-button" id="loginBtn">Log In</a>
+    </div>
+    <div class="desc-box">
+      <h2 style="color:#00ff99;">Welcome to the Laboratory</h2>
+      <p>
+        The Laboratory is where you research and develop new Gem Bot technologies. Experiment, upgrade, and discover new ways to optimize your bots and assets.<br>
+        <strong>Tip:</strong> Use the tip tags below to learn more about features and track your progress!
+      </p>
+      <div class="tip-tags" style="margin-top:12px;">
+        <span class="tip-tag">💡 Tip: Click your <b>MGC Balance</b> to view your live profile and stats!</span>
+        <span class="tip-tag">🔬 Experiment with new Gem Bot upgrades here.</span>
+        <span class="tip-tag">🧪 Discover new minerals and tech!</span>
+      </div>
+    </div>
+    <div id="error"></div>
+    <div id="loading">Loading Laboratory scene... Please wait.</div>
+    <div class="location-label">Laboratory</div>
+    <div class="interactive-hint">Click on colored portals to navigate between environments.</div>
+    <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+            }
+        }
+    </script>
+    <script src="public/uptimeRewards.js"></script>
+    <script src="public/sceneHelper.js"></script>
+    <script src="public/phantomLogin.js"></script>
+    <script type="module">
+        // Unified authentication check
+        function checkAuthentication() {
+            const currentUser = localStorage.getItem('currentUser');
+            const userLoggedIn = localStorage.getItem('userLoggedIn') === 'true';
+            if (!currentUser && !userLoggedIn) {
+                localStorage.setItem('authRedirect', 'laboratory.html');
+                window.location.href = 'login.html';
+                return false;
+            }
+            return true;
+        }
+        if (!checkAuthentication()) {
+            throw new Error('Authentication required');
+        }
+        // Load the laboratory environment
+        const loadingElement = document.getElementById('loading');
+        import('./laboratory.js')
+            .then(() => {
+                if (loadingElement) loadingElement.style.display = 'none';
+                console.log("Laboratory script loaded successfully");
+            })
+            .catch(error => {
+                console.error("Error loading laboratory script:", error);
+                const errorDiv = document.getElementById('error');
+                if (errorDiv) {
+                    errorDiv.textContent = `Failed to load: ${error.message}`;
+                    errorDiv.style.display = 'block';
+                }
+                if (loadingElement) loadingElement.textContent = "Failed to load scene.";
+            });
+        // MGC balance/profile logic
+        function isUserLoggedIn() {
+          return localStorage.getItem('currentUser') !== null || localStorage.getItem('userLoggedIn') === 'true';
+        }
+        function showMgcBalance(balance) {
+          const mgcDiv = document.getElementById('mgcBalanceDisplay');
+          const mgcSpan = document.getElementById('mgcBalance');
+          if (mgcDiv && mgcSpan) {
+            mgcDiv.style.display = 'block';
+            mgcSpan.textContent = balance;
+          }
+        }
+        function fetchMgcBalance() {
+          return new Promise(resolve => {
+            setTimeout(() => {
+              const fakeBalance = (Math.random() * 1000).toFixed(2);
+              resolve(fakeBalance);
+            }, 400);
+          });
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+          // MGC balance/profile link
+          const mgcLink = document.getElementById('mgcBalanceLink');
+          if (mgcLink) {
+            mgcLink.addEventListener('click', function(e) {
+              e.preventDefault();
+              window.location.href = 'profile.html';
+            });
+          }
+          if (isUserLoggedIn()) {
+            fetchMgcBalance().then(showMgcBalance);
+          }
+        });
+    </script>
+    <script type="module">
+        import { initRoom } from './high_cafe.js';
+        // Example: dynamically configure based on user profile (pseudo-code)
+        let userProfile = null;
+        try {
+            userProfile = JSON.parse(localStorage.getItem('userProfile'));
+        } catch (e) {}
+        let config = { roomType: 'laboratory', extraObjects: ['3dPrinter', 'gemBot', 'tvDisplay'] };
+        if (userProfile) {
+            // Example: tailor environment based on user profile
+            if (userProfile.mgcBalance > 500) config.extraObjects.push('specialMachine');
+            if (userProfile.displayName === 'Agent R3') config.roomType = 'adminLab';
+        }
+        initRoom(config);
+    </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+          // Wait for THREE and PlayerControlsManager
+          function ensureReady() {
+            if (window.THREE && window.PlayerControlsManager) {
+              // Assume scene and camera are created in laboratory.js
+              if (window.scene && window.camera) {
+                window.playerControls = new window.PlayerControlsManager(window.scene, window.camera, document.body);
+              }
+            } else {
+              setTimeout(ensureReady, 100);
+            }
+          }
+          ensureReady();
+        });
+    </script>
+    <script>
+        console.log('[DEBUG] laboratory.html loaded');
+        console.log('[DEBUG] currentUser:', localStorage.getItem('currentUser'));
+        console.log('[DEBUG] userProfile:', localStorage.getItem('userProfile'));
+        console.log('[DEBUG] userLoggedIn:', localStorage.getItem('userLoggedIn'));
+        console.log('[DEBUG] lastWalletAuth:', localStorage.getItem('lastWalletAuth'));
+    </script>
+</body>
+</html>

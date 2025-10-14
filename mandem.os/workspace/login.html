@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Gem Bot Portal</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 70px 0 0 0; /* Increased top padding from 60px to 70px */
+            background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d);
+            background-size: 600% 600%;
+            animation: gradient 15s ease infinite;
+            color: white;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh; /* Changed from height to min-height for better responsiveness */
+            text-align: center;
+        }
+
+        @keyframes gradient {
+            0% {background-position: 0% 50%;}
+            50% {background-position: 100% 50%;}
+            100% {background-position: 0% 50%;}
+        }
+
+        .auth-container {
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 30px;
+            border-radius: 10px;
+            width: 350px;
+            max-width: 90%;
+        }
+
+        h1 {
+            margin-top: 0;
+            margin-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+            text-align: left;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #ccc;
+        }
+
+        input[type="email"], 
+        input[type="password"],
+        input[type="text"],
+        input[type="number"] {
+            width: 100%;
+            padding: 10px;
+            border-radius: 5px;
+            border: none;
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            font-size: 16px;
+        }
+
+        input[type="email"]:focus, 
+        input[type="password"]:focus,
+        input[type="text"]:focus,
+        input[type="number"]:focus {
+            outline: none;
+            background-color: rgba(255, 255, 255, 0.2);
+        }
+
+        button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 5px;
+            background-color: #2196f3;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #0d8aee;
+        }
+
+        .switch-form {
+            margin-top: 20px;
+            font-size: 14px;
+            color: #ccc;
+        }
+
+        .switch-form a {
+            color: #2196f3;
+            text-decoration: none;
+        }
+
+        .phantom-btn {
+            background-color: #8a2be2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .phantom-btn img {
+            width: 24px;
+            height: 24px;
+            margin-right: 8px;
+        }
+
+        .back-home {
+            position: absolute;
+            top: 90px; /* Increased from 80px to 90px to ensure it's below the fixed header */
+            left: 20px;
+            color: white;
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            z-index: 100; /* Added z-index to ensure it stays above other elements */
+        }
+
+        .back-home:before {
+            content: '←';
+            margin-right: 5px;
+            font-size: 20px;
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-home">Back to Home</a>
+    
+    <div class="auth-container" id="login-form">
+        <h1>Login</h1>
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" placeholder="Enter your email">
+        </div>
+        <div class="form-group">
+            <label for="password">Password</label>
+            <input type="password" id="password" placeholder="Enter your password">
+        </div>
+        <button type="button" id="login-button">Login</button>
+        <button type="button" id="phantom-login" class="phantom-btn">
+            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MCA1MCI+PHRpdGxlPnBoYW50b20tZmF2aWNvbi0yPC90aXRsZT48cGF0aCBkPSJNMjUsMEM0MC41MDc4LDAsMzAuNDQzOCwwLDQ2LjY5MjksMy4wOTI0YzAsMCw0Ljg0ODgsMTEuMzQ3MS00Ljg0ODgsMTkuMDA3MUMyOS42OCwyOC43NTI5LDI2LjU1NzYsMjMuNzY0NywyNSwyMi4xMzY1VjE2LjYxMThjOC4yNjEyLDEuMjM1MywzLjQxMTgtNy4wNywyLjIyMzUtOS4yOTQxSDI1VjBaIiBmaWxsPSIjZmZmIi8+PHBhdGggZD0iTTI1LDQ3LjExNzZjLTE1LjUwNzgsMC01LjQ0MzgsMC0yMS42OTI5LTMuMDkyNEMzLjMwNzEsMzIuNjc1OSw4LjE1NTksMzMuNzE3Niw4LjE1NTksMjQgYzAtOS43MTc2LTQuODQ4OC04LjY3NTktNC44NDg4LTE5LjQzNThDMzQuMDIxMSwwLDI1LDAsMjUsMHY3LjMxNzZoLTIuMjIzNUM4LjczODMsNC44NzA2LDE2Ljc4MzIsMTIuMzUyOSwyNSwxNC4wMjM1djYuNDg1M2MtMTcuMjQsMC43Niw2LjEzODMsMjYuNjA5NC0zLjMwNzEsMjYuNjA5NEgyNXY3LjMxNzZaIiBmaWxsPSIjZmZmIi8+PHBhdGggZD0iTTI1LDQ3LjExNzZjLTE1LjUwNzgsMC01LjQ0MzgsMC0yMS42OTI5LTMuMDkyNEMzLjMwNzEsMzIuNjc1OSw4LjE1NTksMzMuNzE3Niw4LjE1NTksMjQgYzAtOS43MTc2LTQuODQ4OC04LjY3NTktNC44NDg4LTE5LjQzNThDMzQuMDIxMSwwLDI1LDAsMjUsMHY3LjMxNzZoLTIuMjIzNUM4LjczODMsNC44NzA2LDE2Ljc4MzIsMTIuMzUyOSwyNSwxNC4wMjM1djYuNDg1M2MtMTcuMjQsMC43Niw2LjEzODMsMjYuNjA5NC0zLjMwNzEsMjYuNjA5NEgyNXY3LjMxNzZaIiBmaWxsPSIjZmZmIi8+PC9zdmc+" alt="Phantom">
+            Login with Phantom Wallet
+        </button>
+        <div class="switch-form">
+            Don't have an account? <a href="#" id="show-signup">Sign up</a>
+        </div>
+    </div>
+
+    <div id="debug-panel" style="display:none; background:rgba(0,0,0,0.7); color:#fff; margin:20px auto 0 auto; padding:16px; border-radius:8px; max-width:400px; font-size:13px;">
+        <b>Debug Panel</b>
+        <div><b>currentUser:</b> <pre id="debug-currentUser" style="white-space:pre-wrap;word-break:break-all;"></pre></div>
+        <div><b>userProfile:</b> <pre id="debug-userProfile" style="white-space:pre-wrap;word-break:break-all;"></pre></div>
+        <div><b>lastWalletAuth:</b> <span id="debug-lastWalletAuth"></span></div>
+        <div><b>Phantom Debug Log:</b> <pre id="debug-phantomLog" style="white-space:pre-wrap;word-break:break-all;max-height:120px;overflow:auto;background:rgba(255,255,255,0.05);padding:6px;border-radius:5px;"></pre></div>
+        <button id="debug-refresh" style="margin-top:8px;">Refresh Debug Data</button>
+        <hr style="margin:12px 0; border:0; border-top:1px solid #444;">
+        <div id="all-users-panel">
+            <b>All Users</b>
+            <div id="all-users-list" style="margin-top:8px; max-height:200px; overflow:auto;"></div>
+        </div>
+    </div>
+
+    <div class="auth-container" id="signup-form" style="display: none;">
+        <h1>Sign Up</h1>
+        <div class="form-group">
+            <label for="display-name">Display Name</label>
+            <input type="text" id="display-name" placeholder="Choose a display name">
+        </div>
+        <div class="form-group">
+            <label for="signup-email">Email</label>
+            <input type="email" id="signup-email" placeholder="Enter your email">
+        </div>
+        <div class="form-group">
+            <label for="signup-password">Password</label>
+            <input type="password" id="signup-password" placeholder="Create a password">
+        </div>
+        <button type="button" id="signup-button">Sign Up</button>
+        <button type="button" id="phantom-signup" class="phantom-btn">
+            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MCA1MCI+PHRpdGxlPnBoYW50b20tZmF2aWNvbi0yPC90aXRsZT48cGF0aCBkPSJNMjUsMEM0MC41MDc4LDAsMzAuNDQzOCwwLDQ2LjY5MjksMy4wOTI0YzAsMCw0Ljg0ODgsMTEuMzQ3MS00Ljg0ODgsMTkuMDA3MUMyOS42OCwyOC43NTI5LDI2LjU1NzYsMjMuNzY0NywyNSwyMi4xMzY1VjE2LjYxMThjOC4yNjEyLDEuMjM1MywzLjQxMTgtNy4wNywyLjIyMzUtOS4yOTQxSDI1VjBaIiBmaWxsPSIjZmZmIi8+PHBhdGggZD0iTTI1LDQ3LjExNzZjLTE1LjUwNzgsMC01LjQ0MzgsMC0yMS42OTI5LTMuMDkyNEMzLjMwNzEsMzIuNjc1OSw4LjE1NTksMzMuNzE3Niw4LjE1NTksMjQgYzAtOS43MTc2LTQuODQ4OC04LjY3NTktNC44NDg4LTE5LjQzNThDMzQuMDIxMSwwLDI1LDAsMjUsMHY3LjMxNzZoLTIuMjIzNUM4LjczODMsNC44NzA2LDE2Ljc4MzIsMTIuMzUyOSwyNSwxNC4wMjM1djYuNDg1M2MtMTcuMjQsMC43Niw2LjEzODMsMjYuNjA5NC0zLjMwNzEsMjYuNjA5NEgyNXY3LjMxNzZaIiBmaWxsPSIjZmZmIi8+PHBhdGggZD0iTTI1LDQ3LjExNzZjLTE1LjUwNzgsMC01LjQ0MzgsMC0yMS42OTI5LTMuMDkyNEMzLjMwNzEsMzIuNjc1OSw4LjE1NTksMzMuNzE3Niw4LjE1NTksMjQgYzAtOS43MTc2LTQuODQ4OC04LjY3NTktNC44NDg4LTE5LjQzNThDMzQuMDIxMSwwLDI1LDAsMjUsMHY3LjMxNzZoLTIuMjIzNUM4LjczODMsNC44NzA2LDE2Ljc4MzIsMTIuMzUyOSwyNSwxNC4wMjM1djYuNDg1M2MtMTcuMjQsMC43Niw2LjEzODMsMjYuNjA5NC0zLjMwNzEsMjYuNjA5NEgyNXY3LjMxNzZaIiBmaWxsPSIjZmZmIi8+PC9zdmc+" alt="Phantom">
+            Sign up with Phantom Wallet
+        </button>
+        <div class="switch-form">
+            Already have an account? <a href="#" id="show-login">Login</a>
+        </div>
+    </div>
+
+    <!-- Transaction UI for authenticated users -->
+    <div class="auth-container" id="transaction-section" style="display:none; margin-top: 30px;">
+        <h1>MGC Wallet & In-Game Balance</h1>
+        <div class="form-group">
+            <label>Wallet Address:</label>
+            <span id="wallet-address-display"></span>
+        </div>
+        <div class="form-group">
+            <label>Wallet MGC Balance:</label>
+            <span id="wallet-mgc-balance">-</span>
+        </div>
+        <div class="form-group">
+            <label>In-Game MGC Balance:</label>
+            <span id="ingame-mgc-balance">-</span>
+        </div>
+        <div class="form-group">
+            <label for="deposit-amount">Deposit MGC to In-Game</label>
+            <input type="number" id="deposit-amount" min="1" placeholder="Amount to deposit">
+            <button type="button" id="deposit-btn">Deposit</button>
+        </div>
+        <div class="form-group">
+            <label for="withdraw-amount">Withdraw MGC to Wallet</label>
+            <input type="number" id="withdraw-amount" min="1" placeholder="Amount to withdraw">
+            <button type="button" id="withdraw-btn">Request Withdraw</button>
+        </div>
+        <div class="form-group">
+            <label>Transaction Log:</label>
+            <ul id="transaction-log" style="max-height:120px;overflow:auto;background:rgba(255,255,255,0.05);padding:10px;border-radius:5px;"></ul>
+        </div>
+    </div>
+
+    <!-- Solana web3.js and SPL Token for blockchain functionality -->
+    <script src="https://unpkg.com/@solana/web3.js@1.95.2/lib/index.iife.js"></script>
+    <script src="https://unpkg.com/@solana/spl-token@0.3.10/lib/index.iife.js"></script>
+    <!-- Include auth.js directly as a regular script, not a module -->
+    <script src="./src/auth.js"></script>
+    <script src="public/phantomLogin.js"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Toggle between login and signup forms
+            document.getElementById('show-signup').addEventListener('click', (e) => {
+                e.preventDefault();
+                document.getElementById('login-form').style.display = 'none';
+                document.getElementById('signup-form').style.display = 'block';
+            });
+
+            document.getElementById('show-login').addEventListener('click', (e) => {
+                e.preventDefault();
+                document.getElementById('signup-form').style.display = 'none';
+                document.getElementById('login-form').style.display = 'block';
+            });
+            
+            // Check if URL has #signup hash
+            if (window.location.hash === '#signup') {
+                document.getElementById('login-form').style.display = 'none';
+                document.getElementById('signup-form').style.display = 'block';
+            }
+
+            // Handle login form submission
+            document.getElementById('login-button').addEventListener('click', () => {
+                const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
+                
+                // Use the global login function
+                if (typeof login === 'function') {
+                    login(email, password);
+                    
+                    // Check for redirect URL from localStorage
+                    const redirectUrl = localStorage.getItem('authRedirect');
+                    if (redirectUrl) {
+                        localStorage.removeItem('authRedirect');
+                        window.location.href = redirectUrl;
+                    } else {
+                        window.location.href = 'profile.html';
+                    }
+                } else {
+                    console.error("Login function not found");
+                    alert("Login functionality is not available. Please try again later.");
+                }
+            });
+
+            // Handle signup form submission
+            document.getElementById('signup-button').addEventListener('click', () => {
+                const displayName = document.getElementById('display-name').value;
+                const email = document.getElementById('signup-email').value;
+                const password = document.getElementById('signup-password').value;
+                
+                // Use the global signUp function
+                if (typeof signUp === 'function') {
+                    signUp(email, password, displayName);
+                    
+                    // Check for redirect URL from localStorage
+                    const redirectUrl = localStorage.getItem('authRedirect');
+                    if (redirectUrl) {
+                        localStorage.removeItem('authRedirect');
+                        window.location.href = redirectUrl;
+                    } else {
+                        window.location.href = 'profile.html';
+                    }
+                } else {
+                    console.error("SignUp function not found");
+                    alert("Signup functionality is not available. Please try again later.");
+                }
+            });
+
+            // Handle Phantom Wallet login
+            const phantomLoginBtn = document.getElementById('phantom-login');
+            if (phantomLoginBtn) {
+              phantomLoginBtn.addEventListener('click', async () => {
+                if (typeof connectPhantomWallet === 'function') {
+                  const success = await connectPhantomWallet({ redirect: 'profile.html' });
+                  if (!success) {
+                    alert('Phantom login failed. Please try again.');
+                  }
+                } else {
+                  alert('Phantom wallet functionality is not available. Please try again later.');
+                }
+              });
+            }
+
+            // Handle Phantom Wallet signup
+            document.getElementById('phantom-signup').addEventListener('click', () => {
+                if (typeof connectPhantomWallet === 'function') {
+                    connectPhantomWallet(true);
+                    // Redirection will be handled in the wallet connection callback
+                } else {
+                    console.error("connectPhantomWallet function not found");
+                    alert("Phantom wallet functionality is not available. Please try again later.");
+                }
+            });
+            
+            // Wallet-based authentication check (same as profile.js)
+            function isUserAuthenticated() {
+                const user = JSON.parse(localStorage.getItem('currentUser') || 'null');
+                const lastAuth = localStorage.getItem('lastWalletAuth');
+                if (!user || !user.walletAddress || !lastAuth) return false;
+                const lastAuthTime = new Date(lastAuth).getTime();
+                const now = Date.now();
+                return (now - lastAuthTime) < 86400000;
+            }
+
+            // Only redirect if truly authenticated
+            if (isUserAuthenticated()) {
+                const redirectUrl = localStorage.getItem('authRedirect');
+                if (redirectUrl) {
+                    localStorage.removeItem('authRedirect');
+                    window.location.href = redirectUrl;
+                } else {
+                    window.location.href = 'profile.html';
+                }
+            }
+        });
+
+        function showTransactionSection() {
+            document.getElementById('login-form').style.display = 'none';
+            document.getElementById('signup-form').style.display = 'none';
+            document.getElementById('transaction-section').style.display = 'block';
+            updateBalancesAndLog();
+        }
+
+        async function updateBalancesAndLog() {
+            // Get user info
+            let user = JSON.parse(localStorage.getItem('currentUser') || 'null');
+            let profile = JSON.parse(localStorage.getItem('userProfile') || 'null');
+            if (!user || !profile) return;
+            document.getElementById('wallet-address-display').textContent = user.walletAddress || '-';
+            // Get wallet MGC balance (async)
+            if (window.getMGCBalance && user.walletAddress) {
+                document.getElementById('wallet-mgc-balance').textContent = 'Loading...';
+                let bal = await window.getMGCBalance(user.walletAddress);
+                document.getElementById('wallet-mgc-balance').textContent = bal;
+            } else {
+                document.getElementById('wallet-mgc-balance').textContent = profile.mgcBalance || 0;
+            }
+            document.getElementById('ingame-mgc-balance').textContent = profile.inGameMGC || 0;
+            // Transaction log
+            let txLog = JSON.parse(localStorage.getItem('transactionLog') || '[]');
+            let logHtml = txLog.slice(-10).reverse().map(tx => `<li><b>${tx.type}</b>: ${tx.details.amount || ''} ${tx.details.txid ? `<a href='https://solscan.io/tx/${tx.details.txid}' target='_blank'>TX</a>` : ''} <span style='font-size:10px;color:#aaa;'>${tx.timestamp}</span></li>`).join('');
+            document.getElementById('transaction-log').innerHTML = logHtml;
+        }
+
+        // Deposit button
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('deposit-btn').addEventListener('click', async () => {
+                let amt = parseFloat(document.getElementById('deposit-amount').value);
+                if (window.depositMGC && amt > 0) {
+                    await window.depositMGC(amt);
+                    updateBalancesAndLog();
+                }
+            });
+            document.getElementById('withdraw-btn').addEventListener('click', async () => {
+                let amt = parseFloat(document.getElementById('withdraw-amount').value);
+                if (window.withdrawMGC && amt > 0) {
+                    await window.withdrawMGC(amt);
+                    updateBalancesAndLog();
+                }
+            });
+        });
+
+        // Show transaction section if logged in
+        document.addEventListener('DOMContentLoaded', () => {
+            let user = JSON.parse(localStorage.getItem('currentUser') || 'null');
+            if (user && user.walletAddress) {
+                showTransactionSection();
+            }
+        });
+
+        function updateDebugPanel() {
+            const cu = localStorage.getItem('currentUser');
+            const up = localStorage.getItem('userProfile');
+            const lwa = localStorage.getItem('lastWalletAuth');
+            document.getElementById('debug-currentUser').textContent = cu || 'null';
+            document.getElementById('debug-userProfile').textContent = up || 'null';
+            document.getElementById('debug-lastWalletAuth').textContent = lwa || 'null';
+            // Add Phantom debug log
+            let phantomLog = [];
+            try {
+                phantomLog = JSON.parse(localStorage.getItem('wallet_debug_logs') || '[]');
+            } catch (e) {}
+            if (phantomLog && phantomLog.length) {
+                document.getElementById('debug-phantomLog').textContent = phantomLog.slice(-10).map(l => `[${l.timestamp}] ${l.context}: ${l.message}${l.data ? ' | ' + l.data : ''}`).join('\n');
+            } else {
+                document.getElementById('debug-phantomLog').textContent = 'No logs.';
+            }
+        }
+        document.getElementById('debug-refresh').onclick = updateDebugPanel;
+        // Show debug panel for devs
+        document.getElementById('debug-panel').style.display = 'block';
+        updateDebugPanel();
+
+        // --- All Users Panel Logic ---
+        async function fetchAndDisplayAllUsers() {
+            const usersListDiv = document.getElementById('all-users-list');
+            usersListDiv.innerHTML = 'Loading...';
+            try {
+                const res = await fetch('/api/users');
+                if (!res.ok) throw new Error('Failed to fetch users');
+                const users = await res.json();
+                if (!Array.isArray(users) || users.length === 0) {
+                    usersListDiv.innerHTML = '<i>No users found.</i>';
+                    return;
+                }
+                usersListDiv.innerHTML = users.map(user => {
+                    const isLoggedIn = user.isLoggedIn || false;
+                    const color = isLoggedIn ? '#2ecc40' : '#ff4136';
+                    const joinDate = user.joinDate ? new Date(user.joinDate).toLocaleString() : '-';
+                    const stats = user.stats ? JSON.stringify(user.stats) : '';
+                    const displayName = user.displayName || user.username || user.email || user.walletAddress || 'User';
+                    const profileUrl = `profile.html?user=${encodeURIComponent(user.username || user.email || user.walletAddress || '')}`;
+                    return `<div style="border-left:6px solid ${color};padding:6px 0 6px 8px;margin-bottom:6px;background:rgba(255,255,255,0.04);border-radius:4px;">
+                        <a href="${profileUrl}" style="color:${color};font-weight:bold;text-decoration:underline;cursor:pointer;">${displayName}</a>
+                        <div style="font-size:12px;color:#ccc;">Status: <span style="color:${color};font-weight:bold;">${isLoggedIn ? 'Online' : 'Offline'}</span></div>
+                        <div style="font-size:12px;color:#ccc;">Joined: ${joinDate}</div>
+                        <div style="font-size:12px;color:#ccc;">Stats: ${stats}</div>
+                    </div>`;
+                }).join('');
+            } catch (e) {
+                usersListDiv.innerHTML = '<span style="color:#ff4136">Error loading users.</span>';
+            }
+        }
+        // Call on load and on debug refresh
+        fetchAndDisplayAllUsers();
+        document.getElementById('debug-refresh').addEventListener('click', fetchAndDisplayAllUsers);
+    </script>
+    <script>
+        console.log('[DEBUG] login.html loaded');
+        console.log('[DEBUG] currentUser:', localStorage.getItem('currentUser'));
+        console.log('[DEBUG] userProfile:', localStorage.getItem('userProfile'));
+        console.log('[DEBUG] userLoggedIn:', localStorage.getItem('userLoggedIn'));
+        console.log('[DEBUG] lastWalletAuth:', localStorage.getItem('lastWalletAuth'));
+    </script>
+</body>
+</html>

@@ -1,0 +1,517 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Mandem.OS Terminal — Ember Terminal</title>
+  <meta name="description" content="Mandem.OS terminal: connect EVM wallet, verify Copper Key holder, check-in, type commands in a gated terminal input, and enjoy responsive 3D flames." />
+  <style>
+    :root{
+      --bg:#030616;--panel:#041022;--muted:#9aa4b2;--accent:#7c5cff;--text:#cfe9ff;--mono: ui-monospace, SFMono-Regular, Menlo, Monaco, 'Roboto Mono', monospace;
+    }
+    html,body{height:100%;margin:0;background:linear-gradient(180deg,#000814,#021124 40%,#041022 100%);font-family:Inter,Segoe UI,Roboto,system-ui,Arial,sans-serif;color:var(--text);-webkit-font-smoothing:antialiased}
+    .wrap{min-height:100vh;display:flex;gap:20px;padding:18px;box-sizing:border-box}
+    .left{flex:1;min-width:320px;background:linear-gradient(180deg,var(--panel),#031426);border-radius:12px;padding:16px;position:relative;overflow:hidden}
+    .right{width:360px;max-width:40vw;background:linear-gradient(180deg,#041226,#021422);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:12px}
+    header{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:8px}
+    h1{margin:0;font-size:18px}
+    .terminal{background:rgba(0,0,0,0.16);border-radius:10px;padding:12px;font-family:var(--mono);font-size:13px;line-height:1.5;color:var(--text);min-height:320px;max-height:60vh;overflow:auto;position:relative;z-index:2}
+    .line{margin:6px 0}
+    .controls{display:flex;gap:8px;align-items:center;margin-top:12px;z-index:2}
+    button{cursor:pointer;border:0;padding:8px 12px;border-radius:8px;background:linear-gradient(90deg,var(--accent),#00d4ff);color:#021024;font-weight:700}
+    .ghost{background:transparent;border:1px solid rgba(255,255,255,0.04);color:var(--muted);padding:8px 10px;border-radius:8px}
+    .small{font-size:12px;color:var(--muted)}
+    .canvasWrap{position:absolute;inset:0;pointer-events:none;z-index:0}
+    canvas#flameCanvas{width:100%;height:100%;display:block;mix-blend-mode:screen;opacity:0.96;filter:blur(0.6px) saturate(1.05)}
+    .panel{background:linear-gradient(180deg,rgba(255,255,255,0.02),rgba(255,255,255,0.01));padding:10px;border-radius:10px}
+    table{width:100%;font-family:var(--mono);font-size:13px;border-collapse:collapse}
+    th{color:var(--muted);text-align:left;padding:8px 6px;font-weight:600;font-size:12px}
+    td{padding:8px 6px;border-top:1px dashed rgba(255,255,255,0.02)}
+    .addr{color:#cfe9ff;word-break:break-all}
+    .score{color:var(--accent);font-weight:700}
+    .inputWrap{margin-top:12px;display:flex;gap:8px;align-items:flex-start}
+    .cmdInput{flex:1;background:rgba(0,0,0,0.28);border:1px solid rgba(255,255,255,0.03);padding:10px;border-radius:8px;color:var(--text);font-family:var(--mono);font-size:13px;min-height:48px;resize:vertical}
+    .submitBtn{padding:8px 10px;border-radius:8px;background:linear-gradient(90deg,#00d4ff,var(--accent));border:0;color:#021024;font-weight:700;cursor:pointer}
+    .hidden{display:none}
+    footer.note{font-size:12px;color:var(--muted);margin-top:8px}
+    @media (max-width:1000px){ .wrap{flex-direction:column;padding:12px} .right{width:100%;max-width:none} .terminal{max-height:40vh} }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="left">
+      <div class="canvasWrap" aria-hidden="true"><canvas id="flameCanvas"></canvas></div>
+
+      <header>
+        <div>
+          <h1>Mandem.OS Terminal</h1>
+          <div class="small">A living gateway — connect an EVM wallet to unlock your key experience</div>
+        </div>
+        <div class="small" id="connectedStatus">Not connected</div>
+      </header>
+
+      <div class="terminal" id="terminal" role="region" aria-live="polite">
+        <div id="welcome" class="line small">Welcome — connect MetaMask or another EVM wallet to proceed.</div>
+        <div id="keyInfo" class="line small"></div>
+        <div id="playerPanel" class="line"></div>
+        <div id="log" class="line small"></div>
+
+        <!-- Gated command input (hidden until signed & verified) -->
+        <div id="gatedArea" class="hidden" style="margin-top:12px">
+          <div class="small" id="gatedNote">Terminal unlocked. Type commands or messages below; submissions are signed by your wallet when you press Submit.</div>
+          <div class="inputWrap">
+            <textarea id="cmdInput" class="cmdInput" placeholder="Type a command, message, or check-in note..."></textarea>
+            <button id="cmdSubmit" class="submitBtn">Submit</button>
+          </div>
+          <div id="cmdLog" class="line small" style="margin-top:8px"></div>
+        </div>
+
+        <!-- GOD layer hidden by default, revealed only for your GOD wallet address -->
+        <div id="godLayer" class="hidden" style="margin-top:12px">
+          <div class="small" style="color:#ffd185">GOD layer active — core controls (UI only). Use responsibly.</div>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button id="godAnnounce" class="ghost">Announce Realm</button>
+            <button id="godSnapshot" class="ghost">Snapshot Authority</button>
+          </div>
+          <div id="godLog" class="line small" style="margin-top:8px"></div>
+        </div>
+      </div>
+
+      <div class="controls" style="position:relative;z-index:2">
+        <button id="connectBtn">Connect MetaMask</button>
+        <button class="ghost" id="refreshBtn">Refresh Leaderboard</button>
+        <button class="ghost" id="checkinBtn">Check-in</button>
+      </div>
+    </section>
+
+    <aside class="right">
+      <div class="panel">
+        <h3 style="margin:0 0 6px 0">Connected Wallet</h3>
+        <div id="addr" class="small">Not connected</div>
+        <div id="ownership" class="small">Ownership: unknown</div>
+      </div>
+
+      <div class="panel" style="flex:1;overflow:auto">
+        <h3 style="margin:0 0 6px 0">Leaderboard</h3>
+        <table id="leaderboard" aria-label="Leaderboard">
+          <thead><tr><th style="width:40px">#</th><th>Wallet</th><th>Keys</th><th style="text-align:right">Score</th></tr></thead>
+          <tbody id="leaderRows"><tr><td colspan="4" class="small">No data yet — click Refresh Leaderboard</td></tr></tbody>
+        </table>
+      </div>
+
+      <div class="panel">
+        <h3 style="margin:0 0 6px 0">Notes</h3>
+        <div class="small">This terminal grants per-key experiences. To persist check-ins or run authority actions you must add server endpoints. The GOD layer is visible only to the owner address you control.</div>
+        <footer class="note">Etherscan token: <a href="https://etherscan.io/token/0x45a328572b2a06484e02EB5D4e4cb6004136eB16" target="_blank" rel="noopener noreferrer" style="color:var(--muted)">0x45a32857...eB16</a></footer>
+      </div>
+    </aside>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js" crossorigin="anonymous"></script>
+
+  <script>
+  (function () {
+    // Enhanced index.html with gated typed input for verified keyholders and GOD-layer reveal.
+    // This file is standalone and uses only client-side logic. For authoritative actions, add server endpoints.
+
+    /* CONFIG */
+    const CONTRACT = "0x45a328572b2a06484e02EB5D4e4cb6004136eB16";
+    const KEY_IDS = Array.from({length:66}, (_,i)=>i+1); // adjust if non-consecutive
+    const GOD_ADDRESS = "0xefc6910e7624f164dae9d0f799954aa69c943c8d".toLowerCase(); // your GOD wallet (reveals godLayer)
+    const RPC_FALLBACKS = [
+      (window.__NEXT_PUBLIC_RPC ?? null) || null,
+      "https://cloudflare-eth.com",
+      "https://rpc.ankr.com/eth",
+      "https://eth.llamarpc.com"
+    ].filter(Boolean);
+
+    /* DOM */
+    const connectBtn = document.getElementById('connectBtn');
+    const refreshBtn = document.getElementById('refreshBtn');
+    const checkinBtn = document.getElementById('checkinBtn');
+    const addrEl = document.getElementById('addr');
+    const connectedStatus = document.getElementById('connectedStatus');
+    const ownershipEl = document.getElementById('ownership');
+    const terminal = document.getElementById('terminal');
+    const keyInfoEl = document.getElementById('keyInfo');
+    const playerPanel = document.getElementById('playerPanel');
+    const logRoot = document.getElementById('log');
+
+    const gatedArea = document.getElementById('gatedArea');
+    const cmdInput = document.getElementById('cmdInput');
+    const cmdSubmit = document.getElementById('cmdSubmit');
+    const cmdLog = document.getElementById('cmdLog');
+
+    const godLayer = document.getElementById('godLayer');
+    const godAnnounce = document.getElementById('godAnnounce');
+    const godSnapshot = document.getElementById('godSnapshot');
+    const godLog = document.getElementById('godLog');
+
+    function appendLine(text) {
+      const d = document.createElement('div');
+      d.className = 'line small';
+      d.textContent = text;
+      logRoot.parentNode.insertBefore(d, logRoot.nextSibling);
+      terminal.scrollTop = terminal.scrollHeight;
+    }
+
+    /* RPC helpers */
+    function toHex32(n) { return "0x" + BigInt(n).toString(16).padStart(64, "0"); }
+    function encodeAddress(a) { return a.toLowerCase().replace(/^0x/, "").padStart(64, "0"); }
+    async function fetchRpc(url, payload){
+      const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ jsonrpc:"2.0", id:1, method:"eth_call", params:[payload,"latest"] }) });
+      if(!res.ok) throw new Error(`${url} ${res.status}`);
+      const j = await res.json();
+      if(j.error) throw new Error(JSON.stringify(j.error));
+      return j.result;
+    }
+    async function rpcCallWithFallback(payload){
+      let lastErr = null;
+      for (const r of RPC_FALLBACKS) {
+        try { const v = await fetchRpc(r, payload); return v; } catch (e) { lastErr = e; console.warn('rpc fail', r, e); }
+      }
+      throw lastErr || new Error('no rpc');
+    }
+    async function readERC1155Balance(address, tokenId){
+      const data = "0x00fdd58e" + encodeAddress(address) + toHex32(tokenId).slice(2);
+      const r = await rpcCallWithFallback({ to: CONTRACT, data });
+      return r ? BigInt(r) : 0n;
+    }
+    async function readEthBalance(address){
+      for (const r of RPC_FALLBACKS) {
+        try {
+          const res = await fetch(r, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ jsonrpc: "2.0", id:1, method:"eth_getBalance", params:[address,"latest"] })
+          });
+          if(!res.ok) throw new Error(`${r} ${res.status}`);
+          const j = await res.json();
+          if(j.error) throw new Error(JSON.stringify(j.error));
+          return BigInt(j.result);
+        } catch (e) { console.warn("eth_getBalance fail", r, e); }
+      }
+      throw new Error("no rpc for eth_getBalance");
+    }
+
+    /* Provider selection / MetaMask preference (avoids Phantom) */
+    function chooseEvmProvider(){
+      if (window.ethereum && Array.isArray(window.ethereum.providers)) {
+        const p = window.ethereum.providers;
+        return p.find(x=>x.isMetaMask) || p.find(x=>x.isCoinbaseWallet) || p.find(x=>typeof x.request === 'function');
+      }
+      if (window.ethereum && typeof window.ethereum.request === 'function') return window.ethereum;
+      return null;
+    }
+
+    /* Detect held keys (first matching keys) */
+    async function detectHeldKeysForAddress(address, keyIds = KEY_IDS){
+      const out = [];
+      for (const id of keyIds) {
+        try {
+          const bal = await readERC1155Balance(address, id);
+          if (bal > 0n) out.push({ tokenId: id, balance: String(bal) });
+        } catch (e) { console.warn("detectHeldKeysForAddress error", id, e); }
+      }
+      return out;
+    }
+
+    /* Build leaderboard using optional public/holders.json or provided seed */
+    async function tryLoadHoldersJSON(){
+      try { const r = await fetch('/holders.json', { cache: "no-store" }); if (r.ok) return await r.json(); } catch(e){ }
+      return null;
+    }
+    async function buildLeaderboard(seedAddresses = []) {
+      appendLine("Building leaderboard...");
+      const addrs = new Set(seedAddresses || []);
+      const holders = await tryLoadHoldersJSON().catch(()=>null);
+      if (holders && Array.isArray(holders)) holders.forEach(a=>addrs.add(a));
+      const rows = [];
+      for (const a of Array.from(addrs)) {
+        try {
+          const keys = await detectHeldKeysForAddress(a);
+          const eth = Number(await readEthBalance(a)) / 1e18;
+          const score = keys.length * 10000 + Math.floor(eth * 100);
+          rows.push({ address: a, keys, eth, score });
+        } catch (e) { rows.push({ address: a, keys: [], eth:0, score:0, error: e.message||String(e) }); }
+      }
+      rows.sort((x,y)=>y.score - x.score);
+      renderLeaderboard(rows);
+      appendLine("Leaderboard ready");
+      return rows;
+    }
+    function renderLeaderboard(rows){
+      const tbody = document.createElement('tbody');
+      let i=1;
+      for (const r of rows) {
+        const tr = document.createElement('tr');
+        const keysText = r.keys.length ? r.keys.map(k=>k.tokenId).join(',') : '—';
+        tr.innerHTML = `<td style="width:40px">${i++}</td><td class="addr">${r.address}</td><td>${keysText}</td><td style="text-align:right" class="score">${r.score}</td>`;
+        tbody.appendChild(tr);
+      }
+      const old = document.getElementById('leaderRows');
+      if (old && old.parentNode) old.parentNode.replaceChild(tbody, old);
+      else document.getElementById('leaderboard').appendChild(tbody);
+    }
+
+    /* Robust connect and check-in (prefers EVM provider, avoids Phantom) */
+    async function robustConnect(){
+      try{
+        const evm = chooseEvmProvider();
+        if (!evm) return alert("No EVM wallet detected. Install MetaMask or open an EVM wallet.");
+        if (window.ethereum !== evm) try{ window.ethereum = evm; } catch {}
+        const accounts = await evm.request({ method:'eth_requestAccounts' });
+        const addr = accounts && accounts[0];
+        if (!addr) return alert("No account returned");
+        addrEl.textContent = addr;
+        connectedStatus.textContent = addr;
+        appendLine(`Connected: ${addr}`);
+        window.__mandemEvmProvider = evm;
+        try { await checkKeysForSelectedUsingProvider(addr, evm); } catch(e){ appendLine("Ownership check failed: " + (e.message||e)); }
+        if (typeof evm.on === 'function') {
+          try { evm.removeListener && evm.removeListener('accountsChanged', handleAccountsChanged); } catch {}
+          evm.on('accountsChanged', handleAccountsChanged);
+        }
+        return addr;
+      } catch(e){ appendLine('Connect failed: ' + (e.message || e)); throw e; }
+    }
+
+    async function handleAccountsChanged(accounts){
+      const addr = Array.isArray(accounts) ? accounts[0] : accounts;
+      if (!addr) { addrEl.textContent = 'Not connected'; connectedStatus.textContent = 'Not connected'; appendLine('Account disconnected'); applyGuestExperience(); return; }
+      addrEl.textContent = addr; connectedStatus.textContent = addr; appendLine('Account changed: ' + addr);
+      try { await checkKeysForSelectedUsingProvider(addr, window.__mandemEvmProvider || chooseEvmProvider()); } catch(e) { appendLine('Recheck failed: ' + (e.message||e)); }
+    }
+
+    async function checkKeysForSelectedUsingProvider(address, provider){
+      if (!provider) provider = chooseEvmProvider();
+      if (!provider) throw new Error('No EVM provider available');
+      const providerRequest = typeof provider.request === 'function' ? provider.request.bind(provider) : null;
+      async function providerEthCall(to, data){
+        if (providerRequest) {
+          try { return await providerRequest({ method:'eth_call', params:[{ to, data }, 'latest'] }); } catch(e) { console.warn('provider eth_call failed', e); }
+        }
+        return await rpcCallWithFallback({ to, data });
+      }
+      const held = [];
+      for (const id of KEY_IDS) {
+        try{
+          const data = "0x00fdd58e" + encodeAddress(address) + toHex32(id).slice(2);
+          const res = await providerEthCall(CONTRACT, data);
+          const bal = res ? BigInt(res) : 0n;
+          if (bal > 0n) held.push({ tokenId: id, balance: String(bal) });
+        } catch(e){ console.warn('balanceOf failed', id, e); }
+      }
+      if (held.length){
+        ownershipEl.textContent = `HOLDER — Keys: ${held.map(k=>k.tokenId).join(',')}`;
+        appendLine(`Detected keys for ${address}: ${held.map(k=>k.tokenId).join(',')}`);
+        keyInfoEl.textContent = `Keys: ${held.map(k=>k.tokenId).join(", ")} · verified`;
+        applyKeyExperience(held);
+        if (window.__mandemVisual && window.__mandemVisual.setUnlocked) window.__mandemVisual.setUnlocked(true);
+        // reveal gated area when verified holder
+        gatedArea.classList.remove('hidden');
+        // show GOD layer only when connected addr matches GOD_ADDRESS
+        if (address.toLowerCase() === GOD_ADDRESS) {
+          godLayer.classList.remove('hidden');
+          godLog.textContent = "GOD layer active for owner.";
+        } else {
+          godLayer.classList.add('hidden');
+        }
+      } else {
+        ownershipEl.textContent = 'no key detected';
+        appendLine(`No keys found for ${address}`);
+        keyInfoEl.textContent = '';
+        applyGuestExperience();
+        if (window.__mandemVisual && window.__mandemVisual.setUnlocked) window.__mandemVisual.setUnlocked(false);
+        gatedArea.classList.add('hidden');
+        godLayer.classList.add('hidden');
+      }
+      return held;
+    }
+
+    async function robustCheckIn(){
+      try {
+        const provider = window.__mandemEvmProvider || chooseEvmProvider();
+        if (!provider) return alert("No EVM wallet available for signing.");
+        if (provider === window.solana || provider.isPhantom) return alert("Detected non-EVM wallet (Phantom). Use MetaMask.");
+        const accounts = await provider.request({ method:'eth_requestAccounts' });
+        const address = accounts && accounts[0];
+        if (!address) return alert("No account for signing.");
+        const keys = await detectHeldKeysForAddress(address);
+        const tokenId = keys.length ? keys[0].tokenId : '';
+        const ts = Math.floor(Date.now()/1000);
+        const msg = `Mandem.OS check-in;address:${address};token:${tokenId};ts:${ts}`;
+        let signature = null;
+        try { signature = await provider.request({ method:'personal_sign', params:[msg, address] }); }
+        catch (err) { try { signature = await provider.request({ method:'eth_sign', params:[address, msg] }); } catch(err2){ throw err2 || err; } }
+        appendLine(`Check-in signed: ${address} (${signature.slice(0,12)}...) — client-only`);
+        return { address, tokenId, ts, signature };
+      } catch (e) { appendLine("Check-in failed: " + (e.message || e)); throw e; }
+    }
+
+    /* Command submission: signed message + optional local echo (client-only). For persistence use server API. */
+    async function submitCommand(){
+      const text = cmdInput.value && cmdInput.value.trim();
+      if (!text) return alert("Type something to submit.");
+      try {
+        const provider = window.__mandemEvmProvider || chooseEvmProvider();
+        if (!provider) return alert("No EVM wallet available to sign submission.");
+        const accounts = await provider.request({ method:'eth_requestAccounts' });
+        const address = accounts && accounts[0];
+        if (!address) return alert("Connect first.");
+        const ts = Math.floor(Date.now()/1000);
+        const payload = { cmd: text, address, ts };
+        const msg = `Mandem.OS cmd;address:${address};ts:${ts};cmd:${text}`;
+        let signature = null;
+        try { signature = await provider.request({ method:'personal_sign', params:[msg, address] }); }
+        catch (err) { try { signature = await provider.request({ method:'eth_sign', params:[address, msg] }); } catch(err2){ throw err2 || err; } }
+        // local echo
+        const line = document.createElement('div');
+        line.className = 'line small';
+        line.textContent = `[${new Date(ts*1000).toISOString()}] ${address}: ${text}`;
+        cmdLog.parentNode.insertBefore(line, cmdLog.nextSibling);
+        cmdInput.value = '';
+        appendLine('Command signed client-side; to persist send payload + signature to your server.');
+        // optionally, if you want to keep a client-only history in localStorage:
+        const hist = JSON.parse(localStorage.getItem('mandem_cmd_hist') || '[]');
+        hist.unshift({ address, ts, cmd: text, signature });
+        localStorage.setItem('mandem_cmd_hist', JSON.stringify(hist.slice(0,200)));
+        return { address, ts, cmd:text, signature };
+      } catch (e) {
+        appendLine('Command submit failed: ' + (e.message||e));
+      }
+    }
+
+    /* GOD actions: client-only UI placeholders (do not perform on-chain priv ops) */
+    godAnnounce.addEventListener('click', ()=> {
+      godLog.textContent = 'Announce: ' + new Date().toISOString();
+      appendLine('GOD announce (client-only): ' + new Date().toISOString());
+    });
+    godSnapshot.addEventListener('click', ()=> {
+      godLog.textContent = 'Snapshot taken: ' + new Date().toISOString();
+      appendLine('GOD snapshot (client-only)');
+    });
+
+    /* Gated submit wiring */
+    cmdSubmit.addEventListener('click', submitCommand);
+    cmdInput.addEventListener('keydown', (e)=> { if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) { e.preventDefault(); submitCommand(); } });
+
+    /* UX helpers */
+    function applyKeyExperience(keys){
+      playerPanel.innerHTML = `> Welcome, keyholder. Keys: ${keys.map(k=>k.tokenId).join(", ")} — privileges active.`;
+      terminal.style.borderLeft = "4px solid rgba(124,92,255,0.09)";
+      if (window.__mandemVisual && window.__mandemVisual.setUnlocked) window.__mandemVisual.setUnlocked(true);
+    }
+    function applyGuestExperience(){
+      playerPanel.innerHTML = "> Guest session active. Acquire a Copper Key to unlock special features.";
+      terminal.style.borderLeft = "none";
+      if (window.__mandemVisual && window.__mandemVisual.setUnlocked) window.__mandemVisual.setUnlocked(false);
+    }
+
+    /* Initial seed and leaderboard */
+    (async ()=>{
+      appendLine("Terminal ready. Connect to verify keys and unlock the gated input.");
+      try {
+        const holders = await (async ()=>{ try { const r = await fetch('/holders.json', {cache:"no-store"}); if (r.ok) return await r.json(); } catch(e) {} return null; })();
+        if (holders && Array.isArray(holders) && holders.length) {
+          appendLine(`Loaded ${holders.length} holders from holders.json`);
+          await buildLeaderboard(holders);
+        } else {
+          appendLine("No holders.json found. Use Refresh Leaderboard to seed from public list or add holders.json.");
+        }
+      } catch(e) { appendLine('Initial seed failed: ' + (e.message||e)); }
+    })();
+
+    /* Responsive mythic flames (Three.js) */
+    (function initFlames(){
+      const canvas = document.getElementById('flameCanvas');
+      if (!canvas || typeof THREE === 'undefined') return;
+      const renderer = new THREE.WebGLRenderer({ canvas, alpha:true, antialias:true });
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
+      camera.position.set(0,6,12);
+      scene.fog = new THREE.FogExp2(0x010312, 0.02);
+      const lightA = new THREE.PointLight(0x7c5cff, 0.6, 40); lightA.position.set(-6,8,6);
+      const lightB = new THREE.PointLight(0x00d4ff, 0.45, 40); lightB.position.set(6,8,-6);
+      scene.add(lightA, lightB);
+      const map = new THREE.Mesh(new THREE.PlaneGeometry(20,14,24,24), new THREE.MeshStandardMaterial({ color:0x021622, metalness:0.1, roughness:0.95 }));
+      map.rotation.x = -Math.PI/2; map.position.y = -0.6; scene.add(map);
+      let group = new THREE.Group(); scene.add(group);
+
+      function buildParticles(w,h){
+        while(group.children.length) group.remove(group.children[0]);
+        const area = w*h;
+        let count = Math.round(Math.min(Math.max(area / 8000, 80), 700));
+        if (window.innerWidth < 600) count = Math.max(60, Math.round(count * 0.6));
+        const planeGeo = new THREE.PlaneGeometry(0.9,1.6);
+        for (let i=0;i<count;i++){
+          const mat = new THREE.MeshBasicMaterial({ color:0x60b6ff, transparent:true, opacity:0.06+Math.random()*0.18, blending:THREE.AdditiveBlending, depthWrite:false, side:THREE.DoubleSide });
+          const m = new THREE.Mesh(planeGeo, mat);
+          const r = 1 + Math.random() * Math.max(4, Math.min(w,h)/80);
+          const a = Math.random() * Math.PI * 2;
+          m.position.set(Math.cos(a) * r, Math.random() * 1.6 + 0.1, Math.sin(a) * r - 1.8);
+          const s = 0.45 + Math.random() * 1.1;
+          m.scale.set(s, s * 1.2, 1);
+          m.rotation.y = Math.random() * Math.PI * 2;
+          group.add(m);
+        }
+      }
+
+      let t = 0; let unlocked = false;
+      function setUnlocked(v){ unlocked = !!v; }
+      window.__mandemVisual = { setUnlocked };
+
+      function resize(){
+        const rect = canvas.getBoundingClientRect();
+        const w = Math.max(200, Math.round(rect.width));
+        const h = Math.max(160, Math.round(rect.height));
+        renderer.setSize(w,h,false); camera.aspect = w/h; camera.updateProjectionMatrix();
+        buildParticles(w,h);
+      }
+      window.addEventListener('resize', resize, { passive:true });
+
+      function animate(){
+        t += 0.016;
+        group.rotation.y = Math.sin(t * 0.04) * 0.06;
+        group.position.y = Math.sin(t * 0.7) * 0.03;
+        for (let i=0;i<group.children.length;i++){
+          const m = group.children[i];
+          const sp = 0.45 + (i % 6) * 0.01;
+          m.position.y += Math.sin(t * sp + i) * 0.002;
+          m.rotation.z = Math.sin(t * 0.6 + i) * 0.07;
+          if (unlocked) {
+            m.material.opacity = Math.min(0.36, m.material.opacity + 0.004);
+            m.position.x *= 0.994; m.position.z *= 0.994;
+            m.scale.lerp(new THREE.Vector3(1.05, 1.35, 1), 0.01);
+          } else {
+            m.material.opacity = Math.max(0.03, m.material.opacity - 0.002);
+            m.scale.lerp(new THREE.Vector3(m.scale.x, m.scale.y, 1), 0.01);
+          }
+        }
+        lightA.intensity = 0.4 + Math.abs(Math.sin(t * 0.8)) * 0.4 + (unlocked ? 0.28 : 0);
+        lightB.intensity = 0.35 + Math.abs(Math.cos(t * 0.65)) * 0.3 + (unlocked ? 0.22 : 0);
+        renderer.render(scene, camera);
+        requestAnimationFrame(animate);
+      }
+      resize(); requestAnimationFrame(animate);
+    })();
+
+    // Wire UI
+    connectBtn.addEventListener('click', ()=> robustConnect());
+    refreshBtn.addEventListener('click', async ()=> {
+      appendLine('Refreshing leaderboard...');
+      try {
+        const holders = await tryLoadHoldersJSON().catch(()=>null);
+        await buildLeaderboard(Array.isArray(holders) ? holders : []);
+      } catch (e) { appendLine('Refresh failed: ' + (e.message||e)); }
+    });
+    checkinBtn.addEventListener('click', ()=> robustCheckIn().catch(()=>{}));
+
+    // expose bridge
+    window.MandemBridge = window.MandemBridge || { detectHeldKeys: detectHeldKeysForAddress, buildLeaderboard, checkIn: robustCheckIn };
+
+  })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,1606 @@
+<!DOCTYPE html> 
+<html lang="en"> 
+    <head> 
+        <meta charset="UTF-8"> 
+        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"> 
+        <title>Gem Bot Universe for this project by Ryan Barbrick. of BarbrickDesign.com</title>         
+        <link href="css/theme.css" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="public/styles.css"> 
+        <!-- Link to the manifest -->         
+        <link rel="manifest" href="public/manifest.json"> 
+        <!-- Set theme color -->         
+        <meta name="theme-color" content="#0ff"> 
+        <!-- Apple Touch Icon -->         
+        <link rel="apple-touch-icon" href="public/apple-touch-icon.png"> 
+        <!-- Import Orbitron font -->         
+        <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet"> 
+        <style>
+/* Move login button to bottom left on mobile */
+@media (max-width: 700px) {
+  #loginBtn {
+    position: fixed !important;
+    left: 18px;
+    bottom: 18px;
+    z-index: 1200;
+    margin: 0 !important;
+    width: auto;
+    min-width: 90px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px #0002;
+  }
+  #profileBtn {
+    position: fixed !important;
+    left: 18px;
+    bottom: 18px;
+    z-index: 1200;
+    margin: 0 !important;
+    width: auto;
+    min-width: 90px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px #0002;
+  }
+}
+/* Mobile table scroll */
+@media (max-width: 700px) {
+  table, .stat-table {
+    display: block;
+    overflow-x: auto;
+    width: 100%;
+    max-width: 100vw;
+  }
+  th, td {
+    min-width: 90px;
+    font-size: 15px;
+  }
+  .profile-card, .container, .post-login-content {
+    padding: 8px !important;
+  }
+}
+/* Larger touch targets for mobile */
+@media (max-width: 700px) {
+  button, .auth-button {
+    min-height: 44px;
+    font-size: 18px;
+  }
+}
+</style>
+    </head>     
+    <body> 
+        <header> 
+            <div class="header-left"> 
+                <button id="contentToggleBtn" class="content-toggle-button">Mission Control</button>                 
+            </div>             
+            <h1>Gem Bot Universe</h1> 
+            <p class="header-desc">by Ryan Barbrick · BarbrickDesign.com<br>Explore our virtual environments.</p> 
+            <div class="auth-links-header" id="authLinksHeader" style="margin-top:1em; text-align:center;"> 
+                <a href="login.html" class="auth-button" id="loginBtn" style="display: inline-block;">Log In</a> 
+                <a href="profile.html" class="auth-button" id="profileBtn" style="display:none;">Profile</a> 
+            </div>             
+            <div id="mgcBalanceDisplay"> <a id="mgcBalanceLink" href="profile.html">MGC Balance: <span id="mgcBalance">0</span></a> 
+            </div>             
+        </header>         
+        <!-- Fullscreen 3D globe container -->         
+        <div id="globe-container"> 
+            <!-- 3D Globe will be rendered here by Three.js -->             
+        </div>         
+        <div class="tooltip" id="globeTooltip"></div>         
+        <!-- Welcome overlay -->         
+        <div class="welcome-overlay"> 
+            <h2>Gem Bot Universe</h2> 
+            <p>Explore our interactive 3D environments by navigating the Globe Interface. Log in to access additional features and control your Gem Bot deployment.</p> 
+        </div>         
+        <!-- Post-login content (initially hidden) -->         
+        <div class="post-login-content" id="postLoginContent" style="display:none;"> 
+            <section id="labControls"> 
+                <h2>Lab Controls</h2> 
+                <button id="launchLabBtn">🚀 Launch Virtual Lab</button>                 
+                <button id="checkConnectionBtn">🔗 Check Connection</button>                 
+                <button id="syncSettingsBtn">🔄 Sync Lab Settings</button>                 
+                <button id="globalMapBtn">🌎 View Global Lab Map</button>                 
+                <button id="seedPlatformBtn">🌱 Seed Next Platform</button>                 
+                <button id="deployNowBtn">📡 Deploy & Launch</button>                 
+                <button id="toggleModeBtn">🔄 Switch to Physical Mode</button>                 
+            </section>             
+            <!-- Status and Info Panel -->             
+            <section id="machineStatus"> 
+                <h2>Digital Readouts</h2> 
+                <div class="status-grid"> 
+                    <div class="status-item"> <span class="status-label">Current Mode</span> <span id="modeStatus" class="status-value">Virtual</span> 
+                    </div>                     
+                    <div class="status-item"> <span class="status-label">Connection</span> <span id="connectionStatus" class="status-value">Connected</span> 
+                    </div>                     
+                    <div class="status-item"> <span class="status-label">Current Progress</span> <span id="progressStatus" class="status-value">0%</span> 
+                    </div>                     
+                    <div class="status-item"> <span class="status-label">Estimated Time</span> <span id="timeStatus" class="status-value">00:00:00</span> 
+                    </div>                     
+                </div>                 
+            </section>             
+            <!-- Copilot Dashboard -->             
+            <section id="copilotDashboard"> 
+                <h2>Copilot D3 Feedback</h2> 
+                <div id="copilotLogs"> 
+                    <!-- Virtual user logs will display here -->                     
+                </div>                 
+            </section>             
+            <!-- Idea Tracker for Development Planning -->             
+            <section id="ideaTrackerSection"> 
+                <h2>💡 Idea Tracker</h2> 
+                <div class="idea-tracker-container"> 
+                    <div class="idea-form"> 
+                        <input type="text" id="ideaTitle" placeholder="New idea title..."/> 
+                        <textarea id="ideaDescription" placeholder="Describe your idea..."></textarea> 
+                        <div class="idea-form-row"> 
+                            <select id="ideaPriority" aria-label="Idea Priority"> 
+                                <option value="low">Low Priority</option>                                 
+                                <option value="medium" selected>Medium Priority</option>                                 
+                                <option value="high">High Priority</option>                                 
+                                <option value="critical">Critical Priority</option>                                 
+                            </select>                             
+                            <button id="addIdeaBtn">Add Idea</button>                             
+                        </div>                         
+                    </div>                     
+                    <div class="idea-filters"> 
+                        <button class="filter-btn active" data-filter="all">All Ideas</button>                         
+                        <button class="filter-btn" data-filter="low">Low Priority</button>                         
+                        <button class="filter-btn" data-filter="medium">Medium Priority</button>                         
+                        <button class="filter-btn" data-filter="high">High Priority</button>                         
+                        <button class="filter-btn" data-filter="critical">Critical Priority</button>                         
+                    </div>                     
+                    <div class="idea-list" id="ideaList"> 
+                        <!-- Ideas will be dynamically added here -->                         
+                    </div>                     
+                </div>                 
+            </section>             
+            <!-- Build Tracker Panel -->             
+            <div id="buildTrackerPanel" class="build-tracker-panel"> 
+                <!-- ...existing build tracker content... -->                 
+            </div>             
+            <button id="buildTrackerToggle" class="build-tracker-toggle">📊 Build Status</button>             
+            <!-- Sketchfab Integration UI -->
+            <div style="text-align:center;margin:1.5em 0;">
+                <button id="sketchfabBrowseBtn" class="auth-button" style="margin-bottom:0.5em;">Browse 3D Assets (Sketchfab)</button>
+                <button id="sketchfabEmbedBtn" class="auth-button">Embed 3D Model</button>
+            </div>
+            <div id="sketchfabModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.7);z-index:5000;align-items:center;justify-content:center;">
+                <div style="background:#222;padding:2em 1.5em;border-radius:12px;max-width:95vw;width:420px;text-align:center;position:relative;">
+                    <button id="closeSketchfabModal" style="position:absolute;top:8px;right:12px;font-size:20px;background:none;border:none;color:#fff;cursor:pointer;">&times;</button>
+                    <h3>Embed a Sketchfab Model</h3>
+                    <input id="sketchfabInput" type="text" placeholder="Paste Sketchfab URL or Model UID" style="width:90%;padding:8px;margin:1em 0;" />
+                    <button id="embedSketchfabModel" class="auth-button">Embed</button>
+                    <div id="sketchfabEmbedContainer" style="margin-top:1em;"></div>
+                </div>
+            </div>
+            <!-- 3D Model Gallery Section -->
+            <section id="modelGallerySection" style="margin:2em 0;">
+              <h2>3D Model Gallery</h2>
+              <input id="modelSearchInput" type="text" placeholder="Search models..." style="width:220px;padding:6px;margin-bottom:1em;" />
+              <div id="modelGalleryGrid" style="display:flex;flex-wrap:wrap;gap:18px;"></div>
+              <div id="modelPreviewModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.8);z-index:6000;align-items:center;justify-content:center;">
+                <div style="background:#222;padding:1.5em 1em;border-radius:12px;max-width:95vw;width:480px;text-align:center;position:relative;">
+                  <button id="closeModelPreview" style="position:absolute;top:8px;right:12px;font-size:20px;background:none;border:none;color:#fff;cursor:pointer;">&times;</button>
+                  <h3 id="previewModelName"></h3>
+                  <div id="previewModelViewer" style="width:100%;height:320px;background:#111;"></div>
+                  <div id="previewModelMeta" style="color:#aaa;font-size:13px;margin-top:8px;"></div>
+                </div>
+              </div>
+            </section>
+        </div>         
+        <!-- Agent/Tester Log Panel -->         
+        <div class="profile-card" id="agentLogPanel"> 
+            <h2>All Players (Live)</h2> 
+            <table class="stat-table" id="allAgentsTable"> 
+                <thead> 
+                    <tr> 
+                        <th>Mask</th> 
+                        <th>Username</th> 
+                        <th>MGC</th> 
+                        <th>Uptime</th> 
+                        <th>Status</th> 
+                        <th>Role</th> 
+                    </tr>                     
+                </thead>                 
+                <tbody></tbody>                 
+            </table>             
+            <button id="toggleAgentLog" class="auth-button">Hide</button>             
+        </div>         
+        <!-- Move All Players button to bottom right, left of chat -->         
+        <button id="showAgentLogBtn" class="auth-button all-players-bottom-btn" style="display:none;">All Players</button> <!-- Now always hidden -->
+        <!-- Glowing blue box for All Players panel -->
+        <div id="allPlayersGlowingBox" style="position:fixed;right:110px;bottom:18px;width:48px;height:48px;border-radius:12px;background:radial-gradient(circle,#00f6ff 60%,#0ff 100%);box-shadow:0 0 18px 6px #00e6ff,0 0 32px 12px #0ff;z-index:1000;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:box-shadow 0.2s;">
+          <span style="color:#fff;font-size:28px;font-weight:bold;user-select:none;">👥</span>
+        </div>
+        <!-- Server Sync Status Banner -->
+        <div id="sync-status-banner" style="display:none;position:fixed;top:0;left:0;width:100vw;z-index:3000;background:#222;color:#fff;text-align:center;padding:8px 0;font-weight:bold;font-size:16px;box-shadow:0 2px 8px #000;">Servers are syncing... Real-time player data may be delayed.</div>
+        <!-- Server Sync Status Dropdown (hidden by default) -->
+        <div id="sync-status-dropdown" style="display:none;position:absolute;top:60px;left:18px;right:18px;z-index:4000;background:#222;color:#fff;text-align:center;padding:14px 0 10px 0;font-weight:bold;font-size:16px;box-shadow:0 2px 12px #000;border-radius:12px;max-width:420px;margin:auto;">
+          <div id="sync-status-main">Servers are syncing... Real-time player data may be delayed.</div>
+          <div id="sync-status-times" style="font-size:13px;color:#aaa;margin-top:6px;"></div>
+        </div>
+        <!-- Server Status Message (clickable link to server status indicator) -->
+        <div id="statusMessage" style="position: fixed; bottom: 20px; left: 20px; z-index: 1000; max-width: 350px; cursor: pointer; background: #222; color: #fff; padding: 8px 16px; border-radius: 8px; font-size: 15px; font-weight: bold; box-shadow: 0 2px 8px #000;">Server Stat: ...</div>
+        <!-- Login Check Modal -->         
+        <div id="loginModal" class="modal"> 
+            <div class="modal-content"> 
+                <h3>Login Required</h3> 
+                <p>You need to be logged in to access the 3D environments.</p> 
+                <button id="modalLoginBtn" class="auth-button">Log In</button>                 
+                <button id="modalCloseBtn" class="auth-button">Close</button>                 
+            </div>             
+        </div>         
+        <footer> 
+            <p>&copy; 2025 Gem Bot Project | All Rights Reserved</p> 
+        </footer>         
+        <!-- Load JavaScript files -->         
+        <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>         
+        <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>         
+        <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/PointerLockControls.js"></script>         
+        <!-- New globe script -->         
+        <script>
+    // Check if the user is logged in
+    function isUserLoggedIn() {
+      // Check for both authentication methods to ensure compatibility
+      return localStorage.getItem('currentUser') !== null || localStorage.getItem('userLoggedIn') === 'true';
+    }
+    
+    // Wallet-based authentication check (same as profile.js)
+    function isUserAuthenticated() {
+      const user = JSON.parse(localStorage.getItem('currentUser') || 'null');
+      const lastAuth = localStorage.getItem('lastWalletAuth');
+      if (!user || !user.walletAddress || !lastAuth) return false;
+      const lastAuthTime = new Date(lastAuth).getTime();
+      const now = Date.now();
+      return (now - lastAuthTime) < 86400000;
+    }
+
+    function updateAuthButton() {
+      const loginBtn = document.getElementById('loginBtn');
+      const profileBtn = document.getElementById('profileBtn');
+      if (isUserAuthenticated()) {
+        loginBtn.style.display = 'none';
+        profileBtn.style.display = 'inline-block';
+        profileBtn.textContent = 'Profile';
+        profileBtn.href = 'profile.html';
+      } else {
+        loginBtn.style.display = 'inline-block';
+        loginBtn.textContent = 'Log In';
+        profileBtn.style.display = 'none';
+      }
+    }
+
+    // Show login modal
+    function showLoginModal() {
+      document.getElementById('loginModal').style.display = 'flex';
+    }
+    
+    // Update UI based on login state
+    function updateUIForLoginState() {
+      const isLoggedIn = isUserLoggedIn();
+      const contentToggleBtn = document.getElementById('contentToggleBtn');
+      const welcomeOverlay = document.querySelector('.welcome-overlay');
+      
+      // If logged in, show control toggle button and hide welcome overlay
+      if (isLoggedIn) {
+        contentToggleBtn.style.display = 'block';
+        welcomeOverlay.style.display = 'none';
+      } else {
+        contentToggleBtn.style.display = 'none';
+        welcomeOverlay.style.display = 'block';
+      }
+    }
+    
+    // Enforce auth for protected navigation
+    function enforceAuthNavigation() {
+      const protectedPages = [
+        'profile.html', 'lab_warehouse.html', 'laboratory.html', 'warehouse.html', 'outdoor.html', 'forge.html', 'grand_exchange.html', 'admin-forge.html'
+      ];
+      const openPage = window.location.pathname.split('/').pop();
+      if (protectedPages.includes(openPage) && !isUserAuthenticated()) {
+        window.location.href = 'login.html';
+      }
+      // If on home page and authenticated, redirect to profile
+      // if ((openPage === 'index.html' || openPage === '') && isUserAuthenticated()) {
+      //   window.location.href = 'profile.html';
+      // }
+    }
+
+    // Show MGC balance if user is logged in
+    function showMgcBalance(balance) {
+      const mgcDiv = document.getElementById('mgcBalanceDisplay');
+      const mgcSpan = document.getElementById('mgcBalance');
+      if (mgcDiv && mgcSpan) {
+        mgcDiv.style.display = 'block';
+        mgcSpan.textContent = balance;
+      }
+    }
+    
+    // Simulate fetching MGC balance for the logged-in user
+    function fetchMgcBalance() {
+      // TODO: Replace with real API call to fetch MGC balance from Solana/Phantom wallet
+      // For now, simulate with a random value
+      return new Promise(resolve => {
+        setTimeout(() => {
+          const fakeBalance = (Math.random() * 1000).toFixed(2);
+          resolve(fakeBalance);
+        }, 600);
+      });
+    }
+    
+    function updateMgcBalanceDisplay() {
+      const mgcDiv = document.getElementById('mgcBalanceDisplay');
+      const mgcSpan = document.getElementById('mgcBalance');
+      if (!isUserAuthenticated()) {
+        mgcDiv.style.display = 'none';
+        return;
+      }
+      mgcDiv.style.display = 'block';
+      // Get balance from localStorage (real-time in-game MGC)
+      let profile = JSON.parse(localStorage.getItem('userProfile') || 'null');
+      let balance = profile && profile.inGameMGC ? profile.inGameMGC : 0;
+      mgcSpan.textContent = balance.toFixed ? balance.toFixed(2) : balance;
+    }
+
+    // Toggle the post-login content
+    function toggleControls() {
+      const postLoginContent = document.getElementById('postLoginContent');
+      const toggleBtn = document.getElementById('contentToggleBtn');
+      if (postLoginContent.style.display === 'block') {
+        postLoginContent.style.display = 'none';
+        toggleBtn.textContent = 'Show Mission Control';
+        console.log('Mission Control hidden');
+      } else {
+        postLoginContent.style.display = 'block';
+        toggleBtn.textContent = 'Hide Mission Control';
+        console.log('Mission Control shown');
+      }
+    }
+    
+    // Globe and environment configuration
+    document.addEventListener('DOMContentLoaded', function() {
+      // Setup welcome overlay hover disappear
+      const welcomeOverlay = document.querySelector('.welcome-overlay');
+      let hoverTimer;
+      
+      welcomeOverlay.addEventListener('mouseenter', function() {
+        hoverTimer = setTimeout(function() {
+          welcomeOverlay.style.opacity = '0';
+          // Hide completely after fade animation completes
+          setTimeout(function() {
+            welcomeOverlay.style.display = 'none';
+          }, 1000);
+        }, 2000); // 2 seconds
+      });
+      
+      welcomeOverlay.addEventListener('mouseleave', function() {
+        clearTimeout(hoverTimer);
+      });
+      
+      // Setup modal buttons
+      document.getElementById('modalLoginBtn').addEventListener('click', function() {
+        window.location.href = 'login.html';
+      });
+      
+      document.getElementById('modalCloseBtn').addEventListener('click', function() {
+        document.getElementById('loginModal').style.display = 'none';
+      });
+      
+      // Setup content toggle button
+      document.getElementById('contentToggleBtn').addEventListener('click', toggleControls);
+      
+      // Setup build tracker toggle
+      document.getElementById('buildTrackerToggle').addEventListener('click', function() {
+        document.getElementById('buildTrackerPanel').classList.toggle('active');
+      });
+      
+      // Add click handler for MGC balance link to go to profile
+      const mgcLink = document.getElementById('mgcBalanceLink');
+      if (mgcLink) {
+        mgcLink.addEventListener('click', function(e) {
+          e.preventDefault();
+          window.location.href = 'profile.html';
+        });
+      }
+      
+      // Update UI based on login state
+      updateUIForLoginState();
+      
+      // Show MGC balance if logged in
+      if (isUserLoggedIn()) {
+        fetchMgcBalance().then(showMgcBalance);
+      }
+      
+      // Update auth buttons
+      updateAuthButton(); // Ensure button is correct on page load
+      enforceAuthNavigation();
+
+      // Update profileBtn click to go to login if not authenticated
+      document.getElementById('profileBtn').addEventListener('click', function(e) {
+        if (!isUserAuthenticated()) {
+          e.preventDefault();
+          window.location.href = 'login.html';
+        }
+      });
+
+      // Initialize 3D Globe when document is ready
+      initGlobe();
+
+      setInterval(updateMgcBalanceDisplay, 1000);
+      updateMgcBalanceDisplay();
+    });
+    
+    // Globe initialization
+    function initGlobe() {
+      // Get the container
+      const container = document.getElementById('globe-container');
+      
+      // Setup Three.js scene
+      const scene = new THREE.Scene();
+      const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+      const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(window.devicePixelRatio);
+      container.appendChild(renderer.domElement);
+      
+      // Add ambient light
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+      scene.add(ambientLight);
+      
+      // Add directional light
+      const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+      directionalLight.position.set(5, 3, 5);
+      scene.add(directionalLight);
+      
+      // Create Earth globe
+      const earthGeometry = new THREE.SphereGeometry(5, 32, 32);
+      const earthMaterial = new THREE.MeshPhongMaterial();
+      
+      // Load Earth texture
+      const textureLoader = new THREE.TextureLoader();
+      textureLoader.load('https://threejs.org/examples/textures/land_ocean_ice_cloud_2048.jpg', function(texture) {
+        earthMaterial.map = texture;
+        earthMaterial.needsUpdate = true;
+      });
+      
+      const earth = new THREE.Mesh(earthGeometry, earthMaterial);
+      scene.add(earth);
+      
+      // Position camera
+      camera.position.z = 15;
+      
+      // Add orbit controls
+      const controls = new THREE.OrbitControls(camera, renderer.domElement);
+      controls.enableDamping = true;
+      controls.dampingFactor = 0.05;
+      controls.minDistance = 7;
+      controls.maxDistance = 20;
+      
+      // Environment satellites
+      const environments = [
+        { name: 'Grand Exchange', color: 0x3399ff, url: 'grand_exchange.html', textureUrl: 'images/image1 (6).jpeg', 
+          description: 'Access the high-tech trading center for resources and bots.' },
+        { name: 'Laboratory', color: 0x00cc66, url: 'laboratory.html', textureUrl: 'images/image2 (4).jpeg',
+          description: 'Research and develop new Gem Bot technologies.' },
+        { name: 'Warehouse', color: 0xffcc00, url: 'warehouse.html', textureUrl: 'images/image3 (3).jpeg',
+          description: 'Storage facility for components and finished Gem Bots.' },
+        { name: 'Explorer', color: 0x66ff99, url: 'outdoor.html', textureUrl: 'images/image5 (3).jpeg',
+          description: 'Real-time geo-location exploration with MGC mining portals.' },
+      ];
+      
+      // Create satellite objects
+      const satellites = [];
+      // Store labels for updating in animation loop
+      const labels = [];
+      
+      environments.forEach((env, index) => {
+        const angle = (index / environments.length) * Math.PI * 2;
+        const radius = 9;
+        // Custom color and texture for Laboratory
+        let satelliteColor = env.color;
+        let satelliteMaterial;
+        let isLab = env.name === 'Laboratory';
+        let isForge = env.name === 'The Forge';
+        let isExchange = env.name === 'Grand Exchange';
+        if (isLab) {
+          satelliteColor = 0x3a0066; // Darker purple
+          satelliteMaterial = new THREE.MeshPhongMaterial({
+            color: satelliteColor,
+            emissive: 0x1a0033,
+            emissiveIntensity: 0.8,
+            shininess: 120,
+            specular: 0x00ff99 // subtle green specular for a futuristic look
+          });
+          // Load a futuristic glowing Tron/robot metal texture if available
+          textureLoader.load('images/lab_tron_texture.jpg', function(texture) {
+            satelliteMaterial.map = texture;
+            satelliteMaterial.emissiveMap = texture;
+            satelliteMaterial.needsUpdate = true;
+          });
+        } else if (isForge) {
+          satelliteColor = 0x991a00; // Deep forge orange-red
+          satelliteMaterial = new THREE.MeshPhongMaterial({
+            color: satelliteColor,
+            emissive: 0xff6600,
+            emissiveIntensity: 0.7,
+            shininess: 100,
+            specular: 0x3399ff // blue specular for flame
+          });
+          textureLoader.load('images/forge scene.jpg', function(texture) {
+            satelliteMaterial.map = texture;
+            satelliteMaterial.needsUpdate = true;
+          });
+        } else if (isExchange) {
+          satelliteColor = 0xffd700; // Gold
+          satelliteMaterial = new THREE.MeshPhongMaterial({
+            color: satelliteColor,
+            emissive: 0xc0c0c0,
+            emissiveIntensity: 0.5,
+            shininess: 120,
+            specular: 0xffffff
+          });
+          textureLoader.load('images/image1 (6).jpeg', function(texture) {
+            satelliteMaterial.map = texture;
+            satelliteMaterial.needsUpdate = true;
+          });
+        } else {
+          satelliteMaterial = new THREE.MeshBasicMaterial({ 
+            color: env.color
+          });
+          if (env.textureUrl) {
+            textureLoader.load(env.textureUrl, function(texture) {
+              satelliteMaterial.map = texture;
+              satelliteMaterial.needsUpdate = true;
+            });
+          }
+        }
+        const satelliteGeometry = new THREE.SphereGeometry(1, 16, 16);
+        const satellite = new THREE.Mesh(satelliteGeometry, satelliteMaterial);
+        
+        // Position in circular orbit
+        satellite.position.x = Math.cos(angle) * radius;
+        satellite.position.y = Math.sin(angle) * 2; // Slightly varied y positions
+        satellite.position.z = Math.sin(angle) * radius;
+        
+        // Store metadata
+        satellite.userData = {
+          name: env.name,
+          url: env.url,
+          description: env.description,
+          originalColor: env.color,
+          hoverColor: new THREE.Color(env.color).offsetHSL(0, 0, 0.2)
+        };
+        
+        scene.add(satellite);
+        satellites.push(satellite);
+        
+        // Add green bubbles (smoke effect) after satellite is created and added
+        if (isLab) {
+          addLabBubbles(satellite);
+        }
+        if (isForge) {
+          addForgeFlames(satellite);
+        }
+        if (isExchange) {
+          addExchangeCoins(satellite);
+        }
+        
+        // Add billboard-style labels that always face the camera
+        const label = createBillboardLabel(env.name, satellite.position);
+        labels.push({
+          label: label,
+          satelliteRef: satellite
+        });
+        scene.add(label);
+      });
+      
+      // Create a billboard label (always faces camera)
+      function createBillboardLabel(text, position) {
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const fontSize = 30;
+        canvas.width = 256;
+        canvas.height = 128;
+        
+        // Draw background for better visibility
+        ctx.fillStyle = 'rgba(0, 0, 0, 0.6)';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        
+        // Draw text
+        ctx.fillStyle = 'white';
+        ctx.font = `bold ${fontSize}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText(text, canvas.width / 2, canvas.height / 2);
+        
+        // Create texture and sprite
+        const texture = new THREE.CanvasTexture(canvas);
+        const material = new THREE.SpriteMaterial({ 
+          map: texture,
+          transparent: true,
+          opacity: 0.9
+        });
+        
+        const sprite = new THREE.Sprite(material);
+        sprite.position.set(position.x, position.y + 1.8, position.z);
+        sprite.scale.set(3, 1.5, 1);
+        
+        return sprite;
+      }
+      
+      // --- Lab Bubbles Effect ---
+      function addLabBubbles(labSphere) {
+        const bubbleGroup = new THREE.Group();
+        labSphere.add(bubbleGroup);
+        const bubbleCount = 18;
+        for (let i = 0; i < bubbleCount; i++) {
+          const bubbleGeo = new THREE.SphereGeometry(0.09 + Math.random() * 0.07, 8, 8);
+          const bubbleMat = new THREE.MeshBasicMaterial({ color: 0x00ff99, transparent: true, opacity: 0.45 + Math.random() * 0.2 });
+          const bubble = new THREE.Mesh(bubbleGeo, bubbleMat);
+          // Start at random position near base of sphere
+          const theta = Math.random() * Math.PI * 2;
+          const y = -1 + Math.random() * 0.5;
+          bubble.position.set(Math.cos(theta) * 0.7, y, Math.sin(theta) * 0.7);
+          bubble.userData = { baseY: y, theta: theta, speed: 0.005 + Math.random() * 0.004 };
+          bubbleGroup.add(bubble);
+        }
+        // Animate bubbles in main loop
+        function animateBubbles() {
+          bubbleGroup.children.forEach(bubble => {
+            bubble.position.y += bubble.userData.speed;
+            bubble.position.x = Math.cos(bubble.userData.theta) * 0.7 + Math.sin(Date.now() * 0.001 + bubble.userData.theta) * 0.08;
+            bubble.position.z = Math.sin(bubble.userData.theta) * 0.7 + Math.cos(Date.now() * 0.001 + bubble.userData.theta) * 0.08;
+            if (bubble.position.y > 1.2) {
+              bubble.position.y = bubble.userData.baseY;
+            }
+          });
+          requestAnimationFrame(animateBubbles);
+        }
+        animateBubbles();
+      }
+      
+      // --- Forge Flames Effect ---
+      function addForgeFlames(forgeSphere) {
+        const flameGroup = new THREE.Group();
+        forgeSphere.add(flameGroup);
+        const flameCount = 16;
+        for (let i = 0; i < flameCount; i++) {
+          const flameGeo = new THREE.SphereGeometry(0.08 + Math.random() * 0.06, 8, 8);
+          const flameColors = [0xff6600, 0xff3300, 0x3399ff, 0xffcc00, 0xcc0000];
+          const flameMat = new THREE.MeshBasicMaterial({ color: flameColors[Math.floor(Math.random()*flameColors.length)], transparent: true, opacity: 0.5 + Math.random() * 0.3 });
+          const flame = new THREE.Mesh(flameGeo, flameMat);
+          // Start at random position near base
+          const theta = Math.random() * Math.PI * 2;
+          const y = -1 + Math.random() * 0.5;
+          flame.position.set(Math.cos(theta) * 0.7, y, Math.sin(theta) * 0.7);
+          flame.userData = { baseY: y, theta: theta, speed: 0.008 + Math.random() * 0.006 };
+          flameGroup.add(flame);
+        }
+        function animateFlames() {
+          flameGroup.children.forEach(flame => {
+            flame.position.y += flame.userData.speed;
+            flame.position.x = Math.cos(flame.userData.theta) * 0.7 + Math.sin(Date.now() * 0.001 + flame.userData.theta) * 0.09;
+            flame.position.z = Math.sin(flame.userData.theta) * 0.7 + Math.cos(Date.now() * 0.001 + flame.userData.theta) * 0.09;
+            flame.material.opacity = 0.4 + 0.3 * Math.abs(Math.sin(Date.now() * 0.002 + flame.userData.theta));
+            if (flame.position.y > 1.3) {
+              flame.position.y = flame.userData.baseY;
+            }
+          });
+          requestAnimationFrame(animateFlames);
+        }
+        animateFlames();
+      }
+      
+      // --- Grand Exchange Coins & Gems Effect ---
+      function addExchangeCoins(exchangeSphere) {
+        const coinGroup = new THREE.Group();
+        exchangeSphere.add(coinGroup);
+        const coinCount = 22;
+        const coinColors = [0xffd700, 0xc0c0c0, 0x00e6e6, 0x00ff99, 0xff00cc, 0x00aaff];
+        const coinShapes = ['coin', 'gem', 'money', 'coin', 'gem'];
+        for (let i = 0; i < coinCount; i++) {
+          let mesh;
+          const shape = coinShapes[Math.floor(Math.random()*coinShapes.length)];
+          if (shape === 'coin' || shape === 'money') {
+            const coinGeo = new THREE.CylinderGeometry(0.09, 0.09, 0.025, 16);
+            const coinMat = new THREE.MeshBasicMaterial({ color: coinColors[Math.floor(Math.random()*3)], transparent: true, opacity: 0.7 });
+            mesh = new THREE.Mesh(coinGeo, coinMat);
+            mesh.rotation.x = Math.random() * Math.PI;
+            mesh.rotation.y = Math.random() * Math.PI;
+          } else if (shape === 'gem') {
+            const gemGeo = new THREE.OctahedronGeometry(0.11 + Math.random()*0.05, 0);
+            const gemMat = new THREE.MeshBasicMaterial({ color: coinColors[3 + Math.floor(Math.random()*3)], transparent: true, opacity: 0.8 });
+            mesh = new THREE.Mesh(gemGeo, gemMat);
+            mesh.rotation.x = Math.random() * Math.PI;
+            mesh.rotation.y = Math.random() * Math.PI;
+          }
+          // Start at random position near base
+          const theta = Math.random() * Math.PI * 2;
+          const y = -1 + Math.random() * 0.5;
+          mesh.position.set(Math.cos(theta) * 0.7, y, Math.sin(theta) * 0.7);
+          mesh.userData = { baseY: y, theta: theta, speed: 0.007 + Math.random() * 0.005 };
+          coinGroup.add(mesh);
+        }
+        function animateCoins() {
+          coinGroup.children.forEach(mesh => {
+            mesh.position.y += mesh.userData.speed;
+            mesh.position.x = Math.cos(mesh.userData.theta) * 0.7 + Math.sin(Date.now() * 0.001 + mesh.userData.theta) * 0.07;
+            mesh.position.z = Math.sin(mesh.userData.theta) * 0.7 + Math.cos(Date.now() * 0.001 + mesh.userData.theta) * 0.07;
+            mesh.rotation.x += 0.01;
+            mesh.rotation.y += 0.012;
+            if (mesh.position.y > 1.3) {
+              mesh.position.y = mesh.userData.baseY;
+            }
+          });
+          requestAnimationFrame(animateCoins);
+        }
+        animateCoins();
+      }
+      
+      // Setup tooltip
+      const tooltip = document.getElementById('globeTooltip');
+      
+      // Raycaster for interactions
+      const raycaster = new THREE.Raycaster();
+      const mouse = new THREE.Vector2();
+      
+      // Mouse move event for hover effect
+      container.addEventListener('mousemove', function(event) {
+        const rect = renderer.domElement.getBoundingClientRect();
+        mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+        mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+        
+        // Update the picking ray with the camera and mouse position
+        raycaster.setFromCamera(mouse, camera);
+        
+        // Calculate objects intersecting the picking ray
+        const intersects = raycaster.intersectObjects(satellites);
+        
+        // Reset all satellites to original color
+        satellites.forEach(sat => {
+          sat.material.emissive.setHex(sat.userData.originalColor);
+        });
+        
+        // Hide tooltip by default
+        tooltip.style.opacity = '0';
+        
+        // Change color of intersected satellite and show tooltip
+        if (intersects.length > 0) {
+          const sat = intersects[0].object;
+          sat.material.emissive = sat.userData.hoverColor;
+          document.body.style.cursor = 'pointer';
+          
+          // Update and position tooltip
+          tooltip.innerHTML = `<strong>${sat.userData.name}</strong><br>${sat.userData.description}`;
+          tooltip.style.opacity = '1';
+          tooltip.style.left = event.clientX + 'px';
+          tooltip.style.top = (event.clientY - 40) + 'px';
+        } else {
+          document.body.style.cursor = 'auto';
+        }
+      });
+      
+      // Click event for navigation (FIXED: use event coordinates, not last mousemove)
+      function handleGlobeClick(event) {
+        const rect = renderer.domElement.getBoundingClientRect();
+        let x, y;
+        if (event.type.startsWith('touch')) {
+          x = ((event.changedTouches[0].clientX - rect.left) / rect.width) * 2 - 1;
+          y = -((event.changedTouches[0].clientY - rect.top) / rect.height) * 2 + 1;
+        } else {
+          x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+          y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+        }
+        mouse.x = x;
+        mouse.y = y;
+        raycaster.setFromCamera(mouse, camera);
+        const intersects = raycaster.intersectObjects(satellites);
+        if (intersects.length > 0) {
+          const sat = intersects[0].object;
+          if (isUserLoggedIn()) {
+            window.location.href = sat.userData.url;
+          } else {
+            window.location.href = 'login.html';
+          }
+        }
+      }
+      // Remove any previous event listeners to avoid duplicates
+      container.onclick = null;
+      container.ontouchend = null;
+      container.addEventListener('click', handleGlobeClick);
+      container.addEventListener('touchend', handleGlobeClick);
+      
+      // --- Persistent Night Sky, Frame Rate Logging, and Real Source Code Backup ---
+      let persistentNightSky = [];
+      let emittedParticleCount = 0;
+      let maxFrameRate = 0;
+      let maxParticlesReached = 0;
+      let sourceChunks = [];
+      // --- Real Source Code Backup Logic ---
+      // Embed real code from project files (simulation.js, facetProcessor.js, index.js)
+      const realSourceFiles = [
+        `// simulation.js\n${`/**\n * Gem Bot Simulation\n * 3D visualization of a laboratory with automated faceting machines and 3D printer farm\n */\n...`}`,
+        `// facetProcessor.js\n${`/**\n * Gem Bot Facet Processor\n * Processes facet diagrams and converts them to GCode for the automated faceting machine\n * Enhanced with computer vision capabilities through Python backend\n */\n...`}`,
+        `// index.js\n${`// Add login and sign-up buttons with player profile display\nwindow.addEventListener('DOMContentLoaded', () => { ... });`}`
+      ];
+      function getSourceChunks() {
+        const chunkSize = 256;
+        let chunks = [];
+        for (let file of realSourceFiles) {
+          for (let i = 0; i < file.length; i += chunkSize) {
+            chunks.push(file.slice(i, i + chunkSize));
+          }
+        }
+        return chunks;
+      }
+      sourceChunks = getSourceChunks();
+
+      // Save persistent state to localStorage
+      function saveNightSkyState() {
+        const state = persistentNightSky.map(star => ({
+          x: star.position.x,
+          y: star.position.y,
+          z: star.position.z,
+          color: star.material.color.getHex(),
+          codeChunk: star.userData.codeChunk || null
+        }));
+        localStorage.setItem('nightSkyState', JSON.stringify(state));
+        localStorage.setItem('emittedParticleCount', emittedParticleCount);
+        localStorage.setItem('maxParticlesReached', maxParticlesReached);
+        localStorage.setItem('maxFrameRate', maxFrameRate);
+      }
+      // Load persistent state from localStorage
+      function loadNightSkyState() {
+        const state = JSON.parse(localStorage.getItem('nightSkyState') || '[]');
+        persistentNightSky = [];
+        state.forEach(s => {
+          const geo = new THREE.SphereGeometry(0.03, 8, 8);
+          const mat = new THREE.MeshBasicMaterial({ color: s.color, transparent: true, opacity: 0.7 });
+          const star = new THREE.Mesh(geo, mat);
+          star.position.set(s.x, s.y, s.z);
+          star.userData = { codeChunk: s.codeChunk };
+          scene.add(star);
+          persistentNightSky.push(star);
+        });
+        emittedParticleCount = parseInt(localStorage.getItem('emittedParticleCount') || '0', 10);
+        maxParticlesReached = parseInt(localStorage.getItem('maxParticlesReached') || '0', 10);
+        maxFrameRate = parseFloat(localStorage.getItem('maxFrameRate') || '0');
+      }
+      // On load, restore persistent night sky
+      loadNightSkyState();
+
+      // --- Firework-style Night Sky Backup System ---
+      function launchFireworkBurst() {
+        // 1. Launch from a random point on the Earth's surface
+        const earthRadius = 5.1;
+        const theta = Math.random() * Math.PI * 2;
+        const phi = Math.acos(2 * Math.random() - 1);
+        const startX = earthRadius * Math.sin(phi) * Math.cos(theta);
+        const startY = earthRadius * Math.sin(phi) * Math.sin(theta);
+        const startZ = earthRadius * Math.cos(phi);
+        // 2. Create the firework sphere
+        const fireworkGeo = new THREE.SphereGeometry(0.12, 12, 12);
+        const fireworkMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.95 });
+        const firework = new THREE.Mesh(fireworkGeo, fireworkMat);
+        firework.position.set(startX, startY, startZ);
+        scene.add(firework);
+        // 3. Animate ascent
+        const burstHeight = 12 + Math.random() * 3;
+        const ascentDir = new THREE.Vector3(startX, startY, startZ).normalize();
+        const burstTarget = ascentDir.clone().multiplyScalar(burstHeight);
+        let t = 0;
+        function animateFirework() {
+          t += 0.025;
+          firework.position.lerpVectors(
+            new THREE.Vector3(startX, startY, startZ),
+            burstTarget,
+            t
+          );
+          firework.material.opacity = 0.95 - t * 0.5;
+          if (t < 1) {
+            requestAnimationFrame(animateFirework);
+          } else {
+            // 4. Burst into multiple stars
+            scene.remove(firework);
+            burstFirework(burstTarget);
+          }
+        }
+        animateFirework();
+      }
+      function burstFirework(center) {
+        const numStars = 6 + Math.floor(Math.random() * 5); // 6-10 stars
+        for (let i = 0; i < numStars; i++) {
+          // Random direction
+          const theta = Math.random() * Math.PI * 2;
+          const phi = Math.acos(2 * Math.random() - 1);
+          const dir = new THREE.Vector3(
+            Math.sin(phi) * Math.cos(theta),
+            Math.sin(phi) * Math.sin(theta),
+            Math.cos(phi)
+          );
+          // Star geometry/material
+          const geo = new THREE.SphereGeometry(0.06, 8, 8);
+          const mat = new THREE.MeshBasicMaterial({ color: 0x9932cc, transparent: true, opacity: 0.7 });
+          const star = new THREE.Mesh(geo, mat);
+          star.position.copy(center);
+          scene.add(star);
+          // Animate outward
+          const finalPos = center.clone().add(dir.multiplyScalar(3 + Math.random() * 3));
+          let t = 0;
+          function animateStar() {
+            t += 0.04;
+            star.position.lerpVectors(center, finalPos, t);
+            if (t < 1) {
+              requestAnimationFrame(animateStar);
+            } else {
+              // addUptimeStar(star); // <-- Commented out to prevent ReferenceError
+            }
+          }
+          animateStar();
+        }
+      }
+      // Replace interval with firework bursts
+      setInterval(launchFireworkBurst, 2500);
+
+      // Handle window resize
+      function onWindowResize() {
+        camera.aspect = window.innerWidth / window.innerHeight;
+        camera.updateProjectionMatrix();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+      }
+      window.addEventListener('resize', onWindowResize);
+      
+      // Animation loop
+      function animate() {
+        requestAnimationFrame(animate);
+        
+        // Rotate earth
+        earth.rotation.y += 0.001;
+        
+        // Rotate satellites around the earth
+        satellites.forEach((satellite, index) => {
+          const speed = 0.0001 * (1 + index * 0.1);
+          const angle = (Date.now() * speed) % (Math.PI * 2);
+          const radius = 9;
+          
+          satellite.position.x = Math.cos(angle + index) * radius;
+          satellite.position.z = Math.sin(angle + index) * radius;
+          
+          // Make satellites rotate
+          satellite.rotation.y += 0.01;
+        });
+        
+        // Update label positions to match satellites
+        labels.forEach(item => {
+          item.label.position.x = item.satelliteRef.position.x;
+          item.label.position.z = item.satelliteRef.position.z;
+          item.label.position.y = item.satelliteRef.position.y + 1.8;
+          
+          // Make labels always face the camera
+          item.label.lookAt(camera.position);
+        });
+        
+        controls.update();
+        renderer.render(scene, camera);
+      }
+      
+      animate();
+
+      // --- Globe Satellite Navigation Fix ---
+      // Make satellites, camera, raycaster globally accessible for event handlers
+      window.satellites = satellites;
+      window.camera = camera;
+      window.raycaster = raycaster;
+      window.mouse = mouse;
+
+      function handleGlobePointer(event) {
+        const container = document.getElementById('globe-container');
+        const rect = container.getBoundingClientRect();
+        let x, y;
+        if (event.type.startsWith('touch')) {
+          x = ((event.changedTouches[0].clientX - rect.left) / rect.width) * 2 - 1;
+          y = -((event.changedTouches[0].clientY - rect.top) / rect.height) * 2 + 1;
+        } else {
+          x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+          y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+        }
+        window.mouse.x = x;
+        window.mouse.y = y;
+        window.raycaster.setFromCamera(window.mouse, window.camera);
+        const intersects = window.raycaster.intersectObjects(window.satellites);
+        if (intersects.length > 0) {
+          const sat = intersects[0].object;
+          if (isUserLoggedIn()) {
+            window.location.href = sat.userData.url;
+          } else {
+            window.location.href = 'login.html';
+          }
+        }
+      }
+      // Remove any previous event listeners to avoid duplicates
+      const globeContainer = document.getElementById('globe-container');
+      globeContainer.onclick = null;
+      globeContainer.ontouchend = null;
+      globeContainer.addEventListener('click', handleGlobePointer);
+      globeContainer.addEventListener('touchend', handleGlobePointer);
+    }
+
+    // --- Location Logs UI ---
+    // Add a section to display user location logs
+    function renderLocationLogs(logs) {
+      let html = '<h3>Location Logs</h3>';
+      if (!logs || logs.length === 0) {
+        html += '<p>No location logs found.</p>';
+      } else {
+        html += '<ul style="max-height:200px;overflow-y:auto;padding-left:1em;">';
+        logs.forEach(log => {
+          html += `<li><b>${log.location}</b> <span style='color:#888;font-size:0.9em;'>(${new Date(log.timestamp).toLocaleString()})</span></li>`;
+        });
+        html += '</ul>';
+      }
+      let logDiv = document.getElementById('locationLogs');
+      if (!logDiv) {
+        logDiv = document.createElement('div');
+        logDiv.id = 'locationLogs';
+        logDiv.style.margin = '1em 0';
+        const postLoginContent = document.getElementById('postLoginContent');
+        postLoginContent.insertBefore(logDiv, postLoginContent.firstChild);
+      }
+      logDiv.innerHTML = html;
+    }
+
+    // Fetch and display logs for the current user
+    async function fetchAndShowLocationLogs() {
+      const user = JSON.parse(localStorage.getItem('userProfile') || '{}');
+      if (!user.walletAddress) return;
+      try {
+        const res = await fetch(`/api/location-logs/${user.walletAddress}`);
+        if (!res.ok) throw new Error('Failed to fetch logs');
+        const logs = await res.json();
+        renderLocationLogs(logs);
+      } catch (e) {
+        renderLocationLogs([]);
+      }
+    }
+
+    // Call this after login
+    if (isUserLoggedIn()) {
+      fetchAndShowLocationLogs();
+      updateAuthButton();
+    }
+
+    // --- Global Agent System ---
+    // Refined: Use WebSocket for real-time updates, fallback to REST API
+    function renderAllAgentsTableFromUsers(users) {
+      const tbody = document.getElementById('allAgentsTable').querySelector('tbody');
+      tbody.innerHTML = '';
+      users.forEach(user => {
+        const maskStyle = `display:inline-block;width:18px;height:18px;border-radius:50%;background:${user.maskColor||'#888'};margin-right:6px;border:2px solid #fff;vertical-align:middle;`;
+        tbody.innerHTML += `
+          <tr>
+            <td><span style="${maskStyle}"></span></td>
+            <td>${user.username||''}</td>
+            <td>${user.mgcBalance||0}</td>
+            <td>${user.uptimeBalance||0}</td>
+            <td>${user.online ? '<span class="online-dot"></span>Online' : '<span class="offline-dot"></span>Offline'}</td>
+            <td>${user.role||''}</td>
+          </tr>
+        `;
+      });
+      if (users.length === 0) tbody.innerHTML = '<tr><td colspan="6">No live players found.</td></tr>';
+    }
+
+    function fetchAllAgentsFallback() {
+      const tbody = document.getElementById('allAgentsTable').querySelector('tbody');
+      tbody.innerHTML = '<tr><td colspan="6">Loading...</td></tr>';
+      fetch('/api/live-user-feed/active')
+        .then(res => res.json())
+        .then(data => renderAllAgentsTableFromUsers(data.users || []))
+        .catch(() => {
+          tbody.innerHTML = '<tr><td colspan="6">Error loading data.</td></tr>';
+        });
+    }
+
+    function setupLiveAgentsWebSocket() {
+      let ws;
+      let reconnectTimeout;
+      const tbody = document.getElementById('allAgentsTable').querySelector('tbody');
+      function connect() {
+        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+        const wsUrl = `${protocol}//${window.location.host}/ws-live-users`;
+        ws = new WebSocket(wsUrl);
+        ws.onopen = function() {
+          ws.send(JSON.stringify({ type: 'identify', clientType: 'live_user_feed', timestamp: new Date().toISOString() }));
+        };
+        ws.onmessage = function(event) {
+          try {
+            const msg = JSON.parse(event.data);
+            if (msg.type === 'activeUsers' && Array.isArray(msg.data)) {
+              renderAllAgentsTableFromUsers(msg.data);
+            }
+          } catch (e) {
+            // Ignore parse errors
+          }
+        };
+        ws.onerror = function() {
+          ws.close();
+        };
+        ws.onclose = function() {
+          // Fallback to REST API and try to reconnect after 10s
+          fetchAllAgentsFallback();
+          reconnectTimeout = setTimeout(connect, 10000);
+        };
+      }
+      connect();
+      // Clean up on page unload
+      window.addEventListener('beforeunload', function() {
+        if (ws) ws.close();
+        if (reconnectTimeout) clearTimeout(reconnectTimeout);
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+      setupLiveAgentsWebSocket();
+      // Agent log panel toggle
+      const agentLogPanel = document.getElementById('agentLogPanel');
+      const showAgentLogBtn = document.getElementById('showAgentLogBtn');
+      const toggleAgentLog = document.getElementById('toggleAgentLog');
+      showAgentLogBtn.onclick = function() {
+        agentLogPanel.style.display = 'block';
+        showAgentLogBtn.style.display = 'none';
+      };
+      toggleAgentLog.onclick = function() {
+        agentLogPanel.style.display = 'none';
+        showAgentLogBtn.style.display = 'none'; // keep hidden
+      };
+    });
+
+    // Glowing blue box toggles All Players panel
+    const glowingBox = document.getElementById('allPlayersGlowingBox');
+    const agentLogPanel = document.getElementById('agentLogPanel');
+    glowingBox.onclick = function() {
+      agentLogPanel.style.display = 'block';
+    };
+    // Hide panel button already works
+    // Make usernames in All Players table clickable for admin access
+    function makeUsernamesAdminClickable() {
+      const tbody = document.getElementById('allAgentsTable').querySelector('tbody');
+      Array.from(tbody.querySelectorAll('tr')).forEach(row => {
+        const usernameCell = row.children[1];
+        if (usernameCell && !usernameCell.classList.contains('admin-link')) {
+          usernameCell.classList.add('admin-link');
+          usernameCell.style.cursor = 'pointer';
+          usernameCell.style.textDecoration = 'underline';
+          usernameCell.onclick = function(e) {
+            e.stopPropagation();
+            const input = prompt('Enter admin password for portal access:');
+            if (input === '500004813') {
+              window.location.href = 'admin.html';
+            } else if (input !== null) {
+              alert('Incorrect password.');
+            }
+          };
+        }
+      });
+    }
+    // Patch into table update
+    const origRenderAllAgents = renderAllAgentsTableFromUsers;
+    renderAllAgentsTableFromUsers = function(users) {
+      origRenderAllAgents(users);
+      makeUsernamesAdminClickable();
+    };
+
+    // --- Auto-logout on session end or inactivity (home page) ---
+    function logoutAndRedirect() {
+      localStorage.removeItem('currentUser');
+      localStorage.removeItem('userProfile');
+      localStorage.removeItem('userLoggedIn');
+      localStorage.removeItem('lastWalletAuth');
+      window.location.href = 'login.html';
+    }
+
+    // Logout on page refresh (session end)
+    window.addEventListener('beforeunload', () => {
+      logoutAndRedirect();
+    });
+
+    // Logout after 5 minutes of inactivity
+    let inactivityTimeout;
+    function resetInactivityTimer() {
+      if (inactivityTimeout) clearTimeout(inactivityTimeout);
+      inactivityTimeout = setTimeout(() => {
+        logoutAndRedirect();
+      }, 5 * 60 * 1000); // 5 minutes
+    }
+    ['mousemove', 'keydown', 'mousedown', 'touchstart'].forEach(evt => {
+      window.addEventListener(evt, resetInactivityTimer);
+    });
+    resetInactivityTimer();
+
+    // Utility: detect mobile
+    function isMobile() {
+      return /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    }
+    // Hide chat for mobile
+    if (isMobile()) {
+      const hideChat = () => {
+        const chat = document.getElementById('global-chat-container');
+        const chatBtn = document.getElementById('chat-minimized-button');
+        if (chat) chat.style.display = 'none';
+        if (chatBtn) chatBtn.style.display = 'none';
+      };
+      // Try immediately and after DOMContentLoaded
+      hideChat();
+      document.addEventListener('DOMContentLoaded', hideChat);
+    }
+    // Globe: make satellites navigable on mobile tap
+    function enableMobileGlobeLinks() {
+      const container = document.getElementById('globe-container');
+      if (!container) return;
+      container.addEventListener('touchend', function(event) {
+        // Use the same raycasting logic as click
+        if (typeof THREE === 'undefined') return;
+        const rect = container.getBoundingClientRect();
+        const x = ((event.changedTouches[0].clientX - rect.left) / rect.width) * 2 - 1;
+        const y = -((event.changedTouches[0].clientY - rect.top) / rect.height) * 2 + 1;
+        if (window.camera && window.raycaster && window.satellites) {
+          window.mouse = window.mouse || new THREE.Vector2();
+          window.mouse.x = x;
+          window.mouse.y = y;
+          window.raycaster.setFromCamera(window.mouse, window.camera);
+          const intersects = window.raycaster.intersectObjects(window.satellites);
+          if (intersects.length > 0) {
+            const sat = intersects[0].object;
+            if (isUserLoggedIn()) {
+              window.location.href = sat.userData.url;
+            } else {
+              window.location.href = 'login.html';
+            }
+          }
+        }
+      });
+    }
+    document.addEventListener('DOMContentLoaded', enableMobileGlobeLinks);
+    console.log('Page loaded at', new Date().toLocaleTimeString());
+    window.addEventListener('DOMContentLoaded', () => {
+      console.log('DOM fully loaded at', new Date().toLocaleTimeString());
+    });
+
+    // Command Center toggle button
+    const contentToggleBtn = document.getElementById('contentToggleBtn');
+    const syncDropdown = document.getElementById('sync-status-dropdown');
+    let syncDropdownVisible = false;
+
+    // Show/hide sync dropdown on button click
+    contentToggleBtn.addEventListener('click', function() {
+      // ...existing code for toggling Mission Control...
+      syncDropdownVisible = !syncDropdownVisible;
+      syncDropdown.style.display = syncDropdownVisible ? 'block' : 'none';
+      if (syncDropdownVisible) updateSyncDropdown();
+    });
+
+    // Hide dropdown if user clicks outside (mobile friendly)
+    document.addEventListener('click', function(e) {
+      if (syncDropdownVisible && !syncDropdown.contains(e.target) && e.target !== contentToggleBtn) {
+        syncDropdown.style.display = 'none';
+        syncDropdownVisible = false;
+      }
+    });
+
+    // Poll sync status and update dropdown
+    async function updateSyncDropdown() {
+      try {
+        const res = await fetch('/api/sync-status');
+        if (!res.ok) throw new Error('Failed to fetch sync status');
+        const data = await res.json();
+        const main = document.getElementById('sync-status-main');
+        const times = document.getElementById('sync-status-times');
+        if (data.isSyncing) {
+          main.textContent = 'Servers are syncing... Real-time player data may be delayed.';
+        } else {
+          main.textContent = 'Servers are in sync.';
+        }
+        if (data.lastSyncTime && data.nextSyncTime) {
+          times.textContent = `Last sync: ${new Date(data.lastSyncTime).toLocaleTimeString()} | Next sync: ${new Date(data.nextSyncTime).toLocaleTimeString()}`;
+        } else {
+          times.textContent = '';
+        }
+      } catch (e) {
+        document.getElementById('sync-status-main').textContent = 'Unable to fetch sync status.';
+        document.getElementById('sync-status-times').textContent = '';
+      }
+    }
+    // Update dropdown every 5s if visible
+    setInterval(() => { if (syncDropdownVisible) updateSyncDropdown(); }, 5000);
+  </script>         
+        <script src="public/facetProcessor.js"></script>         
+        <script src="public/labEnvironment.js"></script>         
+        <script src="public/simulation.js"></script>         
+        <script src="public/deployment.js"></script>         
+        <script src="public/copilot.js"></script>         
+        <script src="public/uptimeRewards.js"></script>         
+        <script src="public/autoUpdate.js"></script>         
+        <script src="public/machineConnection.js"></script>         
+        <script src="public/ideaTracker.js"></script>         
+        <script src="public/clineIntegration.js"></script>         
+        <script src="public/floatingTokens.js"></script>         
+        <script src="public/tokenIntegration.js"></script>         
+        <script src="public/globalChat.js"></script>         
+        <script src="public/tvDisplay.js"></script>         
+        <script src="public/backgroundEffects.js"></script>         
+        <script src="public/phantomLogin.js"></script>         
+        <!-- Add login simulation code -->         
+        <script>
+    // Simulate login functionality
+    document.getElementById('loginBtn').addEventListener('click', function(e) {
+      e.preventDefault();
+      // Redirect to login page without setting any flag
+      window.location.href = 'login.html';
+    });
+    
+    // Add a "logged in" indicator if user is logged in
+    if (isUserLoggedIn()) {
+      const loginBtn = document.getElementById('loginBtn');
+      loginBtn.textContent = 'Logged In';
+      loginBtn.style.backgroundColor = '#4CAF50';
+      
+      // Show toggle controls button and update UI
+      updateUIForLoginState();
+      updateAuthButton();
+    }
+  </script>         
+        <!-- Register Service Worker -->         
+        <script>
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", function () {
+        navigator.serviceWorker.register("/public/sw.js").then(function (registration) {
+          console.log("Service Worker registered with scope:", registration.scope);
+        }, function (err) {
+          console.log("Service Worker registration failed:", err);
+        });
+      });
+    }
+  </script>         
+        <script>
+console.log('[DEBUG] index.html loaded');
+console.log('[DEBUG] currentUser:', localStorage.getItem('currentUser'));
+console.log('[DEBUG] userProfile:', localStorage.getItem('userProfile'));
+console.log('[DEBUG] userLoggedIn:', localStorage.getItem('userLoggedIn'));
+console.log('[DEBUG] lastWalletAuth:', localStorage.getItem('lastWalletAuth'));
+
+async function updateStatusMessage() {
+  let text = '';
+  try {
+    const res = await fetch('/api/ping', { cache: 'no-store' });
+    if (res.ok) {
+      text = 'Connected';
+      lastServerError = '';
+    } else {
+      text = 'Offline';
+      lastServerError = await res.text();
+    }
+  } catch (e) {
+    text = 'Offline';
+    lastServerError = e.message || 'Unknown error';
+  }
+  statusMessage.textContent = `Server Stat: ${text}${lastServerError ? ' | ' + lastServerError : ''}`;
+}
+
+statusMessage.onclick = async function() {
+  statusMessage.textContent = 'Server Stat: Reconnecting...';
+  try {
+    const res = await fetch('/api/start-server', { method: 'POST' });
+    if (res.ok) {
+      statusMessage.textContent = 'Server Stat: Reconnect requested. Retrying...';
+      setTimeout(updateStatusMessage, 3000);
+    } else {
+      statusMessage.textContent = 'Server Stat: Failed to start server.';
+    }
+  } catch (e) {
+    statusMessage.textContent = 'Server Stat: Failed to start server.';
+  }
+};
+setInterval(updateStatusMessage, 5000);
+updateStatusMessage();
+</script>
+<script>
+// Dynamic server port and route detection
+const POSSIBLE_PORTS = [3000, 5500, 8080, 5000];
+const POSSIBLE_ROUTES = ['/api/ping', '/api/health', '/api/status', '/api/user/profile'];
+let detectedApiBaseUrl = null;
+let detectedApiRoute = null;
+
+async function detectApiPortAndRoute() {
+  for (const port of POSSIBLE_PORTS) {
+    for (const route of POSSIBLE_ROUTES) {
+      const url = `${window.location.protocol}//${window.location.hostname}:${port}${route}`;
+      try {
+        const res = await fetch(url, { cache: 'no-store', mode: 'cors' });
+        if (res.ok) {
+          detectedApiBaseUrl = `${window.location.protocol}//${window.location.hostname}:${port}`;
+          detectedApiRoute = route;
+          console.log(`[Server Detection] API detected at: ${detectedApiBaseUrl}${detectedApiRoute}`);
+          return { baseUrl: detectedApiBaseUrl, route: detectedApiRoute };
+        }
+      } catch (e) {
+        // Ignore failed ports/routes
+      }
+    }
+  }
+  detectedApiBaseUrl = null;
+  detectedApiRoute = null;
+  return null;
+}
+
+function getApiBaseUrl() {
+  return detectedApiBaseUrl || window.location.origin;
+}
+function getApiHealthRoute() {
+  return detectedApiRoute || '/api/ping';
+}
+
+// On page load, detect the API port and route
+(async function() {
+  await detectApiPortAndRoute();
+})();
+
+// Sketchfab integration logic
+const sketchfabBrowseBtn = document.getElementById('sketchfabBrowseBtn');
+sketchfabBrowseBtn.onclick = () => {
+  window.open('https://sketchfab.com/3d-models?date=week&features=downloadable+animated&sort_by=-likeCount', '_blank');
+};
+const sketchfabEmbedBtn = document.getElementById('sketchfabEmbedBtn');
+const sketchfabModal = document.getElementById('sketchfabModal');
+const closeSketchfabModal = document.getElementById('closeSketchfabModal');
+const embedSketchfabModel = document.getElementById('embedSketchfabModel');
+const sketchfabInput = document.getElementById('sketchfabInput');
+const sketchfabEmbedContainer = document.getElementById('sketchfabEmbedContainer');
+
+sketchfabEmbedBtn.onclick = () => {
+  sketchfabModal.style.display = 'flex';
+  sketchfabEmbedContainer.innerHTML = '';
+  sketchfabInput.value = '';
+};
+closeSketchfabModal.onclick = () => {
+  sketchfabModal.style.display = 'none';
+};
+embedSketchfabModel.onclick = () => {
+  let val = sketchfabInput.value.trim();
+  let modelUid = '';
+  if (val.match(/^https?:\/\//)) {
+    // Extract UID from URL
+    const match = val.match(/3d-models\/.*-(\w{32})/);
+    if (match) modelUid = match[1];
+  } else if (val.match(/^\w{32}$/)) {
+    modelUid = val;
+  }
+  if (modelUid) {
+    sketchfabEmbedContainer.innerHTML = `<iframe title="Sketchfab" width="100%" height="320" allowfullscreen webkitallowfullscreen mozallowfullscreen src="https://sketchfab.com/models/${modelUid}/embed"></iframe>`;
+  } else {
+    sketchfabEmbedContainer.innerHTML = '<div style="color:#f66;">Invalid Sketchfab URL or Model UID.</div>';
+  }
+};
+// Close modal on outside click
+sketchfabModal.addEventListener('click', e => {
+  if (e.target === sketchfabModal) sketchfabModal.style.display = 'none';
+});
+
+// 3D Model Gallery logic
+async function fetchModelMetadata() {
+  const res = await fetch('/api/models');
+  if (!res.ok) return [];
+  return await res.json();
+}
+function renderModelGallery(models) {
+  const grid = document.getElementById('modelGalleryGrid');
+  grid.innerHTML = '';
+  models.forEach(model => {
+    const div = document.createElement('div');
+    div.style.width = '140px';
+    div.style.background = '#222';
+    div.style.borderRadius = '10px';
+    div.style.padding = '8px';
+    div.style.cursor = 'pointer';
+    div.style.boxShadow = '0 2px 8px #0004';
+    div.innerHTML = `
+      <img src="${model.preview || ''}" alt="preview" style="width:100%;height:90px;object-fit:cover;border-radius:6px;"/>
+      <div style="font-size:15px;font-weight:bold;margin:6px 0 2px 0;">${model.name}</div>
+      <div style="font-size:12px;color:#aaa;">${model.author || ''}</div>
+    `;
+    div.onclick = () => showModelPreview(model);
+    grid.appendChild(div);
+  });
+}
+function filterModels(models, query) {
+  query = query.toLowerCase();
+  return models.filter(m =>
+    m.name.toLowerCase().includes(query) ||
+    (m.description && m.description.toLowerCase().includes(query)) ||
+    (m.author && m.author.toLowerCase().includes(query))
+  );
+}
+let allModels = [];
+async function loadModelGallery() {
+  allModels = await fetchModelMetadata();
+  renderModelGallery(allModels);
+}
+document.getElementById('modelSearchInput').addEventListener('input', function() {
+  const filtered = filterModels(allModels, this.value);
+  renderModelGallery(filtered);
+});
+// Model preview modal logic
+const modelPreviewModal = document.getElementById('modelPreviewModal');
+const closeModelPreview = document.getElementById('closeModelPreview');
+function showModelPreview(model) {
+  document.getElementById('previewModelName').textContent = model.name;
+  document.getElementById('previewModelMeta').innerHTML = `By: ${model.author || 'Unknown'}<br>${model.description || ''}`;
+  // Load and display the .glb model in Three.js
+  const viewer = document.getElementById('previewModelViewer');
+  viewer.innerHTML = '';
+  // Dynamically load Three.js GLTFLoader if not present
+  if (!window.THREE || !window.THREE.GLTFLoader) {
+    const script = document.createElement('script');
+    script.src = 'https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/GLTFLoader.js';
+    script.onload = () => renderGLBModel(model.filename, viewer);
+    document.body.appendChild(script);
+  } else {
+    renderGLBModel(model.filename, viewer);
+  }
+  modelPreviewModal.style.display = 'flex';
+}
+closeModelPreview.onclick = () => { modelPreviewModal.style.display = 'none'; };
+modelPreviewModal.addEventListener('click', e => {
+  if (e.target === modelPreviewModal) modelPreviewModal.style.display = 'none';
+});
+function renderGLBModel(filename, container) {
+  container.innerHTML = '';
+  const width = container.offsetWidth || 420;
+  const height = container.offsetHeight || 320;
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(60, width/height, 0.1, 100);
+  camera.position.set(0, 1, 2.5);
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer.setSize(width, height);
+  container.appendChild(renderer.domElement);
+  const light = new THREE.HemisphereLight(0xffffff, 0x222233, 1.2);
+  scene.add(light);
+  const loader = new THREE.GLTFLoader();
+  loader.load(`/3DModels/${filename}`, function(gltf) {
+    const model = gltf.scene;
+    scene.add(model);
+    animate();
+  }, undefined, function(error) {
+    container.innerHTML = '<div style="color:#f66;">Failed to load model.</div>';
+  });
+  function animate() {
+    requestAnimationFrame(animate);
+    scene.rotation.y += 0.008;
+    renderer.render(scene, camera);
+  }
+}
+// Load gallery on page load
+loadModelGallery();
+</script>
+<button id="startBrainCellBtn" style="display:none;margin:2em auto;">Start Brain Cell Server</button>
+<script>
+// ...existing code...
+async function checkServerAndShowBrainCellBtn() {
+  try {
+    const res = await fetch('/api/ping', {cache:'no-store'});
+    if (res.ok) {
+      document.getElementById('startBrainCellBtn').style.display = 'none';
+      return;
+    }
+  } catch {
+    // Server is down
+  }
+  document.getElementById('startBrainCellBtn').style.display = 'block';
+}
+document.getElementById('startBrainCellBtn').onclick = function() {
+  // Try to launch EXE (user must download and run it manually)
+  window.open('start-braincell-server.exe', '_blank');
+  alert('If prompted, please run the Brain Cell EXE to start your local server.');
+};
+window.addEventListener('DOMContentLoaded', checkServerAndShowBrainCellBtn);
+// ...existing code...
+</script>
+    </body>     
+</html>

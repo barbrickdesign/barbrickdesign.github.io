@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Panel - Gem Bot Universe</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #181c24; color: #fff; margin: 0; padding: 0; }
+    .container { max-width: 700px; margin: 40px auto; background: #23293a; border-radius: 8px; padding: 32px; box-shadow: 0 2px 16px #0008; }
+    h1 { margin-top: 0; }
+    .hidden { display: none; }
+    table { width: 100%; border-collapse: collapse; margin-top: 24px; }
+    th, td { padding: 8px 12px; border-bottom: 1px solid #333; }
+    th { background: #222; }
+    tr.admin { background: #2e3b4e; }
+    button { background: #2196f3; color: #fff; border: none; border-radius: 4px; padding: 6px 12px; cursor: pointer; margin-right: 4px; }
+    button.danger { background: #e53935; }
+    .status { font-size: 12px; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Admin Panel</h1>
+    <div id="admin-login">
+      <label for="admin-password">Enter Admin Password:</label>
+      <input type="password" id="admin-password" autofocus>
+      <button onclick="checkAdminPassword()">Login</button>
+      <div id="login-error" style="color:#e53935;margin-top:8px;"></div>
+      <div id="failed-attempts" style="margin-top:16px;"></div>
+    </div>
+    <div id="admin-panel" class="hidden">
+      <h2>Users</h2>
+      <table id="users-table">
+        <thead>
+          <tr><th>Email</th><th>Display Name</th><th>Wallet</th><th>Admin</th><th>Verified</th><th>Actions</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+      <hr style="margin:32px 0;">
+      <h2>Chat Log</h2>
+      <div style="margin-bottom:12px;">
+        <input id="chat-search" type="text" placeholder="Search chat by user, room, or keyword..." style="width:220px;padding:4px 8px;">
+        <select id="chat-room-filter" style="padding:4px 8px;"><option value="">All Rooms</option><option value="general">General</option><option value="gemology">Gemology</option><option value="trading">Trading</option><option value="help">Help</option></select>
+        <button onclick="refreshChatLog()">Refresh</button>
+      </div>
+      <table id="chat-log-table">
+        <thead>
+          <tr><th>Time</th><th>Room</th><th>Sender</th><th>Message</th><th>Actions</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </div>
+  <script>
+    const ADMIN_PASSWORD = '500004813';
+    async function logFailedAttempt() {
+      try {
+        // Get location info from ipinfo.io (free, limited)
+        const res = await fetch('https://ipinfo.io/json?token=demo');
+        const info = await res.json();
+        let attempts = JSON.parse(localStorage.getItem('admin_failed_attempts') || '[]');
+        attempts.push({
+          time: new Date().toLocaleString(),
+          ip: info.ip,
+          city: info.city,
+          region: info.region,
+          country: info.country,
+          loc: info.loc
+        });
+        localStorage.setItem('admin_failed_attempts', JSON.stringify(attempts));
+        showFailedAttempts();
+      } catch (e) {
+        // fallback: just log time
+        let attempts = JSON.parse(localStorage.getItem('admin_failed_attempts') || '[]');
+        attempts.push({ time: new Date().toLocaleString(), ip: 'unknown' });
+        localStorage.setItem('admin_failed_attempts', JSON.stringify(attempts));
+        showFailedAttempts();
+      }
+    }
+    function showFailedAttempts() {
+      const attempts = JSON.parse(localStorage.getItem('admin_failed_attempts') || '[]');
+      if (!attempts.length) {
+        document.getElementById('failed-attempts').innerHTML = '';
+        return;
+      }
+      document.getElementById('failed-attempts').innerHTML =
+        '<b>Failed Login Attempts:</b><br>' +
+        attempts.map(a => `${a.time} - ${a.ip || ''} ${a.city ? a.city + ', ' : ''}${a.region ? a.region + ', ' : ''}${a.country || ''} ${a.loc ? '(' + a.loc + ')' : ''}`).join('<br>');
+    }
+    function checkAdminPassword() {
+      const input = document.getElementById('admin-password').value;
+      if (input === ADMIN_PASSWORD) {
+        document.getElementById('admin-login').classList.add('hidden');
+        document.getElementById('admin-panel').classList.remove('hidden');
+        loadUsers();
+      } else {
+        document.getElementById('login-error').textContent = 'Incorrect password.';
+        logFailedAttempt();
+        // Send failed attempt to server
+        sendFailedAttemptToServer();
+      }
+    }
+    async function sendFailedAttemptToServer() {
+      try {
+        const res = await fetch('https://ipinfo.io/json?token=demo');
+        const info = await res.json();
+        await fetch('/api/admin/failed-login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            ip: info.ip,
+            city: info.city,
+            region: info.region,
+            country: info.country,
+            loc: info.loc,
+            time: new Date().toLocaleString()
+          })
+        });
+      } catch (e) {
+        // fallback: send minimal info
+        await fetch('/api/admin/failed-login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            ip: 'unknown',
+            time: new Date().toLocaleString()
+          })
+        });
+      }
+    }
+    async function loadUsers() {
+      const tbody = document.querySelector('#users-table tbody');
+      tbody.innerHTML = '<tr><td colspan="6">Loading...</td></tr>';
+      try {
+        const res = await fetch('/api/admin/users');
+        const users = await res.json();
+        tbody.innerHTML = users.map(u => `
+          <tr class="${u.isAdmin ? 'admin' : ''}">
+            <td>${u.email}</td>
+            <td>${u.displayName || ''}</td>
+            <td>${u.walletAddress || ''}</td>
+            <td>${u.isAdmin ? '✔️' : ''}</td>
+            <td>${u.isVerified ? '✔️' : '❌'}</td>
+            <td>
+              <button onclick="setAdmin('${u.email}', ${u.isAdmin ? 'false' : 'true'})">${u.isAdmin ? 'Remove Admin' : 'Make Admin'}</button>
+              <button onclick="deleteUser('${u.email}')" class="danger">Delete</button>
+              <button onclick="resendVerification('${u.email}')">Resend Verification</button>
+            </td>
+          </tr>
+        `).join('');
+      } catch (e) {
+        tbody.innerHTML = '<tr><td colspan="6">Failed to load users.</td></tr>';
+      }
+    }
+    async function setAdmin(email, isAdmin) {
+      await fetch('/api/admin/set-admin', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, isAdmin })
+      });
+      loadUsers();
+    }
+    async function deleteUser(email) {
+      if (!confirm('Delete user ' + email + '?')) return;
+      await fetch('/api/admin/delete-user', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      loadUsers();
+    }
+    async function resendVerification(email) {
+      await fetch('/api/user/request-verification', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      alert('Verification email sent (see server log).');
+    }
+    document.getElementById('admin-password').addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') checkAdminPassword();
+    });
+    showFailedAttempts();
+    async function refreshChatLog() {
+      const tbody = document.querySelector('#chat-log-table tbody');
+      tbody.innerHTML = '<tr><td colspan="5">Loading...</td></tr>';
+      let logs = [];
+      try {
+        const res = await fetch('/api/chat/log');
+        logs = await res.json();
+      } catch (e) {
+        tbody.innerHTML = '<tr><td colspan="5">Failed to load chat log.</td></tr>';
+        return;
+      }
+      // Filter
+      const search = document.getElementById('chat-search').value.toLowerCase();
+      const room = document.getElementById('chat-room-filter').value;
+      logs = logs.filter(l =>
+        (!room || l.room === room) &&
+        (!search || l.sender.toLowerCase().includes(search) || l.text.toLowerCase().includes(search) || l.room.toLowerCase().includes(search))
+      );
+      // Sort by timestamp desc
+      logs.sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
+      tbody.innerHTML = logs.map(l => `
+        <tr>
+          <td>${new Date(l.timestamp).toLocaleString()}</td>
+          <td>${l.room}</td>
+          <td>${l.sender}</td>
+          <td>${l.text}</td>
+          <td>
+            <button class="danger" onclick="deleteChatMessage('${l.timestamp}','${l.sender.replace(/'/g, '')}','${l.text.replace(/'/g, '').replace(/"/g, '')}')">Delete</button>
+            <button onclick="banUser('${l.sender}')">Ban</button>
+          </td>
+        </tr>
+      `).join('') || '<tr><td colspan="5">No chat messages found.</td></tr>';
+    }
+    window.refreshChatLog = refreshChatLog;
+    // Dummy delete/ban handlers (implement server logic as needed)
+    window.deleteChatMessage = async function(timestamp, sender, text) {
+      if (!confirm('Delete this message?')) return;
+      try {
+        const res = await fetch('/api/chat/log', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ timestamp, sender, text })
+        });
+        if (res.ok) {
+          refreshChatLog();
+        } else {
+          alert('Failed to delete message.');
+        }
+      } catch (e) {
+        alert('Error deleting message.');
+      }
+    };
+    window.banUser = async function(sender) {
+      if (!confirm('Ban user ' + sender + ' from chat?')) return;
+      try {
+        const res = await fetch('/api/chat/ban', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ sender })
+        });
+        if (res.ok) {
+          alert('User banned.');
+        } else {
+          alert('Failed to ban user.');
+        }
+      } catch (e) {
+        alert('Error banning user.');
+      }
+    };
+    document.getElementById('chat-search').addEventListener('input', refreshChatLog);
+    document.getElementById('chat-room-filter').addEventListener('change', refreshChatLog);
+    // After admin login, load chat log
+    const origCheckAdminPassword = checkAdminPassword;
+    window.checkAdminPassword = function() {
+      origCheckAdminPassword();
+      if (!document.getElementById('admin-panel').classList.contains('hidden')) {
+        refreshChatLog();
+      }
+    };
+  </script>
+</body>
+</html>

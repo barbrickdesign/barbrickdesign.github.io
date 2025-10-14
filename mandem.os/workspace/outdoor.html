@@ -1,0 +1,872 @@
+<!DOCTYPE html> 
+<html lang="en"> 
+    <head> 
+        <meta charset="UTF-8"> 
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+        <title>Explorer - GeoMine</title>         
+        <link href="css/theme.css" rel="stylesheet" type="text/css">
+        <link rel="stylesheet" href="public/styles.css"> 
+        <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet"> 
+        <style>body { margin: 0; padding: 0; overflow: hidden; width: 100vw; height: 100vh; font-family: 'Orbitron', sans-serif; background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d); background-size: 600% 600%; animation: gradient 15s ease infinite; } @keyframes gradient { 0% {  background-position: 0% 50%; }  50% {  background-position: 100% 50%; }  100% {  background-position: 0% 50%; } } header { background-color: rgba(0, 0, 0, 0.7); color: white; padding: 15px; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5); text-align: center; border-bottom: 2px solid #2196f3; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); } header h1 { margin: 0; font-size: 28px; font-family: 'Orbitron', sans-serif; background: linear-gradient(45deg, #2196f3, #21f3c7); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; display: inline-block; vertical-align: middle; } .auth-links { position: fixed; top: 20px; right: 20px; z-index: 1001; } .auth-button { background-color: #2196f3; color: white; border: none; border-radius: 5px; padding: 8px 15px; margin-left: 10px; text-decoration: none; font-size: 14px; cursor: pointer; transition: background-color 0.3s; } .auth-button:hover { background-color: #0d8aee; } #mgcBalanceDisplay { margin-top: 8px; font-size: 16px; color: #00ff99; font-family: 'Orbitron', monospace; display: none; } .tip-tag { background: #21f3c7; color: #222; border-radius: 6px; padding: 4px 10px; margin-right: 8px; font-size: 15px; display: inline-block; margin-bottom: 8px; } .desc-box { background: rgba(0,0,0,0.7); border-radius: 10px; padding: 18px; margin: 80px auto 24px auto; max-width: 700px; } #error { position: fixed; top: 10px; left: 10px; background-color: rgba(255, 0, 0, 0.7); color: white; padding: 10px; border-radius: 5px; display: none; z-index: 100; } #loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); color: white; display: flex; justify-content: center; align-items: center; font-size: 24px; z-index: 90; } .location-label { position: fixed; bottom: 20px; left: 20px; background-color: rgba(0, 0, 0, 0.6); color: white; padding: 10px 20px; border-radius: 5px; font-size: 18px; font-family: 'Orbitron', sans-serif; z-index: 50; } .interactive-hint { position: fixed; bottom: 60px; right: 90px; background-color: rgba(0, 0, 0, 0.6); color: white; padding: 10px 20px; border-radius: 5px; font-size: 14px; font-family: 'Orbitron', sans-serif; z-index: 50; max-width: 300px; } @keyframes reward-pulse { 0%, 100% {  transform: scale(1); }  50% {  transform: scale(1.05); } } .auth-header { padding: 8px 16px !important; } /* GeoMine Interface Buttons */.action-buttons { position: fixed; top: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 60; } .action-btn { padding: 12px 20px; border: none; border-radius: 5px; font-family: 'Orbitron', sans-serif; font-weight: bold; background: linear-gradient(135deg, #4a69bd, #1e3799); color: white; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.3); transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; } .action-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.4); background: linear-gradient(135deg, #5a79cd, #2e47a9); } .action-btn .icon { margin-right: 8px; font-size: 18px; } .mgc-balance { position: fixed; top: 20px; left: 20px; background: rgba(0, 0, 0, 0.7); color: #50c878; padding: 10px 15px; border-radius: 20px; font-weight: bold; font-size: 16px; z-index: 60; cursor: pointer; text-decoration: underline; } /* Gem Found Animation */@keyframes gem-pop { 0% {  transform: scale(0);  opacity: 0; }  60% {  transform: scale(1.2);  opacity: 1; }  100% {  transform: scale(1);  opacity: 1; } } .gem-found { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0, 0, 0, 0.8); border-radius: 10px; padding: 20px; text-align: center; color: white; z-index: 100; animation: gem-pop 0.5s forwards; display: none; } .gem-found img { width: 80px; height: 80px; margin-bottom: 10px; } .gem-name { font-size: 18px; margin: 5px 0; } .gem-rarity { font-size: 14px; margin-bottom: 15px; } .modal-close { padding: 8px 15px; background: #4a69bd; border: none; border-radius: 5px; color: white; cursor: pointer; margin-top: 10px; } /* Stats Panel */.stats-panel { position: fixed; left: 20px; top: 70px; background: rgba(0,0,0,0.7); color: white; padding: 15px; border-radius: 8px; max-width: 250px; font-size: 14px; z-index: 55; display: none; } .stats-panel h3 { margin-top: 0; color: #50c878; } .stat-row { display: flex; justify-content: space-between; margin: 5px 0; } /* Mini-map styles */.mini-map { position: fixed; bottom: 20px; right: 20px; width: 180px; height: 180px; background: rgba(0, 0, 0, 0.7); border: 2px solid #4a69bd; border-radius: 50%; overflow: hidden; z-index: 55; } .mini-map-container { position: relative; width: 100%; height: 100%; } .mini-map-player { position: absolute; width: 10px; height: 10px; background: #50c878; border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 57; } .mini-map-plot { position: absolute; width: 8px; height: 8px; background: rgba(255, 255, 255, 0.5); border-radius: 50%; z-index: 56; } .mini-map-portal { position: absolute; width: 6px; height: 6px; background: #f39c12; border-radius: 50%; z-index: 56; } /* Jetpack UI */.jetpack-ui { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0, 0, 0, 0.7); padding: 10px 15px; border-radius: 20px; z-index: 60; } .jetpack-fuel { width: 150px; height: 10px; background: rgba(255, 255, 255, 0.3); border-radius: 5px; overflow: hidden; } .jetpack-fuel-level { height: 100%; width: 100%; background: linear-gradient(90deg, #f39c12, #e74c3c); transition: width 0.2s; } .jetpack-controls { display: flex; justify-content: center; margin-top: 5px; } .jetpack-btn { padding: 5px 10px; margin: 0 5px; background: #3498db; border: none; border-radius: 3px; color: white; font-size: 12px; cursor: pointer; } /* Full GeoMine Interface */.geomine-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); z-index: 200; display: none; } .geomine-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: rgba(30, 55, 153, 0.8); color: white; } .geomine-close { background: none; border: none; color: white; font-size: 24px; cursor: pointer; } .geomine-controls { display: flex; justify-content: space-around; padding: 15px 0; background: rgba(30, 55, 153, 0.5); } .geomine-btn { padding: 10px 15px; background: #3498db; border: none; border-radius: 5px; color: white; cursor: pointer; } /* Energy Use System */.energy-bar { position: fixed; top: 70px; left: 20px; background: rgba(0, 0, 0, 0.7); border-radius: 20px; padding: 8px 15px; z-index: 59; } .energy-label { color: white; font-size: 12px; margin-bottom: 4px; } .energy-meter { width: 150px; height: 8px; background: rgba(255, 255, 255, 0.3); border-radius: 4px; overflow: hidden; } .energy-level { height: 100%; width: 100%; background: linear-gradient(90deg, #2ecc71, #27ae60); transition: width 0.3s; } /* Toast notification */.toast { position: fixed; top: 120px; left: 50%; transform: translateX(-50%); background: rgba(0, 0, 0, 0.8); color: white; padding: 10px 20px; border-radius: 5px; z-index: 70; display: none; } #jetpack-ui { display: none; }
+        /* --- UI Fixes and Mobile Improvements --- */
+        @media (max-width: 700px) {
+          .action-buttons { top: 110px !important; right: 10px !important; flex-direction: column; gap: 10px; }
+          #show-leaderboard-btn { top: 90px !important; left: 10px !important; right: auto !important; width: 90vw; }
+          #leaderboard-panel { left: 5vw !important; right: auto !important; max-width: 90vw !important; top: 140px !important; }
+          .mgc-balance { top: 140px !important; left: 10px !important; }
+          #locationLogs { right: 10px !important; bottom: 210px !important; max-width: 90vw !important; }
+        }
+        .action-buttons { top: 110px !important; right: 24px !important; }
+        #show-leaderboard-btn { position: fixed !important; top: 90px !important; left: 24px !important; right: auto !important; z-index: 131; }
+        #leaderboard-panel { top: 140px !important; left: 24px !important; right: auto !important; }
+        .mgc-balance { top: 200px !important; left: 24px !important; cursor: pointer; text-decoration: underline; }
+        #locationLogs { bottom: 210px !important; right: 24px !important; z-index: 120; }
+        .location-label { bottom: 60px !important; left: 24px !important; z-index: 50; display: flex; align-items: center; gap: 12px; }
+        .explorer-hint { background: rgba(0,0,0,0.6); color: #00ff99; border-radius: 6px; padding: 7px 16px; font-size: 15px; margin-left: 8px; }
+        .glowy-bubble { display: inline-block; margin-left: 10px; background: linear-gradient(90deg,#21f3c7,#2196f3); color: #fff; border-radius: 50px; box-shadow: 0 0 16px 4px #21f3c7, 0 0 32px 8px #2196f3; padding: 8px 18px; font-weight: bold; cursor: pointer; font-size: 16px; transition: box-shadow 0.2s; }
+        .glowy-bubble:hover { box-shadow: 0 0 24px 8px #21f3c7, 0 0 48px 16px #2196f3; }
+        .interactive-hint { bottom: 60px !important; right: 90px !important; z-index: 50; min-width: 180px; max-width: 320px; font-size: 15px; background: rgba(0,0,0,0.7); color: #ffd700; border-radius: 7px; padding: 10px 18px; box-shadow: 0 2px 8px #000; transition: background 0.3s; }
+        .blue-grid-layer { pointer-events: none; position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 12; }
+        </style>         
+        <link rel="preconnect" href="https://fonts.googleapis.com"> 
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> 
+        <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet"> 
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> 
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    </head>     
+    <body> 
+        <header> 
+            <div id="global-population-bar" style="position:absolute;top:0;left:0;width:100vw;text-align:center;z-index:2000;background:rgba(0,0,0,0.85);color:#00ff99;font-size:18px;padding:6px 0;font-family:'Orbitron',sans-serif;letter-spacing:1px;">
+              🌎 World Population: <span id="world-population">8,005,176,000</span> |
+              👾 Players Online: <span id="in-game-users">0</span>
+            </div>
+            <!-- Vault and Plot Stats Bar -->
+            <div id="vault-bar" style="position:absolute;top:36px;left:0;width:100vw;text-align:center;z-index:2001;background:rgba(0,0,0,0.85);color:#00ff99;font-size:16px;padding:4px 0;font-family:'Orbitron',sans-serif;letter-spacing:1px;">
+              <span>🌍 Vault Balance: <span id="vault-balance">...</span> MGC</span> |
+              <span>Plots: <span id="total-plots">...</span> total, <span id="owned-plots">...</span> owned, <span id="unsold-plots">...</span> unsold</span> |
+              <span>Potential Value: $<span id="potential-value">...</span></span>
+              <span id="mgc-globe" style="margin-left:18px;vertical-align:middle;"></span>
+            </div>
+            <h1>Explorer</h1> 
+            <div id="mgcBalanceDisplay"> <a id="mgcBalanceLink" href="#" style="color: #00ff99; text-decoration: underline; cursor: pointer;"> 
+          MGC Balance: <span id="mgcBalance">0</span>  </a> 
+            </div>             
+            <!-- Move Energy Bar into header, top left -->
+            <div class="energy-bar" style="position:absolute;top:15px;left:20px;z-index:110;"> 
+                <div class="energy-label">ENERGY: <span id="energy-percent">100</span>%</div>             
+                <div class="energy-meter"> 
+                    <div class="energy-level" id="energy-level"></div>                 
+                </div>             
+            </div>
+            <!-- Move Map Style Toggle under Energy Bar -->
+            <div id="map-style-toggle" style="position:absolute;top:65px;left:20px;z-index:109;background:rgba(0,0,0,0.85);color:#00ff99;padding:10px 18px;border-radius:8px;box-shadow:0 2px 8px #000;min-width:180px;">
+              <label for="mapStyleSelect" style="font-weight:bold;">Map Style:</label>
+              <select id="mapStyleSelect" style="margin-left:8px;background:#222;color:#00ff99;border-radius:4px;padding:2px 8px;">
+                <option value="dark">Solana Dark (CartoDB)</option>
+                <option value="neon">Neon (MapTiler)</option>
+                <option value="terrain">Terrain (MapTiler)</option>
+                <option value="streets">Streets (MapTiler)</option>
+                <option value="satellite">Satellite (MapTiler)</option>
+                <option value="osm">OpenStreetMap</option>
+              </select>
+            </div>
+            <div class="mgc-balance" id="edit-explorer-icon-link" onclick="editExplorerIcon()">
+                <i class="fas fa-gem"></i> <span id="mgc-amount">1000</span> MGC
+            </div>
+        </header>         
+        <div class="auth-links"> <a href="index.html" class="auth-button">Home</a> <a href="profile.html" class="auth-button">Profile</a> <a href="login.html" class="auth-button" id="loginBtn">Log In</a> 
+        </div>         
+        <div class="desc-box"> 
+            <h2 style="color:#00ff99;">Welcome to the Explorer</h2> 
+            <p> 
+        The Explorer is your gateway to the outdoor world. Roam, claim plots, mine for MGC and minerals, and build your legacy in the Gem Bot Universe.<br>  <strong>Tip:</strong> Use the tip tags below to learn more about features and track your progress!
+ </p> 
+            <div class="tip-tags" style="margin-top:12px;"> <span class="tip-tag">💡 Tip: Click your <b>MGC Balance</b> to view your live profile and stats!</span> <span class="tip-tag">🌍 Claim plots and mine for real rewards!</span> <span class="tip-tag">⛏️ Use energy wisely to maximize mining!</span> 
+            </div>             
+        </div>         
+        <div id="error"></div>         
+        <div id="loading">Loading Explorer scene... Please wait.</div>         
+        <!-- Loading Progress Bar -->
+        <div id="loading-bar-container" style="position:fixed;top:0;left:0;width:100vw;height:6px;z-index:9999;background:rgba(0,0,0,0.2);display:none;">
+          <div id="loading-bar" style="height:100%;width:0%;background:#00ff99;transition:width 0.2s;"></div>
+        </div>
+        <!-- Leaderboard Panel (hidden by default) -->
+        <div id="leaderboard-panel" style="display:none;position:fixed;top:140px;left:24px;z-index:130;background:rgba(0,0,0,0.92);color:#00ff99;padding:18px 24px;border-radius:12px;box-shadow:0 2px 8px #000;max-width:340px;max-height:400px;overflow-y:auto;">
+          <h3 style="margin-top:0;font-size:20px;">Leaderboard</h3>
+          <div id="leaderboard-content">Loading...</div>
+        </div>
+        <button id="show-leaderboard-btn" style="position:fixed;top:90px;left:24px;z-index:131;background:#222;color:#00ff99;border:2px solid #00ff99;border-radius:8px;padding:7px 18px;font-family:'Orbitron',monospace;">Leaderboard</button>
+        <div id="leaflet-map-container" style="position:fixed;top:0;left:0;width:100vw;height:100vh;z-index:10;">
+            <div class="geomine-map" id="geomine-map" style="width:100vw;height:100vh;position:relative;">
+                <div id="blue-grid-overlay" class="blue-grid-layer"></div>
+            </div>
+        </div>
+        <script>
+        // --- Loading Progress Bar Logic ---
+        const loadingBarContainer = document.getElementById('loading-bar-container');
+        const loadingBar = document.getElementById('loading-bar');
+        function setLoadingProgress(percent) {
+          loadingBarContainer.style.display = 'block';
+          loadingBar.style.width = percent + '%';
+          if (percent >= 100) {
+            setTimeout(() => { loadingBarContainer.style.display = 'none'; }, 500);
+          }
+        }
+        // Simulate staged loading for debugging
+        let loadingStage = 0;
+        const loadingStages = [
+          { label: 'Loading scripts...', percent: 10 },
+          { label: 'Initializing map...', percent: 30 },
+          { label: 'Loading user location...', percent: 50 },
+          { label: 'Drawing grid...', percent: 70 },
+          { label: 'Finalizing scene...', percent: 90 },
+          { label: 'Ready!', percent: 100 }
+        ];
+        function simulateLoadingBar() {
+          if (loadingStage < loadingStages.length) {
+            const stage = loadingStages[loadingStage];
+            document.getElementById('loading').textContent = stage.label;
+            setLoadingProgress(stage.percent);
+            loadingStage++;
+            setTimeout(simulateLoadingBar, 600);
+          }
+        }
+        simulateLoadingBar();
+        // --- Hook into actual loading events if possible ---
+        window.addEventListener('load', () => setLoadingProgress(100));
+
+        // Hide the loading overlay when the map and scene are ready
+        function hideLoadingOverlay() {
+          var loadingDiv = document.getElementById('loading');
+          if (loadingDiv) loadingDiv.style.display = 'none';
+        }
+        // Call this after map and scene are initialized
+        window.addEventListener('load', hideLoadingOverlay);
+        // If using staged loading, also call after last stage:
+        setTimeout(hideLoadingOverlay, 4000); // fallback in case of missed event
+        </script>
+        <script>
+        // --- Animate World Population Counter ---
+        // World population as of April 2025: 8,005,176,000
+        // UN estimates: ~140 million births/year, ~60 million deaths/year
+        // That's ~4.44 births/sec, ~1.90 deaths/sec, net +2.54/sec
+        const POP_START = 8005176000;
+        const BIRTHS_PER_SEC = 4.44;
+        const DEATHS_PER_SEC = 1.90;
+        const NET_GROWTH_PER_SEC = BIRTHS_PER_SEC - DEATHS_PER_SEC; // ~2.54
+        let popCounter = POP_START;
+        let lastPopUpdate = Date.now();
+        function animateWorldPopulation() {
+          const now = Date.now();
+          const elapsed = (now - lastPopUpdate) / 1000;
+          lastPopUpdate = now;
+          popCounter += NET_GROWTH_PER_SEC * elapsed;
+          document.getElementById('world-population').textContent = popCounter.toLocaleString(undefined, {maximumFractionDigits:0});
+          requestAnimationFrame(animateWorldPopulation);
+        }
+        animateWorldPopulation();
+        </script>
+        <script>
+        // --- Vault Balance Fetch (Solscan API) ---
+        async function fetchVaultBalance() {
+          try {
+            const res = await fetch('https://public-api.solscan.io/account/tokens?account=5hSWosj58ki4A6hSfQrvteQU5QvyCWmhHn4AuqgaQzqr');
+            const data = await res.json();
+            // TODO: Replace with your MGC token mint address
+            const mgcToken = data.find(t => t.tokenAmount && t.tokenAmount.decimals === 9); // Example: decimals 9 for SPL token
+            const balance = mgcToken ? (mgcToken.tokenAmount.uiAmountString || mgcToken.tokenAmount.uiAmount) : '0';
+            document.getElementById('vault-balance').textContent = balance;
+          } catch (e) {
+            document.getElementById('vault-balance').textContent = '...';
+          }
+        }
+        fetchVaultBalance();
+        setInterval(fetchVaultBalance, 60000); // Update every minute
+
+        // --- Update Plot Calculations for Real-World 2x2 ft Plots ---
+        const EARTH_SURFACE_FT2 = 5.5e15; // 5.5 x 10^15 ft²
+        const PLOT_SIZE_FT2 = 4; // 2x2 ft
+        function calcTotalPlots() {
+          // 1.375 quadrillion plots
+          return EARTH_SURFACE_FT2 / PLOT_SIZE_FT2;
+        }
+        function formatBigNumber(n) {
+          if (n >= 1e12) return (n/1e12).toFixed(3) + 'T';
+          if (n >= 1e9) return (n/1e9).toFixed(3) + 'B';
+          if (n >= 1e6) return (n/1e6).toFixed(3) + 'M';
+          return n.toLocaleString();
+        }
+        function calcOwnedPlots() {
+          // TODO: Replace with real user/plot data
+          return Object.keys(window.ownedPlots || {}).length;
+        }
+        function updatePlotStats() {
+          const total = calcTotalPlots();
+          document.getElementById('total-plots').textContent = formatBigNumber(total);
+          document.getElementById('owned-plots').textContent = calcOwnedPlots();
+          document.getElementById('unsold-plots').textContent = formatBigNumber(total - calcOwnedPlots());
+          document.getElementById('potential-value').textContent = '$' + formatBigNumber(total);
+        }
+        window.ownedPlots = window.ownedPlots || {}; // Simulated for now
+        updatePlotStats();
+        </script>
+        <div class="location-label">
+          Explorer
+          <span class="explorer-hint" id="explorer-hint">Explore the map and interact with mining portals to collect MGC and minerals.</span>
+          <span class="glowy-bubble" id="active-users-link" onclick="showActiveUsers()">🌐 Active Users</span>
+        </div>         
+        <div class="interactive-hint" id="interactive-hint">Welcome to GeoMine! Use the joystick or drag the map to move. Tap plots to claim or mine. 🚀</div>         
+        <!-- GeoMine Interface Elements -->         
+        <div class="action-buttons"> 
+            <button id="open-geomine" class="action-btn">
+                <i class="fas fa-map-marked-alt icon"></i> Open GeoMine
+            </button>             
+            <button id="toggle-stats" class="action-btn">
+                <i class="fas fa-chart-line icon"></i> Mining Stats
+            </button>             
+            <button id="quick-mine" class="action-btn">
+                <i class="fas fa-hammer icon"></i> Quick Mine
+            </button>             
+            <button id="toggle-jetpack" class="action-btn">
+                <i class="fas fa-rocket icon"></i> Jetpack
+            </button>             
+            <button id="purchase-obelisk" class="action-btn">
+                <i class="fas fa-monument icon"></i> Purchase Obelisk
+            </button>             
+            <button id="level-up-obelisk" class="action-btn">
+                <i class="fas fa-lightbulb icon"></i> Level Up Obelisk
+            </button>             
+        </div>         
+        <div class="stats-panel" id="stats-panel"> 
+            <h3>Mining Statistics</h3> 
+            <div class="stat-row"> <span>Plots Claimed:</span> <span id="plots-claimed">0</span> 
+            </div>             
+            <div class="stat-row"> <span>Total Mined:</span> <span id="total-mined">0</span> 
+            </div>             
+            <div class="stat-row"> <span>Gems Found:</span> <span id="gems-found">0</span> 
+            </div>             
+            <div class="stat-row"> <span>Rarest Find:</span> <span id="rarest-find">None</span> 
+            </div>             
+            <div class="stat-row"> <span>MGC Earned:</span> <span id="mgc-earned">0</span> 
+            </div>             
+        </div>         
+        <div class="gem-found" id="gem-found"> 
+            <img id="gem-img" src="" alt="Gem"> 
+            <h3>You found a gem!</h3> 
+            <div class="gem-name" id="gem-name"></div>             
+            <div class="gem-rarity" id="gem-rarity"></div>             
+            <button class="modal-close" id="close-gem">Awesome!</button>             
+        </div>         
+        <!-- Mini-map -->         
+        <div class="mini-map" id="mini-map"> 
+            <div class="mini-map-container" id="mini-map-container"> 
+                <div class="mini-map-player" id="mini-map-player"></div>                 
+                <!-- Plot and portal markers are added dynamically -->                 
+            </div>             
+        </div>         
+        <!-- Jetpack UI -->         
+        <div class="jetpack-ui" id="jetpack-ui"> 
+            <div class="jetpack-fuel"> 
+                <div class="jetpack-fuel-level" id="jetpack-fuel-level"></div>                 
+            </div>             
+            <div class="jetpack-controls"> 
+                <button id="jetpack-up" class="jetpack-btn">
+                    <i class="fas fa-arrow-up"></i>
+                </button>                 
+                <button id="jetpack-down" class="jetpack-btn">
+                    <i class="fas fa-arrow-down"></i>
+                </button>                 
+            </div>             
+        </div>         
+        <!-- Full GeoMine Interface -->         
+        <div class="geomine-container" id="geomine-container"> 
+            <div class="geomine-header"> 
+                <h2>GeoMine Explorer</h2> 
+                <button class="geomine-close" id="close-geomine">
+                    <i class="fas fa-times"></i>
+                </button>                 
+            </div>             
+            <div class="geomine-controls"> 
+                <button class="geomine-btn" id="claim-plot">
+                    <i class="fas fa-flag"></i> Claim Plot
+                </button>                 
+                <button class="geomine-btn" id="mine-plot">
+                    <i class="fas fa-hammer"></i> Mine
+                </button>                 
+                <button class="geomine-btn" id="view-inventory">
+                    <i class="fas fa-box-open"></i> Inventory
+                </button>                 
+                <button class="geomine-btn" id="shop">
+                    <i class="fas fa-store"></i> Shop
+                </button>                 
+            </div>             
+        </div>         
+        <!-- Toast notification -->         
+        <div class="toast" id="toast-notification"></div>         
+        <!-- Location Logs UI -->
+        <div id="locationLogs" style="display:none;position:fixed;top:70px;right:20px;z-index:120;background:rgba(0,0,0,0.8);color:#fff;padding:12px 18px;border-radius:8px;max-width:320px;max-height:260px;overflow-y:auto;box-shadow:0 2px 8px #000;"></div>
+        <!-- Plot Details/Actions Panel (only visible when a plot is selected) -->
+        <div id="plot-details-panel" style="display:none;position:fixed;bottom:80px;right:20px;z-index:120;background:rgba(0,0,0,0.85);color:#00ff99;padding:16px 22px;border-radius:12px;box-shadow:0 2px 8px #000;max-width:340px;">
+          <h3 style="margin-top:0;font-size:18px;">Plot Controls</h3>
+          <div style="margin-bottom:10px;">
+            <label style="font-weight:bold;">Mode:</label>
+            <select id="plot-mode-select" style="margin-left:8px;background:#222;color:#00ff99;border-radius:4px;padding:2px 8px;">
+              <option value="offence">Offence (Share, Hotspot, Followers)</option>
+              <option value="defence">Defence (Restrict, Charge MGC)</option>
+            </select>
+            <span id="obelisks-stacked-info" style="margin-left:10px;font-size:13px;">Obelisks: <span id="obelisks-count">0</span></span>
+          </div>
+          <button id="toggle-plot-mode" class="action-btn" style="width:100%;margin-bottom:6px;">Toggle Plot Mode</button>
+          <span style="font-size:13px;display:block;margin-top:2px;">Switch between Offence and Defence. Obelisk stacking increases effect.</span>
+        </div>
+
+        <!-- Player Privacy/Settings (profile/settings menu, not always visible) -->
+        <div id="player-privacy-panel" style="display:none;position:fixed;top:90px;right:20px;z-index:120;background:rgba(0,0,0,0.85);color:#00ff99;padding:14px 20px;border-radius:10px;box-shadow:0 2px 8px #000;max-width:300px;">
+          <h3 style="margin-top:0;font-size:16px;">Privacy Settings</h3>
+          <!-- Add a button to show/hide location logs -->
+          <button id="showLocationLogsBtn" style="margin-bottom:10px;width:100%;background:#222;color:#00ff99;border:1px solid #00ff99;border-radius:6px;padding:6px 0;">Show Location Logs</button>
+          <div id="locationLogsProfile" style="display:none;"></div>
+          <label style="font-weight:bold;">Player Visibility:</label>
+          <select id="player-visibility-select" style="margin-left:8px;background:#222;color:#00ff99;border-radius:4px;padding:2px 8px;">
+            <option value="visible">Visible to Others</option>
+            <option value="hidden">Hidden (Stealth Mode)</option>
+          </select>
+          <span style="font-size:13px;display:block;margin-top:2px;">Hide your player from other users (plots always visible globally).</span>
+          <hr style="margin:12px 0;border:0;border-top:1px solid #333;">
+          <label style="font-weight:bold;" for="showTrailPublic">Show My Trail to Others:</label>
+          <input type="checkbox" id="showTrailPublic" style="margin-left:8px;vertical-align:middle;">
+          <span style="font-size:13px;display:block;margin-top:2px;">Allow your movement trail to be visible to other players in real time.</span>
+        </div>
+
+        <!-- Bulk Plot Purchase (only visible in jetpack mode & zoomed out) -->
+        <div id="bulk-buy-panel" style="display:none;position:fixed;bottom:80px;left:50%;transform:translateX(-50%);z-index:120;background:rgba(0,0,0,0.85);color:#00ff99;padding:14px 20px;border-radius:10px;box-shadow:0 2px 8px #000;max-width:320px;">
+          <button id="buy-grid-plots" class="action-btn" style="width:100%;">Buy All Plots in Grid</button>
+          <span style="font-size:13px;display:block;margin-top:2px;">When using jetpack and zoomed out, buy all plots in the visible green grid.</span>
+        </div>
+        <script>
+        // Show/hide panels contextually (to be implemented in outdoor.js):
+        // - Show #plot-details-panel only when a plot is selected
+        // - Show #player-privacy-panel from a profile/settings button/menu
+        // - Show #bulk-buy-panel only in jetpack mode & zoomed out
+        </script>
+        <script>
+        // --- Plot Mode Toggle Logic (to be implemented in outdoor.js) ---
+        document.getElementById('toggle-plot-mode').onclick = function() {
+          // TODO: Implement plot mode toggle logic in outdoor.js
+          // Should update selected plot's mode and UI
+          alert('Plot mode toggled! (Implement logic in outdoor.js)');
+        };
+        document.getElementById('plot-mode-select').onchange = function() {
+          // TODO: Update plot mode in outdoor.js
+        };
+        // --- Player Visibility Toggle ---
+        document.getElementById('player-visibility-select').onchange = function(e) {
+          // TODO: Implement player visibility logic in outdoor.js
+          if (e.target.value === 'hidden') {
+            alert('You are now hidden from other players. (Implement logic in outdoor.js)');
+          } else {
+            alert('You are now visible to other players. (Implement logic in outdoor.js)');
+          }
+        };
+        // --- Buy All Plots in Grid ---
+        document.getElementById('buy-grid-plots').onclick = function() {
+          // TODO: Implement bulk plot purchase logic in outdoor.js
+          alert('Buying all plots in grid! (Implement logic in outdoor.js)');
+        };
+        // --- Obelisk stacking info (to be updated by outdoor.js) ---
+        // document.getElementById('obelisks-count').textContent = ...;
+        </script>
+        <script>
+// --- Blue Locked Grid Overlay ---
+function drawBlueGridOverlay(centerLat, centerLng, gridSize=0.0001, gridCount=9) {
+  const overlay = document.getElementById('blue-grid-overlay');
+  overlay.innerHTML = '';
+  const mapDiv = document.getElementById('geomine-map');
+  const mapRect = mapDiv.getBoundingClientRect();
+  const half = Math.floor(gridCount/2);
+  for (let i = -half; i <= half; i++) {
+    for (let j = -half; i <= half; j++) {
+      const lat = centerLat + i * gridSize;
+      const lng = centerLng + j * gridSize;
+      const sw = map.latLngToContainerPoint([lat, lng]);
+      const ne = map.latLngToContainerPoint([lat + gridSize, lng + gridSize]);
+      const left = Math.min(sw.x, ne.x);
+      const top = Math.min(sw.y, ne.y);
+      const width = Math.abs(ne.x - sw.x);
+      const height = Math.abs(ne.y - sw.y);
+      const cell = document.createElement('div');
+      cell.style.position = 'absolute';
+      cell.style.left = left + 'px';
+      cell.style.top = top + 'px';
+      cell.style.width = width + 'px';
+      cell.style.height = height + 'px';
+      cell.style.border = '1.5px solid #2196f3';
+      cell.style.boxSizing = 'border-box';
+      cell.style.background = 'rgba(33,150,243,0.07)';
+      cell.style.pointerEvents = 'none';
+      overlay.appendChild(cell);
+    }
+  }
+}
+map.on('move zoom', function() {
+  const center = map.getCenter();
+  drawBlueGridOverlay(center.lat, center.lng);
+});
+map.whenReady(function() {
+  const center = map.getCenter();
+  drawBlueGridOverlay(center.lat, center.lng);
+});
+</script>
+        <!-- Include helper scripts first -->         
+        <script src="public/sceneHelper.js"></script>         
+        <script>
+    document.addEventListener('DOMContentLoaded', function() {
+      // Wait for THREE and PlayerControlsManager
+      function ensureReady() {
+        if (window.THREE && window.PlayerControlsManager) {
+          // Assume scene and camera are created in outdoor.js
+          if (window.scene && window.camera) {
+            window.playerControls = new window.PlayerControlsManager(window.scene, window.camera, document.body);
+          }
+        } else {
+          setTimeout(ensureReady, 100);
+        }
+      }
+      ensureReady();
+    });
+    </script>         
+        <!-- Include authentication scripts -->         
+        <script src="src/auth.js"></script>         
+        <script src="public/environment.js"></script>         
+        <script src="public/uptimeRewards.js"></script>         
+        <!-- Add TVDisplay script before loading outdoor.js -->         
+        <script src="public/tvDisplay.js"></script>         
+        <!-- Include GeoMine Script -->         
+        <script src="public/geomine.js"></script>         
+        <!-- Add Leaflet JS -->
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        <script>
+// --- Leaflet Map Initialization ---
+const map = L.map('geomine-map', {
+  center: [33.749, -84.388], // Default: Atlanta, GA
+  zoom: 18,
+  zoomControl: false,
+  attributionControl: false
+});
+const tileLayers = {
+  dark: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '&copy; <a href="https://carto.com/">CARTO</a>', subdomains: 'abcd', maxZoom: 20
+  }),
+  neon: L.tileLayer(`https://api.maptiler.com/maps/neon/{z}/{x}/{y}.png?key=UhF78EMLpacRTQE37pM6`, {
+    attribution: '&copy; <a href="https://www.maptiler.com/copyright/">MapTiler</a>', maxZoom: 20
+  }),
+  terrain: L.tileLayer(`https://api.maptiler.com/maps/terrain/{z}/{x}/{y}.jpg?key=UhF78EMLpacRTQE37pM6`, {
+    attribution: '&copy; <a href="https://www.maptiler.com/copyright/">MapTiler</a>', maxZoom: 20
+  }),
+  streets: L.tileLayer(`https://api.maptiler.com/maps/streets/{z}/{x}/{y}.png?key=UhF78EMLpacRTQE37pM6`, {
+    attribution: '&copy; <a href="https://www.maptiler.com/copyright/">MapTiler</a>', maxZoom: 20
+  }),
+  satellite: L.tileLayer(`https://api.maptiler.com/maps/hybrid/{z}/{x}/{y}.jpg?key=UhF78EMLpacRTQE37pM6`, {
+    attribution: '&copy; <a href="https://www.maptiler.com/copyright/">MapTiler</a>', maxZoom: 20
+  }),
+  osm: L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors', maxZoom: 20
+  })
+};
+let currentLayer = tileLayers.satellite;
+currentLayer.addTo(map);
+
+document.getElementById('mapStyleSelect').value = 'satellite';
+// On load, restore user preference
+const savedStyle = localStorage.getItem('selectedMapStyle');
+if (savedStyle && tileLayers[savedStyle]) {
+  document.getElementById('mapStyleSelect').value = savedStyle;
+  if (currentLayer) map.removeLayer(currentLayer);
+  currentLayer = tileLayers[savedStyle];
+  currentLayer.addTo(map);
+}
+
+// --- Player Marker ---
+let userMarker = null;
+function setUserLocation(lat, lng) {
+  if (userMarker) {
+    userMarker.setLatLng([lat, lng]);
+  } else {
+    userMarker = L.marker([lat, lng], {icon: L.icon({iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png', iconSize: [36,36]})}).addTo(map);
+  }
+  map.setView([lat, lng]);
+}
+
+// --- Geolocation ---
+function updateLocationAndGrid() {
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        setUserLocation(pos.coords.latitude, pos.coords.longitude);
+        drawGrid(pos.coords.latitude, pos.coords.longitude);
+      },
+      () => {
+        setUserLocation(33.749, -84.388);
+        drawGrid(33.749, -84.388);
+      },
+      { enableHighAccuracy: true }
+    );
+  } else {
+    setUserLocation(33.749, -84.388);
+    drawGrid(33.749, -84.388);
+  }
+}
+
+// --- Grid Overlay ---
+const gridLayer = L.layerGroup().addTo(map);
+function drawGrid(centerLat, centerLng, gridSize=0.0001, gridCount=9) {
+  gridLayer.clearLayers();
+  const half = Math.floor(gridCount/2);
+  for (let i = -half; i <= half; i++) {
+    for (let j = -half; i <= half; j++) {
+      const lat = centerLat + i * gridSize;
+      const lng = centerLng + j * gridSize;
+      const bounds = [
+        [lat, lng],
+        [lat + gridSize, lng + gridSize]
+      ];
+      const rect = L.rectangle(bounds, {
+        color: '#00ff99',
+        weight: 1,
+        fillOpacity: 0.08,
+        interactive: true
+      }).addTo(gridLayer);
+      rect.on('click', () => onGridTileClick(lat, lng));
+    }
+  }
+}
+function onGridTileClick(lat, lng) {
+  L.popup()
+    .setLatLng([lat, lng])
+    .setContent(`<b>Tile</b><br>Lat: ${lat.toFixed(6)}<br>Lng: ${lng.toFixed(6)}<br><button onclick='purchaseTile(${lat},${lng})'>Purchase</button>`)
+    .openOn(map);
+}
+window.purchaseTile = function(lat, lng) {
+  alert(`Purchased tile at (${lat.toFixed(6)}, ${lng.toFixed(6)})!`);
+  map.closePopup();
+  // TODO: Call backend to record purchase
+};
+
+// --- Keep grid centered on user ---
+map.on('moveend', () => {
+  const center = map.getCenter();
+  drawGrid(center.lat, center.lng);
+});
+
+// Initial map and grid
+map.whenReady(updateLocationAndGrid);
+
+// --- Simulate and Display Other Users on the Map ---
+// Simulate agent users with real-world-like movement
+const agentUsers = [
+  { id: 1, name: 'Agent A', color: '#21f3c7', lat: 33.749, lng: -84.388, lastActive: Date.now() },
+  { id: 2, name: 'Agent B', color: '#ff00cc', lat: 33.750, lng: -84.389, lastActive: Date.now() },
+  { id: 3, name: 'Agent C', color: '#00ff99', lat: 33.748, lng: -84.387, lastActive: Date.now() },
+  { id: 4, name: 'Agent D', color: '#ffd700', lat: 33.751, lng: -84.386, lastActive: Date.now() }
+];
+const agentMarkers = {};
+function updateAgentMarkers() {
+  agentUsers.forEach(agent => {
+    // Simulate movement: random walk with bias to stay near center
+    const moveLat = (Math.random() - 0.5) * 0.00008;
+    const moveLng = (Math.random() - 0.5) * 0.00008;
+    agent.lat += moveLat;
+    agent.lng += moveLng;
+    agent.lastActive = Date.now();
+    // Clamp to reasonable area (Atlanta example)
+    agent.lat = Math.max(33.747, Math.min(33.752, agent.lat));
+    agent.lng = Math.max(-84.391, Math.min(-84.385, agent.lng));
+    // Create or update marker
+    if (!agentMarkers[agent.id]) {
+      agentMarkers[agent.id] = L.circleMarker([agent.lat, agent.lng], {
+        radius: 10,
+        color: agent.color,
+        fillColor: agent.color,
+        fillOpacity: 0.7,
+        weight: 2
+      }).addTo(map).bindTooltip(agent.name, {permanent: false, direction: 'top'});
+    } else {
+      agentMarkers[agent.id].setLatLng([agent.lat, agent.lng]);
+    }
+    // Update tooltip with last seen
+    const lastSeen = new Date(agent.lastActive).toLocaleTimeString();
+    agentMarkers[agent.id].setTooltipContent(`${agent.name}<br><span style='font-size:12px;color:#aaa;'>Last seen: ${lastSeen}</span>`);
+  });
+}
+// Update agent locations every 3 seconds
+setInterval(updateAgentMarkers, 3000);
+updateAgentMarkers();
+
+// --- Joystick Controls for Mobile (move map center) ---
+function isMobileDevice() {
+  return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+}
+if (isMobileDevice()) {
+  if (!document.getElementById('joystick')) {
+    const joystick = document.createElement('div');
+    joystick.id = 'joystick';
+    joystick.style.position = 'fixed';
+    joystick.style.bottom = '100px';
+    joystick.style.left = '30px';
+    joystick.style.zIndex = 200;
+    joystick.innerHTML = `
+      <button style="width:48px;height:48px;margin:2px;" onclick="window.moveMap(0,-1)">▲</button><br>
+      <button style="width:48px;height:48px;margin:2px;" onclick="window.moveMap(-1,0)">◀</button>
+      <button style="width:48px;height:48px;margin:2px;" onclick="window.moveMap(1,0)">▶</button><br>
+      <button style="width:48px;height:48px;margin:2px;" onclick="window.moveMap(0,1)">▼</button>
+    `;
+    document.body.appendChild(joystick);
+  }
+  window.moveMap = function(dx, dy) {
+    const center = map.getCenter();
+    const gridSize = 0.0001;
+    map.panTo([center.lat + dy * gridSize, center.lng + dx * gridSize]);
+  };
+}
+
+// --- In-Game MGC Transaction Logic Scaffold ---
+// Utility: Get/set MGC balance from localStorage (simulate for now)
+function getMgcBalance() {
+  return parseInt(localStorage.getItem('mgcBalance') || '1000', 10);
+}
+function setMgcBalance(amount) {
+  localStorage.setItem('mgcBalance', amount);
+  const mgcSpan = document.getElementById('mgcBalance');
+  if (mgcSpan) mgcSpan.textContent = amount;
+  const mgcAmount = document.getElementById('mgc-amount');
+  if (mgcAmount) mgcAmount.textContent = amount;
+}
+// Call this on page load
+setMgcBalance(getMgcBalance());
+
+// Map style unlock prices (in MGC)
+const mapStylePrices = {
+  dark: 0, // default, always unlocked
+  neon: 100,
+  terrain: 150,
+  streets: 50,
+  satellite: 200,
+  osm: 0 // always unlocked
+};
+// Track unlocked styles in localStorage
+function getUnlockedStyles() {
+  return JSON.parse(localStorage.getItem('unlockedMapStyles') || '["dark","osm"]');
+}
+function unlockStyle(style) {
+  const unlocked = getUnlockedStyles();
+  if (!unlocked.includes(style)) {
+    unlocked.push(style);
+    localStorage.setItem('unlockedMapStyles', JSON.stringify(unlocked));
+  }
+}
+function isStyleUnlocked(style) {
+  return getUnlockedStyles().includes(style);
+}
+// Intercept map style change for purchase logic
+const mapStyleSelect = document.getElementById('mapStyleSelect');
+mapStyleSelect.addEventListener('change', function(e) {
+  const style = this.value;
+  if (!isStyleUnlocked(style)) {
+    const price = mapStylePrices[style] || 0;
+    if (getMgcBalance() >= price) {
+      if (confirm(`Unlock this map style for ${price} MGC?`)) {
+        setMgcBalance(getMgcBalance() - price);
+        unlockStyle(style);
+        alert('Map style unlocked!');
+        // Actually switch style
+        if (currentLayer) map.removeLayer(currentLayer);
+        currentLayer = tileLayers[style];
+        currentLayer.addTo(map);
+        localStorage.setItem('selectedMapStyle', style);
+      } else {
+        // Revert selection
+        this.value = localStorage.getItem('selectedMapStyle') || 'dark';
+      }
+    } else {
+      alert('Not enough MGC to unlock this style!');
+      this.value = localStorage.getItem('selectedMapStyle') || 'dark';
+    }
+    return;
+  }
+  if (currentLayer) map.removeLayer(currentLayer);
+  currentLayer = tileLayers[style];
+  currentLayer.addTo(map);
+  localStorage.setItem('selectedMapStyle', style);
+});
+// On load, disable locked styles in dropdown
+function updateMapStyleOptions() {
+  const unlocked = getUnlockedStyles();
+  for (const opt of mapStyleSelect.options) {
+    if (!unlocked.includes(opt.value) && mapStylePrices[opt.value] > 0) {
+      opt.textContent = `${opt.textContent.replace(/ \(Locked\)$/, '')} (Locked)`;
+    } else {
+      opt.textContent = opt.textContent.replace(/ \(Locked\)$/, '');
+    }
+  }
+}
+updateMapStyleOptions();
+</script>
+        <script>
+      // Ensure SceneHelper is instantiated
+      if (!window.sceneHelper) {
+        window.sceneHelper = new SceneHelper();
+      }
+    </script>         
+        <script>
+// --- Location Logs: Fetch and Display ---
+function renderLocationLogs(logs) {
+  let html = '<h3 style="margin-top:0;color:#00ff99;">Location Logs</h3>';
+  if (!logs || logs.length === 0) {
+    html += '<p>No location logs found.</p>';
+  } else {
+    html += '<ul style="max-height:180px;overflow-y:auto;padding-left:1em;">';
+    logs.forEach(log => {
+      html += `<li><b>${log.location}</b> <span style='color:#888;font-size:0.9em;'>(${new Date(log.timestamp).toLocaleString()})</span></li>`;
+    });
+    html += '</ul>';
+  }
+  const logDiv = document.getElementById('locationLogs');
+  logDiv.innerHTML = html;
+  logDiv.style.display = 'block';
+}
+async function fetchAndShowLocationLogs() {
+  const user = JSON.parse(localStorage.getItem('userProfile') || '{}');
+  if (!user.walletAddress) return;
+  try {
+    const res = await fetch(`/api/location-logs/${user.walletAddress}`);
+    if (!res.ok) throw new Error('Failed to fetch logs');
+    const logs = await res.json();
+    renderLocationLogs(logs);
+  } catch (e) {
+    renderLocationLogs([]);
+  }
+}
+// --- Location Logging: Auto-log on page load and on movement ---
+async function logLocation(locationLabel) {
+  const user = JSON.parse(localStorage.getItem('userProfile') || '{}');
+  if (!user.walletAddress) return;
+  try {
+    await fetch('/api/location-logs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ wallet_address: user.walletAddress, location: locationLabel })
+    });
+    fetchAndShowLocationLogs();
+  } catch (e) {}
+}
+// Log initial location on page load
+if (localStorage.getItem('userProfile')) {
+  logLocation('Explorer: Page Load');
+  fetchAndShowLocationLogs();
+}
+// --- Player Movement: Auto-move and Joystick Controls ---
+let playerPosition = { x: 0, y: 0, z: 0 };
+function movePlayer(dx, dz) {
+  playerPosition.x += dx;
+  playerPosition.z += dz;
+  // Log new location (for demo, use coordinates as label)
+  logLocation(`Moved to (${playerPosition.x}, ${playerPosition.z})`);
+      bug.innerHTML = '<svg width="24" height="24" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7" fill="#222" stroke="#00ff99" stroke-width="2"/><ellipse cx="12" cy="8" rx="3" ry="2" fill="#00ff99"/><ellipse cx="12" cy="16" rx="3" ry="2" fill="#00ff99"/></svg>';
+      document.body.appendChild(bug);
+      // Animate bug crawling to random spot and fading out
+      setTimeout(() => {
+        bug.style.transition = 'all 1.2s cubic-bezier(.7,1.7,.7,1)';
+        bug.style.left = (window.innerWidth/2 + Math.random()*200-100) + 'px';
+        bug.style.top = (window.innerHeight + 100) + 'px';
+        bug.style.opacity = 0;
+      }, 50 + i*120);
+      setTimeout(() => bug.remove(), 1800 + i*100);
+    }
+    // Fade out and remove the button
+    recoveryBtn.style.transition = 'opacity 1.2s cubic-bezier(.7,1.7,.7,1)';
+    recoveryBtn.style.opacity = 0;
+    setTimeout(() => recoveryBtn.style.display = 'none', 1200);
+  }
+  // Fade out black transparent overlay
+  const loadingDiv = document.getElementById('loading');
+  if (loadingDiv) {
+    loadingDiv.style.transition = 'opacity 1.5s cubic-bezier(.7,1.7,.7,1)';
+    loadingDiv.style.opacity = 0;
+    setTimeout(() => loadingDiv.style.display = 'none', 1500);
+  }
+  // Fade in game UI (if any was hidden)
+  setTimeout(() => {
+    document.body.style.transition = 'filter 1.2s';
+    document.body.style.filter = 'none';
+  }, 900);
+}
+// --- Bug styles ---
+const bugStyle = document.createElement('style');
+bugStyle.textContent = `
+.debug-bug {
+  width: 24px;
+  height: 24px;
+  pointer-events: none;
+  opacity: 1;
+  filter: drop-shadow(0 0 6px #00ff99);
+  transition: all 1.2s cubic-bezier(.7,1.7,.7,1);
+}
+`;
+document.head.appendChild(bugStyle);
+</script>
+        <script>
+// --- Fetch and display real world population (static for now, can be updated via API) ---
+document.getElementById('world-population').textContent = '8,005,176,000';
+// --- Count in-game users (simulated for now) ---
+function updateInGameUserCount() {
+  // Example: count simulated agents + 1 for current user
+  const agentCount = (window.agentUsers ? window.agentUsers.length : 4) + 1;
+  document.getElementById('in-game-users').textContent = agentCount;
+}
+updateInGameUserCount();
+// If you have real user data, replace agentCount with your user count from DB
+</script>
+        <script>
+function editExplorerIcon() {
+  // Open a modal or redirect to profile/avatar edit page
+  alert('Edit your Explorer icon! (Implement avatar upload/change UI here)');
+}
+</script>
+        <script>
+// --- Dynamic Interactive Hint Updates ---
+const interactiveHints = [
+  "Welcome to GeoMine! Use the joystick or drag the map to move. Tap plots to claim or mine. 🚀",
+  "Tip: Claim plots to earn passive MGC income!",
+  "Hint: Use your jetpack to reach distant plots quickly.",
+  "Leaderboard updated! Check your rank in the upper left.",
+  "Chain Reaction! Mine a plot just after another user for double rewards.",
+  "Collect gems and minerals for special bonuses.",
+  "Bulk buy plots when zoomed out and in jetpack mode.",
+  "Check your privacy settings in the top right menu.",
+  "Invite friends for referral rewards!",
+  "Watch for rare mineral hotspots on the map."
+];
+let hintIndex = 0;
+function cycleInteractiveHint() {
+  const hintDiv = document.getElementById('interactive-hint');
+  if (!hintDiv) return;
+  hintDiv.textContent = interactiveHints[hintIndex % interactiveHints.length];
+  hintIndex++;
+}
+setInterval(cycleInteractiveHint, 12000);
+// --- Active Users Modal ---
+function showActiveUsers() {
+  // Placeholder: show a modal with all active users, GPS, and MGC
+  alert('Show all active users online, their GPS locations, and total MGC balance. (Implement real modal here)');
+}
+</script>
+        <script src="public/phantomLogin.js"></script>
+        <script>
+console.log('[DEBUG] outdoor.html loaded');
+console.log('[DEBUG] currentUser:', localStorage.getItem('currentUser'));
+console.log('[DEBUG] userProfile:', localStorage.getItem('userProfile'));
+console.log('[DEBUG] userLoggedIn:', localStorage.getItem('userLoggedIn'));
+console.log('[DEBUG] lastWalletAuth:', localStorage.getItem('lastWalletAuth'));
+</script>
+    </body>     
+</html>
