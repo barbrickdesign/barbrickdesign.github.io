@@ -7,7 +7,14 @@
     
     <!-- Wallet Dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iife.min.js"></script>
+    
+    <!-- New Integrations -->
+    <script src="samgov-api-integration.js"></script>
+    <script src="coinbase-wallet-integration.js"></script>
+    <script src="pumpfun-integration.js"></script>
     <script src="universal-wallet-connect.js"></script>
+    
+    <!-- Legacy Integration (fallback) -->
     <script src="samgov-integration.js"></script>
     <script src="project-tokenomics.js"></script>
     <link rel="stylesheet" href="mobile-responsive.css">
@@ -338,6 +345,20 @@
                 <div class="project-desc">PIV/CAC authenticated access to $245M+ in classified government contracts. Security clearance required.</div>
                 <span class="status-active">● ONLINE</span>
             </div>
+
+            <div class="project-card" onclick="window.location.href='gembot-control-3d.html'">
+                <div class="project-icon">💎</div>
+                <div class="project-title">Gem Bot 3D Control</div>
+                <div class="project-desc">Full 3D visualization with Tron-style laser cutting. Real-time gem bot control, training data, and model export.</div>
+                <span class="status-active">● ONLINE</span>
+            </div>
+
+            <div class="project-card" onclick="window.location.href='dev-time-tracker.html'">
+                <div class="project-icon">⏱️</div>
+                <div class="project-title">Dev Time Tracker</div>
+                <div class="project-desc">Track development time, calculate fair compensation based on SAM.gov rates. Export claims for code usage fees.</div>
+                <span class="status-active">● ONLINE</span>
+            </div>
         </div>
 
         <footer>
@@ -369,6 +390,180 @@
     </div>
 
     <script>
+        // Register Service Worker for offline support
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./service-worker.js')
+                    .then((registration) => {
+                        console.log('✅ Service Worker registered:', registration.scope);
+                        
+                        // Check for updates
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    console.log('🔄 New version available! Reload to update.');
+                                }
+                            });
+                        });
+                    })
+                    .catch((error) => {
+                        console.log('❌ Service Worker registration failed:', error);
+                    });
+            });
+        }
+
+        // Auto-initialize all project systems
+        class SystemInitializer {
+            constructor() {
+                this.systems = [];
+                this.initialized = false;
+            }
+
+            addSystem(name, initFunction) {
+                this.systems.push({ name, initFunction });
+            }
+
+            async initializeAll() {
+                console.log('🚀 Initializing all systems...');
+                
+                for (const system of this.systems) {
+                    try {
+                        console.log(`⚡ Starting: ${system.name}`);
+                        await system.initFunction();
+                        console.log(`✅ ${system.name} initialized`);
+                    } catch (error) {
+                        console.error(`❌ ${system.name} failed:`, error);
+                    }
+                }
+                
+                this.initialized = true;
+                console.log('🎉 All systems initialized');
+                
+                // Trigger custom event
+                window.dispatchEvent(new CustomEvent('systemsReady'));
+            }
+        }
+
+        // Create global initializer
+        window.systemInit = new SystemInitializer();
+
+        // Register all project systems
+        window.systemInit.addSystem('Wallet Connector', async () => {
+            // Universal wallet system already loaded
+            if (window.walletConnector) {
+                if (typeof window.walletConnector.init === 'function') {
+                    await window.walletConnector.init();
+                } else {
+                    console.log('✅ Wallet Connector ready (no init needed)');
+                }
+            }
+        });
+
+        window.systemInit.addSystem('SAM.gov API', async () => {
+            if (window.samGovAPI) {
+                if (typeof window.samGovAPI.init === 'function') {
+                    await window.samGovAPI.init();
+                } else {
+                    console.log('✅ SAM.gov API ready (no init needed)');
+                }
+            }
+        });
+
+        window.systemInit.addSystem('Coinbase Wallet', async () => {
+            if (window.coinbaseWallet) {
+                if (typeof window.coinbaseWallet.init === 'function') {
+                    await window.coinbaseWallet.init();
+                } else {
+                    console.log('✅ Coinbase Wallet ready (no init needed)');
+                }
+            }
+        });
+
+        window.systemInit.addSystem('Pump.fun Integration', async () => {
+            if (window.pumpFun) {
+                console.log(`💎 ${window.pumpFun.coins.length} pump.fun coins loaded`);
+            }
+        });
+
+        window.systemInit.addSystem('Dev Compensation', async () => {
+            if (window.devCompensation) {
+                console.log('💰 Compensation calculator ready');
+            }
+        });
+
+        window.systemInit.addSystem('Project Tokenomics', async () => {
+            if (window.projectTokenomics) {
+                console.log('📊 Tokenomics engine ready');
+            }
+        });
+
+        // Background sync registration
+        async function registerBackgroundSync() {
+            if ('serviceWorker' in navigator && 'sync' in navigator.serviceWorker) {
+                try {
+                    const registration = await navigator.serviceWorker.ready;
+                    await registration.sync.register('sync-data');
+                    await registration.sync.register('sync-time-entries');
+                    await registration.sync.register('sync-wallet-state');
+                    console.log('✅ Background sync registered');
+                } catch (error) {
+                    console.log('⚠️ Background sync not available:', error);
+                }
+            }
+        }
+
+        // Online/offline detection
+        window.addEventListener('online', () => {
+            console.log('✅ Back online! Syncing data...');
+            registerBackgroundSync();
+            
+            // Show notification
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: rgba(0, 255, 0, 0.9);
+                color: #000;
+                padding: 15px 25px;
+                border-radius: 10px;
+                font-weight: bold;
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+            `;
+            notification.textContent = '✅ BACK ONLINE - Syncing data...';
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        });
+
+        window.addEventListener('offline', () => {
+            console.log('⚠️ Offline mode activated');
+            
+            const notification = document.createElement('div');
+            notification.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: rgba(255, 165, 0, 0.9);
+                color: #000;
+                padding: 15px 25px;
+                border-radius: 10px;
+                font-weight: bold;
+                z-index: 10000;
+                animation: slideIn 0.3s ease;
+            `;
+            notification.textContent = '⚠️ OFFLINE MODE - Data saved locally';
+            document.body.appendChild(notification);
+            
+            setTimeout(() => {
+                notification.remove();
+            }, 3000);
+        });
+
         // Universal wallet connection
         async function connectWallet() {
             const btn = document.getElementById('walletBtn');
@@ -443,6 +638,12 @@
                     console.log('✅ Previous wallet connection restored');
                 }
             }
+            
+            // Initialize all systems
+            await window.systemInit.initializeAll();
+            
+            // Register background sync
+            registerBackgroundSync();
             
             // Load and display portfolio ticker
             loadPortfolioTicker();

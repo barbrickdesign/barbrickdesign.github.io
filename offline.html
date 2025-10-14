@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline - BARBRICKDESIGN</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0a1628 0%, #1a2332 100%);
+            color: #00ffff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 20px;
+        }
+        .offline-container {
+            max-width: 600px;
+            background: rgba(0, 20, 40, 0.9);
+            border: 2px solid #00ffff;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 0 30px rgba(0, 255, 255, 0.3);
+        }
+        h1 {
+            font-size: 3em;
+            margin-bottom: 20px;
+            color: #00ffff;
+            text-shadow: 0 0 20px rgba(0, 255, 255, 0.8);
+        }
+        .icon {
+            font-size: 5em;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.1); }
+        }
+        p {
+            font-size: 1.2em;
+            margin: 15px 0;
+            color: #8addff;
+            line-height: 1.6;
+        }
+        .status {
+            background: rgba(255, 165, 0, 0.2);
+            border: 2px solid #ffa500;
+            color: #ffa500;
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        button {
+            background: linear-gradient(135deg, #00ffff, #00ff00);
+            color: #000;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s;
+        }
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+        }
+        .features {
+            margin: 30px 0;
+            text-align: left;
+        }
+        .feature {
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+        }
+        .feature::before {
+            content: "✓ ";
+            color: #00ff00;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <div class="icon">📡</div>
+        <h1>OFFLINE MODE</h1>
+        
+        <div class="status">
+            <p><strong>⚠️ No Internet Connection</strong></p>
+            <p>Don't worry! The platform continues to work offline.</p>
+        </div>
+
+        <p>All your data is saved locally and will sync automatically when you're back online.</p>
+
+        <div class="features">
+            <div class="feature">Wallet state preserved</div>
+            <div class="feature">Time tracking continues</div>
+            <div class="feature">All calculations work</div>
+            <div class="feature">Projects remain accessible</div>
+            <div class="feature">Auto-sync when online</div>
+        </div>
+
+        <button onclick="location.reload()">🔄 TRY RECONNECTING</button>
+        <button onclick="window.history.back()">← GO BACK</button>
+
+        <p style="margin-top: 30px; font-size: 0.9em; color: #666;">
+            BARBRICKDESIGN - Elite Web3 Hub<br>
+            Offline-First Architecture
+        </p>
+    </div>
+
+    <script>
+        // Check connection status
+        window.addEventListener('online', () => {
+            console.log('✅ Back online! Reloading...');
+            location.reload();
+        });
+
+        setInterval(() => {
+            if (navigator.onLine) {
+                location.reload();
+            }
+        }, 5000);
+    </script>
+</body>
+</html>

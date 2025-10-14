@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Developer Time Tracker & Compensation Calculator</title>
+    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iife.min.js"></script>
+    <script src="universal-wallet-connect.js"></script>
+    <script src="dev-compensation-calculator.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0a1628 0%, #1a2332 100%);
+            color: #00ff00;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #00ffff;
+            font-size: 2.5em;
+            margin-bottom: 30px;
+            text-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: rgba(0, 20, 40, 0.9);
+            border: 2px solid #00ffff;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 5px 20px rgba(0, 255, 255, 0.2);
+        }
+
+        .card h2 {
+            color: #00ffff;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .stat {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+        }
+
+        .stat-label {
+            color: #8addff;
+        }
+
+        .stat-value {
+            color: #00ff00;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 5px;
+            color: #00ffff;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #00ffff;
+            color: #00ff00;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+        }
+
+        textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+
+        button {
+            background: linear-gradient(135deg, #00ffff, #00ff00);
+            color: #000;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            transition: all 0.3s;
+            width: 100%;
+            margin: 5px 0;
+        }
+
+        button:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.6);
+        }
+
+        button.secondary {
+            background: linear-gradient(135deg, #ff00ff, #00ffff);
+        }
+
+        button.danger {
+            background: linear-gradient(135deg, #ff0000, #ff6600);
+            color: #fff;
+        }
+
+        .time-entry {
+            background: rgba(0, 40, 60, 0.5);
+            border-left: 3px solid #00ff00;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+        }
+
+        .time-entry-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .project-tag {
+            background: rgba(0, 255, 255, 0.2);
+            color: #00ffff;
+            padding: 3px 10px;
+            border-radius: 3px;
+            font-size: 0.9em;
+        }
+
+        .compensation-breakdown {
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-radius: 5px;
+            margin: 10px 0;
+        }
+
+        .breakdown-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 5px 0;
+        }
+
+        .usage-fee-calc {
+            background: rgba(255, 0, 255, 0.1);
+            border: 2px solid #ff00ff;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+
+        .alert {
+            background: rgba(255, 165, 0, 0.2);
+            border: 2px solid #ffa500;
+            color: #ffa500;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+
+        .success {
+            background: rgba(0, 255, 0, 0.2);
+            border-color: #00ff00;
+            color: #00ff00;
+        }
+
+        .wallet-status {
+            background: rgba(0, 255, 255, 0.1);
+            border: 2px solid #00ffff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .connected {
+            border-color: #00ff00;
+            background: rgba(0, 255, 0, 0.1);
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+        }
+
+        th {
+            color: #00ffff;
+            font-weight: bold;
+        }
+
+        td {
+            color: #8addff;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab {
+            padding: 12px 24px;
+            background: rgba(0, 20, 40, 0.5);
+            border: 2px solid #00ffff;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab.active {
+            background: rgba(0, 255, 255, 0.2);
+            border-color: #00ff00;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💰 DEVELOPER TIME TRACKER & COMPENSATION CALCULATOR</h1>
+
+        <div class="wallet-status" id="walletStatus">
+            <p>🔗 Connect your wallet to start tracking time and calculating compensation</p>
+            <button onclick="connectWallet()" id="connectBtn">CONNECT WALLET</button>
+            <div id="walletInfo" style="display: none; margin-top: 10px;">
+                <p>✅ Connected: <span id="walletAddr"></span></p>
+                <p>Role: <span id="contractorRole"></span> | Rate: $<span id="contractorRate"></span>/hour</p>
+            </div>
+        </div>
+
+        <div class="dashboard">
+            <div class="card">
+                <h2>📊 YOUR SUMMARY</h2>
+                <div class="stat">
+                    <span class="stat-label">Total Hours Logged:</span>
+                    <span class="stat-value" id="totalHours">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Total Owed:</span>
+                    <span class="stat-value" id="totalOwed">$0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Projects:</span>
+                    <span class="stat-value" id="projectCount">0</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-label">Avg Hourly Rate:</span>
+                    <span class="stat-value" id="avgRate">$0</span>
+                </div>
+            </div>
+
+            <div class="card">
+                <h2>⚡ QUICK ACTIONS</h2>
+                <button onclick="showTab('log-time')">📝 Log Time Entry</button>
+                <button onclick="showTab('view-report')" class="secondary">📄 View Full Report</button>
+                <button onclick="showTab('calculate-usage')">💎 Calculate Usage Fees</button>
+                <button onclick="exportClaim()">📤 Export Claim Data</button>
+            </div>
+
+            <div class="card">
+                <h2>🏛️ ASSISTANCE PROGRAMS</h2>
+                <div id="assistancePrograms">
+                    <p style="color: #8addff; margin-bottom: 10px;">Connect wallet to check eligibility</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" onclick="showTab('log-time')">LOG TIME</div>
+            <div class="tab" onclick="showTab('view-report')">VIEW REPORT</div>
+            <div class="tab" onclick="showTab('calculate-usage')">USAGE FEES</div>
+            <div class="tab" onclick="showTab('setup')">SETUP</div>
+        </div>
+
+        <!-- Log Time Tab -->
+        <div class="tab-content active" id="log-time">
+            <div class="card">
+                <h2>📝 LOG TIME ENTRY</h2>
+                <div class="form-group">
+                    <label>Project Name:</label>
+                    <input type="text" id="projectName" placeholder="e.g., Mandem.OS">
+                </div>
+                <div class="form-group">
+                    <label>Hours Worked:</label>
+                    <input type="number" id="hoursWorked" step="0.25" placeholder="e.g., 8.5">
+                </div>
+                <div class="form-group">
+                    <label>Task Type:</label>
+                    <select id="taskType">
+                        <option value="development">Development</option>
+                        <option value="review">Code Review</option>
+                        <option value="testing">Testing/QA</option>
+                        <option value="documentation">Documentation</option>
+                        <option value="meeting">Meetings</option>
+                        <option value="research">Research</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Description:</label>
+                    <textarea id="taskDescription" placeholder="What did you work on?"></textarea>
+                </div>
+                <div class="form-group">
+                    <label>GitHub Commit Hash (optional):</label>
+                    <input type="text" id="commitHash" placeholder="e.g., abc123def456">
+                </div>
+                <button onclick="logTime()">✅ LOG TIME ENTRY</button>
+            </div>
+
+            <div class="card" style="margin-top: 20px;">
+                <h2>📋 RECENT ENTRIES</h2>
+                <div id="recentEntries">
+                    <p style="color: #8addff;">No entries logged yet</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- View Report Tab -->
+        <div class="tab-content" id="view-report">
+            <div class="card">
+                <h2>📊 COMPENSATION REPORT</h2>
+                <div id="fullReport">
+                    <p style="color: #8addff;">Connect wallet and log time to generate report</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Calculate Usage Tab -->
+        <div class="tab-content" id="calculate-usage">
+            <div class="card usage-fee-calc">
+                <h2>💎 CALCULATE USAGE FEES</h2>
+                <p style="color: #8addff; margin-bottom: 15px;">
+                    When someone uses your code, calculate what they owe you based on development time and usage type.
+                </p>
+
+                <div class="form-group">
+                    <label>Project:</label>
+                    <select id="usageProject">
+                        <option value="">Select a project...</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Usage Type:</label>
+                    <select id="usageType">
+                        <option value="direct-copy">Direct Copy (50% of dev cost)</option>
+                        <option value="substantial-use">Substantial Use (30% of dev cost)</option>
+                        <option value="partial-use">Partial Use (15% of dev cost)</option>
+                        <option value="reference">Reference Only (5% of dev cost)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>User's Wallet Address (optional):</label>
+                    <input type="text" id="usageWallet" placeholder="Who is using your code?">
+                </div>
+
+                <button onclick="calculateUsageFees()">💰 CALCULATE USAGE FEES</button>
+
+                <div id="usageResults" style="margin-top: 20px;"></div>
+            </div>
+        </div>
+
+        <!-- Setup Tab -->
+        <div class="tab-content" id="setup">
+            <div class="card">
+                <h2>⚙️ CONTRACTOR SETUP</h2>
+                <div class="form-group">
+                    <label>Your Name:</label>
+                    <input type="text" id="contractorName" placeholder="Your name">
+                </div>
+                <div class="form-group">
+                    <label>Your Role:</label>
+                    <select id="contractorRoleSelect">
+                        <option value="junior-developer">Junior Developer ($45/hr)</option>
+                        <option value="mid-level-developer" selected>Mid-Level Developer ($75/hr)</option>
+                        <option value="senior-developer">Senior Developer ($125/hr)</option>
+                        <option value="lead-developer">Lead Developer ($175/hr)</option>
+                        <option value="architect">Architect ($200/hr)</option>
+                        <option value="security-specialist">Security Specialist ($150/hr)</option>
+                        <option value="ui-ux-designer">UI/UX Designer ($85/hr)</option>
+                        <option value="devops-engineer">DevOps Engineer ($110/hr)</option>
+                        <option value="qa-engineer">QA Engineer ($65/hr)</option>
+                        <option value="technical-writer">Technical Writer ($55/hr)</option>
+                    </select>
+                </div>
+                <button onclick="setupContractor()">💾 SAVE PROFILE</button>
+            </div>
+
+            <div class="card" style="margin-top: 20px;">
+                <h2>📁 IMPORT FROM GITHUB</h2>
+                <p style="color: #8addff; margin-bottom: 15px;">
+                    Import your commit history to automatically estimate dev time (Coming Soon)
+                </p>
+                <div class="form-group">
+                    <label>GitHub Repository URL:</label>
+                    <input type="text" id="githubUrl" placeholder="https://github.com/username/repo">
+                </div>
+                <div class="form-group">
+                    <label>Start Date:</label>
+                    <input type="date" id="startDate">
+                </div>
+                <div class="form-group">
+                    <label>End Date:</label>
+                    <input type="date" id="endDate">
+                </div>
+                <button onclick="importFromGitHub()">📥 IMPORT COMMIT HISTORY</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentWallet = null;
+
+        async function connectWallet() {
+            const result = await window.walletConnector.connect();
+            if (result.success) {
+                currentWallet = result.address;
+                document.getElementById('walletStatus').classList.add('connected');
+                document.getElementById('connectBtn').style.display = 'none';
+                document.getElementById('walletInfo').style.display = 'block';
+                document.getElementById('walletAddr').textContent = 
+                    currentWallet.slice(0, 6) + '...' + currentWallet.slice(-4);
+                
+                // Check if contractor is already registered
+                setupContractor();
+                updateDashboard();
+            }
+        }
+
+        function setupContractor() {
+            if (!currentWallet) {
+                alert('Please connect your wallet first');
+                return;
+            }
+
+            const name = document.getElementById('contractorName').value || 'Anonymous Developer';
+            const role = document.getElementById('contractorRoleSelect').value;
+
+            const contractor = window.devCompensation.registerContractor(currentWallet, {
+                name: name,
+                role: role
+            });
+
+            document.getElementById('contractorRole').textContent = role;
+            document.getElementById('contractorRate').textContent = contractor.hourlyRate;
+
+            alert('✅ Profile saved successfully!');
+            updateDashboard();
+        }
+
+        function logTime() {
+            if (!currentWallet) {
+                alert('Please connect your wallet and set up your profile first');
+                return;
+            }
+
+            const projectName = document.getElementById('projectName').value;
+            const hours = parseFloat(document.getElementById('hoursWorked').value);
+            const taskType = document.getElementById('taskType').value;
+            const description = document.getElementById('taskDescription').value;
+            const commitHash = document.getElementById('commitHash').value;
+
+            if (!projectName || !hours) {
+                alert('Please fill in project name and hours');
+                return;
+            }
+
+            // Register project if it doesn't exist
+            if (!window.devCompensation.projects.has(projectName)) {
+                window.devCompensation.registerProject(projectName, {
+                    name: projectName,
+                    type: 'open-source' // Default, can be changed
+                });
+            }
+
+            // Log the time entry
+            window.devCompensation.logTimeEntry(currentWallet, projectName, hours, {
+                taskType: taskType,
+                description: description,
+                commitHash: commitHash
+            });
+
+            alert(`✅ Logged ${hours} hours for ${projectName}`);
+
+            // Clear form
+            document.getElementById('projectName').value = '';
+            document.getElementById('hoursWorked').value = '';
+            document.getElementById('taskDescription').value = '';
+            document.getElementById('commitHash').value = '';
+
+            updateDashboard();
+            loadRecentEntries();
+        }
+
+        function updateDashboard() {
+            if (!currentWallet) return;
+
+            try {
+                const report = window.devCompensation.generateCompensationReport(currentWallet);
+                
+                document.getElementById('totalHours').textContent = report.summary.totalHours.toFixed(2);
+                document.getElementById('totalOwed').textContent = '$' + report.summary.totalOwed.toLocaleString();
+                document.getElementById('projectCount').textContent = report.summary.totalProjects;
+                document.getElementById('avgRate').textContent = '$' + report.summary.averageHourlyRate.toFixed(2);
+
+                // Update assistance programs
+                const assistance = window.devCompensation.calculateAssistanceEligibility(currentWallet);
+                let programsHTML = '';
+                for (const [program, eligible] of Object.entries(assistance.programs)) {
+                    const status = eligible ? '✅' : '❌';
+                    programsHTML += `<div class="stat"><span>${program}</span><span>${status}</span></div>`;
+                }
+                document.getElementById('assistancePrograms').innerHTML = programsHTML;
+
+                // Update usage project dropdown
+                const usageSelect = document.getElementById('usageProject');
+                usageSelect.innerHTML = '<option value="">Select a project...</option>';
+                report.projects.forEach(proj => {
+                    usageSelect.innerHTML += `<option value="${proj.projectId}">${proj.projectName} (${proj.totalHours}h)</option>`;
+                });
+
+            } catch (error) {
+                console.error('Error updating dashboard:', error);
+            }
+        }
+
+        function loadRecentEntries() {
+            if (!currentWallet) return;
+
+            const entries = window.devCompensation.timeEntries
+                .filter(e => e.walletAddress === currentWallet)
+                .slice(-5)
+                .reverse();
+
+            if (entries.length === 0) {
+                document.getElementById('recentEntries').innerHTML = 
+                    '<p style="color: #8addff;">No entries logged yet</p>';
+                return;
+            }
+
+            let html = '';
+            entries.forEach(entry => {
+                html += `
+                    <div class="time-entry">
+                        <div class="time-entry-header">
+                            <span class="project-tag">${entry.projectId}</span>
+                            <span style="color: #00ff00;">${entry.hours}h</span>
+                        </div>
+                        <p style="color: #8addff; margin-bottom: 5px;">${entry.description || 'No description'}</p>
+                        <p style="color: #666; font-size: 0.9em;">${entry.taskType} • ${new Date(entry.timestamp).toLocaleDateString()}</p>
+                    </div>
+                `;
+            });
+
+            document.getElementById('recentEntries').innerHTML = html;
+        }
+
+        function showTab(tabName) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+
+            // Show selected tab
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+
+            if (tabName === 'view-report') {
+                generateFullReport();
+            }
+        }
+
+        function generateFullReport() {
+            if (!currentWallet) {
+                document.getElementById('fullReport').innerHTML = 
+                    '<p style="color: #8addff;">Connect wallet to view report</p>';
+                return;
+            }
+
+            const report = window.devCompensation.generateCompensationReport(currentWallet);
+            
+            let html = `
+                <div class="compensation-breakdown">
+                    <h3 style="color: #00ffff; margin-bottom: 15px;">Summary</h3>
+                    <div class="breakdown-item">
+                        <span>Total Projects:</span>
+                        <span style="color: #00ff00;">${report.summary.totalProjects}</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Total Hours:</span>
+                        <span style="color: #00ff00;">${report.summary.totalHours.toFixed(2)}</span>
+                    </div>
+                    <div class="breakdown-item">
+                        <span>Total Owed:</span>
+                        <span style="color: #00ff00; font-size: 1.3em;">$${report.summary.totalOwed.toLocaleString()}</span>
+                    </div>
+                </div>
+
+                <h3 style="color: #00ffff; margin: 20px 0 10px 0;">Project Breakdown</h3>
+            `;
+
+            report.projects.forEach(proj => {
+                html += `
+                    <div class="compensation-breakdown">
+                        <h4 style="color: #00ffff;">${proj.projectName}</h4>
+                        <div class="breakdown-item">
+                            <span>Hours:</span>
+                            <span>${proj.totalHours.toFixed(2)}h</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span>Rate:</span>
+                            <span>$${proj.effectiveRate}/hr (${proj.contractType})</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span>Gross Pay:</span>
+                            <span style="color: #00ff00;">$${proj.grossPay.toLocaleString()}</span>
+                        </div>
+                        <div class="breakdown-item">
+                            <span>Net Pay:</span>
+                            <span style="color: #00ff00; font-weight: bold;">$${proj.netPay.toLocaleString()}</span>
+                        </div>
+                    </div>
+                `;
+            });
+
+            document.getElementById('fullReport').innerHTML = html;
+        }
+
+        function calculateUsageFees() {
+            const projectId = document.getElementById('usageProject').value;
+            const usageType = document.getElementById('usageType').value;
+            const userWallet = document.getElementById('usageWallet').value;
+
+            if (!projectId) {
+                alert('Please select a project');
+                return;
+            }
+
+            try {
+                const fees = window.devCompensation.calculateUsageFees(projectId, usageType, userWallet);
+                
+                let html = `
+                    <div class="alert success">
+                        <h3 style="margin-bottom: 10px;">Usage Fee Calculated</h3>
+                        <p><strong>Total Owed:</strong> $${fees.totalOwed.toLocaleString()}</p>
+                        <p><strong>Fee Type:</strong> ${fees.usageType} (${fees.feePercentage})</p>
+                    </div>
+
+                    <h4 style="color: #00ffff; margin: 15px 0;">Payment Instructions:</h4>
+                    <table>
+                        <tr>
+                            <th>Contractor</th>
+                            <th>Wallet</th>
+                            <th>Hours</th>
+                            <th>Amount Owed</th>
+                        </tr>
+                `;
+
+                fees.contractors.forEach(contractor => {
+                    html += `
+                        <tr>
+                            <td>${contractor.contractorName}</td>
+                            <td>${contractor.walletAddress.slice(0, 8)}...</td>
+                            <td>${contractor.hours}h</td>
+                            <td style="color: #00ff00;">$${contractor.usageFee.toLocaleString()}</td>
+                        </tr>
+                    `;
+                });
+
+                html += '</table>';
+
+                document.getElementById('usageResults').innerHTML = html;
+            } catch (error) {
+                alert('Error calculating usage fees: ' + error.message);
+            }
+        }
+
+        function exportClaim() {
+            if (!currentWallet) {
+                alert('Please connect your wallet first');
+                return;
+            }
+
+            const claimData = window.devCompensation.exportForClaim(currentWallet);
+            const dataStr = JSON.stringify(claimData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `compensation-claim-${currentWallet.slice(0, 8)}.json`;
+            link.click();
+
+            alert('✅ Claim data exported! Use this file as evidence for compensation claims.');
+        }
+
+        function importFromGitHub() {
+            alert('GitHub import coming soon! This will automatically analyze your commits and estimate dev time based on code complexity.');
+        }
+
+        // Initialize
+        window.addEventListener('DOMContentLoaded', function() {
+            console.log('💰 Dev Time Tracker loaded');
+        });
+    </script>
+</body>
+</html>
