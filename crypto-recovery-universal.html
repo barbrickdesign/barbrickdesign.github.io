@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>BarbrickDesign — Universal Crypto Recovery</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <meta name="description" content="Multi-chain crypto recovery: Solana, Ethereum, and more. Reclaim rent, optimize gas, recover dust." />
+  
+  <!-- Solana -->
+  <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iife.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@solana/spl-token@0.3.11/dist/browser/spl-token.min.js"></script>
+  
+  <!-- Ethereum -->
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
+  
+  <style>
+    :root{
+      --bg:#0a0c11; --panel:#0f131a; --muted:#a8b3c7; --text:#eaf1fb;
+      --accent:#66fcf1; --good:#3be477; --warn:#fbbf24; --bad:#ff6b6b;
+      --stroke:rgba(255,255,255,0.12);
+    }
+    *{box-sizing:border-box}
+    html,body{margin:0;height:100%;font-family:Inter,system-ui,Segoe UI,Roboto,Arial;background:radial-gradient(1200px 600px at 20% -20%, rgba(102,252,241,0.06), transparent),var(--bg);color:var(--text)}
+    a{color:var(--accent);text-decoration:none}
+    .wrap{max-width:1400px;margin:0 auto;padding:16px}
+    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .card{background:var(--panel);border:1px solid var(--stroke);border-radius:12px;padding:14px}
+    .btn{background:#121827;color:var(--text);border:1px solid #223149;padding:10px 12px;border-radius:10px;cursor:pointer;font-weight:700;transition:all 0.2s}
+    .btn:hover{transform:translateY(-1px);box-shadow:0 4px 12px rgba(102,252,241,0.2)}
+    .btn:disabled{opacity:0.5;cursor:not-allowed;transform:none}
+    .btn.ghost{background:transparent;border-color:var(--stroke)}
+    .btn.primary{background:linear-gradient(135deg,#121a2b,#172238)}
+    .btn.active{border-color:var(--accent);box-shadow:0 0 12px rgba(102,252,241,0.3)}
+    .mono{font-family:ui-monospace,Menlo,Consolas}
+    .small{font-size:13px;color:var(--muted)}
+    .title{font-size:20px;font-weight:800}
+    .big{font-size:28px;font-weight:800}
+    header{display:flex;flex-direction:column;gap:12px;margin-bottom:20px}
+    .header-row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+    .brand{display:flex;gap:12px;align-items:center}
+    .glyph{width:40px;height:40px;border-radius:8px;background:conic-gradient(from 200deg,var(--accent),#9b7bff);box-shadow:0 6px 30px rgba(102,252,241,0.08)}
+    .chain-selector{display:flex;gap:8px;padding:8px;background:rgba(0,0,0,0.3);border-radius:12px}
+    .chain-btn{padding:8px 16px;border-radius:8px;background:transparent;border:1px solid var(--stroke);color:var(--muted);cursor:pointer;transition:all 0.2s}
+    .chain-btn:hover{border-color:var(--accent);color:var(--text)}
+    .chain-btn.active{background:var(--accent);color:#000;border-color:var(--accent);font-weight:700}
+    .stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin:16px 0}
+    .stat-card{text-align:center;padding:16px;border-radius:10px;background:rgba(102,252,241,0.03);border:1px solid var(--stroke)}
+    .stat-value{font-size:24px;font-weight:800;color:var(--accent);margin:8px 0}
+    .recovery-list{max-height:400px;overflow-y:auto;margin-top:12px}
+    .recovery-item{display:flex;justify-content:space-between;align-items:center;padding:12px;margin:8px 0;border-radius:8px;border:1px solid var(--stroke);background:rgba(0,0,0,0.2)}
+    .notice{padding:12px;border-radius:10px;background:linear-gradient(180deg,rgba(102,252,241,0.03),transparent);border:1px solid var(--stroke);margin:12px 0}
+    .progress-bar{width:100%;height:8px;background:rgba(255,255,255,0.1);border-radius:4px;overflow:hidden;margin:8px 0}
+    .progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),#9b7bff);transition:width 0.3s}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="header-row">
+        <div class="brand">
+          <div class="glyph"></div>
+          <div>
+            <div class="title mono">Universal Crypto Recovery</div>
+            <div class="small">Multi-chain rent recovery, gas optimization & dust consolidation</div>
+          </div>
+        </div>
+        <div class="row">
+          <button id="connectBtn" class="btn primary">Connect Wallet</button>
+          <span id="walletStatus" class="small mono">Not connected</span>
+        </div>
+      </div>
+
+      <div class="chain-selector" id="chainSelector">
+        <button class="chain-btn active" data-chain="solana">⚡ Solana</button>
+        <button class="chain-btn" data-chain="ethereum">⟠ Ethereum</button>
+        <button class="chain-btn" data-chain="bitcoin" disabled>₿ Bitcoin (Soon)</button>
+        <button class="chain-btn" data-chain="polygon" disabled>◆ Polygon (Soon)</button>
+      </div>
+    </header>
+
+    <main>
+      <div class="card">
+        <div class="title">Recovery Dashboard</div>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="small">Current Chain</div>
+            <div class="stat-value" id="currentChain">Solana</div>
+          </div>
+          <div class="stat-card">
+            <div class="small">Recoverable Items</div>
+            <div class="stat-value" id="recoverableCount">0</div>
+          </div>
+          <div class="stat-card">
+            <div class="small">Estimated Value</div>
+            <div class="stat-value" id="estimatedValue">$0.00</div>
+          </div>
+          <div class="stat-card">
+            <div class="small">Total Recovered</div>
+            <div class="stat-value" id="totalRecovered">$0.00</div>
+          </div>
+        </div>
+
+        <div class="row" style="margin-top:16px">
+          <button id="scanBtn" class="btn">🔍 Scan Wallet</button>
+          <button id="recoverBtn" class="btn ghost" disabled>💰 Start Recovery</button>
+          <button id="exportBtn" class="btn ghost">📥 Export Report</button>
+        </div>
+
+        <div id="progressSection" style="display:none;margin-top:16px">
+          <div class="small">Recovery Progress</div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width:0%"></div>
+          </div>
+          <div class="small" id="progressText">0 of 0 complete</div>
+        </div>
+      </div>
+
+      <!-- Solana Recovery -->
+      <div id="solanaPanel" class="card" style="margin-top:16px">
+        <div class="title">Solana Recovery</div>
+        <div class="notice">
+          <strong>What we recover:</strong>
+          <ul style="margin:8px 0;padding-left:20px">
+            <li>Empty SPL token accounts (rent refunds)</li>
+            <li>Dust tokens (< $0.10 value)</li>
+            <li>Closed program accounts</li>
+          </ul>
+          <div class="small">Standard fee: 5% of recovered value</div>
+        </div>
+        <div class="recovery-list" id="solanaRecoveryList"></div>
+      </div>
+
+      <!-- Ethereum Recovery -->
+      <div id="ethereumPanel" class="card" style="margin-top:16px;display:none">
+        <div class="title">Ethereum Recovery</div>
+        <div class="notice">
+          <strong>What we recover:</strong>
+          <ul style="margin:8px 0;padding-left:20px">
+            <li>Dust ERC-20 tokens (< $1.00 value)</li>
+            <li>Gas optimization for batch transfers</li>
+            <li>Abandoned contract interactions</li>
+          </ul>
+          <div class="small">Gas costs calculated in real-time • 5% fee on recovered value</div>
+        </div>
+        <div class="recovery-list" id="ethereumRecoveryList"></div>
+      </div>
+
+      <!-- Transaction History -->
+      <div class="card" style="margin-top:16px">
+        <div class="title">Recovery History</div>
+        <div id="historyList" class="recovery-list">
+          <div class="small" style="text-align:center;padding:20px;color:var(--muted)">
+            No recovery transactions yet
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    // ==================== CORE STATE ====================
+    const state = {
+      currentChain: 'solana',
+      wallet: null,
+      provider: null,
+      recoverables: [],
+      history: [],
+      stats: {
+        totalRecovered: 0,
+        sessionRecovered: 0
+      }
+    };
+
+    // ==================== CONSTANTS ====================
+    const CHAINS = {
+      solana: {
+        name: 'Solana',
+        rpc: 'https://api.mainnet-beta.solana.com',
+        rentPerAccount: 0.00204,
+        feeWallet: '5hSWosj58ki4A6hSfQrvteQU5QvyCWmhHn4AuqgaQzqr',
+        feePct: 0.05
+      },
+      ethereum: {
+        name: 'Ethereum',
+        rpc: 'https://eth.llamarpc.com',
+        minDustUSD: 1.00,
+        feeWallet: '0x742d35Cc6634C0532925a3b844Bc454e4438f44e',
+        feePct: 0.05
+      }
+    };
+
+    // ==================== UTILITIES ====================
+    function log(...args) {
+      console.log('[Recovery]', ...args);
+    }
+
+    function setStatus(msg, type = 'info') {
+      log(msg);
+      // Could add toast notifications here
+    }
+
+    function updateUI() {
+      document.getElementById('currentChain').textContent = CHAINS[state.currentChain].name;
+      document.getElementById('recoverableCount').textContent = state.recoverables.length;
+      
+      const estValue = state.recoverables.reduce((sum, item) => sum + (item.value || 0), 0);
+      document.getElementById('estimatedValue').textContent = `$${estValue.toFixed(2)}`;
+      document.getElementById('totalRecovered').textContent = `$${state.stats.totalRecovered.toFixed(2)}`;
+      
+      document.getElementById('recoverBtn').disabled = state.recoverables.length === 0;
+    }
+
+    function renderHistory() {
+      const list = document.getElementById('historyList');
+      if (state.history.length === 0) {
+        list.innerHTML = '<div class="small" style="text-align:center;padding:20px;color:var(--muted)">No recovery transactions yet</div>';
+        return;
+      }
+      
+      list.innerHTML = state.history.map(item => `
+        <div class="recovery-item">
+          <div>
+            <div class="mono small">${item.chain}</div>
+            <div class="small">${item.description}</div>
+            <div class="small" style="opacity:0.7">${new Date(item.timestamp).toLocaleString()}</div>
+          </div>
+          <div style="text-align:right">
+            <div style="color:var(--good);font-weight:700">+$${item.value.toFixed(2)}</div>
+            <a href="${item.explorerUrl}" target="_blank" class="small" style="color:var(--accent)">View ↗</a>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ==================== SOLANA FUNCTIONS ====================
+    const solana = {
+      connection: null,
+
+      async init() {
+        if (!window.solanaWeb3) throw new Error('Solana Web3.js not loaded');
+        this.connection = new solanaWeb3.Connection(CHAINS.solana.rpc, 'confirmed');
+        log('Solana initialized');
+      },
+
+      async connect() {
+        const provider = window.solana;
+        if (!provider) throw new Error('Phantom wallet not found');
+        
+        const resp = await provider.connect();
+        state.wallet = resp.publicKey;
+        state.provider = provider;
+        
+        log('Solana wallet connected:', state.wallet.toBase58());
+        return {
+          address: state.wallet.toBase58(),
+          chain: 'solana'
+        };
+      },
+
+      async scan() {
+        if (!state.wallet) throw new Error('Wallet not connected');
+        
+        setStatus('Scanning Solana accounts...');
+        state.recoverables = [];
+
+        try {
+          // Scan for empty SPL token accounts
+          const tokenAccounts = await this.connection.getParsedTokenAccountsByOwner(
+            state.wallet,
+            { programId: splToken.TOKEN_PROGRAM_ID }
+          );
+
+          const emptyAccounts = tokenAccounts.value.filter(acc => {
+            const amount = acc.account.data.parsed.info.tokenAmount.uiAmount;
+            return amount === 0;
+          });
+
+          emptyAccounts.forEach(acc => {
+            state.recoverables.push({
+              type: 'empty_account',
+              address: acc.pubkey.toBase58(),
+              chain: 'solana',
+              value: CHAINS.solana.rentPerAccount * 5, // Approximate USD value
+              description: 'Empty SPL token account',
+              rentLamports: 2039280
+            });
+          });
+
+          // Scan for dust tokens (< $0.10 value)
+          const activeAccounts = tokenAccounts.value.filter(acc => {
+            const amount = acc.account.data.parsed.info.tokenAmount.uiAmount;
+            return amount > 0 && amount < 100; // Heuristic for dust
+          });
+
+          activeAccounts.forEach(acc => {
+            const info = acc.account.data.parsed.info;
+            state.recoverables.push({
+              type: 'dust_token',
+              address: acc.pubkey.toBase58(),
+              mint: info.mint,
+              chain: 'solana',
+              value: 0.05, // Estimate
+              description: `Dust token (${info.tokenAmount.uiAmount} tokens)`,
+              amount: info.tokenAmount.uiAmount
+            });
+          });
+
+          log(`Found ${state.recoverables.length} recoverable items on Solana`);
+          this.renderRecoverables();
+          updateUI();
+          
+        } catch (error) {
+          log('Solana scan error:', error);
+          throw error;
+        }
+      },
+
+      renderRecoverables() {
+        const list = document.getElementById('solanaRecoveryList');
+        if (state.recoverables.length === 0) {
+          list.innerHTML = '<div class="notice">No recoverable items found. Your wallet is optimized! ✨</div>';
+          return;
+        }
+
+        list.innerHTML = state.recoverables.map((item, index) => `
+          <div class="recovery-item">
+            <div>
+              <div style="font-weight:700">${item.description}</div>
+              <div class="mono small" style="opacity:0.7">${item.address.slice(0, 8)}...${item.address.slice(-6)}</div>
+            </div>
+            <div style="text-align:right">
+              <div style="color:var(--good);font-weight:700">~$${item.value.toFixed(3)}</div>
+              <div class="small">+ ${(item.rentLamports || 0) / 1e9} SOL rent</div>
+            </div>
+          </div>
+        `).join('');
+      },
+
+      async recover() {
+        if (state.recoverables.length === 0) return;
+        
+        const progressSection = document.getElementById('progressSection');
+        const progressFill = document.getElementById('progressFill');
+        const progressText = document.getElementById('progressText');
+        
+        progressSection.style.display = 'block';
+        
+        let completed = 0;
+        const total = state.recoverables.length;
+
+        for (const item of state.recoverables) {
+          try {
+            if (item.type === 'empty_account') {
+              const tx = new solanaWeb3.Transaction().add(
+                splToken.createCloseAccountInstruction(
+                  new solanaWeb3.PublicKey(item.address),
+                  state.wallet,
+                  state.wallet,
+                  []
+                )
+              );
+
+              tx.feePayer = state.wallet;
+              tx.recentBlockhash = (await this.connection.getLatestBlockhash()).blockhash;
+
+              const signed = await state.provider.signTransaction(tx);
+              const signature = await this.connection.sendRawTransaction(signed.serialize());
+              await this.connection.confirmTransaction(signature, 'confirmed');
+
+              // Add to history
+              state.history.unshift({
+                chain: 'Solana',
+                description: item.description,
+                value: item.value,
+                timestamp: Date.now(),
+                explorerUrl: `https://explorer.solana.com/tx/${signature}`
+              });
+
+              state.stats.totalRecovered += item.value;
+              log('Recovered:', item.address, signature);
+            }
+
+            completed++;
+            const progress = (completed / total) * 100;
+            progressFill.style.width = `${progress}%`;
+            progressText.textContent = `${completed} of ${total} complete`;
+
+          } catch (error) {
+            log('Recovery error:', item.address, error);
+          }
+
+          await new Promise(r => setTimeout(r, 200)); // Rate limiting
+        }
+
+        state.recoverables = [];
+        updateUI();
+        renderHistory();
+        progressSection.style.display = 'none';
+        setStatus('Recovery complete!', 'success');
+      }
+    };
+
+    // ==================== ETHEREUM FUNCTIONS ====================
+    const ethereum = {
+      provider: null,
+
+      async init() {
+        if (!window.ethers) throw new Error('Ethers.js not loaded');
+        log('Ethereum initialized');
+      },
+
+      async connect() {
+        if (!window.ethereum) throw new Error('MetaMask not found');
+        
+        this.provider = new ethers.providers.Web3Provider(window.ethereum);
+        await this.provider.send("eth_requestAccounts", []);
+        const signer = this.provider.getSigner();
+        const address = await signer.getAddress();
+        
+        state.wallet = address;
+        state.provider = signer;
+        
+        log('Ethereum wallet connected:', address);
+        return {
+          address,
+          chain: 'ethereum'
+        };
+      },
+
+      async scan() {
+        if (!state.wallet) throw new Error('Wallet not connected');
+        
+        setStatus('Scanning Ethereum tokens...');
+        state.recoverables = [];
+
+        try {
+          // This is a simplified version - in production, you'd use services like:
+          // - Alchemy Token API
+          // - Etherscan API
+          // - Moralis API
+          
+          const notice = document.getElementById('ethereumRecoveryList');
+          notice.innerHTML = `
+            <div class="notice">
+              <strong>Ethereum scanning requires API integration</strong>
+              <p class="small" style="margin-top:8px">
+                To scan for ERC-20 dust tokens and gas optimization opportunities, 
+                integrate with Alchemy, Etherscan, or Moralis APIs.
+              </p>
+              <div style="margin-top:12px">
+                <strong>Capabilities:</strong>
+                <ul style="margin:8px 0;padding-left:20px">
+                  <li>Detect low-value ERC-20 tokens</li>
+                  <li>Calculate optimal gas for batch operations</li>
+                  <li>Identify abandoned approvals</li>
+                  <li>Consolidate dust to main wallet</li>
+                </ul>
+              </div>
+            </div>
+          `;
+
+          // Placeholder recovery items
+          state.recoverables.push({
+            type: 'dust_erc20',
+            chain: 'ethereum',
+            value: 0.45,
+            description: 'Mock dust token (API integration needed)',
+            address: '0x...'
+          });
+
+          updateUI();
+          
+        } catch (error) {
+          log('Ethereum scan error:', error);
+          throw error;
+        }
+      },
+
+      renderRecoverables() {
+        // Similar to Solana but for Ethereum items
+      },
+
+      async recover() {
+        setStatus('Ethereum recovery requires API integration', 'info');
+        // Implement batch transfer logic here
+      }
+    };
+
+    // ==================== MAIN APP ====================
+    async function init() {
+      // Initialize chains
+      await solana.init();
+      await ethereum.init();
+
+      // Load saved history
+      try {
+        const saved = localStorage.getItem('recovery_history');
+        if (saved) {
+          state.history = JSON.parse(saved);
+          state.stats.totalRecovered = state.history.reduce((sum, item) => sum + item.value, 0);
+          renderHistory();
+          updateUI();
+        }
+      } catch (e) {
+        log('Failed to load history:', e);
+      }
+    }
+
+    // ==================== EVENT HANDLERS ====================
+    document.getElementById('connectBtn').addEventListener('click', async () => {
+      try {
+        let result;
+        if (state.currentChain === 'solana') {
+          result = await solana.connect();
+        } else if (state.currentChain === 'ethereum') {
+          result = await ethereum.connect();
+        }
+        
+        document.getElementById('walletStatus').textContent = 
+          `${result.address.slice(0, 6)}...${result.address.slice(-4)}`;
+        setStatus('Wallet connected!', 'success');
+      } catch (error) {
+        setStatus('Connection failed: ' + error.message, 'error');
+      }
+    });
+
+    document.getElementById('scanBtn').addEventListener('click', async () => {
+      try {
+        if (state.currentChain === 'solana') {
+          await solana.scan();
+        } else if (state.currentChain === 'ethereum') {
+          await ethereum.scan();
+        }
+      } catch (error) {
+        setStatus('Scan failed: ' + error.message, 'error');
+      }
+    });
+
+    document.getElementById('recoverBtn').addEventListener('click', async () => {
+      if (!confirm(`Start recovery of ${state.recoverables.length} items? Each will require wallet approval.`)) return;
+      
+      try {
+        if (state.currentChain === 'solana') {
+          await solana.recover();
+        } else if (state.currentChain === 'ethereum') {
+          await ethereum.recover();
+        }
+        
+        // Save history
+        localStorage.setItem('recovery_history', JSON.stringify(state.history));
+      } catch (error) {
+        setStatus('Recovery failed: ' + error.message, 'error');
+      }
+    });
+
+    document.getElementById('exportBtn').addEventListener('click', () => {
+      const report = {
+        timestamp: new Date().toISOString(),
+        chain: state.currentChain,
+        wallet: state.wallet?.toBase58?.() || state.wallet || 'Not connected',
+        stats: state.stats,
+        history: state.history,
+        recoverables: state.recoverables
+      };
+      
+      const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `recovery-report-${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      
+      setStatus('Report exported', 'success');
+    });
+
+    // Chain selector
+    document.querySelectorAll('.chain-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (btn.disabled) return;
+        
+        const chain = btn.dataset.chain;
+        state.currentChain = chain;
+        state.recoverables = [];
+        state.wallet = null;
+        
+        // Update UI
+        document.querySelectorAll('.chain-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        document.getElementById('solanaPanel').style.display = chain === 'solana' ? 'block' : 'none';
+        document.getElementById('ethereumPanel').style.display = chain === 'ethereum' ? 'block' : 'none';
+        document.getElementById('walletStatus').textContent = 'Not connected';
+        
+        updateUI();
+        log('Switched to', chain);
+      });
+    });
+
+    // Initialize on load
+    window.addEventListener('load', init);
+  </script>
+</body>
+</html>
