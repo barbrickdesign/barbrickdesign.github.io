@@ -290,6 +290,11 @@
                     <span id="walletBalance">0.00</span>
                     <button onclick="disconnectWallet()" style="margin-left: 10px; padding: 5px 10px; background: rgba(255,0,0,0.3); border: 1px solid #ff0000; color: #ff0000; cursor: pointer; border-radius: 5px; font-size: 0.8em;">Disconnect</button>
                 </div>
+                <div id="walletHelpBanner" style="display: none; margin-top: 15px; padding: 10px; background: rgba(255,165,0,0.2); border: 1px solid orange; border-radius: 5px; font-size: 0.85em; text-align: center;">
+                    <div style="margin-bottom: 5px;">⚠️ No wallet detected</div>
+                    <button onclick="retryWalletDetection()" style="padding: 5px 15px; background: rgba(255,165,0,0.4); border: 1px solid orange; color: orange; cursor: pointer; border-radius: 5px; font-size: 0.9em; margin-right: 10px;">🔄 Retry Detection</button>
+                    <button onclick="showWalletHelp()" style="padding: 5px 15px; background: rgba(0,255,255,0.2); border: 1px solid cyan; color: cyan; cursor: pointer; border-radius: 5px; font-size: 0.9em;">❓ Help</button>
+                </div>
             </div>
         </header>
 
@@ -644,8 +649,11 @@
                         result = await window.walletConnector.connectMetaMask();
                     }
                 } else {
-                    // No wallets detected - check manually
+                    // No wallets detected - give platform-specific guidance
                     console.log('No auto-detected wallets, checking manually...');
+                    
+                    // Check if mobile
+                    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
                     
                     // Try Phantom first
                     if (window.solana && window.solana.isPhantom) {
@@ -657,15 +665,30 @@
                         btnText.textContent = '⏳ CONNECTING TO METAMASK...';
                         result = await window.walletConnector.connectMetaMask();
                     }
-                    // No wallet found
+                    // No wallet found - provide helpful guidance
                     else {
-                        throw new Error(
-                            'No wallet detected!\n\n' +
-                            'Please install:\n' +
-                            '• Phantom (for Solana) - phantom.app\n' +
-                            '• MetaMask (for Ethereum) - metamask.io\n\n' +
-                            'Then refresh this page.'
-                        );
+                        if (isMobile) {
+                            throw new Error(
+                                'Mobile Wallet Not Detected!\n\n' +
+                                '📱 MOBILE USERS:\n' +
+                                '1. Install Phantom or MetaMask app\n' +
+                                '2. Open this site INSIDE the wallet app:\n' +
+                                '   • Phantom: Use built-in browser\n' +
+                                '   • MetaMask: Use built-in browser\n\n' +
+                                '⚠️ Safari/Chrome cannot access wallet extensions on mobile.\n' +
+                                'You MUST use the wallet\'s built-in browser!'
+                            );
+                        } else {
+                            throw new Error(
+                                'No Wallet Extension Detected!\n\n' +
+                                '💻 DESKTOP USERS:\n' +
+                                '1. Install a wallet extension:\n' +
+                                '   • Phantom: phantom.app\n' +
+                                '   • MetaMask: metamask.io\n\n' +
+                                '2. Refresh this page after installing\n\n' +
+                                '⚠️ Make sure the extension is enabled in your browser settings!'
+                            );
+                        }
                     }
                 }
                 
@@ -772,9 +795,86 @@
             }
         }
         
+        // Retry wallet detection manually
+        async function retryWalletDetection() {
+            const banner = document.getElementById('walletHelpBanner');
+            banner.innerHTML = '<div style="color: cyan;">🔄 Scanning for wallets... please wait...</div>';
+            
+            console.log('🔄 Manual retry requested...');
+            
+            // Clear previous detection
+            window.walletConnector.detectedWallets = [];
+            
+            // Wait a bit more for slower browsers
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            
+            // Retry detection with more retries
+            await window.walletConnector.detectWallets(5, 200);
+            
+            if (window.walletConnector.detectedWallets.length > 0) {
+                banner.innerHTML = '<div style="color: lime;">✅ Wallets detected! Click "CONNECT WALLET" above.</div>';
+                setTimeout(() => {
+                    banner.style.display = 'none';
+                }, 3000);
+            } else {
+                banner.innerHTML = `
+                    <div style="margin-bottom: 5px;">❌ Still no wallets found</div>
+                    <button onclick="retryWalletDetection()" style="padding: 5px 15px; background: rgba(255,165,0,0.4); border: 1px solid orange; color: orange; cursor: pointer; border-radius: 5px; font-size: 0.9em; margin-right: 10px;">🔄 Try Again</button>
+                    <button onclick="showWalletHelp()" style="padding: 5px 15px; background: rgba(0,255,255,0.2); border: 1px solid cyan; color: cyan; cursor: pointer; border-radius: 5px; font-size: 0.9em;">❓ Help</button>
+                `;
+            }
+        }
+        
+        // Show detailed help for wallet connection
+        function showWalletHelp() {
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+            
+            if (isMobile) {
+                alert(
+                    '📱 MOBILE WALLET CONNECTION HELP\n\n' +
+                    '⚠️ Important: Mobile Safari/Chrome CANNOT access wallet extensions!\n\n' +
+                    'SOLUTION:\n' +
+                    '1. Install Phantom or MetaMask mobile app\n' +
+                    '2. Open the app\n' +
+                    '3. Find the BROWSER inside the app\n' +
+                    '4. Navigate to barbrickdesign.github.io\n' +
+                    '5. Connection will work automatically\n\n' +
+                    'WHY: Mobile browsers block extension APIs for security.\n' +
+                    'The wallet\'s built-in browser has direct access.'
+                );
+            } else {
+                alert(
+                    '💻 DESKTOP WALLET CONNECTION HELP\n\n' +
+                    'TROUBLESHOOTING:\n\n' +
+                    '1. ✅ Install Extension:\n' +
+                    '   • Phantom: phantom.app\n' +
+                    '   • MetaMask: metamask.io\n\n' +
+                    '2. ✅ Check Extension is Enabled:\n' +
+                    '   • Click puzzle piece icon (🧩) in browser\n' +
+                    '   • Make sure Phantom/MetaMask is ON\n' +
+                    '   • Pin it for easier access\n\n' +
+                    '3. ✅ Unlock Your Wallet:\n' +
+                    '   • Click the extension icon\n' +
+                    '   • Enter your password\n\n' +
+                    '4. ✅ Refresh This Page:\n' +
+                    '   • Press F5 or Ctrl+R\n' +
+                    '   • Try connecting again\n\n' +
+                    '5. ✅ Try Different Browser:\n' +
+                    '   • Chrome usually works best\n' +
+                    '   • Edge/Brave also supported\n\n' +
+                    'STILL NOT WORKING?\n' +
+                    '• Open Console (F12) for detailed logs\n' +
+                    '• Check if extension appears in browser toolbar'
+                );
+            }
+        }
+        
         // Check for existing connection on load
         window.addEventListener('DOMContentLoaded', async function() {
             console.log('🚀 BARBRICKDESIGN Hub loaded');
+            
+            // Wait for wallet connector to finish initial detection
+            await new Promise(resolve => setTimeout(resolve, 2000));
             
             // Check if wallet was previously connected
             if (window.walletConnector && window.walletConnector.loadState()) {
@@ -795,6 +895,12 @@
                     
                     console.log('✅ Previous wallet connection restored');
                 }
+            }
+            
+            // Show help banner if no wallets detected
+            if (window.walletConnector && window.walletConnector.detectedWallets.length === 0) {
+                console.log('⚠️ No wallets detected, showing help banner');
+                document.getElementById('walletHelpBanner').style.display = 'block';
             }
             
             // Initialize all systems

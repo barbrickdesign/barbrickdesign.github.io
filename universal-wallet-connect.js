@@ -24,14 +24,18 @@ class UniversalWalletConnector {
     }
 
     /**
-     * Auto-detect all available wallets (improved for desktop browsers)
+     * Auto-detect all available wallets (improved with retry logic for all browsers)
      */
-    async detectWallets() {
+    async detectWallets(retries = 3, delayMs = 100) {
         this.detectedWallets = [];
 
-        console.log('🔍 Scanning for wallets...');
+        console.log('🔍 Scanning for wallets... (attempt ' + (4 - retries) + '/3)');
         console.log('window.solana:', !!window.solana, 'isPhantom:', window.solana?.isPhantom);
         console.log('window.ethereum:', !!window.ethereum, 'isMetaMask:', window.ethereum?.isMetaMask);
+        console.log('window.phantom:', !!window.phantom);
+
+        // Wait a bit for wallet injection (especially important for Edge/Safari)
+        await new Promise(resolve => setTimeout(resolve, delayMs));
 
         // Check for Phantom (Solana) - check both window.solana and window.phantom
         if ((window.solana && window.solana.isPhantom) || window.phantom?.solana) {
@@ -89,14 +93,27 @@ class UniversalWalletConnector {
             }
         }
 
+        // If no wallets found and we have retries left, try again
+        if (this.detectedWallets.length === 0 && retries > 0) {
+            console.log('⏳ No wallets found, retrying in ' + delayMs + 'ms...');
+            return await this.detectWallets(retries - 1, delayMs * 2);
+        }
+
         // Log what we found
         if (this.detectedWallets.length === 0) {
-            console.warn('⚠️ No wallets detected on this page');
+            console.warn('⚠️ No wallets detected after all retries');
         } else {
             console.log(`✅ Total wallets found: ${this.detectedWallets.length}`);
         }
 
         return this.detectedWallets;
+    }
+    
+    /**
+     * Check if running on mobile device
+     */
+    isMobile() {
+        return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     }
 
     /**
@@ -404,13 +421,19 @@ class UniversalWalletConnector {
 // Create global instance
 window.walletConnector = new UniversalWalletConnector();
 
-// Auto-reconnect on page load
+// Auto-reconnect on page load (with delay for wallet injection)
 window.addEventListener('DOMContentLoaded', async function() {
-    console.log('🔗 Universal Wallet Connector loaded');
+    console.log('🔗 Universal Wallet Connector loading...');
+    
+    // Wait for wallet extensions to inject (especially important for Edge/Safari)
+    // Different browsers inject at different speeds
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    console.log('🔍 Starting wallet detection...');
     await window.walletConnector.detectWallets();
     console.log('💼 Detected wallets:', window.walletConnector.detectedWallets.map(w => w.name).join(', ') || 'None');
     
-    // Try auto-reconnect
+    // Try auto-reconnect if previously connected
     const reconnect = await window.walletConnector.autoReconnect();
     if (reconnect.success) {
         console.log('✅ Wallet auto-connected:', window.walletConnector.address);
@@ -419,6 +442,17 @@ window.addEventListener('DOMContentLoaded', async function() {
         window.dispatchEvent(new CustomEvent('walletAutoConnected', {
             detail: window.walletConnector.getState()
         }));
+    }
+});
+
+// Also listen for window.load as backup
+window.addEventListener('load', async function() {
+    // If still no wallets detected after page fully loads, try one more time
+    if (window.walletConnector.detectedWallets.length === 0) {
+        console.log('🔄 Page fully loaded, retrying wallet detection...');
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        await window.walletConnector.detectWallets();
+        console.log('💼 Wallets after reload:', window.walletConnector.detectedWallets.map(w => w.name).join(', ') || 'Still none');
     }
 });
 
