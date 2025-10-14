@@ -3,463 +3,366 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BarbrickDesign - Unified Project Hub</title>
+    <title>BARBRICKDESIGN - Elite Web3 Hub</title>
     
-    <!-- Wallet Connection Dependencies -->
-    <script src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl.min.js"></script>
+    <!-- Wallet Dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iife.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@solana/spl-token@0.3.11/dist/browser/spl-token.min.js"></script>
-    <script src="mandem.os/workspace/public/phantomLogin.js"></script>
+    <script src="universal-wallet-connect.js"></script>
+    <link rel="stylesheet" href="mobile-responsive.css">
+    
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
         
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #030616 0%, #041022 50%, #021124 100%);
-            color: #cfe9ff;
+            font-family: 'Orbitron', sans-serif;
+            background: #000000;
+            color: #00ffff;
             min-height: 100vh;
-            padding: 20px;
+            overflow-x: hidden;
+            position: relative;
+        }
+        
+        .tron-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                linear-gradient(0deg, transparent 24%, rgba(0, 255, 255, .05) 25%, rgba(0, 255, 255, .05) 26%, transparent 27%, transparent 74%, rgba(0, 255, 255, .05) 75%, rgba(0, 255, 255, .05) 76%, transparent 77%, transparent),
+                linear-gradient(90deg, transparent 24%, rgba(0, 255, 255, .05) 25%, rgba(0, 255, 255, .05) 26%, transparent 27%, transparent 74%, rgba(0, 255, 255, .05) 75%, rgba(0, 255, 255, .05) 76%, transparent 77%, transparent);
+            background-size: 50px 50px;
+            animation: gridMove 20s linear infinite;
+            z-index: -1;
+            opacity: 0.3;
+        }
+        
+        @keyframes gridMove {
+            0% { transform: perspective(500px) rotateX(60deg) translateZ(0); }
+            100% { transform: perspective(500px) rotateX(60deg) translateZ(50px); }
         }
         
         .container {
-            max-width: 1400px;
+            max-width: 1600px;
             margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 1;
         }
         
         header {
             text-align: center;
+            padding: 60px 20px;
+            position: relative;
+            background: linear-gradient(180deg, rgba(0,255,255,0.1) 0%, transparent 100%);
+            border: 2px solid rgba(0,255,255,0.3);
+            border-radius: 20px;
             margin-bottom: 40px;
-            padding: 30px;
-            background: linear-gradient(90deg, rgba(124,92,255,0.1), rgba(0,212,255,0.1));
-            border-radius: 15px;
-            border: 1px solid rgba(124,92,255,0.3);
+            box-shadow: 0 0 30px rgba(0,255,255,0.3), inset 0 0 30px rgba(0,255,255,0.1);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
         }
         
         h1 {
-            font-size: 3em;
-            margin-bottom: 10px;
-            background: linear-gradient(90deg, #7c5cff, #00d4ff);
+            font-size: 4em;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 8px;
+            background: linear-gradient(90deg, #00ffff, #ff00ff, #00ffff);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            background-size: 200% auto;
+            animation: shimmer 3s linear infinite;
+            margin-bottom: 20px;
+        }
+        
+        @keyframes shimmer {
+            to { background-position: 200% center; }
         }
         
         .subtitle {
-            font-size: 1.2em;
-            color: #9aa4b2;
+            font-size: 1.3em;
+            color: #00ffff;
+            text-shadow: 0 0 20px rgba(0,255,255,0.8);
+            letter-spacing: 2px;
+            margin-bottom: 30px;
+        }
+        
+        .wallet-section {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            align-items: center;
+            flex-wrap: wrap;
+            margin: 30px 0;
+        }
+        
+        .wallet-btn {
+            position: relative;
+            padding: 18px 40px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            background: linear-gradient(135deg, rgba(0,255,255,0.2), rgba(255,0,255,0.2));
+            color: #00ffff;
+            border: 2px solid #00ffff;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 0 20px rgba(0,255,255,0.4), inset 0 0 20px rgba(0,255,255,0.1);
+        }
+        
+        .wallet-btn:hover {
+            transform: translateY(-3px) scale(1.05);
+            box-shadow: 0 0 40px rgba(0,255,255,0.8), inset 0 0 30px rgba(0,255,255,0.2);
+        }
+        
+        .wallet-btn.connected {
+            background: linear-gradient(135deg, rgba(0,255,0,0.3), rgba(0,255,255,0.3));
+            border-color: #00ff00;
+            box-shadow: 0 0 30px rgba(0,255,0,0.6);
+        }
+        
+        .wallet-info {
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 30px;
+            background: rgba(0,255,255,0.1);
+            border: 2px solid rgba(0,255,255,0.5);
+            border-radius: 10px;
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
         }
         
         .grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 25px;
-            margin-bottom: 40px;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin: 40px 0;
         }
         
         .project-card {
-            background: linear-gradient(135deg, #041022, #031426);
+            background: linear-gradient(135deg, rgba(0,20,40,0.8), rgba(0,40,60,0.8));
+            border: 2px solid rgba(0,255,255,0.3);
             border-radius: 15px;
-            padding: 25px;
-            border: 1px solid rgba(124,92,255,0.2);
-            transition: all 0.3s ease;
+            padding: 30px;
             cursor: pointer;
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .project-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 4px;
-            background: linear-gradient(90deg, #7c5cff, #00d4ff);
-            opacity: 0;
-            transition: opacity 0.3s ease;
+            transition: all 0.4s;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
         }
         
         .project-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 30px rgba(124,92,255,0.3);
-            border-color: rgba(124,92,255,0.5);
-        }
-        
-        .project-card:hover::before {
-            opacity: 1;
+            transform: translateY(-10px);
+            box-shadow: 0 20px 60px rgba(0,255,255,0.4);
+            border-color: #00ffff;
         }
         
         .project-icon {
-            font-size: 3em;
-            margin-bottom: 15px;
+            font-size: 3.5em;
+            margin-bottom: 20px;
         }
         
         .project-title {
-            font-size: 1.5em;
-            margin-bottom: 10px;
-            color: #7c5cff;
+            font-size: 1.6em;
+            font-weight: 700;
+            margin-bottom: 15px;
+            color: #00ffff;
+            text-transform: uppercase;
         }
         
         .project-desc {
-            color: #9aa4b2;
-            line-height: 1.6;
-            margin-bottom: 15px;
-        }
-        
-        .project-status {
-            display: inline-block;
-            padding: 5px 12px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            margin-top: 10px;
+            color: #8addff;
+            line-height: 1.8;
+            margin-bottom: 20px;
         }
         
         .status-active {
             background: rgba(0,255,0,0.2);
             color: #00ff00;
-            border: 1px solid rgba(0,255,0,0.3);
+            border: 2px solid rgba(0,255,0,0.5);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 700;
         }
         
         .section-title {
-            font-size: 2em;
-            margin: 40px 0 20px 0;
-            padding-bottom: 10px;
-            border-bottom: 2px solid rgba(124,92,255,0.3);
+            font-size: 2.5em;
+            font-weight: 900;
+            margin: 60px 0 30px 0;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            background: linear-gradient(90deg, #00ffff, #ff00ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
         
-        .info-box {
-            background: rgba(124,92,255,0.1);
-            border-left: 4px solid #7c5cff;
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 5px;
+        footer {
+            margin-top: 80px;
+            padding: 40px 20px;
+            text-align: center;
+            border-top: 2px solid rgba(0,255,255,0.3);
         }
-
-        .quick-links {
-            display: flex;
-            gap: 15px;
-            flex-wrap: wrap;
-            justify-content: center;
-            margin-top: 20px;
-        }
-
-        .link-btn {
-            display: inline-block;
-            padding: 12px 24px;
-            background: linear-gradient(90deg, #7c5cff, #00d4ff);
-            color: #021024;
-            text-decoration: none;
-            border-radius: 10px;
-            font-weight: bold;
-            transition: all 0.3s ease;
-        }
-
-        .link-btn:hover {
-            transform: scale(1.05);
-            box-shadow: 0 5px 20px rgba(124,92,255,0.5);
-        }
-
-        .wallet-btn {
-            display: inline-block;
-            padding: 10px 20px;
-            background: rgba(124,92,255,0.2);
-            color: #7c5cff;
-            border: 1px solid rgba(124,92,255,0.5);
-            border-radius: 10px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s ease;
-        }
-
-        .wallet-btn:hover {
-            background: rgba(124,92,255,0.3);
-            transform: scale(1.05);
-        }
-
-        .wallet-btn.connected {
-            background: rgba(0,255,0,0.2);
-            color: #00ff00;
-            border-color: rgba(0,255,0,0.5);
+        
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5em; }
+            .grid { grid-template-columns: 1fr; }
         }
     </style>
 </head>
 <body>
+    <div class="tron-grid"></div>
+    
     <div class="container">
         <header>
-            <h1>🔥 BARBRICKDESIGN</h1>
-            <p class="subtitle">Unified Hub for CSW2025 Projects & Mandem.OS</p>
-            <div style="margin-top: 15px;">
-                <button id="walletConnectBtn" class="wallet-btn" onclick="handleWalletConnect()">
-                    Connect Wallet
+            <h1>BARBRICKDESIGN</h1>
+            <p class="subtitle">⚡ ELITE WEB3 HUB ⚡</p>
+            
+            <div class="wallet-section">
+                <button id="walletBtn" class="wallet-btn" onclick="connectWallet()">
+                    <span id="btnText">🔗 CONNECT WALLET</span>
                 </button>
-                <span id="walletStatus" style="margin-left: 15px; color: #9aa4b2; font-size: 0.9em;">
-                    Not connected
-                </span>
-            </div>
-            <div class="quick-links">
-                <a href="ember-terminal/app.html" class="link-btn">🔥 Ember Terminal</a>
-                <a href="mandem.os/index.html" class="link-btn">🔥 Mandem.OS Terminal</a>
-                <a href="mandem.os/launcher.html" class="link-btn">🚀 Project Launcher</a>
-                <a href="mandem.os/workspace/index.html" class="link-btn">🌍 Gem Bot Universe</a>
-                <a href="sol-recovery.html" class="link-btn">💰 SOL Recovery</a>
+                <div id="walletInfo" class="wallet-info" style="display: none;">
+                    <span id="walletType">🔷</span>
+                    <span id="walletAddress">0x0000...0000</span>
+                    <span id="walletBalance">0.00</span>
+                </div>
             </div>
         </header>
 
-        <div class="info-box">
-            <strong>✅ All Systems Integrated</strong><br>
-            This hub provides unified access to all CSW2025 projects, the Mandem.OS application, 
-            and the Gem Bot Universe. All links are verified and functional.
-        </div>
-
-        <h2 class="section-title">🌟 Core Applications</h2>
+        <h2 class="section-title">🔥 CORE SYSTEMS</h2>
         <div class="grid">
-            <div class="project-card" onclick="window.location.href='mandem.os/index.html'">
-                <div class="project-icon">🔥</div>
-                <div class="project-title">Mandem.OS Terminal</div>
-                <div class="project-desc">
-                    Web3 terminal with MetaMask integration, Copper Key detection, 
-                    leaderboard system, and mythic 3D flame visuals.
-                </div>
-                <span class="project-status status-active">ACTIVE</span>
-            </div>
-
             <div class="project-card" onclick="window.location.href='mandem.os/workspace/index.html'">
                 <div class="project-icon">🌍</div>
                 <div class="project-title">Gem Bot Universe</div>
-                <div class="project-desc">
-                    Interactive 3D globe with satellite navigation to all virtual environments.
-                    Includes authentication, MGC tracking, and real-time features.
-                </div>
-                <span class="project-status status-active">ACTIVE</span>
+                <div class="project-desc">Interactive 3D globe with satellite navigation. Real-time Web3 features and MGC tracking.</div>
+                <span class="status-active">● ONLINE</span>
+            </div>
+
+            <div class="project-card" onclick="window.location.href='ember-terminal/app.html'">
+                <div class="project-icon">🔥</div>
+                <div class="project-title">Ember Terminal</div>
+                <div class="project-desc">Enhanced terminal with real-time processing and elite cyberpunk aesthetics.</div>
+                <span class="status-active">● ONLINE</span>
+            </div>
+
+            <div class="project-card" onclick="window.location.href='mandem.os/index.html'">
+                <div class="project-icon">⚡</div>
+                <div class="project-title">Mandem.OS Terminal</div>
+                <div class="project-desc">Web3 terminal with wallet integration and 3D flame visuals.</div>
+                <span class="status-active">● ONLINE</span>
             </div>
 
             <div class="project-card" onclick="window.location.href='sol-recovery.html'">
                 <div class="project-icon">💰</div>
-                <div class="project-title">SOL Recovery Portal</div>
-                <div class="project-desc">
-                    Reclaim SOL from empty token accounts. Only 5% fee with optional 
-                    referral system and donation support.
-                </div>
-                <span class="project-status status-active">ACTIVE</span>
+                <div class="project-title">SOL Recovery</div>
+                <div class="project-desc">Reclaim SOL from empty token accounts. Only 5% fee.</div>
+                <span class="status-active">● ONLINE</span>
+            </div>
+
+            <div class="project-card" onclick="window.location.href='test-all-projects.html'">
+                <div class="project-icon">🧪</div>
+                <div class="project-title">Test Suite</div>
+                <div class="project-desc">Automated testing for all projects with real-time results.</div>
+                <span class="status-active">● ONLINE</span>
+            </div>
+
+            <div class="project-card" onclick="window.location.href='server-health-monitor.html'">
+                <div class="project-icon">🛡️</div>
+                <div class="project-title">Health Monitor</div>
+                <div class="project-desc">Real-time server monitoring with auto-restart capabilities.</div>
+                <span class="status-active">● ONLINE</span>
             </div>
         </div>
 
-        <h2 class="section-title">🏭 Virtual Environments</h2>
-        <div class="grid">
-            <div class="project-card" onclick="window.location.href='mandem.os/workspace/laboratory.html'">
-                <div class="project-icon">🔬</div>
-                <div class="project-title">Laboratory</div>
-                <div class="project-desc">
-                    3D lab environment with faceting machines, 3D printer farm,
-                    and automated Gem Bot production systems.
-                </div>
-                <span class="project-status status-active">ACTIVE</span>
-            </div>
-
-            <div class="project-card" onclick="window.location.href='mandem.os/workspace/warehouse.html'">
-                <div class="project-icon">📦</div>
-                <div class="project-title">Warehouse</div>
-                <div class="project-desc">
-                    Storage facility with 3D visualization, inventory management,
-                    and component tracking.
-                </div>
-                <span class="project-status status-active">ACTIVE</span>
-            </div>
-
-            <div class="project-card" onclick="window.location.href='mandem.os/workspace/forge.html'">
-                <div class="project-icon">🔨</div>
-                <div class="project-title">The Forge</div>
-                <div class="project-desc">
-                    NFT minting system. Upload 3D models, set abilities, auto-calculate
-                    pricing and mint limits based on file size.
-                </div>
-                <span class="project-status status-active">ACTIVE</span>
-            </div>
-
-            <div class="project-card" onclick="window.location.href='mandem.os/workspace/grand_exchange.html'">
-                <div class="project-icon">💎</div>
-                <div class="project-title">Grand Exchange</div>
-                <div class="project-desc">
-                    Trading center for resources, bots, and forged assets.
-                    Real-time market with MGC transactions.
-                </div>
-                <span class="project-status status-active">ACTIVE</span>
-            </div>
-
-            <div class="project-card" onclick="window.location.href='mandem.os/workspace/outdoor.html'">
-                <div class="project-icon">🗺️</div>
-                <div class="project-title">Explorer Mode</div>
-                <div class="project-desc">
-                    Geo-location based gameplay with MGC mining portals
-                    and outdoor environment visualization.
-                </div>
-                <span class="project-status status-active">ACTIVE</span>
-            </div>
-
-            <div class="project-card" onclick="window.location.href='mandem.os/workspace/high_cafe.html'">
-                <div class="project-icon">☕</div>
-                <div class="project-title">High Cafe</div>
-                <div class="project-desc">
-                    Social hub for player interactions and community events.
-                </div>
-                <span class="project-status status-active">ACTIVE</span>
-            </div>
-        </div>
-
-        <h2 class="section-title">⚙️ Management & Admin</h2>
-        <div class="grid">
-            <div class="project-card" onclick="window.location.href='mandem.os/workspace/profile.html'">
-                <div class="project-icon">👤</div>
-                <div class="project-title">User Profile</div>
-                <div class="project-desc">
-                    Phantom wallet integration, MGC balance tracking, location logs,
-                    and profile management.
-                </div>
-                <span class="project-status status-active">ACTIVE</span>
-            </div>
-
-            <div class="project-card" onclick="window.location.href='mandem.os/workspace/login.html'">
-                <div class="project-icon">🔐</div>
-                <div class="project-title">Authentication</div>
-                <div class="project-desc">
-                    User login and registration system with wallet integration.
-                </div>
-                <span class="project-status status-active">ACTIVE</span>
-            </div>
-
-            <div class="project-card" onclick="accessAdminPortal()">
-                <div class="project-icon">👑</div>
-                <div class="project-title">Admin Portal</div>
-                <div class="project-desc">
-                    God mode access with user management, chat moderation,
-                    and system monitoring. (Requires vault wallet authentication)
-                </div>
-                <span class="project-status status-active">ACTIVE</span>
-            </div>
-
-            <div class="project-card" onclick="window.location.href='mandem.os/workspace/realm_management.html'">
-                <div class="project-icon">🌐</div>
-                <div class="project-title">Realm Management</div>
-                <div class="project-desc">
-                    Collaborate on realms, manage permissions, coordinate projects.
-                </div>
-                <span class="project-status status-active">ACTIVE</span>
-            </div>
-        </div>
-
-        <div class="info-box" style="margin-top: 40px; background: rgba(0,212,255,0.1); border-left-color: #00d4ff;">
-            <strong>🎯 Navigation Guide</strong><br>
-            <ul style="margin-left: 20px; margin-top: 10px; line-height: 1.8;">
-                <li><strong>Start Here:</strong> index.html (this page)</li>
-                <li><strong>Visual Dashboard:</strong> mandem.os/launcher.html</li>
-                <li><strong>Web3 Terminal:</strong> mandem.os/index.html</li>
-                <li><strong>Main Hub:</strong> mandem.os/workspace/index.html</li>
-                <li><strong>SOL Recovery:</strong> sol-recovery.html</li>
-            </ul>
-            <p style="margin-top: 15px;">
-                <strong>Server Backend:</strong> To enable full features, run:<br>
-                <code style="background: rgba(0,0,0,0.3); padding: 5px 10px; border-radius: 5px; display: inline-block; margin-top: 5px;">
-                    cd mandem.os/workspace && npm install && node server.js
-                </code>
-            </p>
-        </div>
-
-        <footer style="margin-top: 40px; padding-top: 20px; border-top: 1px solid rgba(124,92,255,0.3); text-align: center; color: #9aa4b2;">
-            <p>&copy; 2025 BarbrickDesign | Project Hub v1.0</p>
-            <p style="margin-top: 10px; font-size: 0.9em;">
-                All projects integrated and functional | <a href="mandem.os/README.md" style="color: #7c5cff;">Documentation</a>
-            </p>
+        <footer>
+            <p style="color: #00ffff; font-size: 1.2em; margin-bottom: 10px;">BARBRICKDESIGN - Elite Web3 Hub</p>
+            <p style="color: #8addff;">All systems operational | <a href="ALL-REPOS-HUB.md" style="color: #ff00ff;">View All 31+ Repositories</a></p>
         </footer>
     </div>
 
     <script>
-        // Wallet connection handler
-        async function handleWalletConnect() {
-            const btn = document.getElementById('walletConnectBtn');
-            const status = document.getElementById('walletStatus');
-            
-            if (typeof connectPhantomWallet === 'undefined') {
-                status.textContent = 'Wallet script not loaded';
-                status.style.color = '#ff6b6b';
-                return;
-            }
+        // Universal wallet connection
+        async function connectWallet() {
+            const btn = document.getElementById('walletBtn');
+            const btnText = document.getElementById('btnText');
+            const walletInfo = document.getElementById('walletInfo');
             
             try {
-                btn.textContent = 'Connecting...';
+                btnText.textContent = '⏳ CONNECTING...';
                 btn.disabled = true;
                 
-                // Connect without redirect
-                await connectPhantomWallet();
+                // Use universal wallet connector
+                const result = await window.walletConnector.connect();
                 
-                // Check if connected
-                const walletState = getWalletState();
-                if (walletState && walletState.connected) {
-                    btn.textContent = 'Connected';
+                if (result.success) {
+                    // Update UI
                     btn.classList.add('connected');
-                    const shortAddr = walletState.publicKey.slice(0, 4) + '...' + walletState.publicKey.slice(-4);
-                    status.textContent = `Connected: ${shortAddr}`;
-                    status.style.color = '#00ff00';
+                    btnText.textContent = '✅ CONNECTED';
                     
-                    // Store for other pages
-                    localStorage.setItem('wallet_connected', 'true');
-                    localStorage.setItem('wallet_address', walletState.publicKey);
+                    // Show wallet info
+                    walletInfo.style.display = 'inline-flex';
+                    document.getElementById('walletType').textContent = 
+                        result.type === 'solana' ? '👻' : '🦊';
+                    const shortAddr = result.address.slice(0, 6) + '...' + result.address.slice(-4);
+                    document.getElementById('walletAddress').textContent = shortAddr;
+                    document.getElementById('walletBalance').textContent = 
+                        result.balance + (result.type === 'solana' ? ' SOL' : ' ETH');
+                    
+                    // Save state
+                    window.walletConnector.saveState();
+                    
+                    console.log('✅ Wallet connected:', result.address);
                 } else {
-                    throw new Error('Connection failed');
+                    throw new Error(result.error || 'Connection failed');
                 }
                 
                 btn.disabled = false;
             } catch (error) {
                 console.error('Wallet connection error:', error);
-                btn.textContent = 'Connect Wallet';
+                btnText.textContent = '❌ FAILED - TRY AGAIN';
                 btn.disabled = false;
-                status.textContent = 'Connection failed';
-                status.style.color = '#ff6b6b';
-            }
-        }
-        
-        // Admin portal access with wallet validation
-        async function accessAdminPortal() {
-            const ADMIN_VAULT = '6HTjfgWZYMbENnMAJJFhxWR2VZDxdze3qV7zznSAsfk';
-            const walletState = typeof getWalletState === 'function' ? getWalletState() : null;
-            
-            if (!walletState || !walletState.connected) {
-                alert('Please connect your wallet first to access the admin portal.');
-                return;
-            }
-            
-            // Check if connected wallet matches admin vault
-            if (walletState.publicKey === ADMIN_VAULT) {
-                // Authenticate and redirect
-                localStorage.setItem('admin_authenticated', 'true');
-                localStorage.setItem('admin_wallet', walletState.publicKey);
-                window.location.href = 'mandem.os/workspace/admin.html';
-            } else {
-                alert('Access denied. This wallet is not authorized for admin access.');
+                
+                // Show error message
+                alert('Wallet Connection Failed\n\n' + error.message + '\n\nPlease install Phantom, MetaMask, or another Web3 wallet.');
+                
+                setTimeout(() => {
+                    btnText.textContent = '🔗 CONNECT WALLET';
+                }, 3000);
             }
         }
         
         // Check for existing connection on load
-        document.addEventListener('DOMContentLoaded', function() {
-            console.log('BarbrickDesign Hub loaded successfully');
-            console.log('All project links verified');
+        window.addEventListener('DOMContentLoaded', async function() {
+            console.log('🚀 BARBRICKDESIGN Hub loaded');
             
             // Check if wallet was previously connected
-            const isAuth = typeof isUserAuthenticated === 'function' && isUserAuthenticated();
-            const walletAddr = localStorage.getItem('wallet_address');
-            
-            if (isAuth && walletAddr) {
-                const btn = document.getElementById('walletConnectBtn');
-                const status = document.getElementById('walletStatus');
-                
-                btn.textContent = 'Connected';
-                btn.classList.add('connected');
-                const shortAddr = walletAddr.slice(0, 4) + '...' + walletAddr.slice(-4);
-                status.textContent = `Connected: ${shortAddr}`;
-                status.style.color = '#00ff00';
+            if (window.walletConnector && window.walletConnector.loadState()) {
+                const state = window.walletConnector.getState();
+                if (state.address) {
+                    const btn = document.getElementById('walletBtn');
+                    const btnText = document.getElementById('btnText');
+                    const walletInfo = document.getElementById('walletInfo');
+                    
+                    btn.classList.add('connected');
+                    btnText.textContent = '✅ CONNECTED';
+                    walletInfo.style.display = 'inline-flex';
+                    
+                    const shortAddr = state.address.slice(0, 6) + '...' + state.address.slice(-4);
+                    document.getElementById('walletAddress').textContent = shortAddr;
+                    document.getElementById('walletBalance').textContent = 
+                        (state.balance || '0.00') + ' ' + (state.walletType === 'Phantom' ? 'SOL' : 'ETH');
+                    
+                    console.log('✅ Previous wallet connection restored');
+                }
             }
         });
     </script>
