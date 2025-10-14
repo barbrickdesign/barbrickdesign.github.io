@@ -26,19 +26,51 @@ class ProjectTokenomics {
     }
 
     /**
-     * Auto-value a project based on multiple metrics
+     * Auto-value a project based on multiple metrics + SAM.gov data
      */
     async valueProject(projectData) {
         let baseValue = 0;
         const metrics = {};
 
-        // Code metrics
+        // Get SAM.gov contract data for accurate valuation
+        let samGovValue = null;
+        if (window.samGovIntegration) {
+            try {
+                const similarContracts = await window.samGovIntegration.findSimilarContracts(
+                    projectData.name,
+                    projectData.category
+                );
+                samGovValue = window.samGovIntegration.calculateMarketValue(projectData, similarContracts);
+                metrics.samGovData = samGovValue;
+            } catch (error) {
+                console.log('SAM.gov data not available, using fallback valuation');
+            }
+        }
+
+        // If SAM.gov data available, use it as primary valuation
+        if (samGovValue && samGovValue.contractCount > 0) {
+            return {
+                baseValue: samGovValue.avgContractValue,
+                finalValue: samGovValue.marketValue,
+                metrics: {
+                    ...metrics,
+                    samGovContracts: samGovValue.contractCount,
+                    avgContractValue: samGovValue.avgContractValue,
+                    confidence: samGovValue.confidence,
+                    dataSource: 'SAM.gov'
+                },
+                multiplier: 1.0,
+                category: projectData.category,
+                samGovBacked: true
+            };
+        }
+
+        // Fallback to traditional metrics if no SAM.gov data
         if (projectData.linesOfCode) {
             metrics.codeValue = projectData.linesOfCode * this.valuationMetrics.codeLines;
             baseValue += metrics.codeValue;
         }
 
-        // Git activity metrics
         if (projectData.commits) {
             metrics.commitValue = projectData.commits * this.valuationMetrics.commits;
             baseValue += metrics.commitValue;
@@ -54,31 +86,26 @@ class ProjectTokenomics {
             baseValue += metrics.forkValue;
         }
 
-        // Team metrics
         if (projectData.contributors) {
             metrics.contributorValue = projectData.contributors * this.valuationMetrics.contributors;
             baseValue += metrics.contributorValue;
         }
 
-        // Complexity bonus
         if (projectData.complexity) {
             metrics.complexityBonus = projectData.complexity * this.valuationMetrics.complexity;
             baseValue += metrics.complexityBonus;
         }
 
-        // Activity bonus (recent commits)
         if (projectData.monthsActive) {
             metrics.activityBonus = projectData.monthsActive * this.valuationMetrics.activity;
             baseValue += metrics.activityBonus;
         }
 
-        // Uniqueness bonus
         if (projectData.isUnique) {
             metrics.uniquenessBonus = this.valuationMetrics.uniqueness;
             baseValue += metrics.uniquenessBonus;
         }
 
-        // Apply multipliers based on project category
         const categoryMultipliers = {
             'security-tool': 1.5,
             'web3-platform': 2.0,
@@ -94,9 +121,13 @@ class ProjectTokenomics {
         return {
             baseValue,
             finalValue,
-            metrics,
+            metrics: {
+                ...metrics,
+                dataSource: 'Estimated'
+            },
             multiplier,
-            category: projectData.category
+            category: projectData.category,
+            samGovBacked: false
         };
     }
 

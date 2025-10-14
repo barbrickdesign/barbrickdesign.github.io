@@ -8,6 +8,8 @@
     <!-- Wallet Dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iife.min.js"></script>
     <script src="universal-wallet-connect.js"></script>
+    <script src="samgov-integration.js"></script>
+    <script src="project-tokenomics.js"></script>
     <link rel="stylesheet" href="mobile-responsive.css">
     
     <style>
@@ -216,6 +218,47 @@
             h1 { font-size: 2.5em; }
             .grid { grid-template-columns: 1fr; }
         }
+        
+        /* Portfolio Ticker */
+        .portfolio-ticker {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(90deg, rgba(0,0,0,0.95), rgba(0,20,20,0.95));
+            border-top: 2px solid rgba(0,255,0,0.5);
+            padding: 15px 20px;
+            z-index: 1000;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 -5px 20px rgba(0,255,0,0.3);
+        }
+        
+        .ticker-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+            font-family: 'Orbitron', sans-serif;
+        }
+        
+        .ticker-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .ticker-label {
+            color: #8affff;
+            font-size: 0.9em;
+        }
+        
+        .ticker-value {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #00ff00;
+            text-shadow: 0 0 10px rgba(0,255,0,0.6);
+        }
     </style>
 </head>
 <body>
@@ -296,6 +339,28 @@
         </footer>
     </div>
 
+    <!-- Portfolio Ticker -->
+    <div class="portfolio-ticker" id="portfolioTicker" style="display: none;">
+        <div class="ticker-content">
+            <div class="ticker-item">
+                <span class="ticker-label">💰 Total Portfolio:</span>
+                <span class="ticker-value" id="tickerTotal">$0</span>
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-label">📊 Projects:</span>
+                <span class="ticker-value" id="tickerProjects">0</span>
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-label">🏛️ SAM.gov Backed:</span>
+                <span class="ticker-value" id="tickerSamGov">0%</span>
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-label">📈 Avg ROI:</span>
+                <span class="ticker-value" id="tickerROI">5.0x</span>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Universal wallet connection
         async function connectWallet() {
@@ -371,7 +436,114 @@
                     console.log('✅ Previous wallet connection restored');
                 }
             }
+            
+            // Load and display portfolio ticker
+            loadPortfolioTicker();
         });
+        
+        // Load portfolio data and display ticker
+        async function loadPortfolioTicker() {
+            try {
+                // Define projects for valuation
+                const projects = [
+                    {
+                        name: 'Gem Bot Universe',
+                        slug: 'gem-bot-universe',
+                        category: 'web3-platform',
+                        linesOfCode: 15000,
+                        commits: 250,
+                        complexity: 8,
+                        monthsActive: 12,
+                        isUnique: true
+                    },
+                    {
+                        name: 'Ember Terminal',
+                        slug: 'ember-terminal',
+                        category: 'terminal',
+                        linesOfCode: 5000,
+                        commits: 120,
+                        complexity: 6,
+                        monthsActive: 8,
+                        isUnique: true
+                    },
+                    {
+                        name: 'Mandem.OS',
+                        slug: 'mandem-os',
+                        category: 'web3-platform',
+                        linesOfCode: 12000,
+                        commits: 200,
+                        complexity: 7,
+                        monthsActive: 10,
+                        isUnique: true
+                    },
+                    {
+                        name: 'SOL Recovery',
+                        slug: 'sol-recovery',
+                        category: 'utility',
+                        linesOfCode: 3000,
+                        commits: 80,
+                        complexity: 4,
+                        monthsActive: 6,
+                        isUnique: true
+                    },
+                    {
+                        name: 'Ghostmode',
+                        slug: 'ghostmode',
+                        category: 'security-tool',
+                        linesOfCode: 4000,
+                        commits: 90,
+                        complexity: 5,
+                        monthsActive: 5,
+                        isUnique: true
+                    },
+                    {
+                        name: 'SCAM TRACK',
+                        slug: 'scam-track',
+                        category: 'security-tool',
+                        linesOfCode: 6000,
+                        commits: 110,
+                        complexity: 6,
+                        monthsActive: 7,
+                        isUnique: true
+                    }
+                ];
+                
+                // Process projects with tokenomics engine
+                if (window.projectTokenomics) {
+                    const results = await window.projectTokenomics.processAllProjects(projects);
+                    const dashboard = window.projectTokenomics.generateDashboard(results);
+                    
+                    // Calculate SAM.gov backed percentage
+                    const samGovBacked = results.filter(r => r.valuation?.samGovBacked).length;
+                    const samGovPercent = Math.round((samGovBacked / results.length) * 100);
+                    
+                    // Update ticker
+                    document.getElementById('tickerTotal').textContent = 
+                        '$' + dashboard.overview.totalValue.toLocaleString();
+                    document.getElementById('tickerProjects').textContent = 
+                        dashboard.overview.totalProjects;
+                    document.getElementById('tickerSamGov').textContent = 
+                        samGovPercent + '%';
+                    document.getElementById('tickerROI').textContent = '5.0x';
+                    
+                    // Show ticker with animation
+                    const ticker = document.getElementById('portfolioTicker');
+                    ticker.style.display = 'block';
+                    ticker.style.opacity = '0';
+                    ticker.style.transform = 'translateY(100%)';
+                    
+                    setTimeout(() => {
+                        ticker.style.transition = 'all 0.5s ease';
+                        ticker.style.opacity = '1';
+                        ticker.style.transform = 'translateY(0)';
+                    }, 500);
+                    
+                    console.log(`💰 Portfolio loaded: $${dashboard.overview.totalValue.toLocaleString()}`);
+                }
+            } catch (error) {
+                console.error('Portfolio ticker error:', error);
+            }
+        }
     </script>
 </body>
 </html>
