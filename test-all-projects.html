@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BarbrickDesign - Automated Project Tester</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0a0e1a 0%, #1a1f2e 100%);
+            color: #00ff00;
+            padding: 20px;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            padding: 20px;
+        }
+        h1 {
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px #00ff00;
+        }
+        .test-section {
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(0, 255, 0, 0.1);
+            border-left: 4px solid #00ff00;
+        }
+        .test-item {
+            padding: 10px;
+            margin: 5px 0;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .status {
+            padding: 5px 10px;
+            border-radius: 3px;
+            font-weight: bold;
+        }
+        .status.testing { background: #ffa500; color: #000; }
+        .status.passed { background: #00ff00; color: #000; }
+        .status.failed { background: #ff0000; color: #fff; }
+        .status.pending { background: #888; color: #fff; }
+        .summary {
+            margin-top: 30px;
+            padding: 20px;
+            background: rgba(0, 255, 0, 0.2);
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            text-align: center;
+        }
+        .summary h2 { margin-bottom: 15px; }
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        .stat-box {
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.5);
+            border-radius: 5px;
+        }
+        .stat-number {
+            font-size: 2em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        button {
+            background: #00ff00;
+            color: #000;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 10px;
+            transition: all 0.3s;
+        }
+        button:hover {
+            background: #00cc00;
+            transform: scale(1.05);
+        }
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+            transform: none;
+        }
+        .log {
+            background: #000;
+            padding: 15px;
+            border-radius: 5px;
+            max-height: 300px;
+            overflow-y: auto;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            margin-top: 20px;
+        }
+        .log-entry {
+            margin: 3px 0;
+            padding: 3px 0;
+            border-bottom: 1px solid #333;
+        }
+        .log-time { color: #888; }
+        .log-info { color: #00ccff; }
+        .log-success { color: #00ff00; }
+        .log-error { color: #ff0000; }
+        .log-warning { color: #ffa500; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 BARBRICKDESIGN PROJECT TESTER</h1>
+        <div style="text-align: center; margin: 20px 0;">
+            <button id="runTests" onclick="runAllTests()">▶ RUN ALL TESTS</button>
+            <button id="stopTests" onclick="stopTests()" disabled>⏸ STOP TESTS</button>
+            <button onclick="clearLogs()">🗑️ CLEAR LOGS</button>
+        </div>
+
+        <div class="test-section">
+            <h2>📄 HTML Files & Navigation</h2>
+            <div id="html-tests"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>🔗 External Links & Resources</h2>
+            <div id="link-tests"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>💾 JavaScript Files</h2>
+            <div id="js-tests"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>🎨 CSS Files</h2>
+            <div id="css-tests"></div>
+        </div>
+
+        <div class="test-section">
+            <h2>🔐 Wallet Integration</h2>
+            <div id="wallet-tests"></div>
+        </div>
+
+        <div class="summary" id="summary" style="display: none;">
+            <h2>📊 TEST SUMMARY</h2>
+            <div class="stats">
+                <div class="stat-box">
+                    <div>Total Tests</div>
+                    <div class="stat-number" id="totalTests">0</div>
+                </div>
+                <div class="stat-box">
+                    <div>✅ Passed</div>
+                    <div class="stat-number" style="color: #00ff00;" id="passedTests">0</div>
+                </div>
+                <div class="stat-box">
+                    <div>❌ Failed</div>
+                    <div class="stat-number" style="color: #ff0000;" id="failedTests">0</div>
+                </div>
+                <div class="stat-box">
+                    <div>⏱️ Duration</div>
+                    <div class="stat-number" id="duration">0s</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="log" id="log">
+            <div class="log-entry log-info">Ready to test. Click "RUN ALL TESTS" to begin...</div>
+        </div>
+    </div>
+
+    <script>
+        let testResults = { total: 0, passed: 0, failed: 0 };
+        let startTime = 0;
+        let stopRequested = false;
+
+        const testConfig = {
+            htmlFiles: [
+                'index.html',
+                'MandemOS.html',
+                'wallet-base.html',
+                'sol-recovery.html',
+                'mandem.os/index.html',
+                'mandem.os/launcher.html',
+                'mandem.os/workspace/index.html',
+                'mandem.os/workspace/admin.html',
+                'mandem.os/workspace/profile.html',
+                'mandem.os/workspace/login.html',
+                'mandem.os/workspace/laboratory.html',
+                'mandem.os/workspace/warehouse.html',
+                'mandem.os/workspace/forge.html',
+                'mandem.os/workspace/grand_exchange.html',
+                'mandem.os/workspace/outdoor.html',
+                'mandem.os/workspace/high_cafe.html',
+                'ember-terminal/index.html',
+                'ember-terminal/app.html',
+                'city-3d/index.html'
+            ],
+            jsFiles: [
+                'projects.js',
+                'mandem.os/workspace/public/phantomLogin.js',
+                'mandem.os/workspace/public/tokenIntegration.js',
+                'mandem.os/workspace/forge.js',
+                'mandem.os/workspace/globalChat.js'
+            ],
+            cssFiles: [
+                'style.css',
+                'mandem.os/workspace/css/theme.css',
+                'mandem.os/workspace/public/styles.css'
+            ]
+        };
+
+        function log(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.className = `log-entry log-${type}`;
+            const time = new Date().toLocaleTimeString();
+            entry.innerHTML = `<span class="log-time">[${time}]</span> ${message}`;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        function updateTestItem(id, status, message = '') {
+            const item = document.getElementById(id);
+            if (item) {
+                const statusSpan = item.querySelector('.status');
+                statusSpan.className = `status ${status}`;
+                statusSpan.textContent = status.toUpperCase();
+                if (message) {
+                    const msg = item.querySelector('.test-message');
+                    if (msg) msg.textContent = message;
+                }
+            }
+        }
+
+        async function testFile(url, type) {
+            try {
+                const response = await fetch(url, { method: 'HEAD', cache: 'no-cache' });
+                return { success: response.ok, status: response.status };
+            } catch (error) {
+                return { success: false, error: error.message };
+            }
+        }
+
+        async function testHTML(file) {
+            const id = `test-html-${file.replace(/[^a-z0-9]/gi, '-')}`;
+            const container = document.getElementById('html-tests');
+            const item = document.createElement('div');
+            item.className = 'test-item';
+            item.id = id;
+            item.innerHTML = `
+                <span>${file}</span>
+                <span class="status testing">TESTING</span>
+            `;
+            container.appendChild(item);
+
+            log(`Testing HTML: ${file}`, 'info');
+            const result = await testFile(file, 'html');
+            
+            testResults.total++;
+            if (result.success) {
+                testResults.passed++;
+                updateTestItem(id, 'passed');
+                log(`✅ ${file} - OK`, 'success');
+            } else {
+                testResults.failed++;
+                updateTestItem(id, 'failed');
+                log(`❌ ${file} - FAILED (${result.error || result.status})`, 'error');
+            }
+        }
+
+        async function testJS(file) {
+            const id = `test-js-${file.replace(/[^a-z0-9]/gi, '-')}`;
+            const container = document.getElementById('js-tests');
+            const item = document.createElement('div');
+            item.className = 'test-item';
+            item.id = id;
+            item.innerHTML = `
+                <span>${file}</span>
+                <span class="status testing">TESTING</span>
+            `;
+            container.appendChild(item);
+
+            log(`Testing JS: ${file}`, 'info');
+            const result = await testFile(file, 'js');
+            
+            testResults.total++;
+            if (result.success) {
+                testResults.passed++;
+                updateTestItem(id, 'passed');
+                log(`✅ ${file} - OK`, 'success');
+            } else {
+                testResults.failed++;
+                updateTestItem(id, 'failed');
+                log(`❌ ${file} - FAILED`, 'error');
+            }
+        }
+
+        async function testCSS(file) {
+            const id = `test-css-${file.replace(/[^a-z0-9]/gi, '-')}`;
+            const container = document.getElementById('css-tests');
+            const item = document.createElement('div');
+            item.className = 'test-item';
+            item.id = id;
+            item.innerHTML = `
+                <span>${file}</span>
+                <span class="status testing">TESTING</span>
+            `;
+            container.appendChild(item);
+
+            log(`Testing CSS: ${file}`, 'info');
+            const result = await testFile(file, 'css');
+            
+            testResults.total++;
+            if (result.success) {
+                testResults.passed++;
+                updateTestItem(id, 'passed');
+                log(`✅ ${file} - OK`, 'success');
+            } else {
+                testResults.failed++;
+                updateTestItem(id, 'failed');
+                log(`❌ ${file} - FAILED`, 'error');
+            }
+        }
+
+        async function testWalletIntegration() {
+            const container = document.getElementById('wallet-tests');
+            
+            // Test 1: Phantom detection
+            const test1 = document.createElement('div');
+            test1.className = 'test-item';
+            test1.id = 'test-phantom';
+            test1.innerHTML = `
+                <span>Phantom Wallet Detection</span>
+                <span class="status testing">TESTING</span>
+            `;
+            container.appendChild(test1);
+
+            testResults.total++;
+            if (typeof window.solana !== 'undefined' && window.solana.isPhantom) {
+                testResults.passed++;
+                updateTestItem('test-phantom', 'passed');
+                log('✅ Phantom wallet detected', 'success');
+            } else {
+                testResults.failed++;
+                updateTestItem('test-phantom', 'failed');
+                log('❌ Phantom wallet not detected', 'warning');
+            }
+
+            // Test 2: phantomLogin.js loaded
+            const test2 = document.createElement('div');
+            test2.className = 'test-item';
+            test2.id = 'test-phantom-script';
+            test2.innerHTML = `
+                <span>phantomLogin.js Script</span>
+                <span class="status testing">TESTING</span>
+            `;
+            container.appendChild(test2);
+
+            testResults.total++;
+            const result = await testFile('mandem.os/workspace/public/phantomLogin.js', 'js');
+            if (result.success) {
+                testResults.passed++;
+                updateTestItem('test-phantom-script', 'passed');
+                log('✅ phantomLogin.js loaded', 'success');
+            } else {
+                testResults.failed++;
+                updateTestItem('test-phantom-script', 'failed');
+                log('❌ phantomLogin.js failed to load', 'error');
+            }
+        }
+
+        async function runAllTests() {
+            stopRequested = false;
+            testResults = { total: 0, passed: 0, failed: 0 };
+            startTime = Date.now();
+            
+            document.getElementById('runTests').disabled = true;
+            document.getElementById('stopTests').disabled = false;
+            document.getElementById('summary').style.display = 'none';
+            
+            // Clear previous results
+            document.getElementById('html-tests').innerHTML = '';
+            document.getElementById('js-tests').innerHTML = '';
+            document.getElementById('css-tests').innerHTML = '';
+            document.getElementById('link-tests').innerHTML = '';
+            document.getElementById('wallet-tests').innerHTML = '';
+            
+            log('🚀 Starting automated tests...', 'info');
+            
+            // Test HTML files
+            for (const file of testConfig.htmlFiles) {
+                if (stopRequested) break;
+                await testHTML(file);
+                await new Promise(r => setTimeout(r, 100)); // Small delay to avoid rate limiting
+            }
+            
+            // Test JS files
+            for (const file of testConfig.jsFiles) {
+                if (stopRequested) break;
+                await testJS(file);
+                await new Promise(r => setTimeout(r, 100));
+            }
+            
+            // Test CSS files
+            for (const file of testConfig.cssFiles) {
+                if (stopRequested) break;
+                await testCSS(file);
+                await new Promise(r => setTimeout(r, 100));
+            }
+            
+            // Test wallet integration
+            if (!stopRequested) {
+                await testWalletIntegration();
+            }
+            
+            // Show summary
+            const duration = ((Date.now() - startTime) / 1000).toFixed(2);
+            document.getElementById('totalTests').textContent = testResults.total;
+            document.getElementById('passedTests').textContent = testResults.passed;
+            document.getElementById('failedTests').textContent = testResults.failed;
+            document.getElementById('duration').textContent = duration + 's';
+            document.getElementById('summary').style.display = 'block';
+            
+            const passRate = ((testResults.passed / testResults.total) * 100).toFixed(1);
+            if (stopRequested) {
+                log('⏸️ Tests stopped by user', 'warning');
+            } else if (testResults.failed === 0) {
+                log(`🎉 ALL TESTS PASSED! (${testResults.passed}/${testResults.total})`, 'success');
+            } else {
+                log(`⚠️ Tests completed with ${testResults.failed} failures (Pass rate: ${passRate}%)`, 'warning');
+            }
+            
+            document.getElementById('runTests').disabled = false;
+            document.getElementById('stopTests').disabled = true;
+        }
+
+        function stopTests() {
+            stopRequested = true;
+            log('Stopping tests...', 'warning');
+        }
+
+        function clearLogs() {
+            document.getElementById('log').innerHTML = '<div class="log-entry log-info">Logs cleared. Ready for new tests.</div>';
+        }
+
+        // Auto-run on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            log('Test suite loaded. Ready to begin.', 'info');
+        });
+    </script>
+</body>
+</html>
