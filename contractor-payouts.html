@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contractor Payouts - Real-Time Earnings</title>
+    
+    <!-- Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iife.min.js"></script>
+    <script src="universal-wallet-connect.js"></script>
+    <link rel="stylesheet" href="mobile-responsive.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a, #1a1a2e);
+            color: #00ff00;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(135deg, rgba(0,255,0,0.1), rgba(0,200,0,0.05));
+            border: 2px solid rgba(0,255,0,0.3);
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            color: #00ff00;
+            text-shadow: 0 0 20px rgba(0,255,0,0.6);
+            margin-bottom: 10px;
+        }
+        
+        .wallet-section {
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        .connect-btn {
+            padding: 15px 40px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1em;
+            font-weight: 700;
+            background: linear-gradient(90deg, #00ff00, #00cc00);
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .connect-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(0,255,0,0.6);
+        }
+        
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, rgba(0,50,0,0.3), rgba(0,30,0,0.3));
+            border: 2px solid rgba(0,255,0,0.3);
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            transition: all 0.3s;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,255,0,0.4);
+            border-color: #00ff00;
+        }
+        
+        .stat-label {
+            color: #66ff66;
+            font-size: 0.9em;
+            margin-bottom: 10px;
+        }
+        
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: 900;
+            color: #00ff00;
+            text-shadow: 0 0 15px rgba(0,255,0,0.6);
+        }
+        
+        .section-title {
+            font-size: 1.8em;
+            color: #00ff00;
+            margin: 40px 0 20px 0;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(0,255,0,0.3);
+        }
+        
+        .payment-history {
+            background: rgba(0,30,0,0.3);
+            border: 2px solid rgba(0,255,0,0.3);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        th, td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid rgba(0,255,0,0.2);
+        }
+        
+        th {
+            color: #00ff00;
+            font-weight: 700;
+        }
+        
+        td {
+            color: #66ff66;
+        }
+        
+        .status-paid {
+            color: #00ff00;
+            font-weight: 700;
+        }
+        
+        .status-pending {
+            color: #ffff00;
+            font-weight: 700;
+        }
+        
+        .action-btn {
+            padding: 8px 20px;
+            background: linear-gradient(90deg, #00ff00, #00cc00);
+            color: #000;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+        }
+        
+        .action-btn:hover {
+            box-shadow: 0 0 15px rgba(0,255,0,0.6);
+        }
+        
+        .withdraw-section {
+            background: rgba(0,50,0,0.3);
+            border: 2px solid rgba(0,255,0,0.3);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 20px 0;
+        }
+        
+        .input-group {
+            margin: 20px 0;
+        }
+        
+        label {
+            display: block;
+            color: #66ff66;
+            margin-bottom: 8px;
+        }
+        
+        input, select {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0,0,0,0.5);
+            border: 2px solid rgba(0,255,0,0.3);
+            border-radius: 8px;
+            color: #00ff00;
+            font-family: 'Orbitron', sans-serif;
+        }
+        
+        input:focus, select:focus {
+            outline: none;
+            border-color: #00ff00;
+            box-shadow: 0 0 15px rgba(0,255,0,0.3);
+        }
+        
+        @media (max-width: 768px) {
+            h1 { font-size: 2em; }
+            .dashboard-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💰 CONTRACTOR PAYOUTS</h1>
+            <p style="color: #66ff66; margin-top: 10px;">Real-Time Earnings & Payment Management</p>
+            
+            <div class="wallet-section">
+                <button id="connectBtn" class="connect-btn" onclick="connectWallet()">
+                    🔗 CONNECT WALLET
+                </button>
+                <div id="walletInfo" style="margin-top: 15px; display: none;">
+                    <p style="color: #00ff00;">Connected: <span id="walletAddress"></span></p>
+                </div>
+            </div>
+        </header>
+
+        <div id="dashboardContent" style="display: none;">
+            <!-- Earnings Overview -->
+            <div class="dashboard-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Earned</div>
+                    <div class="stat-value" id="totalEarned">$0</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-label">Available Balance</div>
+                    <div class="stat-value" id="availableBalance">$0</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-label">Pending Payments</div>
+                    <div class="stat-value" id="pendingPayments">$0</div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-label">This Month</div>
+                    <div class="stat-value" id="thisMonth">$0</div>
+                </div>
+            </div>
+
+            <!-- Active Contracts -->
+            <h2 class="section-title">📋 Active Contracts</h2>
+            <div class="payment-history">
+                <table id="contractsTable">
+                    <thead>
+                        <tr>
+                            <th>Contract</th>
+                            <th>Value</th>
+                            <th>Progress</th>
+                            <th>Next Milestone</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody id="contractsBody">
+                        <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Payment History -->
+            <h2 class="section-title">💵 Payment History</h2>
+            <div class="payment-history">
+                <table id="historyTable">
+                    <thead>
+                        <tr>
+                            <th>Date</th>
+                            <th>Description</th>
+                            <th>Amount</th>
+                            <th>Method</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyBody">
+                        <!-- Populated by JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Withdraw Funds -->
+            <h2 class="section-title">💸 Withdraw Funds</h2>
+            <div class="withdraw-section">
+                <div class="input-group">
+                    <label>Amount (USD)</label>
+                    <input type="number" id="withdrawAmount" placeholder="Enter amount" min="1">
+                </div>
+                
+                <div class="input-group">
+                    <label>Payment Method</label>
+                    <select id="paymentMethod">
+                        <option value="crypto">Crypto (Instant - SOL/USDC)</option>
+                        <option value="ach">Bank Transfer (ACH - 3-5 days)</option>
+                        <option value="wire">Wire Transfer (1-2 days)</option>
+                    </select>
+                </div>
+                
+                <div class="input-group">
+                    <label>Destination</label>
+                    <input type="text" id="destination" placeholder="Wallet address or bank account">
+                </div>
+                
+                <button class="action-btn" onclick="requestWithdrawal()" style="width: 100%; padding: 15px; margin-top: 20px;">
+                    💰 REQUEST WITHDRAWAL
+                </button>
+            </div>
+
+            <!-- Tax Documents -->
+            <h2 class="section-title">📄 Tax Documents</h2>
+            <div class="payment-history">
+                <p style="color: #66ff66; margin-bottom: 20px;">Download your tax documents for the current year</p>
+                <button class="action-btn" onclick="download1099()">📥 Download 1099 (2024)</button>
+                <button class="action-btn" style="margin-left: 10px;" onclick="downloadInvoices()">📥 Download All Invoices</button>
+            </div>
+        </div>
+
+        <div style="margin-top: 60px; text-align: center;">
+            <p style="color: #66ff66;">
+                <a href="index.html" style="color: #00ff00; text-decoration: none;">← Back to Main Hub</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Sample contractor data (would come from API in production)
+        const contractorData = {
+            totalEarned: 125000,
+            availableBalance: 15000,
+            pendingPayments: 8500,
+            thisMonth: 22000,
+            activeContracts: [
+                {
+                    name: 'Cybersecurity Platform Development',
+                    value: 45000,
+                    progress: 65,
+                    nextMilestone: 'Security audit completion',
+                    nextPayment: 15000
+                },
+                {
+                    name: 'Blockchain Integration',
+                    value: 28000,
+                    progress: 40,
+                    nextMilestone: 'Smart contract deployment',
+                    nextPayment: 12000
+                }
+            ],
+            paymentHistory: [
+                {
+                    date: '2024-10-01',
+                    description: 'Milestone 3 - API Development',
+                    amount: 12000,
+                    method: 'Crypto (USDC)',
+                    status: 'Paid'
+                },
+                {
+                    date: '2024-09-15',
+                    description: 'Milestone 2 - Database Design',
+                    amount: 10000,
+                    method: 'ACH Transfer',
+                    status: 'Paid'
+                },
+                {
+                    date: '2024-10-10',
+                    description: 'Milestone 4 - Frontend UI',
+                    amount: 8500,
+                    method: 'Crypto (SOL)',
+                    status: 'Pending'
+                }
+            ]
+        };
+
+        async function connectWallet() {
+            const btn = document.getElementById('connectBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳ CONNECTING...';
+            
+            try {
+                const result = await window.walletConnector.connect();
+                if (result.success) {
+                    document.getElementById('connectBtn').style.display = 'none';
+                    document.getElementById('walletInfo').style.display = 'block';
+                    document.getElementById('walletAddress').textContent = 
+                        result.address.slice(0, 8) + '...' + result.address.slice(-6);
+                    
+                    // Load dashboard
+                    loadDashboard();
+                } else {
+                    throw new Error(result.error);
+                }
+            } catch (error) {
+                alert('Wallet connection failed: ' + error.message);
+                btn.disabled = false;
+                btn.textContent = '🔗 CONNECT WALLET';
+            }
+        }
+
+        function loadDashboard() {
+            // Show dashboard
+            document.getElementById('dashboardContent').style.display = 'block';
+            
+            // Update stats
+            document.getElementById('totalEarned').textContent = 
+                '$' + contractorData.totalEarned.toLocaleString();
+            document.getElementById('availableBalance').textContent = 
+                '$' + contractorData.availableBalance.toLocaleString();
+            document.getElementById('pendingPayments').textContent = 
+                '$' + contractorData.pendingPayments.toLocaleString();
+            document.getElementById('thisMonth').textContent = 
+                '$' + contractorData.thisMonth.toLocaleString();
+            
+            // Load active contracts
+            const contractsBody = document.getElementById('contractsBody');
+            contractsBody.innerHTML = '';
+            contractorData.activeContracts.forEach(contract => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${contract.name}</td>
+                    <td>$${contract.value.toLocaleString()}</td>
+                    <td>${contract.progress}%</td>
+                    <td>${contract.nextMilestone}</td>
+                    <td><button class="action-btn" onclick="submitMilestone('${contract.name}')">Submit Deliverable</button></td>
+                `;
+                contractsBody.appendChild(row);
+            });
+            
+            // Load payment history
+            const historyBody = document.getElementById('historyBody');
+            historyBody.innerHTML = '';
+            contractorData.paymentHistory.forEach(payment => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${payment.date}</td>
+                    <td>${payment.description}</td>
+                    <td>$${payment.amount.toLocaleString()}</td>
+                    <td>${payment.method}</td>
+                    <td class="status-${payment.status.toLowerCase()}">${payment.status}</td>
+                `;
+                historyBody.appendChild(row);
+            });
+        }
+
+        function submitMilestone(contractName) {
+            alert(`Submitting deliverable for: ${contractName}\n\nYou will be redirected to the upload portal.`);
+            // In production, open file upload modal
+        }
+
+        async function requestWithdrawal() {
+            const amount = document.getElementById('withdrawAmount').value;
+            const method = document.getElementById('paymentMethod').value;
+            const destination = document.getElementById('destination').value;
+            
+            if (!amount || amount <= 0) {
+                alert('Please enter a valid amount');
+                return;
+            }
+            
+            if (!destination) {
+                alert('Please enter a destination');
+                return;
+            }
+            
+            if (parseFloat(amount) > contractorData.availableBalance) {
+                alert('Insufficient balance');
+                return;
+            }
+            
+            // In production, send to API
+            alert(`Withdrawal Request Submitted:\nAmount: $${amount}\nMethod: ${method}\nDestination: ${destination}\n\nProcessing time: ${method === 'crypto' ? 'Instant' : method === 'wire' ? '1-2 days' : '3-5 days'}`);
+            
+            // Clear form
+            document.getElementById('withdrawAmount').value = '';
+            document.getElementById('destination').value = '';
+        }
+
+        function download1099() {
+            alert('Generating 1099 form for 2024...\n\nTotal Income: $' + contractorData.totalEarned.toLocaleString() + '\n\nDownload will start shortly.');
+        }
+
+        function downloadInvoices() {
+            alert('Generating invoice package...\n\nIncluding all ' + contractorData.paymentHistory.length + ' transactions\n\nDownload will start shortly.');
+        }
+    </script>
+</body>
+</html>
