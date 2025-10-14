@@ -1,0 +1,205 @@
+/* Additional styles for Gem Bot Universe */
+
+.profile-card {
+  position: fixed;
+  bottom: 80px;
+  right: 20px;
+  background: rgba(4, 16, 34, 0.95);
+  border: 1px solid rgba(124,92,255,0.3);
+  border-radius: 15px;
+  padding: 20px;
+  max-width: 600px;
+  max-height: 400px;
+  overflow-y: auto;
+  z-index: 1100;
+  display: none;
+}
+
+.stat-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+
+.stat-table th {
+  background: rgba(124,92,255,0.2);
+  padding: 8px;
+  text-align: left;
+  border-bottom: 1px solid rgba(124,92,255,0.3);
+}
+
+.stat-table td {
+  padding: 8px;
+  border-bottom: 1px solid rgba(124,92,255,0.1);
+}
+
+.all-players-bottom-btn {
+  position: fixed;
+  bottom: 18px;
+  right: 170px;
+  z-index: 1000;
+}
+
+.build-tracker-panel {
+  position: fixed;
+  bottom: 80px;
+  left: 20px;
+  background: rgba(4, 16, 34, 0.95);
+  border: 1px solid rgba(124,92,255,0.3);
+  border-radius: 15px;
+  padding: 20px;
+  max-width: 400px;
+  z-index: 1100;
+  display: none;
+}
+
+.build-tracker-panel.active {
+  display: block;
+}
+
+.build-tracker-toggle {
+  position: fixed;
+  bottom: 18px;
+  left: 18px;
+  z-index: 1000;
+  padding: 12px 20px;
+  background: linear-gradient(90deg, #7c5cff, #00d4ff);
+  color: #021024;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.build-tracker-toggle:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 20px rgba(124,92,255,0.5);
+}
+
+.status-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-top: 15px;
+}
+
+.status-item {
+  background: rgba(124,92,255,0.1);
+  padding: 15px;
+  border-radius: 8px;
+  border: 1px solid rgba(124,92,255,0.2);
+}
+
+.status-label {
+  display: block;
+  font-size: 0.9em;
+  color: #9aa4b2;
+  margin-bottom: 5px;
+}
+
+.status-value {
+  display: block;
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #00d4ff;
+}
+
+section {
+  margin: 20px 0;
+  padding: 20px;
+  background: rgba(4, 16, 34, 0.5);
+  border-radius: 10px;
+  border: 1px solid rgba(124,92,255,0.2);
+}
+
+section h2 {
+  color: #7c5cff;
+  margin-bottom: 15px;
+  border-bottom: 2px solid rgba(124,92,255,0.3);
+  padding-bottom: 10px;
+}
+
+button {
+  padding: 10px 20px;
+  margin: 5px;
+  background: linear-gradient(90deg, #7c5cff, #00d4ff);
+  color: #021024;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 20px rgba(124,92,255,0.5);
+}
+
+.idea-tracker-container {
+  margin-top: 15px;
+}
+
+.idea-form input,
+.idea-form textarea,
+.idea-form select {
+  width: 100%;
+  padding: 10px;
+  margin: 5px 0;
+  background: rgba(4, 16, 34, 0.8);
+  border: 1px solid rgba(124,92,255,0.3);
+  border-radius: 8px;
+  color: #cfe9ff;
+  font-family: inherit;
+}
+
+.idea-form textarea {
+  min-height: 80px;
+  resize: vertical;
+}
+
+.idea-filters {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: 15px 0;
+}
+
+.filter-btn {
+  padding: 8px 16px;
+  background: rgba(124,92,255,0.2);
+  border: 1px solid rgba(124,92,255,0.3);
+  border-radius: 8px;
+  color: #cfe9ff;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.filter-btn.active {
+  background: linear-gradient(90deg, #7c5cff, #00d4ff);
+  color: #021024;
+}
+
+.idea-list {
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.idea-item {
+  background: rgba(4, 16, 34, 0.8);
+  border: 1px solid rgba(124,92,255,0.3);
+  border-radius: 8px;
+  padding: 15px;
+  margin: 10px 0;
+  transition: all 0.3s ease;
+}
+
+.idea-item:hover {
+  border-color: rgba(124,92,255,0.6);
+  transform: translateY(-2px);
+}
+
+.auth-links-header {
+  margin-top: 15px;
+}

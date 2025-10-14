@@ -1,0 +1,213 @@
+/* Gem Bot Universe Theme CSS */
+:root {
+  --primary-bg: linear-gradient(135deg, #030616 0%, #041022 50%, #021124 100%);
+  --card-bg: linear-gradient(135deg, #041022, #031426);
+  --accent-primary: #7c5cff;
+  --accent-secondary: #00d4ff;
+  --text-primary: #cfe9ff;
+  --text-secondary: #9aa4b2;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Orbitron', 'Segoe UI', sans-serif;
+  background: var(--primary-bg);
+  color: var(--text-primary);
+  min-height: 100vh;
+  overflow-x: hidden;
+}
+
+header {
+  text-align: center;
+  padding: 20px;
+  background: linear-gradient(90deg, rgba(124,92,255,0.1), rgba(0,212,255,0.1));
+  border-bottom: 1px solid rgba(124,92,255,0.3);
+}
+
+h1 {
+  font-size: 2.5em;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  margin-bottom: 10px;
+}
+
+.header-desc {
+  color: var(--text-secondary);
+  font-size: 0.9em;
+}
+
+#globe-container {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 1;
+}
+
+.welcome-overlay {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(4, 16, 34, 0.95);
+  padding: 40px;
+  border-radius: 15px;
+  border: 1px solid rgba(124,92,255,0.3);
+  z-index: 10;
+  text-align: center;
+  max-width: 500px;
+  transition: opacity 1s ease;
+}
+
+.welcome-overlay h2 {
+  color: var(--accent-primary);
+  margin-bottom: 15px;
+}
+
+.auth-button {
+  display: inline-block;
+  padding: 10px 20px;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  color: #021024;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: bold;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.auth-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 20px rgba(124,92,255,0.5);
+}
+
+.content-toggle-button {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 100;
+  padding: 12px 24px;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-secondary));
+  color: #021024;
+  border: none;
+  border-radius: 8px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.content-toggle-button:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 20px rgba(124,92,255,0.5);
+}
+
+.post-login-content {
+  position: fixed;
+  top: 80px;
+  left: 20px;
+  right: 20px;
+  bottom: 20px;
+  background: rgba(4, 16, 34, 0.95);
+  border-radius: 15px;
+  border: 1px solid rgba(124,92,255,0.3);
+  padding: 20px;
+  overflow-y: auto;
+  z-index: 50;
+}
+
+.tooltip {
+  position: fixed;
+  padding: 10px 15px;
+  background: rgba(0, 0, 0, 0.9);
+  border: 1px solid var(--accent-primary);
+  border-radius: 8px;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 1000;
+  max-width: 300px;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 2000;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background: var(--card-bg);
+  padding: 30px;
+  border-radius: 15px;
+  border: 1px solid rgba(124,92,255,0.3);
+  text-align: center;
+  max-width: 400px;
+}
+
+footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  text-align: center;
+  padding: 10px;
+  background: rgba(4, 16, 34, 0.95);
+  border-top: 1px solid rgba(124,92,255,0.3);
+  z-index: 10;
+  font-size: 0.9em;
+  color: var(--text-secondary);
+}
+
+.online-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #00ff00;
+  margin-right: 5px;
+}
+
+.offline-dot {
+  display: inline-block;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ff0000;
+  margin-right: 5px;
+}
+
+#mgcBalanceDisplay {
+  position: fixed;
+  top: 80px;
+  right: 20px;
+  background: rgba(4, 16, 34, 0.95);
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: 1px solid rgba(124,92,255,0.3);
+  z-index: 100;
+}
+
+#mgcBalanceLink {
+  color: var(--text-primary);
+  text-decoration: none;
+  font-weight: bold;
+}
+
+#mgcBalanceLink:hover {
+  color: var(--accent-secondary);
+}
