@@ -1,0 +1,20 @@
+[
+  {
+    "address": "0xefc6910e7624f164dae9d0f799954aa69c943c8d",
+    "displayName": "AgentR",
+    "keys": [45, 12],
+    "score": 1250,
+    "contribs": 27,
+    "github": "barbrickdesign",
+    "avatar": "https://avatars.githubusercontent.com/u/123456?v=4"
+  },
+  {
+    "address": "0x1234567890abcdef1234567890abcdef12345678",
+    "displayName": "KeyHolderTwo",
+    "keys": [3],
+    "score": 540,
+    "contribs": 8,
+    "github": null,
+    "avatar": null
+  }
+]

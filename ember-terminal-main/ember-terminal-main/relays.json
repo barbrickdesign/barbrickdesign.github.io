@@ -1,0 +1,30 @@
+[
+  {
+    "name": "Primary Relay (Production)",
+    "url": "https://relay-primary.example.com",
+    "region": "us-east-1",
+    "contact": "ops@yourorg.example",
+    "notes": "Primary, recommended. Holds GitHub and LLM credentials."
+  },
+  {
+    "name": "Secondary Relay (Staging)",
+    "url": "https://relay-staging.example.com",
+    "region": "eu-west-1",
+    "contact": "devs@yourorg.example",
+    "notes": "Staging relay for testing and previews."
+  },
+  {
+    "name": "Local Relay (Developer)",
+    "url": "http://localhost:4200",
+    "region": "local",
+    "contact": "developer-machine",
+    "notes": "Use this for local testing. Not public."
+  },
+  {
+    "name": "Community Relay (Read-only)",
+    "url": "https://relay-community.example.net",
+    "region": "global",
+    "contact": "community@yourorg.example",
+    "notes": "Read-only relay for public read endpoints and demos."
+  }
+]

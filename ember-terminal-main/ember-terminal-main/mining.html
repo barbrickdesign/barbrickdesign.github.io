@@ -1,0 +1,504 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Mandem Miner — MNDM Gas Mining (Vault Integrated)</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    :root { --bg:#07101a; --panel:#0f1724; --muted:#7b8794; --accent:#7c3aed; --ok:#10b981; --danger:#ef4444; color-scheme: dark; }
+    body { background: linear-gradient(180deg,#071029 0%,#07101a 100%); color:#e6eef8; font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial; margin:18px; }
+    .wrap { max-width:980px; margin:12px auto; }
+    header { display:flex; justify-content:space-between; align-items:center; gap:12px; margin-bottom:12px; }
+    h1 { font-size:1.1rem; margin:0; }
+    .btn { background:var(--accent); color:white; border:0; padding:8px 12px; border-radius:8px; cursor:pointer; }
+    .panel { background:var(--panel); padding:14px; border-radius:12px; margin-bottom:12px; box-shadow: 0 6px 24px rgba(0,0,0,0.6); }
+    .row { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+    .col { flex:1 1 260px; min-width:220px; }
+    pre { background:#071427; padding:12px; border-radius:8px; overflow:auto; color:#cfe9ff; }
+    .muted { color:var(--muted); font-size:0.92rem; }
+    .stat { font-weight:700; font-size:1.05rem; }
+    .upgrades { display:grid; grid-template-columns:repeat(auto-fit,minmax(220px,1fr)); gap:12px; }
+    .card { background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); padding:12px; border-radius:10px; }
+    .small { font-size:0.88rem; color:var(--muted); }
+    footer { text-align:center; color:var(--muted); margin-top:18px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Mandem Miner — MNDM Gas Mining (Vault)</h1>
+      <div>
+        <button id="connect" class="btn">Connect Phantom</button>
+      </div>
+    </header>
+
+    <div id="notice" class="panel small muted">
+      Token mint used for trading/gas: <strong id="tokenMintText"></strong>. Creator/vault wallet set to <strong id="vaultAddr"></strong>. DRY_RUN default is enabled—disable only after devnet tests.
+    </div>
+
+    <div class="row">
+      <div class="col panel">
+        <div class="muted">Player</div>
+        <div id="account" class="stat">Not connected</div>
+        <div class="muted">SOL Balance <span id="solBal">-</span></div>
+        <div class="muted">MNDM Balance <span id="tokenBal">-</span></div>
+        <div class="muted">Access</div>
+        <div id="access" class="small muted">Locked — hold MNDM to play</div>
+        <div style="margin-top:8px;" class="small muted">Your total contributed to creator/burn flows: <strong id="contrib">0</strong> MNDM</div>
+      </div>
+
+      <div class="col panel">
+        <div class="muted">Mine Status</div>
+        <div id="resources" class="stat">0 ore</div>
+        <div class="muted">Gas per mine</div>
+        <div id="gasCost" class="small">0.01 MNDM</div>
+        <div style="margin-top:8px;">
+          <button id="mineBtn" class="btn">Mine</button>
+          <button id="sellResources" style="margin-left:8px;" class="btn">Sell Ore</button>
+        </div>
+        <div class="small muted" style="margin-top:8px;">Mining uses MNDM as gas; fees route to creator/vault account for later burn via Casino sparklet flows.</div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div>
+          <div class="muted">Upgrade Shop</div>
+          <div class="small muted">Upgrades improve yield, reduce gas, or auto-mine</div>
+        </div>
+        <div class="muted small">Creator vault: <code id="creatorAddr">6HTjfgWZYMbENnMAJJFhxWR2VZDxdze3qV7zznSAsfk</code></div>
+      </div>
+
+      <div class="upgrades" style="margin-top:12px;">
+        <div class="card">
+          <div><strong>Pickaxe I</strong></div>
+          <div class="small muted">+1 ore per mine</div>
+          <div class="small muted">Cost 5 MNDM</div>
+          <div style="margin-top:8px;"><button data-upg="pickaxe1" class="btn buy">Buy</button></div>
+        </div>
+        <div class="card">
+          <div><strong>Efficiency Rig</strong></div>
+          <div class="small muted">-10% gas cost</div>
+          <div class="small muted">Cost 12 MNDM</div>
+          <div style="margin-top:8px;"><button data-upg="eff1" class="btn buy">Buy</button></div>
+        </div>
+        <div class="card">
+          <div><strong>Mine Drone</strong></div>
+          <div class="small muted">Auto-mine every 60s</div>
+          <div class="small muted">Cost 32 MNDM</div>
+          <div style="margin-top:8px;"><button data-upg="drone1" class="btn buy">Buy</button></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="muted">Creator vault info</div>
+      <div class="small muted">Creator vault token account balance (proxy for global contributions): <strong id="creatorBalance">-</strong> MNDM</div>
+      <div class="small muted" style="margin-top:8px;">Casino app will periodically burn tokens from this vault via the sparklet flow; this UI shows how much the vault holds now.</div>
+    </div>
+
+    <div class="panel">
+      <div class="muted">Logs</div>
+      <pre id="log">Ready.</pre>
+    </div>
+
+    <footer>Mandem Miner • Test on devnet • Use DRY_RUN until validated</footer>
+  </div>
+
+  <script type="module">
+    /************************************************************************
+     * Mandem Miner — Vault Integrated
+     * Creator/vault wallet: 6HTjfgWZYMbENnMAJJFhxWR2VZDxdze3qV7zznSAsfk
+     * MNDM mint: GK24fQQQKNF6JMsCd3rLfSr1n2tvr3bCJ7zAgNqxbA7r
+     * DRY_RUN true by default for safety
+     ************************************************************************/
+
+    import {
+      Connection,
+      PublicKey,
+      Transaction
+    } from "https://cdn.jsdelivr.net/npm/@solana/web3.js@1.79.0/+esm";
+
+    import {
+      getAssociatedTokenAddress,
+      createTransferInstruction,
+      getAccount,
+      TOKEN_PROGRAM_ID,
+      createAssociatedTokenAccountInstruction
+    } from "https://cdn.jsdelivr.net/npm/@solana/spl-token@0.3.5/+esm";
+
+    // Config
+    const DRY_RUN = true; // set false only after devnet checks
+    const SOLANA_RPC = "https://api.devnet.solana.com"; // devnet for testing
+    const MNDM_MINT = new PublicKey("GK24fQQQKNF6JMsCd3rLfSr1n2tvr3bCJ7zAgNqxbA7r");
+    const CREATOR_PUBKEY = new PublicKey("6HTjfgWZYMbENnMAJJFhxWR2VZDxdze3qV7zznSAsfk"); // vault wallet provided
+    const MIN_TOKEN_HOLD = 0.0001;
+    const BASE_GAS = 0.01; // MNDM per mine
+    const SELL_PCT_TO_CREATOR = 0.05;
+
+    // UI refs
+    const connectBtn = document.getElementById("connect");
+    const accountEl = document.getElementById("account");
+    const solBalEl = document.getElementById("solBal");
+    const tokenBalEl = document.getElementById("tokenBal");
+    const accessEl = document.getElementById("access");
+    const resourcesEl = document.getElementById("resources");
+    const gasCostEl = document.getElementById("gasCost");
+    const mineBtn = document.getElementById("mineBtn");
+    const sellBtn = document.getElementById("sellResources");
+    const logEl = document.getElementById("log");
+    const tokenMintText = document.getElementById("tokenMintText");
+    const contribEl = document.getElementById("contrib");
+    const creatorBalanceEl = document.getElementById("creatorBalance");
+    const creatorAddrEl = document.getElementById("vaultAddr");
+
+    tokenMintText.textContent = MNDM_MINT.toBase58();
+    creatorAddrEl.textContent = CREATOR_PUBKEY.toBase58();
+
+    const state = {
+      connection: null,
+      account: null,
+      solBal: 0,
+      tokenBal: 0,
+      ore: 0,
+      upgrades: {},
+      gasMultiplier: 1,
+      autoMineIntervalId: null
+    };
+
+    function log(...args) {
+      console.log(...args);
+      logEl.textContent = new Date().toISOString() + " " + args.join(" ") + "\n" + logEl.textContent;
+    }
+
+    // Local storage helpers for contribution tracking
+    function contribKey(pubkey) {
+      return `mandem_miner_contrib_${pubkey}`;
+    }
+
+    function getLocalContrib(pubkey) {
+      const k = contribKey(pubkey);
+      const raw = localStorage.getItem(k);
+      return raw ? parseFloat(raw) : 0;
+    }
+
+    function addLocalContrib(pubkey, amount) {
+      const k = contribKey(pubkey);
+      const prev = getLocalContrib(pubkey);
+      const next = prev + amount;
+      localStorage.setItem(k, String(next));
+    }
+
+    // Phantom connect
+    async function connectPhantom() {
+      if (!window.solana || !window.solana.isPhantom) {
+        alert("Phantom wallet not detected");
+        return;
+      }
+      try {
+        const resp = await window.solana.connect();
+        state.account = resp.publicKey;
+        state.connection = new Connection(SOLANA_RPC, "confirmed");
+        accountEl.textContent = state.account.toBase58();
+        log("Connected", state.account.toBase58());
+        await syncBalances();
+        setupAutoSync();
+        checkAccess();
+        if (window.Mandem && window.Mandem.registerMiniGame) {
+          try { window.Mandem.registerMiniGame("mandem-miner", { title: "Mandem Miner" }); } catch(e) { log("Mandem register failed", e); }
+        }
+      } catch (err) {
+        log("connect error", err.message || err);
+      }
+    }
+
+    // Balance sync: SOL and token via ATA
+    async function syncBalances() {
+      if (!state.account || !state.connection) return;
+      try {
+        const lam = await state.connection.getBalance(state.account);
+        state.solBal = lam / 1e9;
+        solBalEl.textContent = state.solBal.toFixed(6);
+
+        // Fetch user's ATA for MNDM and read balance if exists
+        const userAta = await getAssociatedTokenAddress(MNDM_MINT, state.account, false);
+        let tokenBal = 0;
+        try {
+          const ataAccount = await getAccount(state.connection, userAta);
+          tokenBal = Number(ataAccount.amount) / (10 ** ataAccount.decimals);
+        } catch (e) {
+          tokenBal = 0;
+        }
+        state.tokenBal = tokenBal;
+        tokenBalEl.textContent = tokenBal.toFixed(6);
+        contribEl.textContent = getLocalContrib(state.account.toBase58()).toFixed(6);
+
+        // Creator vault balance
+        const creatorAta = await getAssociatedTokenAddress(MNDM_MINT, CREATOR_PUBKEY, false);
+        let creatorBal = 0;
+        try {
+          const cacc = await getAccount(state.connection, creatorAta);
+          creatorBal = Number(cacc.amount) / (10 ** cacc.decimals);
+        } catch (e) {
+          creatorBal = 0;
+        }
+        creatorBalanceEl.textContent = creatorBal.toFixed(6);
+
+        log("Balances synced SOL", state.solBal, "MNDM", state.tokenBal, "creatorVault", creatorBal);
+        checkAccess();
+      } catch (err) {
+        log("sync error", err.message || err);
+      }
+    }
+
+    function setupAutoSync() {
+      setInterval(syncBalances, 15_000);
+    }
+
+    function checkAccess() {
+      if (state.tokenBal >= MIN_TOKEN_HOLD) {
+        accessEl.textContent = "Unlocked — you can play";
+        accessEl.classList.remove("muted");
+      } else {
+        accessEl.textContent = "Locked — hold MNDM to play";
+        accessEl.classList.add("muted");
+      }
+    }
+
+    function currentGasCost() {
+      return BASE_GAS * (state.gasMultiplier || 1);
+    }
+
+    function updateUI() {
+      resourcesEl.textContent = state.ore + " ore";
+      gasCostEl.textContent = currentGasCost().toFixed(6) + " MNDM";
+      contribEl.textContent = state.account ? getLocalContrib(state.account.toBase58()).toFixed(6) : "0.000000";
+    }
+
+    // Ensure creator ATA exists: if not, return ATA for reference
+    async function ensureCreatorAta(connection) {
+      const ata = await getAssociatedTokenAddress(MNDM_MINT, CREATOR_PUBKEY, false);
+      try {
+        await getAccount(connection, ata);
+        return ata;
+      } catch (e) {
+        return ata;
+      }
+    }
+
+    // Build and send a token transfer from user ATA to recipient ATA using Phantom signAndSendTransaction
+    async function transferMndm(fromPubkey, toPubkey, amountUi) {
+      if (!state.account || !state.connection) throw new Error("Not connected or no connection");
+      const payerPubkey = state.account;
+      const mint = MNDM_MINT;
+      const fromAta = await getAssociatedTokenAddress(mint, fromPubkey, false);
+      const toAta = await getAssociatedTokenAddress(mint, toPubkey, false);
+
+      let decimals = 9;
+      try {
+        const fromAcc = await getAccount(state.connection, fromAta);
+        decimals = fromAcc.decimals;
+      } catch (e) {
+        throw new Error("No source token account or insufficient balance");
+      }
+
+      const rawAmount = BigInt(Math.floor(amountUi * (10 ** decimals)));
+      const tx = new Transaction();
+      try {
+        await getAccount(state.connection, toAta);
+      } catch (e) {
+        tx.add(createAssociatedTokenAccountInstruction(
+          payerPubkey,
+          toAta,
+          toPubkey,
+          mint
+        ));
+      }
+
+      const transferIx = createTransferInstruction(
+        fromAta,
+        toAta,
+        payerPubkey,
+        rawAmount,
+        [],
+        TOKEN_PROGRAM_ID
+      );
+      tx.add(transferIx);
+
+      if (DRY_RUN) {
+        log("[DRY_RUN] Built token transfer:", amountUi, "MNDM from", fromAta.toBase58(), "to", toAta.toBase58());
+        return { success: true, signature: null };
+      }
+
+      try {
+        const signed = await window.solana.signAndSendTransaction(tx);
+        log("Transfer sent. sig:", signed.signature);
+        try {
+          await state.connection.confirmTransaction(signed.signature, "confirmed");
+        } catch (e) {
+          log("confirm error", e.message || e);
+        }
+        return { success: true, signature: signed.signature };
+      } catch (err) {
+        log("transfer error", err.message || err);
+        return { success: false, error: err };
+      }
+    }
+
+    // Pay gas and execute on success
+    async function payGasAndExecute(amountMndm, onSuccess) {
+      if (!state.account) { log("Not connected"); return; }
+      if (state.tokenBal < amountMndm) { log("Insufficient MNDM for gas"); return; }
+      const creatorAmount = amountMndm;
+
+      if (DRY_RUN) {
+        log("[DRY_RUN] Would send gas:", creatorAmount, "MNDM to vault");
+        addLocalContrib(state.account.toBase58(), creatorAmount);
+        state.tokenBal -= creatorAmount;
+        updateUI();
+        if (onSuccess) onSuccess();
+        return;
+      }
+
+      try {
+        const res = await transferMndm(state.account, CREATOR_PUBKEY, creatorAmount);
+        if (res.success) {
+          addLocalContrib(state.account.toBase58(), creatorAmount);
+          state.tokenBal -= creatorAmount;
+          log("Gas paid on-chain:", creatorAmount, "MNDM sig:", res.signature);
+          if (onSuccess) onSuccess();
+          await syncBalances();
+        } else {
+          log("Gas payment failed", res.error);
+        }
+      } catch (err) {
+        log("payGas error", err.message || err);
+      }
+    }
+
+    // Mine action
+    async function mineAction() {
+      if (!state.account) { log("Not connected"); return; }
+      if (state.tokenBal < currentGasCost()) { log("Insufficient MNDM for gas"); return; }
+      mineBtn.disabled = true;
+      setTimeout(() => mineBtn.disabled = false, 3000);
+
+      const gas = currentGasCost();
+      await payGasAndExecute(gas, async () => {
+        let yieldAmount = 1;
+        if (state.upgrades.pickaxe1) yieldAmount += 1;
+        state.ore += yieldAmount;
+        log("Mined", yieldAmount, "ore. Total ore:", state.ore);
+        updateUI();
+      });
+    }
+
+    // Sell resources
+    async function sellResourcesAction() {
+      if (!state.account) { log("Not connected"); return; }
+      if (state.ore <= 0) { log("No ore to sell"); return; }
+
+      const oreToSell = state.ore;
+      const estimatedMndm = oreToSell * 0.5;
+      const creatorFee = estimatedMndm * SELL_PCT_TO_CREATOR;
+      const payout = estimatedMndm - creatorFee;
+
+      log("Selling", oreToSell, "ore for ~", estimatedMndm.toFixed(6), "MNDM. Fee", creatorFee.toFixed(6));
+
+      if (DRY_RUN) {
+        if (state.tokenBal < creatorFee) {
+          log("Insufficient MNDM to cover fee in simulation");
+          return;
+        }
+        state.ore = 0;
+        state.tokenBal += payout - creatorFee;
+        addLocalContrib(state.account.toBase58(), creatorFee);
+        log("[DRY_RUN] Sell simulated. Payout", payout.toFixed(6));
+        updateUI();
+        return;
+      }
+
+      try {
+        await transferMndm(state.account, CREATOR_PUBKEY, creatorFee);
+        state.ore = 0;
+        state.tokenBal += payout;
+        addLocalContrib(state.account.toBase58(), creatorFee);
+        log("Sell executed. Payout (simulated)", payout.toFixed(6));
+        updateUI();
+        await syncBalances();
+      } catch (err) {
+        log("sell error", err.message || err);
+      }
+    }
+
+    // Buy upgrade
+    async function buyUpgrade(key) {
+      if (!state.account) { log("Not connected"); return; }
+      const costs = { pickaxe1: 5, eff1: 12, drone1: 32 };
+      const costMndm = costs[key];
+      if (state.tokenBal < costMndm) { log("Insufficient tokens for purchase"); return; }
+
+      log("Attempting to buy upgrade", key, "cost", costMndm);
+      if (DRY_RUN) {
+        state.tokenBal -= costMndm;
+        state.upgrades[key] = true;
+        if (key === "eff1") state.gasMultiplier *= 0.9;
+        if (key === "drone1") {
+          if (!state.autoMineIntervalId) {
+            state.autoMineIntervalId = setInterval(mineAction, 60_000);
+          }
+        }
+        addLocalContrib(state.account.toBase58(), costMndm);
+        log("[DRY_RUN] Purchased", key, "creator fee simulated", costMndm);
+        updateUI();
+        return;
+      }
+
+      try {
+        const res = await transferMndm(state.account, CREATOR_PUBKEY, costMndm);
+        if (res.success) {
+          state.upgrades[key] = true;
+          if (key === "eff1") state.gasMultiplier *= 0.9;
+          if (key === "drone1") {
+            if (!state.autoMineIntervalId) {
+              state.autoMineIntervalId = setInterval(mineAction, 60_000);
+            }
+          }
+          addLocalContrib(state.account.toBase58(), costMndm);
+          log("Upgrade purchased on-chain:", key, "sig:", res.signature);
+          updateUI();
+          await syncBalances();
+        } else {
+          log("Upgrade purchase failed", res.error);
+        }
+      } catch (err) {
+        log("buyUpgrade error", err.message || err);
+      }
+    }
+
+    // Attach UI handlers
+    connectBtn.addEventListener("click", connectPhantom);
+    mineBtn.addEventListener("click", mineAction);
+    sellBtn.addEventListener("click", sellResourcesAction);
+    document.querySelectorAll(".buy").forEach(b => {
+      b.addEventListener("click", (ev) => buyUpgrade(ev.currentTarget.dataset.upg));
+    });
+
+    // Expose hooks for Mandem.OS
+    window.MandemMiner = {
+      getState: () => ({ ...state }),
+      forceSync: syncBalances,
+      purchaseUpgrade: buyUpgrade
+    };
+
+    // Auto-connect if already connected
+    (async () => {
+      if (window.solana && window.solana.isPhantom && window.solana.isConnected) {
+        await connectPhantom();
+      }
+      updateUI();
+    })();
+
+  </script>
+</body>
+</html>

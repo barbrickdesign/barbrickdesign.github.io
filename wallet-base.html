@@ -1,0 +1,35 @@
+<!-- 
+  WALLET BASE SCRIPT INCLUDE
+  Copy this snippet into the <head> section of any HTML file that needs wallet connectivity
+  Place BEFORE any other custom scripts that use wallet functions
+-->
+
+<!-- Core Dependencies for Phantom Wallet -->
+<script src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iife.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@solana/spl-token@0.3.11/dist/browser/spl-token.min.js"></script>
+
+<!-- Unified Phantom Wallet Connection Script -->
+<script src="mandem.os/workspace/public/phantomLogin.js"></script>
+
+<!-- 
+  USAGE INSTRUCTIONS:
+  
+  After including these scripts, you'll have access to:
+  
+  - connectPhantomWallet(isSignup = false) - Connect and verify wallet
+  - disconnectWallet() - Disconnect current wallet
+  - isUserAuthenticated() - Check if user is authenticated
+  - getWalletState() - Get current wallet state (balance, tokens, NFTs)
+  - refreshWalletData() - Refresh wallet data
+  
+  Example button setup:
+  <button onclick="connectPhantomWallet()">Connect Wallet</button>
+  
+  The script automatically handles:
+  - Mobile deep linking
+  - Auto-reconnect after mobile app return
+  - Signature verification
+  - Token/NFT fetching
+  - Debug logging to localStorage
+-->
