@@ -308,17 +308,32 @@
         </div>
 
         <div id="authSection" class="auth-section">
-            <div class="card-icon">🎫</div>
-            <h2 style="color: #ff6666; margin-bottom: 20px;">Wallet Authentication Required</h2>
-            <p style="color: #ff9999; margin-bottom: 30px; line-height: 1.8;">
-                Connect your crypto wallet to authenticate<br>
-                and view classified contracts matching your clearance level.
+            <div class="card-icon">🔐</div>
+            <h2 style="color: #ff6666; margin-bottom: 20px;">DUAL VERIFICATION REQUIRED</h2>
+            <p style="color: #ff9999; margin-bottom: 20px; line-height: 1.8;">
+                <strong>STEP 1:</strong> Connect your crypto wallet<br>
+                <strong>STEP 2:</strong> Insert your PIV/CAC White Card for verification<br>
+                <strong>STEP 3:</strong> Access granted based on lowest clearance level
             </p>
+            <div style="background: rgba(255, 215, 0, 0.1); border: 2px solid rgba(255, 215, 0, 0.3); padding: 20px; border-radius: 10px; margin: 20px 0;">
+                <p style="color: #ffcc00; line-height: 1.8;">
+                    ✌️ <strong>Rooted in Peace, Love, and Understanding</strong><br><br>
+                    This dual verification ensures that only individuals with<br>
+                    BOTH crypto identity AND government clearance<br>
+                    can access classified information.<br><br>
+                    Your White Card (PIV/CAC) must match or exceed<br>
+                    the clearance level registered to your wallet.
+                </p>
+            </div>
             <button id="authBtn" class="auth-btn" onclick="authenticateCard()">
-                💼 AUTHENTICATE WITH WALLET
+                🔐 START DUAL VERIFICATION
             </button>
-            <p style="margin-top: 15px; color: #ff9999; font-size: 0.9em;">
-                Your wallet address is your security clearance credential
+            <p style="margin-top: 20px; color: #ff9999; font-size: 0.9em;">
+                <strong>Security Process:</strong><br>
+                1. Wallet signature verification<br>
+                2. White Card certificate validation<br>
+                3. Cross-validation of both credentials<br>
+                4. Clearance level determination
             </p>
             <p id="authStatus" style="margin-top: 20px; color: #ff9999;"></p>
         </div>

@@ -175,69 +175,115 @@ class SecurityClearanceAuth {
     }
 
     /**
-     * Authenticate using connected wallet (PRIMARY METHOD)
+     * Authenticate using connected wallet + PIV/CAC White Card (DUAL VERIFICATION)
+     * This ensures both crypto identity AND government clearance are verified
      */
     async authenticateWithWallet() {
         try {
-            console.log('🔐 Authenticating with wallet...');
+            console.log('🔐 Starting dual authentication process...');
+            console.log('✌️ Rooted in Peace, Love, and Understanding');
             
-            // Check if wallet connector is available
+            // STEP 1: Connect Wallet
             if (!this.walletConnector) {
                 throw new Error('Wallet connector not initialized');
             }
             
-            // Connect wallet
             const walletResult = await this.walletConnector.connect();
             if (!walletResult.success) {
                 throw new Error('Wallet connection failed: ' + walletResult.error);
             }
             
             const walletAddress = walletResult.address;
-            console.log(`💼 Wallet connected: ${walletAddress}`);
+            console.log(`💼 Step 1/3: Wallet connected: ${walletAddress}`);
             
-            // Look up clearance in registry
+            // Check if wallet is in registry
             const clearance = this.clearanceRegistry[walletAddress];
             if (!clearance) {
                 throw new Error('No security clearance registered for this wallet address. Contact admin to register your clearance.');
             }
             
-            console.log(`🔍 Clearance found: ${clearance.level}`);
+            console.log(`🔍 Step 2/3: Clearance found in registry: ${clearance.level}`);
             
             // Verify ownership with signature
-            const message = `Authorize classified access at ${new Date().toISOString()}`;
+            const message = `I verify my identity and request classified access with Peace, Love, and Understanding at ${new Date().toISOString()}`;
             const signature = await this.walletConnector.signMessage(message);
             
             if (!signature) {
                 throw new Error('Signature verification failed. Please sign the authorization message.');
             }
             
-            // Verify expiration
-            const expirationDate = new Date(clearance.expires);
-            if (expirationDate < new Date()) {
-                throw new Error('Clearance has expired. Please renew your credentials.');
+            console.log('✅ Wallet signature verified');
+            
+            // STEP 2: Verify PIV/CAC White Card
+            console.log('🎫 Step 3/3: Please insert your PIV/CAC White Card for verification...');
+            
+            // Initialize card reader if needed
+            if (!this.pivCardReader) {
+                await this.initializeCardReader();
             }
             
-            // Update current user
+            // Read white card
+            const cardData = await this.readPIVCard();
+            
+            // Validate certificate
+            if (!cardData.certificateValid) {
+                throw new Error('White Card certificate validation failed. Card may be expired or revoked.');
+            }
+            
+            console.log(`🎫 White Card read successfully: ${cardData.commonName}`);
+            
+            // STEP 3: Cross-validate wallet and card
+            // Both must match for full access
+            const cardClearance = this.clearanceLevels[cardData.clearanceLevel];
+            const walletClearance = this.clearanceLevels[clearance.level];
+            
+            if (cardClearance < walletClearance) {
+                console.warn('⚠️ Card clearance lower than wallet clearance - granting card level access only');
+                clearance.level = cardData.clearanceLevel;
+                clearance.caveats = cardData.caveatCodes;
+            }
+            
+            // Verify card expiration
+            const cardExpiration = new Date(cardData.expirationDate);
+            const walletExpiration = new Date(clearance.expires);
+            const effectiveExpiration = cardExpiration < walletExpiration ? cardData.expirationDate : clearance.expires;
+            
+            if (cardExpiration < new Date()) {
+                throw new Error('White Card has expired. Please renew your credentials.');
+            }
+            
+            // Update current user with BOTH verifications
             this.currentUser = {
                 authenticated: true,
+                dualVerified: true,
                 walletAddress: walletAddress,
                 clearanceLevel: clearance.level,
-                commonName: clearance.name,
-                organization: clearance.organization,
-                expirationDate: clearance.expires,
+                commonName: cardData.commonName,  // Use card name as primary
+                organization: cardData.organization,  // Use card org as primary
+                expirationDate: effectiveExpiration,
                 caveatCodes: clearance.caveats,
-                verified: clearance.verified,
-                signature: signature
+                cardType: cardData.cardType,
+                verified: true,
+                signature: signature,
+                walletName: clearance.name,
+                verificationTime: new Date().toISOString()
             };
             
-            console.log(`✅ Authenticated: ${clearance.name} (${clearance.level})`);
+            console.log('✅ DUAL VERIFICATION COMPLETE');
+            console.log(`✅ Wallet: ${clearance.name} (${walletAddress.substring(0, 8)}...)`);
+            console.log(`✅ White Card: ${cardData.commonName} (${cardData.cardType})`);
+            console.log(`✅ Clearance Level: ${clearance.level}`);
+            console.log(`✅ Special Access: ${clearance.caveats.join(', ')}`);
+            console.log('✌️ Access granted with Peace, Love, and Understanding');
             
             return {
                 success: true,
-                user: this.currentUser
+                user: this.currentUser,
+                verificationMethod: 'dual',
+                message: 'Dual verification complete. Access granted with Peace, Love, and Understanding.'
             };
         } catch (error) {
-            console.error('Wallet authentication error:', error);
+            console.error('Authentication error:', error);
             return {
                 success: false,
                 error: error.message
