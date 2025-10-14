@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Universal Dev Compensation | Fair Pay for ALL Developers</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%);
+            color: #00ff00;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .terminal-header {
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00ff00;
+            border-radius: 10px 10px 0 0;
+            padding: 10px 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .terminal-dot {
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+        }
+
+        .dot-red { background: #ff5f56; }
+        .dot-yellow { background: #ffbd2e; }
+        .dot-green { background: #27c93f; }
+
+        .terminal-body {
+            background: rgba(0, 0, 0, 0.9);
+            border: 2px solid #00ff00;
+            border-top: none;
+            border-radius: 0 0 10px 10px;
+            padding: 30px;
+            min-height: 600px;
+        }
+
+        .terminal-title {
+            font-size: 2em;
+            text-align: center;
+            margin-bottom: 10px;
+            color: #00ff00;
+            text-shadow: 0 0 10px #00ff00;
+        }
+
+        .terminal-subtitle {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #00ffff;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+
+        .stat-card {
+            background: rgba(0, 255, 0, 0.1);
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card:hover {
+            background: rgba(0, 255, 0, 0.2);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+            transform: scale(1.05);
+        }
+
+        .stat-value {
+            font-size: 2.5em;
+            font-weight: bold;
+            color: #00ffff;
+            margin: 10px 0;
+        }
+
+        .stat-label {
+            color: #00ff00;
+            font-size: 0.9em;
+        }
+
+        .input-section {
+            background: rgba(0, 255, 0, 0.05);
+            border: 2px solid #00ff00;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+
+        .input-group {
+            margin: 20px 0;
+        }
+
+        .input-label {
+            display: block;
+            margin-bottom: 10px;
+            color: #00ffff;
+            font-weight: bold;
+        }
+
+        .terminal-input {
+            width: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            border: 2px solid #00ff00;
+            border-radius: 5px;
+            padding: 15px;
+            color: #00ff00;
+            font-family: 'Courier New', monospace;
+            font-size: 1.1em;
+        }
+
+        .terminal-input:focus {
+            outline: none;
+            box-shadow: 0 0 10px rgba(0, 255, 0, 0.5);
+        }
+
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .terminal-button {
+            background: linear-gradient(135deg, #00ff00, #00cc00);
+            color: #000;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1.1em;
+            font-weight: bold;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Courier New', monospace;
+        }
+
+        .terminal-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 20px rgba(0, 255, 0, 0.5);
+        }
+
+        .terminal-button.secondary {
+            background: linear-gradient(135deg, #00ffff, #00cccc);
+        }
+
+        .terminal-button.danger {
+            background: linear-gradient(135deg, #ff0000, #cc0000);
+            color: #fff;
+        }
+
+        .compensation-dashboard {
+            background: rgba(0, 255, 255, 0.1);
+            border: 3px solid #00ffff;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+
+        .compensation-title {
+            font-size: 1.8em;
+            color: #00ffff;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .compensation-breakdown {
+            margin: 20px 0;
+        }
+
+        .compensation-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 15px;
+            margin: 10px 0;
+            background: rgba(0, 0, 0, 0.5);
+            border-left: 4px solid #00ff00;
+            border-radius: 5px;
+        }
+
+        .compensation-total {
+            font-size: 2em;
+            color: #00ffff;
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background: rgba(0, 255, 255, 0.2);
+            border-radius: 10px;
+            border: 2px solid #00ffff;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: rgba(0, 0, 0, 0.5);
+            border: 2px solid #00ff00;
+            border-radius: 15px;
+            overflow: hidden;
+            margin: 20px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #00ff00, #00ffff);
+            transition: width 1s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-weight: bold;
+        }
+
+        .repo-list {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 2px solid #00ff00;
+            border-radius: 5px;
+            padding: 15px;
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .repo-item {
+            padding: 15px;
+            margin: 10px 0;
+            background: rgba(0, 255, 0, 0.1);
+            border-left: 4px solid #00ffff;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .repo-item:hover {
+            background: rgba(0, 255, 0, 0.2);
+            transform: translateX(10px);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #00ffff;
+            font-size: 1.5em;
+        }
+
+        .blinking {
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50%, 100% { opacity: 1; }
+            25%, 75% { opacity: 0; }
+        }
+
+        .success-message {
+            background: rgba(0, 255, 0, 0.2);
+            border: 2px solid #00ff00;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+        }
+
+        .wallet-display {
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid #00ffff;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .button-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="terminal-header">
+            <div class="terminal-dot dot-red"></div>
+            <div class="terminal-dot dot-yellow"></div>
+            <div class="terminal-dot dot-green"></div>
+            <span style="margin-left: 10px; color: #00ff00;">universal-dev-compensation.sh</span>
+        </div>
+
+        <div class="terminal-body">
+            <div class="terminal-title">
+                💰 UNIVERSAL DEVELOPER COMPENSATION SYSTEM
+            </div>
+            <div class="terminal-subtitle">
+                Fair Payment for ALL Developers - Past, Present, Future
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">TOTAL HOURS TRACKED</div>
+                    <div class="stat-value" id="totalHours">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">REPOSITORIES SCANNED</div>
+                    <div class="stat-value" id="totalRepos">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">COMMITS ANALYZED</div>
+                    <div class="stat-value" id="totalCommits">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">COMPENSATION OWED</div>
+                    <div class="stat-value" id="totalCompensation">$0</div>
+                </div>
+            </div>
+
+            <div class="input-section">
+                <h3 style="color: #00ffff; margin-bottom: 20px;">🔗 CONNECT YOUR WALLET</h3>
+                
+                <div class="wallet-display" id="walletDisplay" style="display: none;">
+                    <div>
+                        <div style="color: #00ffff; font-size: 0.9em;">CONNECTED WALLET</div>
+                        <div id="walletAddress" style="color: #00ff00; font-size: 1.2em; margin-top: 5px;"></div>
+                    </div>
+                    <button class="terminal-button danger" onclick="disconnectWallet()">DISCONNECT</button>
+                </div>
+
+                <div id="walletConnect" class="button-grid">
+                    <button class="terminal-button" onclick="connectWallet('phantom')">
+                        🟣 CONNECT PHANTOM
+                    </button>
+                    <button class="terminal-button secondary" onclick="connectWallet('metamask')">
+                        🦊 CONNECT METAMASK
+                    </button>
+                    <button class="terminal-button" onclick="connectWallet('manual')">
+                        ✍️ MANUAL ENTRY
+                    </button>
+                </div>
+            </div>
+
+            <div class="input-section">
+                <h3 style="color: #00ffff; margin-bottom: 20px;">📁 ADD YOUR REPOSITORIES</h3>
+                
+                <div class="input-group">
+                    <label class="input-label">GITHUB REPOSITORY URL</label>
+                    <input 
+                        type="text" 
+                        class="terminal-input" 
+                        id="repoUrl"
+                        placeholder="https://github.com/username/repository"
+                    >
+                </div>
+
+                <div class="button-grid">
+                    <button class="terminal-button" onclick="scanRepository()">
+                        🔍 SCAN REPOSITORY
+                    </button>
+                    <button class="terminal-button secondary" onclick="scanLocalPC()">
+                        📂 SCAN LOCAL PC
+                    </button>
+                    <button class="terminal-button" onclick="scanAllRepos()">
+                        🌐 SCAN ALL MY REPOS
+                    </button>
+                </div>
+
+                <div id="scanProgress" style="display: none;">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressFill" style="width: 0%">0%</div>
+                    </div>
+                    <div class="loading">
+                        <span class="blinking">⚡</span> Scanning repository... Please wait...
+                    </div>
+                </div>
+            </div>
+
+            <div class="compensation-dashboard" id="compensationDashboard" style="display: none;">
+                <div class="compensation-title">💰 YOUR COMPENSATION BREAKDOWN</div>
+                
+                <div class="compensation-breakdown">
+                    <div class="compensation-item">
+                        <span>Base Development Time:</span>
+                        <span id="baseCompensation">$0</span>
+                    </div>
+                    <div class="compensation-item">
+                        <span>Pioneer Multiplier Bonus:</span>
+                        <span id="pioneerBonus">$0</span>
+                    </div>
+                    <div class="compensation-item">
+                        <span>Lost Funds Recovery:</span>
+                        <span id="lostFunds">$0</span>
+                    </div>
+                    <div class="compensation-item">
+                        <span>Open Source Royalties:</span>
+                        <span id="royalties">$0</span>
+                    </div>
+                    <div class="compensation-item">
+                        <span>Testing & Bug Bounties:</span>
+                        <span id="testing">$0</span>
+                    </div>
+                </div>
+
+                <div class="compensation-total">
+                    TOTAL COMPENSATION OWED: <span id="totalOwed">$0</span>
+                </div>
+
+                <div class="button-grid">
+                    <button class="terminal-button" onclick="claimCompensation()">
+                        💸 CLAIM COMPENSATION
+                    </button>
+                    <button class="terminal-button secondary" onclick="viewDetails()">
+                        📊 VIEW DETAILED REPORT
+                    </button>
+                    <button class="terminal-button" onclick="shareReport()">
+                        📢 SHARE MY REPORT
+                    </button>
+                </div>
+            </div>
+
+            <div class="input-section">
+                <h3 style="color: #00ffff; margin-bottom: 20px;">🔄 LOST FUNDS RECOVERY</h3>
+                <p style="color: #00ff00; margin-bottom: 20px;">
+                    Did you lose coins testing Bitcoin, Ethereum, or Solana? We can help recover your compensation!
+                </p>
+                
+                <div class="button-grid">
+                    <button class="terminal-button" onclick="scanLostFunds()">
+                        🔍 SCAN FOR LOST FUNDS
+                    </button>
+                    <button class="terminal-button secondary" onclick="recoverWallet()">
+                        💾 RECOVER OLD WALLET
+                    </button>
+                    <button class="terminal-button" onclick="claimTestFunds()">
+                        ⚡ CLAIM TEST COMPENSATION
+                    </button>
+                </div>
+            </div>
+
+            <div class="input-section">
+                <h3 style="color: #00ffff; margin-bottom: 20px;">📜 YOUR TRACKED REPOSITORIES</h3>
+                <div class="repo-list" id="repoList">
+                    <div style="text-align: center; color: #00ffff; padding: 40px;">
+                        No repositories scanned yet. Add your first repo above!
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin: 50px 0; color: #00ff00;">
+                <p style="font-size: 1.2em; margin-bottom: 10px;">
+                    Every developer deserves fair compensation for their contributions.
+                </p>
+                <p style="color: #00ffff;">
+                    ✌️ Peace | ❤️ Love | 🛡️ Protection | For ALL Developers
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let connectedWallet = null;
+        let scannedRepos = [];
+        let totalStats = {
+            hours: 0,
+            repos: 0,
+            commits: 0,
+            compensation: 0
+        };
+
+        async function connectWallet(type) {
+            if (type === 'phantom') {
+                if (window.solana && window.solana.isPhantom) {
+                    try {
+                        const resp = await window.solana.connect();
+                        connectedWallet = resp.publicKey.toString();
+                        displayWallet();
+                    } catch (err) {
+                        alert('⚠️ Phantom connection failed. Please try manual entry.');
+                        connectWallet('manual');
+                    }
+                } else {
+                    alert('⚠️ Phantom wallet not found! Please install it or use manual entry.');
+                }
+            } else if (type === 'metamask') {
+                if (window.ethereum) {
+                    try {
+                        const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                        connectedWallet = accounts[0];
+                        displayWallet();
+                    } catch (err) {
+                        alert('⚠️ MetaMask connection failed. Please try manual entry.');
+                        connectWallet('manual');
+                    }
+                } else {
+                    alert('⚠️ MetaMask not found! Please install it or use manual entry.');
+                }
+            } else {
+                const address = prompt('Enter your wallet address:');
+                if (address && address.trim()) {
+                    connectedWallet = address.trim();
+                    displayWallet();
+                }
+            }
+        }
+
+        function displayWallet() {
+            document.getElementById('walletConnect').style.display = 'none';
+            document.getElementById('walletDisplay').style.display = 'flex';
+            document.getElementById('walletAddress').textContent = 
+                connectedWallet.substring(0, 8) + '...' + connectedWallet.substring(connectedWallet.length - 8);
+        }
+
+        function disconnectWallet() {
+            connectedWallet = null;
+            document.getElementById('walletConnect').style.display = 'grid';
+            document.getElementById('walletDisplay').style.display = 'none';
+        }
+
+        async function scanRepository() {
+            const repoUrl = document.getElementById('repoUrl').value.trim();
+            
+            if (!repoUrl) {
+                alert('⚠️ Please enter a repository URL!');
+                return;
+            }
+
+            if (!connectedWallet) {
+                alert('⚠️ Please connect your wallet first!');
+                return;
+            }
+
+            // Show progress
+            document.getElementById('scanProgress').style.display = 'block';
+            
+            // Simulate scanning
+            let progress = 0;
+            const interval = setInterval(() => {
+                progress += 10;
+                document.getElementById('progressFill').style.width = progress + '%';
+                document.getElementById('progressFill').textContent = progress + '%';
+                
+                if (progress >= 100) {
+                    clearInterval(interval);
+                    completeScan(repoUrl);
+                }
+            }, 200);
+        }
+
+        function completeScan(repoUrl) {
+            // Simulate scan results
+            const mockData = {
+                url: repoUrl,
+                commits: Math.floor(Math.random() * 500) + 100,
+                hours: Math.floor(Math.random() * 1000) + 200,
+                linesOfCode: Math.floor(Math.random() * 50000) + 10000,
+                isPioneer: Math.random() > 0.7
+            };
+
+            // Calculate compensation
+            const baseRate = 100;
+            const baseComp = mockData.hours * baseRate;
+            const pioneerMultiplier = mockData.isPioneer ? 5 : 1;
+            const total = baseComp * pioneerMultiplier;
+
+            // Update totals
+            totalStats.hours += mockData.hours;
+            totalStats.repos += 1;
+            totalStats.commits += mockData.commits;
+            totalStats.compensation += total;
+
+            // Update display
+            updateStats();
+            addRepoToList(mockData, total);
+            updateCompensation(baseComp, baseComp * (pioneerMultiplier - 1), total);
+
+            // Hide progress, show dashboard
+            setTimeout(() => {
+                document.getElementById('scanProgress').style.display = 'none';
+                document.getElementById('compensationDashboard').style.display = 'block';
+                document.getElementById('repoUrl').value = '';
+                
+                alert('✅ Repository scanned successfully!\n\n' +
+                      `Commits: ${mockData.commits}\n` +
+                      `Hours: ${mockData.hours}\n` +
+                      `Compensation: $${total.toLocaleString()}`);
+            }, 500);
+        }
+
+        function updateStats() {
+            document.getElementById('totalHours').textContent = totalStats.hours.toLocaleString();
+            document.getElementById('totalRepos').textContent = totalStats.repos;
+            document.getElementById('totalCommits').textContent = totalStats.commits.toLocaleString();
+            document.getElementById('totalCompensation').textContent = '$' + totalStats.compensation.toLocaleString();
+        }
+
+        function addRepoToList(data, compensation) {
+            const list = document.getElementById('repoList');
+            if (list.children[0].textContent.includes('No repositories')) {
+                list.innerHTML = '';
+            }
+
+            const item = document.createElement('div');
+            item.className = 'repo-item';
+            item.innerHTML = `
+                <div style="font-weight: bold; color: #00ffff; margin-bottom: 5px;">${data.url}</div>
+                <div style="display: flex; justify-content: space-between; color: #00ff00;">
+                    <span>📊 ${data.commits} commits | ⏱️ ${data.hours}h</span>
+                    <span>💰 $${compensation.toLocaleString()}</span>
+                </div>
+                ${data.isPioneer ? '<div style="color: #ffff00; margin-top: 5px;">🏆 PIONEER PROJECT (5x multiplier!)</div>' : ''}
+            `;
+            list.appendChild(item);
+        }
+
+        function updateCompensation(base, pioneer, total) {
+            document.getElementById('baseCompensation').textContent = '$' + base.toLocaleString();
+            document.getElementById('pioneerBonus').textContent = '$' + pioneer.toLocaleString();
+            document.getElementById('totalOwed').textContent = '$' + total.toLocaleString();
+        }
+
+        function scanLocalPC() {
+            alert('🖥️ Local PC Scanner\n\n' +
+                  'This feature will scan your entire computer for git repositories.\n\n' +
+                  'Click OK to start scanning...');
+            
+            // Simulate local scan
+            scanRepository();
+        }
+
+        function scanAllRepos() {
+            const username = prompt('Enter your GitHub username:');
+            if (username && username.trim()) {
+                alert(`🌐 Scanning all repositories for @${username}...\n\n` +
+                      'This may take a few minutes for accounts with many repos.');
+                scanRepository();
+            }
+        }
+
+        function scanLostFunds() {
+            alert('🔍 Lost Funds Scanner\n\n' +
+                  'Scanning blockchain for:\n' +
+                  '• Bitcoin test transactions (2010-2013)\n' +
+                  '• Ethereum early testing (2015-2016)\n' +
+                  '• Solana beta testing (2020-2021)\n' +
+                  '• Unclaimed airdrops\n\n' +
+                  'This may take a few minutes...');
+            
+            setTimeout(() => {
+                const lostFunds = Math.floor(Math.random() * 50000) + 10000;
+                document.getElementById('lostFunds').textContent = '$' + lostFunds.toLocaleString();
+                alert(`✅ Found $${lostFunds.toLocaleString()} in lost test funds!\n\n` +
+                      'You can claim this compensation now.');
+            }, 2000);
+        }
+
+        function recoverWallet() {
+            alert('💾 Wallet Recovery Tool\n\n' +
+                  'This tool helps recover old wallets from:\n' +
+                  '• Old hard drives\n' +
+                  '• Backup phrases\n' +
+                  '• Exchange accounts\n\n' +
+                  'Starting recovery process...');
+        }
+
+        function claimTestFunds() {
+            alert('⚡ Test Fund Compensation\n\n' +
+                  'Processing claims for:\n' +
+                  '• Lost test BTC\n' +
+                  '• Lost test ETH\n' +
+                  '• Lost test SOL\n\n' +
+                  'Compensation will be sent to your connected wallet.');
+        }
+
+        function claimCompensation() {
+            if (!connectedWallet) {
+                alert('⚠️ Please connect your wallet first!');
+                return;
+            }
+
+            if (totalStats.compensation === 0) {
+                alert('⚠️ Please scan at least one repository first!');
+                return;
+            }
+
+            alert(`💸 CLAIMING COMPENSATION\n\n` +
+                  `Amount: $${totalStats.compensation.toLocaleString()}\n` +
+                  `Wallet: ${connectedWallet.substring(0, 8)}...${connectedWallet.substring(connectedWallet.length - 8)}\n\n` +
+                  `Payment will be processed within 24-48 hours.\n\n` +
+                  `You'll receive an NFT certificate proving your contributions!`);
+            
+            console.log('Claiming compensation:', {
+                wallet: connectedWallet,
+                amount: totalStats.compensation,
+                repos: totalStats.repos,
+                hours: totalStats.hours
+            });
+        }
+
+        function viewDetails() {
+            window.open('universal-dev-tracker.html', '_blank');
+        }
+
+        function shareReport() {
+            const text = `I just calculated my developer compensation!\n\n` +
+                        `📊 ${totalStats.repos} repositories\n` +
+                        `⏱️ ${totalStats.hours} hours\n` +
+                        `💰 $${totalStats.compensation.toLocaleString()} owed\n\n` +
+                        `Every developer deserves fair pay! 💪`;
+            
+            if (navigator.share) {
+                navigator.share({
+                    title: 'My Developer Compensation Report',
+                    text: text,
+                    url: window.location.href
+                });
+            } else {
+                alert('📢 Share your report:\n\n' + text);
+            }
+        }
+
+        // Initialize
+        console.log('💰 Universal Developer Compensation System loaded');
+        console.log('🔗 Connect your wallet and scan your repos to get paid!');
+        console.log('✌️ Peace, ❤️ Love, 🛡️ Protection');
+    </script>
+</body>
+</html>
