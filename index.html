@@ -8,11 +8,14 @@
     <!-- Wallet Dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iife.min.js"></script>
     
+    <!-- Universal Authentication (load first) -->
+    <script src="universal-auth.js"></script>
+    <script src="universal-wallet-connect.js"></script>
+    
     <!-- New Integrations -->
     <script src="samgov-api-integration.js"></script>
     <script src="coinbase-wallet-integration.js"></script>
     <script src="pumpfun-integration.js"></script>
-    <script src="universal-wallet-connect.js"></script>
     
     <!-- Legacy Integration (fallback) -->
     <script src="samgov-integration.js"></script>
@@ -723,8 +726,13 @@
                 btnText.textContent = '❌ CONNECTION FAILED';
                 btn.disabled = false;
                 
-                // Show detailed error
-                alert('Wallet Connection Failed\n\n' + error.message);
+                // Show help banner instead of alert for wallet detection errors
+                if (error.message.includes('No wallet') || error.message.includes('not detected')) {
+                    document.getElementById('walletHelpBanner').style.display = 'block';
+                } else {
+                    // Show alert for other errors (user rejection, etc.)
+                    alert('Wallet Connection Failed\n\n' + error.message);
+                }
                 
                 setTimeout(() => {
                     btnText.textContent = '🔗 CONNECT WALLET';
@@ -897,11 +905,8 @@
                 }
             }
             
-            // Show help banner if no wallets detected
-            if (window.walletConnector && window.walletConnector.detectedWallets.length === 0) {
-                console.log('⚠️ No wallets detected, showing help banner');
-                document.getElementById('walletHelpBanner').style.display = 'block';
-            }
+            // Don't auto-show help banner - only show when user tries to connect and fails
+            console.log('Page loaded. Wallets detected:', window.walletConnector?.detectedWallets.length || 0);
             
             // Initialize all systems
             await window.systemInit.initializeAll();
