@@ -217,7 +217,7 @@
           <div id="sync-status-times" style="font-size:13px;color:#aaa;margin-top:6px;"></div>
         </div>
         <!-- Server Status Message (clickable link to server status indicator) -->
-        <div id="statusMessage" style="position: fixed; bottom: 20px; left: 20px; z-index: 1000; max-width: 350px; cursor: pointer; background: #222; color: #fff; padding: 8px 16px; border-radius: 8px; font-size: 15px; font-weight: bold; box-shadow: 0 2px 8px #000;">Server Stat: ...</div>
+        <div id="statusMessage" style="position: fixed; top: 80px; left: 20px; z-index: 500; max-width: 200px; cursor: pointer; background: rgba(34, 34, 34, 0.9); color: #fff; padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: bold; box-shadow: 0 2px 6px rgba(0,0,0,0.5); transition: opacity 0.3s;">Server: ...</div>
         <!-- Login Check Modal -->         
         <div id="loginModal" class="modal"> 
             <div class="modal-content"> 
@@ -1372,34 +1372,41 @@ console.log('[DEBUG] lastWalletAuth:', localStorage.getItem('lastWalletAuth'));
 
 async function updateStatusMessage() {
   let text = '';
+  let lastServerError = '';
   try {
     const res = await fetch('/api/ping', { cache: 'no-store' });
     if (res.ok) {
-      text = 'Connected';
+      text = '✓ Online';
       lastServerError = '';
+      statusMessage.style.background = 'rgba(0, 200, 0, 0.8)';
     } else {
-      text = 'Offline';
-      lastServerError = await res.text();
+      text = '✗ Offline';
+      lastServerError = `(${res.status})`;
+      statusMessage.style.background = 'rgba(200, 0, 0, 0.8)';
     }
   } catch (e) {
-    text = 'Offline';
-    lastServerError = e.message || 'Unknown error';
+    text = '✗ Offline';
+    lastServerError = '';
+    statusMessage.style.background = 'rgba(200, 0, 0, 0.8)';
   }
-  statusMessage.textContent = `Server Stat: ${text}${lastServerError ? ' | ' + lastServerError : ''}`;
+  statusMessage.textContent = `Server: ${text}${lastServerError ? ' ' + lastServerError : ''}`;
 }
 
 statusMessage.onclick = async function() {
-  statusMessage.textContent = 'Server Stat: Reconnecting...';
+  statusMessage.textContent = 'Server: Retrying...';
+  statusMessage.style.background = 'rgba(255, 165, 0, 0.8)';
   try {
     const res = await fetch('/api/start-server', { method: 'POST' });
     if (res.ok) {
-      statusMessage.textContent = 'Server Stat: Reconnect requested. Retrying...';
+      statusMessage.textContent = 'Server: Reconnecting...';
       setTimeout(updateStatusMessage, 3000);
     } else {
-      statusMessage.textContent = 'Server Stat: Failed to start server.';
+      statusMessage.textContent = 'Server: ✗ Failed';
+      statusMessage.style.background = 'rgba(200, 0, 0, 0.8)';
     }
   } catch (e) {
-    statusMessage.textContent = 'Server Stat: Failed to start server.';
+    statusMessage.textContent = 'Server: ✗ Failed';
+    statusMessage.style.background = 'rgba(200, 0, 0, 0.8)';
   }
 };
 setInterval(updateStatusMessage, 5000);

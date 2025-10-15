@@ -115,13 +115,13 @@
 
         .back-home {
             position: absolute;
-            top: 90px; /* Increased from 80px to 90px to ensure it's below the fixed header */
+            top: 20px;
             left: 20px;
             color: white;
             text-decoration: none;
             display: flex;
             align-items: center;
-            z-index: 100; /* Added z-index to ensure it stays above other elements */
+            z-index: 100;
         }
 
         .back-home:before {
@@ -129,10 +129,25 @@
             margin-right: 5px;
             font-size: 20px;
         }
+
+        .status-indicator {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 100;
+            background: rgba(34, 34, 34, 0.9);
+            color: #fff;
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: bold;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+        }
     </style>
 </head>
 <body>
     <a href="index.html" class="back-home">Back to Home</a>
+    <div class="status-indicator" id="serverStatus">Server: ...</div>
     
     <div class="auth-container" id="login-form">
         <h1>Login</h1>
@@ -463,6 +478,26 @@
         console.log('[DEBUG] userProfile:', localStorage.getItem('userProfile'));
         console.log('[DEBUG] userLoggedIn:', localStorage.getItem('userLoggedIn'));
         console.log('[DEBUG] lastWalletAuth:', localStorage.getItem('lastWalletAuth'));
+        
+        // Server status indicator
+        async function updateServerStatus() {
+            const statusEl = document.getElementById('serverStatus');
+            try {
+                const res = await fetch('/api/ping', { cache: 'no-store' });
+                if (res.ok) {
+                    statusEl.textContent = 'Server: ✓ Online';
+                    statusEl.style.background = 'rgba(0, 200, 0, 0.8)';
+                } else {
+                    statusEl.textContent = 'Server: ✗ Offline';
+                    statusEl.style.background = 'rgba(200, 0, 0, 0.8)';
+                }
+            } catch (e) {
+                statusEl.textContent = 'Server: ✗ Offline';
+                statusEl.style.background = 'rgba(200, 0, 0, 0.8)';
+            }
+        }
+        updateServerStatus();
+        setInterval(updateServerStatus, 5000);
     </script>
 </body>
 </html>
