@@ -220,10 +220,19 @@ h3, h4, h5, h6 {
 }
 
 /* Prevent Text Overflow - Global Fix */
-p, span, div, a, label, li {
+p, span, div, a, label, li, h1, h2, h3, h4, h5, h6 {
     word-wrap: break-word;
     overflow-wrap: break-word;
     max-width: 100%;
+}
+
+/* Mobile: Force all headings to wrap properly */
+@media (max-width: 768px) {
+    h1, h2, h3, h4, h5, h6 {
+        word-break: break-word !important;
+        white-space: normal !important;
+        overflow-wrap: break-word !important;
+    }
 }
 
 /* Prevent Long URLs and Emails from Overflowing */
@@ -297,11 +306,41 @@ code, pre {
     }
 }
 
-/* Specific fix for .section-title on mobile */
+/* Specific fix for .section-title on mobile - CRITICAL FIX */
 @media (max-width: 768px) {
-    .section-title {
-        word-break: break-word;
-        white-space: normal;
+    .section-title, h2.section-title, .page-title, .title {
+        word-break: break-word !important;
+        white-space: normal !important;
+        overflow-wrap: break-word !important;
+        max-width: 100% !important;
+        width: 100% !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
+        font-size: 1.5em !important; /* Smaller on mobile */
+        padding: 0 10px !important; /* Add padding to prevent edge touch */
+        box-sizing: border-box !important;
+    }
+    
+    /* Force any text with emojis to wrap properly */
+    .section-title::before,
+    .section-title::after {
+        white-space: normal !important;
+    }
+}
+
+/* Universal overflow fix for mobile - prevents horizontal scroll */
+@media (max-width: 768px) {
+    body, html {
+        overflow-x: hidden;
+        max-width: 100%;
+        width: 100%;
+        position: relative;
+    }
+    
+    /* Prevent any container from causing horizontal scroll */
+    .container, .wrapper, main, section, article {
+        max-width: 100%;
+        overflow-x: hidden;
     }
 }
 

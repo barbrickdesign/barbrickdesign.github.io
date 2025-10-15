@@ -5,19 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BARBRICKDESIGN - Elite Web3 Hub</title>
     
-    <!-- Wallet Dependencies -->
+    <!-- Wallet System (Pump.fun Style) -->
     <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iife.min.js"></script>
+    <script src="wallet-adapter.js"></script>
+    <script src="wallet-button.js"></script>
+    <link rel="stylesheet" href="wallet-button.css">
     
-    <!-- Universal Authentication (load first) -->
+    <!-- Authentication & Integrations -->
     <script src="universal-auth.js"></script>
-    <script src="universal-wallet-connect.js"></script>
-    
-    <!-- New Integrations -->
     <script src="samgov-api-integration.js"></script>
     <script src="coinbase-wallet-integration.js"></script>
     <script src="pumpfun-integration.js"></script>
-    
-    <!-- Legacy Integration (fallback) -->
     <script src="samgov-integration.js"></script>
     <script src="project-tokenomics.js"></script>
     <link rel="stylesheet" href="mobile-responsive.css">
@@ -103,53 +101,11 @@
             margin-bottom: 30px;
         }
         
-        .wallet-section {
+        /* Wallet button container */
+        #walletButtonContainer {
             display: flex;
-            gap: 20px;
             justify-content: center;
-            align-items: center;
-            flex-wrap: wrap;
-            margin: 30px 0;
-        }
-        
-        .wallet-btn {
-            position: relative;
-            padding: 18px 40px;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 1.1em;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            background: linear-gradient(135deg, rgba(0,255,255,0.2), rgba(255,0,255,0.2));
-            color: #00ffff;
-            border: 2px solid #00ffff;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: all 0.3s;
-            box-shadow: 0 0 20px rgba(0,255,255,0.4), inset 0 0 20px rgba(0,255,255,0.1);
-        }
-        
-        .wallet-btn:hover {
-            transform: translateY(-3px) scale(1.05);
-            box-shadow: 0 0 40px rgba(0,255,255,0.8), inset 0 0 30px rgba(0,255,255,0.2);
-        }
-        
-        .wallet-btn.connected {
-            background: linear-gradient(135deg, rgba(0,255,0,0.3), rgba(0,255,255,0.3));
-            border-color: #00ff00;
-            box-shadow: 0 0 30px rgba(0,255,0,0.6);
-        }
-        
-        .wallet-info {
-            display: inline-flex;
-            align-items: center;
-            gap: 15px;
-            padding: 15px 30px;
-            background: rgba(0,255,255,0.1);
-            border: 2px solid rgba(0,255,255,0.5);
-            border-radius: 10px;
-            backdrop-filter: blur(5px);
-            -webkit-backdrop-filter: blur(5px);
+            margin-top: 30px;
         }
         
         .grid {
@@ -216,8 +172,26 @@
             background-clip: text;
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            word-break: keep-all;
-            white-space: nowrap;
+        }
+        
+        /* Desktop only: keep text on one line */
+        @media (min-width: 769px) {
+            .section-title {
+                word-break: keep-all;
+                white-space: nowrap;
+            }
+        }
+        
+        /* Mobile: allow wrapping to prevent overflow */
+        @media (max-width: 768px) {
+            .section-title {
+                font-size: 1.8em;
+                letter-spacing: 2px;
+                word-break: break-word;
+                white-space: normal;
+                overflow-wrap: break-word;
+                padding: 0 15px;
+            }
         }
         
         footer {
@@ -283,22 +257,8 @@
             <h1>BARBRICKDESIGN</h1>
             <p class="subtitle">⚡ ELITE WEB3 HUB ⚡</p>
             
-            <div class="wallet-section">
-                <button id="walletBtn" class="wallet-btn" onclick="connectWallet()">
-                    <span id="btnText">🔗 CONNECT WALLET</span>
-                </button>
-                <div id="walletInfo" class="wallet-info" style="display: none;">
-                    <span id="walletType">🔷</span>
-                    <span id="walletAddress">0x0000...0000</span>
-                    <span id="walletBalance">0.00</span>
-                    <button onclick="disconnectWallet()" style="margin-left: 10px; padding: 5px 10px; background: rgba(255,0,0,0.3); border: 1px solid #ff0000; color: #ff0000; cursor: pointer; border-radius: 5px; font-size: 0.8em;">Disconnect</button>
-                </div>
-                <div id="walletHelpBanner" style="display: none; margin-top: 15px; padding: 10px; background: rgba(255,165,0,0.2); border: 1px solid orange; border-radius: 5px; font-size: 0.85em; text-align: center;">
-                    <div style="margin-bottom: 5px;">⚠️ No wallet detected</div>
-                    <button onclick="retryWalletDetection()" style="padding: 5px 15px; background: rgba(255,165,0,0.4); border: 1px solid orange; color: orange; cursor: pointer; border-radius: 5px; font-size: 0.9em; margin-right: 10px;">🔄 Retry Detection</button>
-                    <button onclick="showWalletHelp()" style="padding: 5px 15px; background: rgba(0,255,255,0.2); border: 1px solid cyan; color: cyan; cursor: pointer; border-radius: 5px; font-size: 0.9em;">❓ Help</button>
-                </div>
-            </div>
+            <!-- Pump.fun Style Wallet Button -->
+            <div id="walletButtonContainer"></div>
         </header>
 
         <h2 class="section-title">🔥 CORE SYSTEMS</h2>

@@ -69,6 +69,7 @@ class AutoIterateSystem {
             test: () => {
                 const indexHTML = fs.readFileSync(path.join(this.projectRoot, 'index.html'), 'utf8');
                 return indexHTML.includes('word-break: keep-all');
+              
             },
             fix: () => {
                 console.log('  ✓ Mobile text breaking is already fixed');

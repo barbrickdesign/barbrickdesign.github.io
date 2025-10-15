@@ -1,0 +1,240 @@
+/**
+ * WALLET BUTTON STYLES - Pump.fun Style
+ * Clean, modern, professional wallet connection UI
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+/* Button Container */
+.wallet-button-group {
+    position: relative;
+    display: inline-block;
+    font-family: 'Inter', 'Orbitron', sans-serif;
+}
+
+/* Connect Button (Disconnected State) */
+.wallet-btn-connect {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 24px;
+    background: linear-gradient(135deg, #00ff00, #00cc00);
+    color: #000;
+    border: none;
+    border-radius: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(0, 255, 0, 0.3);
+    font-family: inherit;
+}
+
+.wallet-btn-connect:hover {
+    background: linear-gradient(135deg, #00ff33, #00dd00);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0, 255, 0, 0.4);
+}
+
+.wallet-btn-connect:active {
+    transform: translateY(0);
+}
+
+.wallet-btn-connect:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* Connected Button */
+.wallet-btn-connected {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 20px;
+    background: rgba(0, 255, 0, 0.1);
+    color: #00ff00;
+    border: 2px solid #00ff00;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.wallet-btn-connected:hover {
+    background: rgba(0, 255, 0, 0.15);
+    border-color: #00ff33;
+    color: #00ff33;
+}
+
+/* Wallet Icon */
+.wallet-icon {
+    font-size: 20px;
+    line-height: 1;
+}
+
+/* Wallet Address in Button */
+.wallet-address {
+    font-family: 'Courier New', monospace;
+    letter-spacing: 0.5px;
+}
+
+/* Dropdown Menu */
+.wallet-dropdown {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    background: rgba(0, 20, 0, 0.98);
+    border: 2px solid #00ff00;
+    border-radius: 12px;
+    padding: 12px;
+    min-width: 280px;
+    box-shadow: 0 8px 32px rgba(0, 255, 0, 0.3);
+    z-index: 1000;
+    backdrop-filter: blur(10px);
+    animation: dropdownSlide 0.2s ease;
+}
+
+@keyframes dropdownSlide {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Dropdown Header */
+.wallet-dropdown-header {
+    padding: 12px;
+    background: rgba(0, 255, 0, 0.05);
+    border-radius: 8px;
+    margin-bottom: 8px;
+}
+
+/* Full Address Display */
+.wallet-address-full {
+    font-family: 'Courier New', monospace;
+    font-size: 11px;
+    color: #00ffff;
+    word-break: break-all;
+    margin-bottom: 10px;
+    line-height: 1.4;
+}
+
+/* Copy Button */
+.wallet-copy-btn {
+    width: 100%;
+    padding: 8px 12px;
+    background: rgba(0, 255, 255, 0.1);
+    color: #00ffff;
+    border: 1px solid rgba(0, 255, 255, 0.3);
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: inherit;
+}
+
+.wallet-copy-btn:hover {
+    background: rgba(0, 255, 255, 0.2);
+    border-color: #00ffff;
+}
+
+/* Disconnect Button */
+.wallet-disconnect-btn {
+    width: 100%;
+    padding: 10px 16px;
+    background: rgba(255, 0, 0, 0.1);
+    color: #ff4444;
+    border: 1px solid rgba(255, 0, 0, 0.3);
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    margin-top: 4px;
+    font-family: inherit;
+}
+
+.wallet-disconnect-btn:hover {
+    background: rgba(255, 0, 0, 0.2);
+    border-color: #ff4444;
+    transform: translateY(-1px);
+}
+
+/* Toast Animations */
+@keyframes slideInRight {
+    from {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+    to {
+        transform: translateX(0);
+        opacity: 1;
+    }
+}
+
+@keyframes slideOutRight {
+    from {
+        transform: translateX(0);
+        opacity: 1;
+    }
+    to {
+        transform: translateX(400px);
+        opacity: 0;
+    }
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+    .wallet-btn-connect,
+    .wallet-btn-connected {
+        padding: 10px 16px;
+        font-size: 14px;
+    }
+    
+    .wallet-dropdown {
+        min-width: 260px;
+        right: -10px;
+    }
+    
+    .wallet-address {
+        max-width: 100px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+
+/* Dark Theme (matches BARBRICKDESIGN) */
+body.dark-theme .wallet-btn-connect {
+    background: linear-gradient(135deg, #00ff00, #00cc00);
+    box-shadow: 0 4px 12px rgba(0, 255, 0, 0.4);
+}
+
+body.dark-theme .wallet-dropdown {
+    background: rgba(0, 20, 0, 0.98);
+    border-color: #00ff00;
+}
+
+/* Light Theme (if needed) */
+body.light-theme .wallet-btn-connected {
+    background: rgba(0, 255, 0, 0.1);
+    border-color: #00cc00;
+    color: #00cc00;
+}
+
+body.light-theme .wallet-dropdown {
+    background: rgba(255, 255, 255, 0.98);
+    border-color: #00cc00;
+    color: #000;
+}
+
+body.light-theme .wallet-address-full {
+    color: #00cc00;
+}
