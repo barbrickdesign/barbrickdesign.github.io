@@ -275,13 +275,15 @@
                 if (typeof login === 'function') {
                     login(email, password);
                     
-                    // Check for redirect URL from localStorage
-                    const redirectUrl = localStorage.getItem('authRedirect');
-                    if (redirectUrl) {
-                        localStorage.removeItem('authRedirect');
-                        window.location.href = redirectUrl;
+                    // Smart redirect: back to where they came from or to index
+                    const redirectUrl = localStorage.getItem('authRedirect') || document.referrer || 'index.html';
+                    localStorage.removeItem('authRedirect');
+                    
+                    // If redirect is login.html itself, go to index
+                    if (redirectUrl.includes('login.html')) {
+                        window.location.href = 'index.html';
                     } else {
-                        window.location.href = 'profile.html';
+                        window.location.href = redirectUrl;
                     }
                 } else {
                     console.error("Login function not found");
@@ -299,13 +301,15 @@
                 if (typeof signUp === 'function') {
                     signUp(email, password, displayName);
                     
-                    // Check for redirect URL from localStorage
-                    const redirectUrl = localStorage.getItem('authRedirect');
-                    if (redirectUrl) {
-                        localStorage.removeItem('authRedirect');
-                        window.location.href = redirectUrl;
+                    // Smart redirect: back to where they came from or to index
+                    const redirectUrl = localStorage.getItem('authRedirect') || document.referrer || 'index.html';
+                    localStorage.removeItem('authRedirect');
+                    
+                    // If redirect is login.html itself, go to index
+                    if (redirectUrl.includes('login.html')) {
+                        window.location.href = 'index.html';
                     } else {
-                        window.location.href = 'profile.html';
+                        window.location.href = redirectUrl;
                     }
                 } else {
                     console.error("SignUp function not found");
@@ -318,9 +322,16 @@
             if (phantomLoginBtn) {
               phantomLoginBtn.addEventListener('click', async () => {
                 if (typeof connectPhantomWallet === 'function') {
-                  const success = await connectPhantomWallet({ redirect: 'profile.html' });
+                  // Determine smart redirect
+                  const redirectUrl = localStorage.getItem('authRedirect') || document.referrer || 'index.html';
+                  const finalRedirect = redirectUrl.includes('login.html') ? 'index.html' : redirectUrl;
+                  
+                  const success = await connectPhantomWallet({ redirect: finalRedirect });
                   if (!success) {
                     alert('Phantom login failed. Please try again.');
+                  } else {
+                    localStorage.removeItem('authRedirect');
+                    window.location.href = finalRedirect;
                   }
                 } else {
                   alert('Phantom wallet functionality is not available. Please try again later.');
@@ -329,10 +340,17 @@
             }
 
             // Handle Phantom Wallet signup
-            document.getElementById('phantom-signup').addEventListener('click', () => {
+            document.getElementById('phantom-signup').addEventListener('click', async () => {
                 if (typeof connectPhantomWallet === 'function') {
-                    connectPhantomWallet(true);
-                    // Redirection will be handled in the wallet connection callback
+                    // Determine smart redirect
+                    const redirectUrl = localStorage.getItem('authRedirect') || document.referrer || 'index.html';
+                    const finalRedirect = redirectUrl.includes('login.html') ? 'index.html' : redirectUrl;
+                    
+                    const success = await connectPhantomWallet({ redirect: finalRedirect });
+                    if (success) {
+                        localStorage.removeItem('authRedirect');
+                        window.location.href = finalRedirect;
+                    }
                 } else {
                     console.error("connectPhantomWallet function not found");
                     alert("Phantom wallet functionality is not available. Please try again later.");
@@ -349,14 +367,20 @@
                 return (now - lastAuthTime) < 86400000;
             }
 
-            // Only redirect if truly authenticated
+            // Smart redirect for already authenticated users
             if (isUserAuthenticated()) {
                 const redirectUrl = localStorage.getItem('authRedirect');
-                if (redirectUrl) {
+                const referrer = document.referrer;
+                
+                if (redirectUrl && !redirectUrl.includes('login.html')) {
                     localStorage.removeItem('authRedirect');
                     window.location.href = redirectUrl;
+                } else if (referrer && !referrer.includes('login.html') && !referrer.includes('profile.html')) {
+                    // Go back to referring page (likely index.html)
+                    window.location.href = referrer;
                 } else {
-                    window.location.href = 'profile.html';
+                    // Default to Gem Bot Universe home
+                    window.location.href = 'index.html';
                 }
             }
         });
@@ -407,11 +431,15 @@
             });
         });
 
-        // Show transaction section if logged in
+        // Show transaction section if logged in (but don't auto-redirect)
         document.addEventListener('DOMContentLoaded', () => {
             let user = JSON.parse(localStorage.getItem('currentUser') || 'null');
             if (user && user.walletAddress) {
-                showTransactionSection();
+                // Check if they want to see wallet management
+                const urlParams = new URLSearchParams(window.location.search);
+                if (urlParams.get('wallet') === 'true') {
+                    showTransactionSection();
+                }
             }
         });
 
@@ -479,25 +507,27 @@
         console.log('[DEBUG] userLoggedIn:', localStorage.getItem('userLoggedIn'));
         console.log('[DEBUG] lastWalletAuth:', localStorage.getItem('lastWalletAuth'));
         
-        // Server status indicator
+        // Server status indicator (graceful failure)
         async function updateServerStatus() {
             const statusEl = document.getElementById('serverStatus');
+            if (!statusEl) return;
+            
             try {
-                const res = await fetch('/api/ping', { cache: 'no-store' });
+                const res = await fetch('/api/ping', { cache: 'no-store', signal: AbortSignal.timeout(2000) });
                 if (res.ok) {
                     statusEl.textContent = 'Server: ✓ Online';
                     statusEl.style.background = 'rgba(0, 200, 0, 0.8)';
+                    statusEl.style.display = 'block';
                 } else {
-                    statusEl.textContent = 'Server: ✗ Offline';
-                    statusEl.style.background = 'rgba(200, 0, 0, 0.8)';
+                    statusEl.style.display = 'none';
                 }
             } catch (e) {
-                statusEl.textContent = 'Server: ✗ Offline';
-                statusEl.style.background = 'rgba(200, 0, 0, 0.8)';
+                // Server offline is normal - hide to avoid clutter
+                statusEl.style.display = 'none';
             }
         }
         updateServerStatus();
-        setInterval(updateServerStatus, 5000);
+        setInterval(updateServerStatus, 10000);
     </script>
 </body>
 </html>
