@@ -8,6 +8,7 @@
     <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
     <script src="wallet-adapter.js"></script>
     <link rel="stylesheet" href="wallet-button.css">
+    <link rel="stylesheet" href="mobile-responsive.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&family=Orbitron:wght@400;700;900&display=swap');
         
@@ -19,8 +20,8 @@
 
         body {
             font-family: 'Roboto Mono', monospace;
-            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 100%);
-            color: #00ff00;
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            color: #ecf0f1;
             overflow: hidden;
         }
 
@@ -33,44 +34,45 @@
             z-index: 1;
         }
 
-        /* Nextion-Style HMI Panel */
+        /* Real Nextion HMI Display Panel */
         .control-panel {
             position: fixed;
             top: 20px;
             left: 20px;
-            width: 400px;
-            background: linear-gradient(180deg, #1e1e1e 0%, #0a0a0a 100%);
-            border: 3px solid #333;
-            border-radius: 0;
+            width: 480px;
+            background: #000;
+            border: 8px solid #1a1a1a;
+            border-radius: 8px;
             padding: 0;
             z-index: 10;
-            box-shadow: 0 8px 32px rgba(0,0,0,0.8), inset 0 1px 0 rgba(255,255,255,0.1);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
             max-height: 90vh;
             overflow: hidden;
         }
         
         .hmi-header {
-            background: linear-gradient(180deg, #2a2a2a 0%, #1a1a1a 100%);
-            padding: 12px 20px;
-            border-bottom: 2px solid #444;
+            background: linear-gradient(180deg, #1e5a8e 0%, #165a8e 100%);
+            padding: 8px 15px;
+            border-bottom: 1px solid #0d3d66;
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
         
         .hmi-title {
-            font-family: 'Orbitron', sans-serif;
-            font-size: 16px;
+            font-family: 'Arial', sans-serif;
+            font-size: 14px;
             font-weight: 700;
-            color: #00ff00;
+            color: #ffffff;
             text-transform: uppercase;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
         }
         
         .hmi-body {
-            padding: 20px;
+            padding: 15px;
             max-height: calc(90vh - 60px);
             overflow-y: auto;
+            background: #000;
         }
         
         /* Custom Scrollbar */
@@ -91,13 +93,28 @@
             position: fixed;
             top: 20px;
             right: 20px;
-            width: 300px;
-            background: rgba(0, 20, 40, 0.95);
-            border: 2px solid #00ff00;
-            border-radius: 10px;
-            padding: 20px;
+            width: 320px;
+            background: #000;
+            border: 8px solid #1a1a1a;
+            border-radius: 8px;
+            padding: 0;
             z-index: 10;
-            backdrop-filter: blur(10px);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+        }
+        
+        .stats-panel h2 {
+            background: linear-gradient(180deg, #1e5a8e 0%, #165a8e 100%);
+            color: #fff;
+            margin: 0;
+            padding: 8px 15px;
+            border-radius: 0;
+            border-left: none;
+            border-bottom: 1px solid #0d3d66;
+        }
+        
+        .stats-panel .stat-item {
+            padding: 10px 15px;
+            background: #0a0a0a;
         }
 
         .bottom-panel {
@@ -105,61 +122,72 @@
             bottom: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background: rgba(0, 20, 40, 0.95);
-            border: 2px solid #ff00ff;
-            border-radius: 10px;
-            padding: 15px 30px;
+            background: #000;
+            border: 6px solid #1a1a1a;
+            border-radius: 6px;
+            padding: 10px 20px;
             z-index: 10;
-            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.6);
             display: flex;
-            gap: 20px;
+            gap: 15px;
             align-items: center;
+        }
+        
+        .bottom-panel button {
+            margin: 0;
+            padding: 10px 15px;
+            font-size: 11px;
+            min-width: 100px;
         }
 
         h2 {
-            color: #00ff00;
-            margin-bottom: 15px;
-            font-size: 14px;
+            color: #3498db;
+            margin-bottom: 12px;
+            font-size: 13px;
             font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            padding-bottom: 8px;
-            border-bottom: 2px solid #333;
+            letter-spacing: 0.5px;
+            padding: 8px 10px;
+            background: linear-gradient(180deg, #2c3e50 0%, #1a252f 100%);
+            border-left: 3px solid #3498db;
         }
 
         .control-group {
-            margin-bottom: 20px;
-            background: rgba(0,0,0,0.3);
-            padding: 15px;
-            border-radius: 4px;
-            border: 1px solid #333;
+            margin-bottom: 15px;
+            background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);
+            padding: 12px;
+            border-radius: 2px;
+            border: 1px solid #2c3e50;
         }
 
         label {
             display: block;
-            margin-bottom: 8px;
-            color: #aaa;
+            margin-bottom: 6px;
+            color: #95a5a6;
             font-size: 11px;
-            font-weight: 500;
+            font-weight: 600;
             text-transform: uppercase;
-            letter-spacing: 0.5px;
+            letter-spacing: 0.3px;
         }
         
         .value-display {
             float: right;
-            color: #00ff00;
-            font-size: 13px;
+            color: #2ecc71;
+            font-size: 14px;
             font-weight: 700;
+            background: #000;
+            padding: 2px 8px;
+            border-radius: 2px;
         }
 
-        /* Industrial Sliders */
+        /* Nextion-Style Sliders */
         input[type="range"] {
             width: 100%;
-            margin: 12px 0;
-            height: 6px;
-            background: #1a1a1a;
-            border: 1px solid #333;
-            border-radius: 3px;
+            margin: 10px 0;
+            height: 8px;
+            background: linear-gradient(180deg, #0d1117 0%, #1a1a1a 100%);
+            border: 1px solid #2c3e50;
+            border-radius: 4px;
             outline: none;
             -webkit-appearance: none;
             -moz-appearance: none;
@@ -170,13 +198,13 @@
             -webkit-appearance: none;
             -moz-appearance: none;
             appearance: none;
-            width: 20px;
-            height: 20px;
-            background: linear-gradient(180deg, #00ff00 0%, #00cc00 100%);
-            border: 2px solid #000;
-            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            background: linear-gradient(180deg, #3498db 0%, #2980b9 100%);
+            border: 2px solid #1a5c8e;
+            border-radius: 3px;
             cursor: pointer;
-            box-shadow: 0 0 8px rgba(0,255,0,0.5);
+            box-shadow: 0 2px 8px rgba(52,152,219,0.4);
         }
         
         input[type="range"]::-webkit-slider-thumb:hover {
@@ -194,29 +222,28 @@
             box-shadow: 0 0 8px rgba(0,255,0,0.5);
         }
 
-        /* Nextion-Style Buttons */
+        /* Real Nextion Touch Buttons */
         button {
-            background: linear-gradient(180deg, #4a4a4a 0%, #2a2a2a 100%);
-            color: #fff;
-            border: 2px solid #555;
-            border-radius: 4px;
-            padding: 14px 20px;
+            background: linear-gradient(180deg, #34495e 0%, #2c3e50 100%);
+            color: #ecf0f1;
+            border: 1px solid #1a252f;
+            border-radius: 3px;
+            padding: 12px 18px;
             cursor: pointer;
             font-weight: 600;
-            font-family: 'Roboto Mono', monospace;
+            font-family: 'Arial', sans-serif;
             font-size: 12px;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.2s;
+            letter-spacing: 0.5px;
+            transition: all 0.15s;
             width: 100%;
-            margin: 6px 0;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.1);
+            margin: 5px 0;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
         }
 
         button:hover {
-            background: linear-gradient(180deg, #5a5a5a 0%, #3a3a3a 100%);
-            border-color: #00ff00;
-            box-shadow: 0 4px 12px rgba(0,255,0,0.3), inset 0 1px 0 rgba(255,255,255,0.1);
+            background: linear-gradient(180deg, #3d5a78 0%, #34495e 100%);
+            box-shadow: 0 3px 10px rgba(52,152,219,0.3);
         }
         
         button:active {
@@ -225,26 +252,26 @@
         }
 
         button.danger {
-            background: linear-gradient(180deg, #cc3333 0%, #992222 100%);
-            border-color: #ff4444;
+            background: linear-gradient(180deg, #c0392b 0%, #a93226 100%);
+            border-color: #922b21;
             color: #fff;
         }
         
         button.danger:hover {
-            background: linear-gradient(180deg, #dd4444 0%, #aa3333 100%);
-            box-shadow: 0 4px 12px rgba(255,0,0,0.4);
+            background: linear-gradient(180deg, #e74c3c 0%, #c0392b 100%);
+            box-shadow: 0 3px 10px rgba(231,76,60,0.4);
         }
 
         button.primary {
-            background: linear-gradient(180deg, #00cc00 0%, #009900 100%);
-            border-color: #00ff00;
-            color: #000;
+            background: linear-gradient(180deg, #27ae60 0%, #229954 100%);
+            border-color: #1e8449;
+            color: #fff;
             font-weight: 700;
         }
         
         button.primary:hover {
-            background: linear-gradient(180deg, #00dd00 0%, #00aa00 100%);
-            box-shadow: 0 4px 12px rgba(0,255,0,0.5);
+            background: linear-gradient(180deg, #2ecc71 0%, #27ae60 100%);
+            box-shadow: 0 3px 10px rgba(46,204,113,0.4);
         }
 
         .stat-item {
@@ -255,23 +282,39 @@
         }
 
         .stat-label {
-            color: #8addff;
+            color: #95a5a6;
+            font-size: 11px;
         }
 
         .stat-value {
-            color: #00ff00;
-            font-weight: bold;
-        }
-
-        select {
-            width: 100%;
-            padding: 8px;
-            background: rgba(0, 0, 0, 0.5);
-            border: 1px solid #00ffff;
-            color: #00ffff;
-            border-radius: 5px;
+            color: #2ecc71;
+            font-weight: 700;
             font-family: 'Courier New', monospace;
         }
+        
+        select {
+            width: 100%;
+            padding: 10px;
+            background: linear-gradient(180deg, #1a1a1a 0%, #0d0d0d 100%);
+            color: #ecf0f1;
+            border: 1px solid #2c3e50;
+            border-radius: 3px;
+            font-family: 'Arial', sans-serif;
+            font-size: 12px;
+            cursor: pointer;
+            outline: none;
+        }
+        
+        select:focus {
+            border-color: #3498db;
+        }
+        
+        select option {
+            background: #1a1a1a;
+            color: #ecf0f1;
+            padding: 10px;
+        }
+
 
         .laser-indicator {
             display: inline-block;
@@ -296,25 +339,25 @@
             50% { opacity: 0.5; }
         }
 
-        /* Industrial Status Display */
+        /* Nextion Status LCD Display */
         .mode-indicator {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 12px 15px;
-            background: #000;
-            border: 2px solid #333;
-            border-radius: 4px;
-            margin-bottom: 20px;
-            box-shadow: inset 0 2px 8px rgba(0,0,0,0.8);
+            gap: 10px;
+            padding: 10px 12px;
+            background: linear-gradient(180deg, #000 0%, #0a0a0a 100%);
+            border: 2px solid #1a5c8e;
+            border-radius: 2px;
+            margin-bottom: 15px;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.9);
         }
         
         .status-display {
             flex: 1;
             font-size: 13px;
             font-weight: 600;
-            color: #00ff00;
-            text-shadow: 0 0 8px rgba(0,255,0,0.5);
+            color: #2ecc71;
+            font-family: 'Courier New', monospace;
         }
 
         .coordinates {
@@ -480,10 +523,10 @@
         };
 
         function initScene() {
-            // Scene
+            // Scene - Bright Workshop Environment
             scene = new THREE.Scene();
-            scene.background = new THREE.Color(0x000510);
-            scene.fog = new THREE.Fog(0x000510, 10, 50);
+            scene.background = new THREE.Color(0x3a4f5f); // Light gray-blue workshop color
+            scene.fog = new THREE.Fog(0x3a4f5f, 15, 60);
 
             // Camera
             camera = new THREE.PerspectiveCamera(
@@ -505,14 +548,25 @@
             controls.enableDamping = true;
             controls.dampingFactor = 0.05;
 
-            // Lights
-            const ambientLight = new THREE.AmbientLight(0x404040, 2);
+            // Lights - Bright Workshop Lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 1.2); // Bright ambient
             scene.add(ambientLight);
 
-            const directionalLight = new THREE.DirectionalLight(0x00ffff, 1);
-            directionalLight.position.set(5, 10, 5);
-            directionalLight.castShadow = true;
-            scene.add(directionalLight);
+            // Main overhead light
+            const mainLight = new THREE.DirectionalLight(0xffffff, 1.8);
+            mainLight.position.set(5, 15, 5);
+            mainLight.castShadow = true;
+            scene.add(mainLight);
+            
+            // Fill light from opposite side
+            const fillLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            fillLight.position.set(-5, 10, -5);
+            scene.add(fillLight);
+            
+            // Accent light from front
+            const accentLight = new THREE.PointLight(0xffffff, 0.6);
+            accentLight.position.set(0, 5, 10);
+            scene.add(accentLight);
 
             // Create environment
             createTronGrid();
@@ -533,17 +587,31 @@
         }
 
         function createTronGrid() {
+            // Bright workshop floor grid
             const gridSize = 20;
             const gridDivisions = 40;
-            const gridHelper = new THREE.GridHelper(gridSize, gridDivisions, 0x00ffff, 0x003333);
+            const gridHelper = new THREE.GridHelper(gridSize, gridDivisions, 0x7f8c8d, 0xbdc3c7);
             gridHelper.position.y = -2;
             scene.add(gridHelper);
+            
+            // Workshop floor plane
+            const floorGeometry = new THREE.PlaneGeometry(gridSize, gridSize);
+            const floorMaterial = new THREE.MeshStandardMaterial({
+                color: 0x95a5a6,
+                roughness: 0.8,
+                metalness: 0.2
+            });
+            const floor = new THREE.Mesh(floorGeometry, floorMaterial);
+            floor.rotation.x = -Math.PI / 2;
+            floor.position.y = -2.01;
+            floor.receiveShadow = true;
+            scene.add(floor);
 
-            // Add grid lines with glow
+            // Add subtle grid lines
             const gridMaterial = new THREE.LineBasicMaterial({
-                color: 0x00ffff,
+                color: 0x7f8c8d,
                 transparent: true,
-                opacity: 0.5
+                opacity: 0.3
             });
 
             // Vertical lines

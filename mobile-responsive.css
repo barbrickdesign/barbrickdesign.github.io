@@ -337,10 +337,18 @@ code, pre {
         position: relative;
     }
     
-    /* Prevent any container from causing horizontal scroll */
+    /* Prevent any container from causing horizontal scroll - but allow vertical */
     .container, .wrapper, main, section, article {
         max-width: 100%;
         overflow-x: hidden;
+        overflow-y: visible; /* Don't break vertical scrolling */
+    }
+    
+    /* Exception: Allow horizontal scroll for specific elements that need it */
+    .horizontal-scroll, .scrollable-x, .code-block, pre, code, 
+    .stats-panel, .control-panel, .data-table, table {
+        overflow-x: auto !important; /* Allow horizontal scroll where needed */
+        -webkit-overflow-scrolling: touch; /* Smooth scroll on iOS */
     }
 }
 
