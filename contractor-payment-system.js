@@ -37,13 +37,28 @@ class ContractorPaymentSystem {
     }
 
     /**
+     * Check if wallet is System Architect
+     */
+    isSystemArchitect(walletAddress) {
+        const ARCHITECT_WALLETS = [
+            '0xEFc6910e7624F164dAe9d0F799954aa69c943c8d',
+            '6HTjfgWZYMbENnMAJJFhxWR2VZDxdze3qV7zznSAsfk'
+        ];
+        return ARCHITECT_WALLETS.includes(walletAddress);
+    }
+
+    /**
      * Register a new contractor
      */
     registerContractor(walletAddress, profile) {
+        // Check if System Architect
+        const isArchitect = this.isSystemArchitect(walletAddress);
+        
         const contractor = {
             walletAddress,
-            displayName: profile.displayName || `Contractor ${walletAddress.slice(0, 6)}`,
+            displayName: profile.displayName || (isArchitect ? 'Agent R - System Architect' : `Contractor ${walletAddress.slice(0, 6)}`),
             joinDate: new Date().toISOString(),
+            isSystemArchitect: isArchitect,
             
             // Stats
             stats: {

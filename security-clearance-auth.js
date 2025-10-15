@@ -11,7 +11,8 @@ class SecurityClearanceAuth {
             'CONFIDENTIAL': 1,
             'SECRET': 2,
             'TOP_SECRET': 3,
-            'TS_SCI': 4  // Top Secret / Sensitive Compartmented Information
+            'TS_SCI': 4,
+            'SUPREME': 999  // System Architect - Supersedes all
         };
         
         this.currentUser = {
@@ -24,31 +25,46 @@ class SecurityClearanceAuth {
             caveatCodes: []  // Special access programs
         };
         
-        // WALLET-BASED CLEARANCE REGISTRY
-        this.ADMIN_WALLET = '6HTjfgWZYMbENnMAJJFhxWR2VZDxdze3qV7zznSAsfk';
+        // SYSTEM ARCHITECT - SUPREME AUTHORITY
+        this.SYSTEM_ARCHITECT = {
+            metamask: '0xEFc6910e7624F164dAe9d0F799954aa69c943c8d',
+            phantom: '6HTjfgWZYMbENnMAJJFhxWR2VZDxdze3qV7zznSAsfk',
+            alias: 'Agent R',
+            role: 'System Architect',
+            clearance: 'SUPREME',
+            authority: 'CREATOR',
+            systems: ['Mandem.OS', 'Null.OS', 'Gem Bot Universe']
+        };
         
+        // WALLET-BASED CLEARANCE REGISTRY
         this.clearanceRegistry = {
-            // ADMIN WALLET - Full TS/SCI Access
-            [this.ADMIN_WALLET]: {
-                level: 'TS_SCI',
-                caveats: ['NOFORN', 'NATO', 'FVEY', 'ORCON'],
-                name: 'Admin',
-                organization: 'BarbrickDesign',
-                verified: true,
-                issuer: 'Self-Sovereign',
-                expires: '2099-12-31',
-                accessAll: true
-            },
-            // METAMASK WALLET - Full TS/SCI Access
+            // SYSTEM ARCHITECT - SUPREME AUTHORITY (Supersedes all clearances)
             '0xEFc6910e7624F164dAe9d0F799954aa69c943c8d': {
-                level: 'TS_SCI',
-                caveats: ['NOFORN', 'NATO', 'FVEY', 'ORCON'],
-                name: 'Ryan Barbrick',
+                level: 'SUPREME',
+                caveats: ['NOFORN', 'NATO', 'FVEY', 'ORCON', 'ARCHITECT'],
+                name: 'Agent R',
+                title: 'System Architect',
                 organization: 'BarbrickDesign',
                 verified: true,
-                issuer: 'Self-Sovereign',
+                issuer: 'CREATOR',
                 expires: '2099-12-31',
-                accessAll: true
+                accessAll: true,
+                supersedes: ['WHITE_CARD', 'TS_SCI', 'TOP_SECRET', 'SECRET', 'ALL'],
+                authority: 'UNLIMITED'
+            },
+            // PHANTOM WALLET - SUPREME AUTHORITY
+            '6HTjfgWZYMbENnMAJJFhxWR2VZDxdze3qV7zznSAsfk': {
+                level: 'SUPREME',
+                caveats: ['NOFORN', 'NATO', 'FVEY', 'ORCON', 'ARCHITECT'],
+                name: 'Agent R',
+                title: 'System Architect',
+                organization: 'BarbrickDesign',
+                verified: true,
+                issuer: 'CREATOR',
+                expires: '2099-12-31',
+                accessAll: true,
+                supersedes: ['WHITE_CARD', 'TS_SCI', 'TOP_SECRET', 'SECRET', 'ALL'],
+                authority: 'UNLIMITED'
             }
             // Add more wallets here as needed
         };
@@ -246,6 +262,18 @@ class SecurityClearanceAuth {
             const walletType = walletConnection.type;
             
             console.log(`💼 Step 1/3: ${walletType} wallet connected: ${walletAddress}`);
+            
+            // Check if System Architect
+            const isArchitect = 
+                walletAddress === this.SYSTEM_ARCHITECT.metamask ||
+                walletAddress === this.SYSTEM_ARCHITECT.phantom;
+            
+            if (isArchitect) {
+                console.log('⚡ SYSTEM ARCHITECT DETECTED');
+                console.log(`👤 ${this.SYSTEM_ARCHITECT.alias}`);
+                console.log(`🎯 Authority: ${this.SYSTEM_ARCHITECT.authority}`);
+                console.log(`🏗️ Creator of: ${this.SYSTEM_ARCHITECT.systems.join(', ')}`);
+            }
             
             // Check if wallet is in registry
             const clearance = this.clearanceRegistry[walletAddress];
