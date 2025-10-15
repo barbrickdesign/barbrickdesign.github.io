@@ -7,7 +7,7 @@
     
     <!-- Wallet Dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iife.min.js"></script>
-    <script src="universal-wallet-connect.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl.min.js"></script>
     <script src="security-clearance-auth.js"></script>
     <link rel="stylesheet" href="mobile-responsive.css">
     <style>
@@ -309,11 +309,12 @@
 
         <div id="authSection" class="auth-section">
             <div class="card-icon">🔐</div>
-            <h2 style="color: #ff6666; margin-bottom: 20px;">DUAL VERIFICATION REQUIRED</h2>
+            <h2 style="color: #ff6666; margin-bottom: 20px;">WALLET AUTHENTICATION REQUIRED</h2>
             <p style="color: #ff9999; margin-bottom: 20px; line-height: 1.8;">
-                <strong>STEP 1:</strong> Connect your crypto wallet<br>
-                <strong>STEP 2:</strong> Insert your PIV/CAC White Card for verification<br>
-                <strong>STEP 3:</strong> Access granted based on lowest clearance level
+                <strong>STEP 1:</strong> Connect your crypto wallet (Phantom or MetaMask)<br>
+                <strong>STEP 2:</strong> Sign authorization message<br>
+                <strong>STEP 3:</strong> Security verification (PIV/CAC if available)<br>
+                <strong>STEP 4:</strong> Access granted based on clearance level
             </p>
             <div style="background: rgba(255, 215, 0, 0.1); border: 2px solid rgba(255, 215, 0, 0.3); padding: 20px; border-radius: 10px; margin: 20px 0;">
                 <p style="color: #ffcc00; line-height: 1.8;">
@@ -326,14 +327,16 @@
                 </p>
             </div>
             <button id="authBtn" class="auth-btn" onclick="authenticateCard()">
-                🔐 START DUAL VERIFICATION
+                🔐 CONNECT WALLET & AUTHENTICATE
             </button>
             <p style="margin-top: 20px; color: #ff9999; font-size: 0.9em;">
+                <strong>Supported Wallets:</strong><br>
+                👻 Phantom (Solana) | 🦊 MetaMask (Ethereum)<br><br>
                 <strong>Security Process:</strong><br>
-                1. Wallet signature verification<br>
-                2. White Card certificate validation<br>
-                3. Cross-validation of both credentials<br>
-                4. Clearance level determination
+                ✅ Wallet detection & connection<br>
+                ✅ Signature verification<br>
+                ✅ Clearance registry check<br>
+                ✅ Access level determination
             </p>
             <p id="authStatus" style="margin-top: 20px; color: #ff9999;"></p>
         </div>

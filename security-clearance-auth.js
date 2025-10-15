@@ -175,6 +175,63 @@ class SecurityClearanceAuth {
     }
 
     /**
+     * Detect and connect available wallet (Phantom or MetaMask)
+     */
+    async detectAndConnectWallet() {
+        console.log('🔍 Detecting available wallets...');
+        
+        // Try Phantom (Solana)
+        if (window.solana && window.solana.isPhantom) {
+            console.log('👻 Phantom wallet detected');
+            try {
+                const resp = await window.solana.connect();
+                const address = resp.publicKey.toBase58();
+                console.log('✅ Phantom connected:', address);
+                return { success: true, address, type: 'phantom' };
+            } catch (error) {
+                console.warn('Phantom connection failed:', error);
+            }
+        }
+        
+        // Try MetaMask (Ethereum)
+        if (window.ethereum) {
+            console.log('🦊 MetaMask detected');
+            try {
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                const address = accounts[0];
+                console.log('✅ MetaMask connected:', address);
+                return { success: true, address, type: 'metamask' };
+            } catch (error) {
+                console.warn('MetaMask connection failed:', error);
+            }
+        }
+        
+        throw new Error('No compatible wallet found. Please install Phantom or MetaMask.');
+    }
+
+    /**
+     * Request signature from connected wallet
+     */
+    async requestWalletSignature(message, walletType) {
+        try {
+            if (walletType === 'phantom') {
+                const encodedMessage = new TextEncoder().encode(message);
+                const signedMessage = await window.solana.signMessage(encodedMessage, 'utf8');
+                return { success: true, signature: signedMessage };
+            } else if (walletType === 'metamask') {
+                const signature = await window.ethereum.request({
+                    method: 'personal_sign',
+                    params: [message, window.ethereum.selectedAddress]
+                });
+                return { success: true, signature };
+            }
+        } catch (error) {
+            console.error('Signature failed:', error);
+            return { success: false, error: error.message };
+        }
+    }
+
+    /**
      * Authenticate using connected wallet + PIV/CAC White Card (DUAL VERIFICATION)
      * This ensures both crypto identity AND government clearance are verified
      */
@@ -183,18 +240,12 @@ class SecurityClearanceAuth {
             console.log('🔐 Starting dual authentication process...');
             console.log('✌️ Rooted in Peace, Love, and Understanding');
             
-            // STEP 1: Connect Wallet
-            if (!this.walletConnector) {
-                throw new Error('Wallet connector not initialized');
-            }
+            // STEP 1: Connect Wallet (Phantom or MetaMask)
+            const walletConnection = await this.detectAndConnectWallet();
+            const walletAddress = walletConnection.address;
+            const walletType = walletConnection.type;
             
-            const walletResult = await this.walletConnector.connect();
-            if (!walletResult.success) {
-                throw new Error('Wallet connection failed: ' + walletResult.error);
-            }
-            
-            const walletAddress = walletResult.address;
-            console.log(`💼 Step 1/3: Wallet connected: ${walletAddress}`);
+            console.log(`💼 Step 1/3: ${walletType} wallet connected: ${walletAddress}`);
             
             // Check if wallet is in registry
             const clearance = this.clearanceRegistry[walletAddress];
@@ -206,9 +257,9 @@ class SecurityClearanceAuth {
             
             // Verify ownership with signature
             const message = `I verify my identity and request classified access with Peace, Love, and Understanding at ${new Date().toISOString()}`;
-            const signature = await this.walletConnector.signMessage(message);
+            const sigResult = await this.requestWalletSignature(message, walletType);
             
-            if (!signature) {
+            if (!sigResult.success) {
                 throw new Error('Signature verification failed. Please sign the authorization message.');
             }
             
