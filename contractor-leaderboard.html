@@ -347,20 +347,76 @@
 
         // Initialize demo data
         function initializeDemoData() {
-            // Register demo contractors
-            const demoContractors = [
+            // Register Agent R (System Architect) with extensive project history
+            const agentR = paymentSystem.registerContractor(
+                '0xEFc6910e7624F164dAe9d0F799954aa69c943c8d',
+                {
+                    displayName: 'Ryan Barbrick',
+                    bio: 'System Architect - Creator of Mandem.OS, Null.OS, and Gem Bot Universe',
+                    specialties: ['System Architecture', 'Blockchain', 'AI', 'Full-Stack'],
+                    skills: ['Solana', 'Ethereum', 'React', 'Node.js', 'Python', 'Three.js'],
+                    availability: 'active'
+                }
+            );
+            
+            // Add extensive project history for Agent R
+            const agentRProjects = [
+                { title: 'Mandem.OS Core System', realm: 'Mandem.OS', hours: 500, completed: true },
+                { title: 'Null.OS Security Framework', realm: 'Null.OS', hours: 350, completed: true },
+                { title: 'Gem Bot Universe Engine', realm: 'Gem Bot Universe', hours: 400, completed: true },
+                { title: 'Crypto Recovery Universal Tool', realm: 'Mandem.OS', hours: 120, completed: true },
+                { title: 'Wallet Tracker & Scam Detection', realm: 'Mandem.OS', hours: 80, completed: true },
+                { title: 'Contractor Payment System', realm: 'Mandem.OS', hours: 60, completed: true },
+                { title: 'System Architect Auth', realm: 'Mandem.OS', hours: 40, completed: true },
+                { title: 'Classified Contracts Platform', realm: 'Mandem.OS', hours: 90, completed: true },
+                { title: 'Faceting Machine Simulation', realm: 'Gem Bot Universe', hours: 150, completed: true },
+                { title: '3D Globe Navigation System', realm: 'Mandem.OS', hours: 70, completed: true },
+                { title: 'SAM.gov API Integration', realm: 'Mandem.OS', hours: 45, completed: true },
+                { title: 'Security Clearance System', realm: 'Mandem.OS', hours: 85, completed: true },
+                { title: 'Blockchain Data Flow Logger', realm: 'Null.OS', hours: 95, completed: true },
+                { title: 'Multi-Wallet Authentication', realm: 'Mandem.OS', hours: 55, completed: true },
+                { title: 'Leaderboard & Bidding System', realm: 'Mandem.OS', hours: 65, completed: true },
+                { title: 'Project Tokenomics Engine', realm: 'Mandem.OS', hours: 110, completed: true },
+                { title: 'Real-time Data Flow Monitor', realm: 'Null.OS', hours: 75, completed: true },
+                { title: 'Link Binding Verification', realm: 'Null.OS', hours: 50, completed: true },
+                { title: 'Timestamp Verification System', realm: 'Null.OS', hours: 45, completed: true },
+                { title: 'Agent Code Privacy System', realm: 'Mandem.OS', hours: 35, completed: false },
+                { title: 'Contract Cross-Reference Engine', realm: 'Mandem.OS', hours: 55, completed: false },
+                { title: 'Realm Time Tracking System', realm: 'Mandem.OS', hours: 40, completed: false }
+            ];
+            
+            agentRProjects.forEach(proj => {
+                agentR.activity.allProjects.push({
+                    id: `PROJ_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+                    title: proj.title,
+                    status: proj.completed ? 'completed' : 'active',
+                    realm: proj.realm,
+                    startDate: new Date(Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000).toISOString(),
+                    estimatedHours: proj.hours,
+                    actualHours: proj.completed ? proj.hours : 0,
+                    completionDate: proj.completed ? new Date().toISOString() : null
+                });
+                
+                if (proj.completed) {
+                    agentR.stats.projectsCompleted++;
+                    agentR.activity.timeContributions.totalHours += proj.hours;
+                    agentR.activity.timeContributions.byRealm[proj.realm] = 
+                        (agentR.activity.timeContributions.byRealm[proj.realm] || 0) + proj.hours;
+                } else {
+                    agentR.stats.activeProjects++;
+                }
+            });
+            
+            agentR.stats.contractsMatched = 12;
+            agentR.stats.totalEarnings = 2500;
+            agentR.stats.trustScore = 100;
+            agentR.stats.reputationPoints = 1500;
+            agentR.stats.teamCollaborations = 8;
+            
+            // Register other contractors
+            const otherContractors = [
                 {
                     wallet: '6HTjfgWZYMbENnMAJJFhxWR2VZDxdze3qV7zznSAsfk',
-                    profile: {
-                        displayName: 'Ryan Barbrick',
-                        bio: 'Full-stack developer specialized in blockchain & AI',
-                        specialties: ['Blockchain', 'AI', 'Smart Contracts'],
-                        skills: ['Solana', 'Ethereum', 'React', 'Node.js'],
-                        availability: 'available'
-                    }
-                },
-                {
-                    wallet: '0xEFc6910e7624F164dAe9d0F799954aa69c943c8d',
                     profile: {
                         displayName: 'Alex Chen',
                         bio: 'Cybersecurity expert & government contractor',
@@ -371,21 +427,34 @@
                 }
             ];
 
-            demoContractors.forEach(c => {
+            otherContractors.forEach(c => {
                 const contractor = paymentSystem.registerContractor(c.wallet, c.profile);
                 
-                // Add some demo stats
-                contractor.stats.projectsCompleted = Math.floor(Math.random() * 20) + 5;
-                contractor.stats.contractsMatched = Math.floor(Math.random() * 10) + 2;
-                contractor.stats.totalEarnings = Math.random() * 1000 + 100;
+                // Add demo projects
+                for (let i = 0; i < 5; i++) {
+                    contractor.activity.allProjects.push({
+                        id: `PROJ_${Date.now()}_${i}`,
+                        title: `Project ${i + 1}`,
+                        status: i < 3 ? 'completed' : 'active',
+                        realm: 'General',
+                        startDate: new Date().toISOString(),
+                        estimatedHours: 50
+                    });
+                }
+                
+                contractor.stats.projectsCompleted = 3;
+                contractor.stats.contractsMatched = 2;
+                contractor.stats.totalEarnings = Math.random() * 500 + 100;
                 contractor.stats.trustScore = Math.floor(Math.random() * 30) + 70;
-                contractor.stats.reputationPoints = Math.floor(Math.random() * 500) + 100;
-                contractor.stats.teamCollaborations = Math.floor(Math.random() * 15) + 3;
+                contractor.stats.reputationPoints = Math.floor(Math.random() * 300) + 100;
+                contractor.stats.teamCollaborations = Math.floor(Math.random() * 5) + 1;
+                contractor.activity.timeContributions.totalHours = 150;
                 
                 paymentSystem.recalculateDripRate(c.wallet);
             });
-
-            console.log('✅ Demo data initialized');
+            
+            paymentSystem.recalculateDripRate(agentR.walletAddress);
+            console.log('✅ Demo data initialized with Agent R extensive project history');
         }
 
         // Display system stats
@@ -435,13 +504,17 @@
                 const rankClass = contractor.rank === 1 ? 'gold' : contractor.rank === 2 ? 'silver' : contractor.rank === 3 ? 'bronze' : '';
                 const trustClass = `trust-${getTrustClass(contractor.stats.trustScore)}`;
                 
+                // Get contractor object to access agent code
+                const contractorObj = paymentSystem.contractors.get(contractor.walletAddress);
+                const displayName = contractorObj ? contractorObj.publicName : contractor.displayName;
+                
                 return `
                     <div class="contractor-card" onclick="showContractorProfile('${contractor.walletAddress}')">
                         <div class="contractor-header">
                             <div class="rank ${rankClass}">#${contractor.rank}</div>
                             <div class="contractor-info">
-                                <div class="contractor-name">${contractor.displayName}</div>
-                                <div class="contractor-wallet">${contractor.walletAddress.slice(0, 8)}...${contractor.walletAddress.slice(-6)}</div>
+                                <div class="contractor-name">${displayName}</div>
+                                <div class="contractor-wallet" style="font-size:0.8em;color:#66fcf1;">🔒 Click for full credentials</div>
                             </div>
                             <button class="bid-button" onclick="event.stopPropagation(); bidOnContractor('${contractor.walletAddress}')">
                                 📝 Bid
@@ -506,13 +579,22 @@
             const modal = document.getElementById('contractorModal');
             const content = document.getElementById('modalContent');
             
+            // Get all projects for this contractor
+            const allProjects = profile.activity.allProjects || [];
+            const timeByRealm = profile.activity.timeContributions.byRealm || {};
+            const totalHours = profile.activity.timeContributions.totalHours || 0;
+            
             content.innerHTML = `
-                <h2 style="color: #66fcf1; margin-bottom: 20px;">${profile.displayName}</h2>
-                <p style="color: #a8b3c7; margin-bottom: 20px;">${profile.metadata.bio}</p>
+                <h2 style="color: #66fcf1; margin-bottom: 10px;">${profile.publicName || profile.displayName}</h2>
+                <p style="color: #a8b3c7; font-size: 0.9em; margin-bottom: 20px;">Full Contractor Credentials</p>
                 
                 <div style="background: rgba(102,252,241,0.1); padding: 15px; border-radius: 10px; margin: 20px 0;">
+                    <strong style="color: #66fcf1;">Real Name:</strong> 
+                    <span style="color: #00ff99;">${profile.displayName}</span><br>
+                    <strong style="color: #66fcf1;">Agent Code:</strong> 
+                    <span style="color: #00ff99;">${profile.publicName || profile.agentCode}</span><br>
                     <strong style="color: #66fcf1;">Wallet:</strong> 
-                    <span style="font-family: monospace; color: #00ff99;">${walletAddress}</span>
+                    <span style="font-family: monospace; color: #00ff99; font-size: 0.85em;">${walletAddress}</span>
                 </div>
                 
                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin: 20px 0;">
@@ -529,12 +611,29 @@
                 <h3 style="color: #66fcf1; margin: 20px 0 10px 0;">📊 Statistics</h3>
                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px;">
                     <div>Projects Completed: <strong style="color: #00ff99;">${profile.stats.projectsCompleted}</strong></div>
+                    <div>Total Projects: <strong style="color: #00ff99;">${allProjects.length}</strong></div>
                     <div>Contracts Matched: <strong style="color: #00ff99;">${profile.stats.contractsMatched}</strong></div>
+                    <div>Total Hours: <strong style="color: #00ff99;">${totalHours.toFixed(1)}h</strong></div>
                     <div>Total Earnings: <strong style="color: #00ff99;">${profile.stats.totalEarnings.toFixed(2)} SOL</strong></div>
                     <div>Reputation: <strong style="color: #00ff99;">${profile.stats.reputationPoints}</strong></div>
                     <div>Trust Score: <strong style="color: #00ff99;">${profile.stats.trustScore}/100</strong></div>
                     <div>Collaborations: <strong style="color: #00ff99;">${profile.stats.teamCollaborations}</strong></div>
                 </div>
+                
+                ${Object.keys(timeByRealm).length > 0 ? `
+                    <h3 style="color: #66fcf1; margin: 20px 0 10px 0;">🏗️ Time by Realm</h3>
+                    <div style="background: rgba(0,255,153,0.05); padding: 15px; border-radius: 10px;">
+                        ${Object.entries(timeByRealm).map(([realm, hours]) => `
+                            <div style="margin: 8px 0;">
+                                <strong style="color: #66fcf1;">${realm}:</strong> 
+                                <span style="color: #00ff99;">${hours.toFixed(1)} hours</span>
+                                <div style="background: rgba(0,255,153,0.2); height: 6px; border-radius: 3px; margin-top: 4px;">
+                                    <div style="background: #00ff99; height: 100%; width: ${(hours/totalHours*100).toFixed(1)}%; border-radius: 3px;"></div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : ''}
                 
                 <div style="background: rgba(0,255,153,0.1); padding: 15px; border-radius: 10px; margin: 20px 0;">
                     <strong style="color: #00ff99;">💧 Current Drip Rate:</strong>
@@ -542,6 +641,24 @@
                         ${profile.stats.currentDripRate.toFixed(4)} SOL/day
                     </div>
                 </div>
+                
+                ${allProjects.length > 0 ? `
+                    <h3 style="color: #66fcf1; margin: 20px 0 10px 0;">📁 All Projects (${allProjects.length})</h3>
+                    <div style="max-height: 300px; overflow-y: auto; background: rgba(0,255,153,0.03); padding: 15px; border-radius: 10px;">
+                        ${allProjects.map(proj => `
+                            <div style="border-left: 3px solid ${proj.status === 'completed' ? '#00ff99' : '#66fcf1'}; padding: 10px; margin: 10px 0; background: rgba(0,0,0,0.3);">
+                                <div style="color: #66fcf1; font-weight: bold;">${proj.title}</div>
+                                <div style="font-size: 0.85em; color: #a8b3c7; margin-top: 5px;">
+                                    <strong>Realm:</strong> ${proj.realm || 'General'} | 
+                                    <strong>Status:</strong> ${proj.status || 'active'} | 
+                                    <strong>Hours:</strong> ${proj.actualHours || proj.estimatedHours || 0}h
+                                    ${proj.role ? ` | <strong>Role:</strong> ${proj.role}` : ''}
+                                </div>
+                                ${proj.completionDate ? `<div style="font-size: 0.8em; color: #00ff99; margin-top: 3px;">✓ Completed: ${new Date(proj.completionDate).toLocaleDateString()}</div>` : ''}
+                            </div>
+                        `).join('')}
+                    </div>
+                ` : ''}
                 
                 ${profile.teamMembers.length > 0 ? `
                     <h3 style="color: #66fcf1; margin: 20px 0 10px 0;">👥 Team Members</h3>
@@ -551,7 +668,7 @@
                 ` : ''}
                 
                 <button class="bid-button" style="width: 100%; margin-top: 30px;" onclick="bidOnContractor('${walletAddress}')">
-                    📝 Bid on Project with ${profile.displayName}
+                    📝 Bid on Project with ${profile.publicName || profile.displayName}
                 </button>
             `;
             

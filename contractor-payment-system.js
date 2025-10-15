@@ -48,15 +48,38 @@ class ContractorPaymentSystem {
     }
 
     /**
+     * Generate Agent Code (MIB style: Agent R3, Agent K7, etc.)
+     */
+    generateAgentCode(walletAddress, displayName) {
+        // Get first letter of name or wallet
+        const firstLetter = displayName ? displayName.charAt(0).toUpperCase() : walletAddress.charAt(2).toUpperCase();
+        
+        // Generate unique number from wallet address
+        let hash = 0;
+        for (let i = 0; i < walletAddress.length; i++) {
+            hash = ((hash << 5) - hash) + walletAddress.charCodeAt(i);
+            hash = hash & hash;
+        }
+        const agentNumber = Math.abs(hash) % 100; // 0-99
+        
+        return `Agent ${firstLetter}${agentNumber}`;
+    }
+
+    /**
      * Register a new contractor
      */
     registerContractor(walletAddress, profile) {
         // Check if System Architect
         const isArchitect = this.isSystemArchitect(walletAddress);
         
+        // Generate agent code for privacy
+        const agentCode = this.generateAgentCode(walletAddress, profile.displayName);
+        
         const contractor = {
             walletAddress,
             displayName: profile.displayName || (isArchitect ? 'Agent R - System Architect' : `Contractor ${walletAddress.slice(0, 6)}`),
+            agentCode: isArchitect ? 'Agent R' : agentCode, // System Architect keeps "Agent R"
+            publicName: isArchitect ? 'Agent R' : agentCode, // What shows on leaderboard
             joinDate: new Date().toISOString(),
             isSystemArchitect: isArchitect,
             
@@ -88,7 +111,15 @@ class ContractorPaymentSystem {
                 currentProjects: [],
                 completedProjects: [],
                 matchedContracts: [],
-                collaborations: []
+                collaborations: [],
+                allProjects: [], // Complete project history
+                contractCrossReference: [], // Contract to project mapping
+                timeContributions: {
+                    totalHours: 0,
+                    byRealm: {}, // Hours per realm/system
+                    byProject: {}, // Hours per project
+                    byContract: {} // Hours per contract
+                }
             },
             
             // Metadata
@@ -136,6 +167,22 @@ class ContractorPaymentSystem {
             progress: 0,
             milestones: projectData.milestones || [],
             
+            // Time Tracking
+            timeContributed: {
+                hours: projectData.estimatedHours || 0,
+                startTime: Date.now(),
+                endTime: null,
+                tracked: []
+            },
+            
+            // Realm/System Classification
+            realm: projectData.realm || 'general', // Mandem.OS, Null.OS, Gem Bot Universe, etc.
+            system: projectData.system || null,
+            
+            // Cross-References
+            relatedContracts: projectData.relatedContracts || [],
+            dependencies: projectData.dependencies || [],
+            
             // Metadata
             tags: projectData.tags || [],
             category: projectData.category || 'general',
@@ -148,11 +195,41 @@ class ContractorPaymentSystem {
         const contractor = this.contractors.get(projectData.contractorWallet);
         if (contractor) {
             contractor.activity.currentProjects.push(project.id);
+            contractor.activity.allProjects.push({
+                id: project.id,
+                title: project.title,
+                status: project.status,
+                realm: project.realm,
+                startDate: project.startDate,
+                estimatedHours: project.timeContributed.hours
+            });
             contractor.stats.activeProjects++;
+            
+            // Track time by realm
+            if (!contractor.activity.timeContributions.byRealm[project.realm]) {
+                contractor.activity.timeContributions.byRealm[project.realm] = 0;
+            }
+            
             this.recalculateDripRate(projectData.contractorWallet);
         }
         
-        console.log(`📊 Project added: ${project.title}`);
+        // Update all team members
+        project.team.forEach(memberWallet => {
+            if (memberWallet !== projectData.contractorWallet) {
+                const member = this.contractors.get(memberWallet);
+                if (member) {
+                    member.activity.currentProjects.push(project.id);
+                    member.activity.allProjects.push({
+                        id: project.id,
+                        title: project.title,
+                        role: 'team_member',
+                        realm: project.realm
+                    });
+                }
+            }
+        });
+        
+        console.log(`📊 Project added: ${project.title} [${project.realm}]`);
         return project;
     }
 
@@ -234,6 +311,11 @@ class ContractorPaymentSystem {
         project.actualValue = completionData.actualValue || project.estimatedValue;
         project.progress = 100;
         
+        // Calculate actual time contributed
+        const timeSpent = completionData.actualHours || project.timeContributed.hours;
+        project.timeContributed.hours = timeSpent;
+        project.timeContributed.endTime = Date.now();
+        
         // Update contractor stats
         const contractor = this.contractors.get(project.contractor);
         if (contractor) {
@@ -241,6 +323,20 @@ class ContractorPaymentSystem {
             contractor.stats.activeProjects--;
             contractor.activity.currentProjects = contractor.activity.currentProjects.filter(p => p !== projectId);
             contractor.activity.completedProjects.push(projectId);
+            
+            // Update time contributions
+            contractor.activity.timeContributions.totalHours += timeSpent;
+            contractor.activity.timeContributions.byRealm[project.realm] = 
+                (contractor.activity.timeContributions.byRealm[project.realm] || 0) + timeSpent;
+            contractor.activity.timeContributions.byProject[projectId] = timeSpent;
+            
+            // Update all projects list
+            const allProjectEntry = contractor.activity.allProjects.find(p => p.id === projectId);
+            if (allProjectEntry) {
+                allProjectEntry.status = 'completed';
+                allProjectEntry.completionDate = project.completionDate;
+                allProjectEntry.actualHours = timeSpent;
+            }
             
             // Calculate payment
             const payment = this.calculateProjectPayment(project);
