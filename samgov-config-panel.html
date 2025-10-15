@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SAM.gov API Configuration</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e, #16213e);
+            color: #eaf1fb;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .container {
+            background: #0f131a;
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 600px;
+            width: 100%;
+            box-shadow: 0 10px 40px rgba(0, 255, 153, 0.2);
+            border: 2px solid #00ff99;
+        }
+        h1 {
+            color: #00ff99;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        .subtitle {
+            color: #a8b3c7;
+            margin-bottom: 30px;
+            font-size: 14px;
+        }
+        .status {
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .status.success { background: rgba(59, 228, 119, 0.1); color: #3be477; border: 1px solid #3be477; }
+        .status.warning { background: rgba(251, 191, 36, 0.1); color: #fbbf24; border: 1px solid #fbbf24; }
+        .status.error { background: rgba(255, 107, 107, 0.1); color: #ff6b6b; border: 1px solid #ff6b6b; }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #a8b3c7;
+            font-size: 14px;
+            font-weight: 600;
+        }
+        input {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #223149;
+            background: #121827;
+            color: #eaf1fb;
+            font-size: 14px;
+            font-family: 'Courier New', monospace;
+        }
+        input:focus {
+            outline: none;
+            border-color: #00ff99;
+            box-shadow: 0 0 0 2px rgba(0, 255, 153, 0.1);
+        }
+        .btn {
+            width: 100%;
+            padding: 14px;
+            border-radius: 8px;
+            border: none;
+            background: linear-gradient(135deg, #00ff99, #00cc7a);
+            color: #0f131a;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 255, 153, 0.3);
+        }
+        .btn:active {
+            transform: translateY(0);
+        }
+        .btn.secondary {
+            background: #223149;
+            color: #eaf1fb;
+            margin-top: 10px;
+        }
+        .info-box {
+            background: rgba(102, 252, 241, 0.05);
+            border: 1px solid rgba(102, 252, 241, 0.2);
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+        .info-box h3 {
+            color: #66fcf1;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        .info-box p {
+            color: #a8b3c7;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+        .info-box a {
+            color: #00ff99;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .info-box a:hover {
+            text-decoration: underline;
+        }
+        .test-result {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 8px;
+            background: #121827;
+            border: 1px solid #223149;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔑 SAM.gov API Configuration</h1>
+        <p class="subtitle">Configure your SAM.gov API key for government contract data access</p>
+
+        <!-- Status Display -->
+        <div id="statusDisplay" class="status warning">
+            <span>⚠️</span>
+            <span>No API key configured</span>
+        </div>
+
+        <!-- API Key Form -->
+        <div class="form-group">
+            <label for="apiKeyInput">SAM.gov API Key</label>
+            <input 
+                type="text" 
+                id="apiKeyInput" 
+                placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+                autocomplete="off"
+            >
+        </div>
+
+        <button class="btn" onclick="saveApiKey()">💾 Save API Key</button>
+        <button class="btn secondary" onclick="testApiKey()">🧪 Test API Connection</button>
+
+        <!-- Test Results -->
+        <div id="testResults" style="display:none;">
+            <div class="test-result" id="testOutput"></div>
+        </div>
+
+        <!-- Information Box -->
+        <div class="info-box">
+            <h3>📋 How to Get Your API Key</h3>
+            <p>
+                1. Visit <a href="https://sam.gov/data-services" target="_blank">SAM.gov Data Services</a><br>
+                2. Click "Request an API Key"<br>
+                3. Fill out the registration form<br>
+                4. Check your email for the API key<br>
+                5. Paste it above and click Save
+            </p>
+        </div>
+
+        <div class="info-box" style="margin-top:10px;">
+            <h3>ℹ️ API Key Info</h3>
+            <p>
+                <strong>Free Tier:</strong> 1,000 requests/day<br>
+                <strong>Rate Limit:</strong> 5 requests/second<br>
+                <strong>Access:</strong> All public contract data<br>
+                <strong>Storage:</strong> Browser localStorage (client-side)
+            </p>
+        </div>
+    </div>
+
+    <script src="samgov-api-integration.js"></script>
+    <script>
+        // Check current status on load
+        function checkStatus() {
+            const apiKey = localStorage.getItem('samgov_api_key');
+            const statusDiv = document.getElementById('statusDisplay');
+            const input = document.getElementById('apiKeyInput');
+
+            if (apiKey) {
+                statusDiv.className = 'status success';
+                statusDiv.innerHTML = '<span>✅</span><span>API Key Configured</span>';
+                input.value = apiKey.slice(0, 8) + '...' + apiKey.slice(-4);
+            } else {
+                statusDiv.className = 'status warning';
+                statusDiv.innerHTML = '<span>⚠️</span><span>No API key configured</span>';
+            }
+        }
+
+        // Save API key
+        function saveApiKey() {
+            const input = document.getElementById('apiKeyInput');
+            const key = input.value.trim();
+            const statusDiv = document.getElementById('statusDisplay');
+
+            if (!key) {
+                statusDiv.className = 'status error';
+                statusDiv.innerHTML = '<span>❌</span><span>Please enter a valid API key</span>';
+                return;
+            }
+
+            // Validate format (UUID-like)
+            const uuidPattern = /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i;
+            if (!uuidPattern.test(key)) {
+                statusDiv.className = 'status error';
+                statusDiv.innerHTML = '<span>❌</span><span>Invalid API key format</span>';
+                return;
+            }
+
+            // Save to localStorage
+            localStorage.setItem('samgov_api_key', key);
+            
+            // Update status
+            statusDiv.className = 'status success';
+            statusDiv.innerHTML = '<span>✅</span><span>API Key Saved Successfully!</span>';
+
+            // Mask the input
+            setTimeout(() => {
+                input.value = key.slice(0, 8) + '...' + key.slice(-4);
+            }, 500);
+
+            console.log('✅ SAM.gov API key saved to localStorage');
+        }
+
+        // Test API connection
+        async function testApiKey() {
+            const statusDiv = document.getElementById('statusDisplay');
+            const resultsDiv = document.getElementById('testResults');
+            const outputDiv = document.getElementById('testOutput');
+
+            statusDiv.className = 'status warning';
+            statusDiv.innerHTML = '<span>⏳</span><span>Testing API connection...</span>';
+
+            resultsDiv.style.display = 'block';
+            outputDiv.innerHTML = 'Initializing SAM.gov API...<br>';
+
+            try {
+                const samApi = new SAMGovAPIIntegration();
+                
+                if (!samApi.apiKey) {
+                    throw new Error('No API key found. Please save your API key first.');
+                }
+
+                outputDiv.innerHTML += 'API Key: ' + samApi.apiKey.slice(0, 8) + '...' + samApi.apiKey.slice(-4) + '<br>';
+                outputDiv.innerHTML += 'Sending test request to SAM.gov...<br>';
+
+                // Try a simple search
+                const results = await samApi.searchOpportunities({ limit: 1 });
+
+                outputDiv.innerHTML += '<span style="color:#3be477;">✅ Connection successful!</span><br>';
+                outputDiv.innerHTML += 'Total Records Available: ' + (results.totalRecords || 0) + '<br>';
+                
+                if (results.length > 0) {
+                    outputDiv.innerHTML += '<br>Sample Result:<br>';
+                    outputDiv.innerHTML += JSON.stringify(results[0], null, 2);
+                }
+
+                statusDiv.className = 'status success';
+                statusDiv.innerHTML = '<span>✅</span><span>API Connection Working!</span>';
+
+            } catch (error) {
+                outputDiv.innerHTML += '<span style="color:#ff6b6b;">❌ Error: ' + error.message + '</span><br>';
+                
+                statusDiv.className = 'status error';
+                statusDiv.innerHTML = '<span>❌</span><span>API Test Failed</span>';
+
+                if (error.message.includes('401')) {
+                    outputDiv.innerHTML += '<br>Possible causes:<br>';
+                    outputDiv.innerHTML += '- Invalid API key<br>';
+                    outputDiv.innerHTML += '- Expired API key<br>';
+                    outputDiv.innerHTML += '- Key not activated yet<br>';
+                } else if (error.message.includes('429')) {
+                    outputDiv.innerHTML += '<br>Rate limit exceeded. Try again later.';
+                }
+            }
+        }
+
+        // Clear API key
+        function clearApiKey() {
+            if (confirm('Are you sure you want to remove the API key?')) {
+                localStorage.removeItem('samgov_api_key');
+                document.getElementById('apiKeyInput').value = '';
+                checkStatus();
+            }
+        }
+
+        // Initialize
+        checkStatus();
+
+        // Allow Enter key to save
+        document.getElementById('apiKeyInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') {
+                saveApiKey();
+            }
+        });
+    </script>
+</body>
+</html>
