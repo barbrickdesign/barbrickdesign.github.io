@@ -225,7 +225,23 @@
       d.style.display = hidden ? 'block' : 'none'; e.target.textContent = hidden ? 'Hide' : 'Show';
     });
 
-    const connection = new solanaWeb3.Connection('https://api.mainnet-beta.solana.com','confirmed');
+    // API-first approach - use data services instead of RPCs
+    const API_ENDPOINTS = {
+      solscan: 'https://pro-api.solscan.io/v1.0',
+      helius: 'https://api.helius.xyz/v0',
+      solanaFM: 'https://api.solana.fm/v1',
+      backup_rpc: 'https://api.mainnet-beta.solana.com'
+    };
+    
+    // Only use RPC for final transactions
+    let connection = new solanaWeb3.Connection(API_ENDPOINTS.backup_rpc, 'confirmed');
+    
+    // Cache for API responses
+    let apiCache = {
+      tokenAccounts: null,
+      transactions: null,
+      timestamp: null
+    };
     const RENT_PER_EMPTY_ACCOUNT_SOL = 0.00204;
     const DONATION_PCT = 0.05;
     const FEE_WALLET = new solanaWeb3.PublicKey('5hSWosj58ki4A6hSfQrvteQU5QvyCWmhHn4AuqgaQzqr');
@@ -360,42 +376,156 @@
       }catch(e){ return null; }
     }
 
+    // Fetch token accounts from Solscan API
+    async function fetchTokenAccountsFromAPI(walletAddress) {
+      // Try Solscan first
+      try {
+        setStatus('Fetching token data from Solscan...');
+        const response = await fetch(`${API_ENDPOINTS.solscan}/account/tokens?account=${walletAddress}`, {
+          headers: { 'Accept': 'application/json' }
+        });
+        
+        if (response.ok) {
+          const data = await response.json();
+          logDebug('Solscan API response:', data);
+          return { source: 'solscan', data: data };
+        }
+      } catch (e) {
+        logDebug('Solscan fetch failed:', e);
+      }
+      
+      // Fallback to Helius
+      try {
+        setStatus('Trying Helius API...');
+        const response = await fetch(`${API_ENDPOINTS.helius}/addresses/${walletAddress}/balances?api-key=f6da9f5f-94be-40e1-897e-14f8b13a0898`);
+        
+        if (response.ok) {
+          const data = await response.json();
+          logDebug('Helius API response:', data);
+          return { source: 'helius', data: data };
+        }
+      } catch (e) {
+        logDebug('Helius fetch failed:', e);
+      }
+      
+      // Last resort: single RPC call
+      try {
+        setStatus('Using backup RPC...');
+        const pk = new solanaWeb3.PublicKey(walletAddress);
+        const res = await connection.getParsedTokenAccountsByOwner(pk, { programId: splToken.TOKEN_PROGRAM_ID });
+        return { source: 'rpc', data: res.value || [] };
+      } catch (e) {
+        logDebug('RPC fallback failed:', e);
+        return { source: 'none', data: [] };
+      }
+    }
+    
+    // Process token data client-side
+    function processTokenData(apiResponse) {
+      const { source, data } = apiResponse;
+      const empty = [];
+      const map = {};
+      
+      if (source === 'solscan') {
+        // Solscan format: array of token objects
+        const tokens = Array.isArray(data) ? data : (data.data || []);
+        tokens.forEach(token => {
+          try {
+            const amount = parseFloat(token.tokenAmount?.uiAmount || token.amount || 0);
+            const mint = token.tokenAddress || token.mint;
+            const account = token.tokenAccount;
+            
+            if (amount === 0 && account) {
+              empty.push({ pubkey: account, mint: mint });
+            } else if (amount > 0 && mint) {
+              map[mint] = (map[mint] || 0) + amount;
+            }
+          } catch (e) {
+            logDebug('Error processing Solscan token:', e, token);
+          }
+        });
+      } else if (source === 'helius') {
+        // Helius format: tokens array
+        const tokens = data.tokens || [];
+        tokens.forEach(token => {
+          try {
+            const amount = parseFloat(token.amount || 0);
+            const mint = token.mint;
+            const account = token.tokenAccount;
+            
+            if (amount === 0 && account) {
+              empty.push({ pubkey: account, mint: mint });
+            } else if (amount > 0 && mint) {
+              map[mint] = (map[mint] || 0) + amount;
+            }
+          } catch (e) {
+            logDebug('Error processing Helius token:', e, token);
+          }
+        });
+      } else if (source === 'rpc') {
+        // Standard RPC format
+        data.forEach(acc => {
+          try {
+            const info = acc.account?.data?.parsed?.info;
+            const ui = Number(info?.tokenAmount?.uiAmount || 0);
+            const mint = info?.mint;
+            const pubkey = acc.pubkey?.toString ? acc.pubkey.toString() : String(acc.pubkey);
+            
+            if (ui === 0) {
+              empty.push({ pubkey, mint });
+            } else if (mint) {
+              map[mint] = (map[mint] || 0) + ui;
+            }
+          } catch (e) {
+            logDebug('Error processing RPC token:', e, acc);
+          }
+        });
+      }
+      
+      return { empty, holdings: Object.keys(map).map(m => ({ mint: m, amount: map[m] })) };
+    }
+    
     async function scanTokenAccountsImproved(){
       const pk = normPubkey(wallet) || normPubkey(getProviderTolerant()?.publicKey);
       if(!pk){ setStatus('Connect wallet first.', 'warn'); return { empty:[], holdings:[] }; }
-      setStatus('Scanning token accounts and holdings (improved)...');
+      
+      const walletAddress = pk.toBase58();
+      
+      // Check cache first (valid for 30 seconds)
+      if (apiCache.tokenAccounts && apiCache.timestamp && (Date.now() - apiCache.timestamp < 30000)) {
+        logDebug('Using cached token data');
+        setStatus('Using cached data...');
+        const { empty, holdings: holdingsArr } = apiCache.tokenAccounts;
+        
+        // Update UI
+        document.getElementById('emptyCount').textContent = String(empty.length);
+        const est = empty.length * RENT_PER_EMPTY_ACCOUNT_SOL;
+        document.getElementById('refundEstimate').textContent = toSol(est) + ' SOL';
+        document.getElementById('refundEstimateBig').textContent = toSol(est) + ' SOL';
+        
+        return { empty, holdings: holdingsArr };
+      }
+      
       try{
-        let res;
-        try{
-          res = await retry(()=> connection.getParsedTokenAccountsByOwner(pk, { programId: splToken.TOKEN_PROGRAM_ID }), 2, 250);
-          res = res && res.value ? res.value : [];
-          logDebug('getParsedTokenAccountsByOwner ok, entries:', res.length);
-        } catch(errParsed){
-          logDebug('getParsedTokenAccountsByOwner failed, fallback to getTokenAccountsByOwner', errParsed);
-          const raw = await retry(()=> connection.getTokenAccountsByOwner(pk, { programId: splToken.TOKEN_PROGRAM_ID }), 2, 300);
-          res = (raw.value || []).map(v => tryParseRawTokenAccount(v)).filter(Boolean);
-          logDebug('fallback getTokenAccountsByOwner returned', res.length, 'entries');
+        // Fetch from API
+        const apiResponse = await fetchTokenAccountsFromAPI(walletAddress);
+        
+        if (apiResponse.source === 'none') {
+          setStatus('Failed to fetch token data from all sources', 'error');
+          return { empty: [], holdings: [] };
         }
+        
+        // Process data client-side
+        const { empty, holdings: holdingsArr } = processTokenData(apiResponse);
+        
+        // Cache the results
+        apiCache.tokenAccounts = { empty, holdings: holdingsArr };
+        apiCache.timestamp = Date.now();
+        
+        emptyTokenAccounts = empty;
+        holdings = holdingsArr;
 
-        const parsed = res || [];
-        const empty = [];
-        const map = {};
-        for(const acc of parsed){
-          try{
-            const info = acc.account?.data?.parsed?.info;
-            const ui = Number(info?.tokenAmount?.uiAmount || 0);
-            const mint = info?.mint || acc.account?.mint || null;
-            const pubkey = acc.pubkey?.toString ? acc.pubkey.toString() : String(acc.pubkey);
-            if(ui === 0) empty.push({ pubkey, mint });
-            else if(mint) map[mint] = (map[mint] || 0) + ui;
-          }catch(e){
-            logDebug('token parse error', e, acc);
-          }
-        }
-
-        const holdingsArr = Object.keys(map).map(m => ({ mint: m, amount: map[m] }));
-        emptyTokenAccounts = empty; holdings = holdingsArr;
-
+        // Update UI
         document.getElementById('emptyCount').textContent = String(empty.length);
         const est = empty.length * RENT_PER_EMPTY_ACCOUNT_SOL;
         document.getElementById('refundEstimate').textContent = toSol(est) + ' SOL';
@@ -403,7 +533,7 @@
 
         const hp = document.getElementById('holdingsPanel'); hp.innerHTML = '';
         if(holdingsArr.length === 0){
-          hp.innerHTML = `<div class="notice">No token holdings found. If you expect tokens, try reconnecting or use a different RPC.</div>`;
+          hp.innerHTML = `<div class="notice">No token holdings found via ${apiResponse.source}.</div>`;
         } else {
           const list = document.createElement('div'); list.className='list';
           holdingsArr.forEach(h=>{
@@ -414,13 +544,20 @@
           hp.appendChild(list);
         }
 
-        if(holdingsArr.length === 0) setStatus('No token holdings found in this wallet.', 'warn'); else setStatus(`Found ${holdingsArr.length} token mint(s).`);
-        logDebug('scanTokenAccountsImproved result', { emptyCount: empty.length, holdingsCount: holdingsArr.length });
+        if(holdingsArr.length === 0) setStatus(`Scan complete. No tokens found (${apiResponse.source}).`, 'warn'); 
+        else setStatus(`Found ${holdingsArr.length} token(s) via ${apiResponse.source}`, 'success');
+        
+        logDebug('scanTokenAccountsImproved result', { 
+          source: apiResponse.source,
+          emptyCount: empty.length, 
+          holdingsCount: holdingsArr.length 
+        });
+        
         return { empty, holdings: holdingsArr };
-      }catch(e){
-        logDebug('scanTokenAccountsImproved failed', e);
-        setStatus('Scan failed. Try again.', 'error');
-        return { empty:[], holdings:[] };
+      } catch(parseError) {
+        logDebug('Error parsing token accounts', parseError);
+        setStatus('Error processing token data', 'error');
+        return { empty: [], holdings: [] };
       }
     }
 
