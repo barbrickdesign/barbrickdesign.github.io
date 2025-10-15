@@ -1150,78 +1150,133 @@
       updateAuthButton();
     }
 
-    // --- Global Agent System ---
-    // Refined: Use WebSocket for real-time updates, fallback to REST API
+    // --- Global Agent System with Server Integration ---
+    let playerHeartbeatInterval = null;
+    let leaderboardRefreshInterval = null;
+
     function renderAllAgentsTableFromUsers(users) {
       const tbody = document.getElementById('allAgentsTable').querySelector('tbody');
       tbody.innerHTML = '';
       users.forEach(user => {
-        const maskStyle = `display:inline-block;width:18px;height:18px;border-radius:50%;background:${user.maskColor||'#888'};margin-right:6px;border:2px solid #fff;vertical-align:middle;`;
+        const emoji = user.maskEmoji || user.maskColor || '🤖';
         tbody.innerHTML += `
           <tr>
-            <td><span style="${maskStyle}"></span></td>
-            <td>${user.username||''}</td>
-            <td>${user.mgcBalance||0}</td>
-            <td>${user.uptimeBalance||0}</td>
-            <td>${user.online ? '<span class="online-dot"></span>Online' : '<span class="offline-dot"></span>Offline'}</td>
-            <td>${user.role||''}</td>
+            <td><span style="font-size:20px">${emoji}</span></td>
+            <td>${user.displayName || user.username || 'Player'}</td>
+            <td>${(user.mgcBalance || 0).toFixed(2)}</td>
+            <td>${user.uptimeMinutes || user.uptimeBalance || 0} min</td>
+            <td>${user.isOnline || user.online ? '<span class="online-dot"></span>Online' : '<span class="offline-dot"></span>Offline'}</td>
+            <td>${user.role || 'Player'}</td>
           </tr>
         `;
       });
-      if (users.length === 0) tbody.innerHTML = '<tr><td colspan="6">No live players found.</td></tr>';
+      if (users.length === 0) tbody.innerHTML = '<tr><td colspan="6">No players online. Start server!</td></tr>';
     }
 
-    function fetchAllAgentsFallback() {
+    async function fetchLeaderboardFromServer() {
       const tbody = document.getElementById('allAgentsTable').querySelector('tbody');
-      tbody.innerHTML = '<tr><td colspan="6">Loading...</td></tr>';
-      fetch('/api/live-user-feed/active')
-        .then(res => res.json())
-        .then(data => renderAllAgentsTableFromUsers(data.users || []))
-        .catch(() => {
-          tbody.innerHTML = '<tr><td colspan="6">Error loading data.</td></tr>';
-        });
-    }
-
-    function setupLiveAgentsWebSocket() {
-      let ws;
-      let reconnectTimeout;
-      const tbody = document.getElementById('allAgentsTable').querySelector('tbody');
-      function connect() {
-        const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-        const wsUrl = `${protocol}//${window.location.host}/ws-live-users`;
-        ws = new WebSocket(wsUrl);
-        ws.onopen = function() {
-          ws.send(JSON.stringify({ type: 'identify', clientType: 'live_user_feed', timestamp: new Date().toISOString() }));
-        };
-        ws.onmessage = function(event) {
-          try {
-            const msg = JSON.parse(event.data);
-            if (msg.type === 'activeUsers' && Array.isArray(msg.data)) {
-              renderAllAgentsTableFromUsers(msg.data);
-            }
-          } catch (e) {
-            // Ignore parse errors
-          }
-        };
-        ws.onerror = function() {
-          ws.close();
-        };
-        ws.onclose = function() {
-          // Fallback to REST API and try to reconnect after 10s
-          fetchAllAgentsFallback();
-          reconnectTimeout = setTimeout(connect, 10000);
-        };
+      try {
+        const res = await fetch('/api/players/leaderboard?limit=50', { cache: 'no-store' });
+        if (res.ok) {
+          const players = await res.json();
+          renderAllAgentsTableFromUsers(players);
+        } else {
+          tbody.innerHTML = '<tr><td colspan="6">Server offline. Run: node server.js</td></tr>';
+        }
+      } catch (e) {
+        tbody.innerHTML = '<tr><td colspan="6">Server not running</td></tr>';
       }
-      connect();
-      // Clean up on page unload
-      window.addEventListener('beforeunload', function() {
-        if (ws) ws.close();
-        if (reconnectTimeout) clearTimeout(reconnectTimeout);
-      });
+    }
+
+    async function updatePlayerOnServer() {
+      if (!isUserAuthenticated()) return;
+      const user = JSON.parse(localStorage.getItem('currentUser') || 'null');
+      if (!user || !user.walletAddress) return;
+      
+      const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
+      const playerData = {
+        walletAddress: user.walletAddress,
+        displayName: user.displayName || `Player ${user.walletAddress.slice(0, 4)}`,
+        maskEmoji: '💎',
+        mgcBalance: profile.inGameMGC || 0,
+        status: 'Active',
+        role: 'Player',
+        uptimeMinutes: 0
+      };
+      
+      try {
+        await fetch('/api/players/update', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(playerData)
+        });
+        console.log('[Leaderboard] Player registered:', playerData.walletAddress);
+      } catch (e) {
+        console.warn('[Leaderboard] Server not available');
+      }
+    }
+
+    async function sendPlayerHeartbeat() {
+      if (!isUserAuthenticated()) return;
+      const user = JSON.parse(localStorage.getItem('currentUser') || 'null');
+      if (!user || !user.walletAddress) return;
+      
+      try {
+        await fetch('/api/players/heartbeat', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ walletAddress: user.walletAddress })
+        });
+      } catch (e) {
+        // Server offline, ignore
+      }
+    }
+
+    function startPlayerTracking() {
+      // Register player
+      updatePlayerOnServer();
+      
+      // Send heartbeat every 60 seconds
+      if (playerHeartbeatInterval) clearInterval(playerHeartbeatInterval);
+      playerHeartbeatInterval = setInterval(sendPlayerHeartbeat, 60000);
+      
+      console.log('[Leaderboard] Player tracking started');
+    }
+
+    function stopPlayerTracking() {
+      if (playerHeartbeatInterval) {
+        clearInterval(playerHeartbeatInterval);
+        playerHeartbeatInterval = null;
+      }
+    }
+
+    function startLeaderboardRefresh() {
+      // Initial fetch
+      fetchLeaderboardFromServer();
+      
+      // Refresh every 10 seconds
+      if (leaderboardRefreshInterval) clearInterval(leaderboardRefreshInterval);
+      leaderboardRefreshInterval = setInterval(fetchLeaderboardFromServer, 10000);
+      
+      console.log('[Leaderboard] Auto-refresh started');
+    }
+
+    function stopLeaderboardRefresh() {
+      if (leaderboardRefreshInterval) {
+        clearInterval(leaderboardRefreshInterval);
+        leaderboardRefreshInterval = null;
+      }
     }
 
     document.addEventListener('DOMContentLoaded', function() {
-      setupLiveAgentsWebSocket();
+      // Start leaderboard system
+      startLeaderboardRefresh();
+      
+      // Start player tracking if logged in
+      if (isUserAuthenticated()) {
+        startPlayerTracking();
+      }
+      
       // Agent log panel toggle
       const agentLogPanel = document.getElementById('agentLogPanel');
       const showAgentLogBtn = document.getElementById('showAgentLogBtn');
@@ -1232,8 +1287,14 @@
       };
       toggleAgentLog.onclick = function() {
         agentLogPanel.style.display = 'none';
-        showAgentLogBtn.style.display = 'none'; // keep hidden
+        showAgentLogBtn.style.display = 'none';
       };
+      
+      // Cleanup on page unload
+      window.addEventListener('beforeunload', function() {
+        stopPlayerTracking();
+        stopLeaderboardRefresh();
+      });
     });
 
     // Glowing blue box toggles All Players panel

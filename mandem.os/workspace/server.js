@@ -41,6 +41,22 @@ db.serialize(() => {
     resetToken TEXT,
     resetTokenExpiry INTEGER
   )`);
+  
+  db.run(`CREATE TABLE IF NOT EXISTS players (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    walletAddress TEXT UNIQUE,
+    displayName TEXT,
+    maskEmoji TEXT DEFAULT '🤖',
+    mgcBalance REAL DEFAULT 0,
+    uptimeMinutes INTEGER DEFAULT 0,
+    status TEXT DEFAULT 'Idle',
+    role TEXT DEFAULT 'Player',
+    lastSeen TEXT,
+    joinedAt TEXT,
+    isOnline INTEGER DEFAULT 0,
+    totalSessions INTEGER DEFAULT 0,
+    highScore INTEGER DEFAULT 0
+  )`);
 });
 
 // Send email utility (placeholder, replace with real email service)
@@ -51,6 +67,38 @@ function sendEmail(to, subject, text) {
 // Sample /api/ping endpoint for server connectivity check
 app.get('/api/ping', (req, res) => {
   res.status(200).json({ status: 'ok', message: 'pong', serverTime: new Date().toISOString() });
+});
+
+// POST /api/players/update
+app.post('/api/players/update', (req, res) => {
+  const { walletAddress, displayName, maskEmoji, mgcBalance, status, role, uptimeMinutes } = req.body;
+  if (!walletAddress) return res.status(400).json({ error: 'walletAddress required' });
+  const now = new Date().toISOString();
+  db.run(`INSERT INTO players (walletAddress, displayName, maskEmoji, mgcBalance, status, role, uptimeMinutes, lastSeen, joinedAt, isOnline) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, 1) ON CONFLICT(walletAddress) DO UPDATE SET displayName=excluded.displayName, maskEmoji=excluded.maskEmoji, mgcBalance=excluded.mgcBalance, status=excluded.status, role=excluded.role, uptimeMinutes=excluded.uptimeMinutes, lastSeen=excluded.lastSeen, isOnline=1`, [walletAddress, displayName, maskEmoji, mgcBalance, status, role, uptimeMinutes, now, now], function(err) {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json({ success: true });
+  });
+});
+
+app.get('/api/players/leaderboard', (req, res) => {
+  const limit = parseInt(req.query.limit) || 100;
+  db.all('SELECT * FROM players ORDER BY mgcBalance DESC, lastSeen DESC LIMIT ?', [limit], (err, rows) => {
+    if (err) return res.status(500).json({ error: err.message });
+    res.json(rows);
+  });
+});
+
+app.post('/api/players/heartbeat', (req, res) => {
+  const { walletAddress } = req.body;
+  if (!walletAddress) return res.status(400).json({ error: 'walletAddress required' });
+  const now = new Date().toISOString();
+  db.run('UPDATE players SET isOnline=1, lastSeen=?, uptimeMinutes=uptimeMinutes+1 WHERE walletAddress=?', [now, walletAddress], function(err) {
+    if (err) return res.status(500).json({ error: err.message });
+    if (this.changes === 0) {
+      db.run('INSERT INTO players (walletAddress, lastSeen, joinedAt, isOnline) VALUES (?, ?, ?, 1)', [walletAddress, now, now]);
+    }
+    res.json({ success: true });
+  });
 });
 
 // Create or update user profile
@@ -685,3 +733,13 @@ app.listen(PORT, () => {
 let isSyncing = false;
 let lastSyncTime = null;
 let syncIntervalMs = 60 * 60 * 1000; // Default: 1 hour
+
+setInterval(() => {
+  const cutoffTime = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+  db.run('UPDATE players SET isOnline=0 WHERE lastSeen < ? AND isOnline=1', [cutoffTime], function(err) {
+    if (!err && this.changes > 0) console.log(`[Cleanup] ${this.changes} players offline`);
+  });
+}, 5 * 60 * 1000);
+
+console.log('[Leaderboard] System initialized');
+console.log('[Database] Location:', dbPath);
