@@ -15,6 +15,43 @@
         <!-- Import Orbitron font -->         
         <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet"> 
         <style>
+/* Modal styles */
+.modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+}
+.modal-content {
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+  padding: 30px;
+  border-radius: 16px;
+  max-width: 450px;
+  width: 90%;
+  box-shadow: 0 10px 40px rgba(0, 255, 153, 0.3);
+  border: 2px solid #00ff99;
+  text-align: center;
+}
+.modal-content h3 {
+  margin: 0 0 15px 0;
+  color: #00ff99;
+  font-size: 24px;
+}
+.modal-content p {
+  margin: 0 0 20px 0;
+  color: #ccc;
+  line-height: 1.6;
+}
+.modal-content .auth-button {
+  margin: 8px;
+  min-width: 140px;
+}
 /* Move login button to bottom left on mobile */
 @media (max-width: 700px) {
   #loginBtn {
@@ -218,19 +255,23 @@
         </div>
         <!-- Server Status Message (clickable link to server status indicator) -->
         <div id="statusMessage" style="position: fixed; top: 80px; left: 20px; z-index: 500; max-width: 200px; cursor: pointer; background: rgba(34, 34, 34, 0.9); color: #fff; padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: bold; box-shadow: 0 2px 6px rgba(0,0,0,0.5); transition: opacity 0.3s;">Server: ...</div>
-        <!-- Login Check Modal -->         
-        <div id="loginModal" class="modal"> 
+        <!-- Login Check Modal (Now non-blocking) -->         
+        <div id="loginModal" class="modal" style="display:none"> 
             <div class="modal-content"> 
-                <h3>Login Required</h3> 
-                <p>You need to be logged in to access the 3D environments.</p> 
-                <button id="modalLoginBtn" class="auth-button">Log In</button>                 
-                <button id="modalCloseBtn" class="auth-button">Close</button>                 
+                <h3>Enhanced Features Available</h3> 
+                <p>Connect your wallet to access advanced features like live feeds, MGC balance tracking, and exclusive 3D environments.</p> 
+                <button id="modalLoginBtn" class="auth-button">Connect Wallet</button>                 
+                <button id="modalCloseBtn" class="auth-button">Continue Without Login</button>                 
             </div>             
         </div>         
         <footer> 
             <p>&copy; 2025 Gem Bot Project | All Rights Reserved</p> 
         </footer>         
         <!-- Load JavaScript files -->         
+        <!-- Solana Wallet Integration -->
+        <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iife.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl.min.js"></script>
+        <script src="public/phantomLogin.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>         
         <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>         
         <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/PointerLockControls.js"></script>         
@@ -267,40 +308,82 @@
       }
     }
 
-    // Show login modal
+    // Show login modal (optional, non-blocking)
     function showLoginModal() {
-      document.getElementById('loginModal').style.display = 'flex';
+      const modal = document.getElementById('loginModal');
+      if (modal) {
+        modal.style.display = 'flex';
+      }
     }
     
-    // Update UI based on login state
+    // Update UI based on login state (non-blocking)
     function updateUIForLoginState() {
       const isLoggedIn = isUserLoggedIn();
       const contentToggleBtn = document.getElementById('contentToggleBtn');
       const welcomeOverlay = document.querySelector('.welcome-overlay');
       
-      // If logged in, show control toggle button and hide welcome overlay
-      if (isLoggedIn) {
+      // Always show content toggle for better UX
+      if (contentToggleBtn) {
         contentToggleBtn.style.display = 'block';
-        welcomeOverlay.style.display = 'none';
-      } else {
-        contentToggleBtn.style.display = 'none';
-        welcomeOverlay.style.display = 'block';
+      }
+      
+      // Hide welcome overlay after first visit or if logged in
+      if (isLoggedIn || localStorage.getItem('visited')) {
+        if (welcomeOverlay) welcomeOverlay.style.display = 'none';
+      }
+      
+      // Mark as visited
+      localStorage.setItem('visited', 'true');
+    }
+    
+    // Quick Phantom wallet connect for modal
+    async function quickConnectWallet() {
+      try {
+        const provider = window.solana;
+        if (!provider || !provider.isPhantom) {
+          alert('Phantom wallet not found. Please install Phantom browser extension.');
+          window.open('https://phantom.app/', '_blank');
+          return false;
+        }
+        
+        const resp = await provider.connect();
+        const publicKey = resp.publicKey.toBase58();
+        
+        // Store basic auth info
+        const user = {
+          walletAddress: publicKey,
+          displayName: `User ${publicKey.slice(0, 4)}...${publicKey.slice(-4)}`,
+          joinDate: new Date().toISOString()
+        };
+        
+        localStorage.setItem('currentUser', JSON.stringify(user));
+        localStorage.setItem('userLoggedIn', 'true');
+        localStorage.setItem('lastWalletAuth', new Date().toISOString());
+        
+        // Update UI
+        updateAuthButton();
+        updateMgcBalanceDisplay();
+        
+        console.log('[Auth] Wallet connected:', publicKey);
+        return true;
+      } catch (err) {
+        console.error('[Auth] Connection failed:', err);
+        alert('Wallet connection failed. Please try again.');
+        return false;
       }
     }
     
-    // Enforce auth for protected navigation
+    // Soft auth check (suggest login but don't block)
     function enforceAuthNavigation() {
       const protectedPages = [
-        'profile.html', 'lab_warehouse.html', 'laboratory.html', 'warehouse.html', 'outdoor.html', 'forge.html', 'grand_exchange.html', 'admin-forge.html'
+        'profile.html', 'admin-forge.html'
       ];
       const openPage = window.location.pathname.split('/').pop();
       if (protectedPages.includes(openPage) && !isUserAuthenticated()) {
+        localStorage.setItem('authRedirect', openPage);
         window.location.href = 'login.html';
       }
-      // If on home page and authenticated, redirect to profile
-      // if ((openPage === 'index.html' || openPage === '') && isUserAuthenticated()) {
-      //   window.location.href = 'profile.html';
-      // }
+      // Other pages are accessible without login but show login prompt
     }
 
     // Show MGC balance if user is logged in
@@ -1370,45 +1453,86 @@ console.log('[DEBUG] userProfile:', localStorage.getItem('userProfile'));
 console.log('[DEBUG] userLoggedIn:', localStorage.getItem('userLoggedIn'));
 console.log('[DEBUG] lastWalletAuth:', localStorage.getItem('lastWalletAuth'));
 
+// Modal button handlers
+document.addEventListener('DOMContentLoaded', () => {
+  const modalLoginBtn = document.getElementById('modalLoginBtn');
+  const modalCloseBtn = document.getElementById('modalCloseBtn');
+  const loginModal = document.getElementById('loginModal');
+  
+  if (modalLoginBtn) {
+    modalLoginBtn.addEventListener('click', async () => {
+      const success = await quickConnectWallet();
+      if (success && loginModal) {
+        loginModal.style.display = 'none';
+      }
+    });
+  }
+  
+  if (modalCloseBtn) {
+    modalCloseBtn.addEventListener('click', () => {
+      if (loginModal) loginModal.style.display = 'none';
+    });
+  }
+  
+  // Close modal on background click
+  if (loginModal) {
+    loginModal.addEventListener('click', (e) => {
+      if (e.target === loginModal) {
+        loginModal.style.display = 'none';
+      }
+    });
+  }
+});
+
 async function updateStatusMessage() {
+  const statusMessage = document.getElementById('statusMessage');
+  if (!statusMessage) return;
+  
   let text = '';
   let lastServerError = '';
   try {
-    const res = await fetch('/api/ping', { cache: 'no-store' });
+    const res = await fetch('/api/ping', { cache: 'no-store', signal: AbortSignal.timeout(2000) });
     if (res.ok) {
       text = '✓ Online';
       lastServerError = '';
       statusMessage.style.background = 'rgba(0, 200, 0, 0.8)';
+      statusMessage.style.display = 'block';
     } else {
       text = '✗ Offline';
       lastServerError = `(${res.status})`;
       statusMessage.style.background = 'rgba(200, 0, 0, 0.8)';
     }
   } catch (e) {
-    text = '✗ Offline';
-    lastServerError = '';
-    statusMessage.style.background = 'rgba(200, 0, 0, 0.8)';
+    // Server offline is normal - hide status to avoid clutter
+    statusMessage.style.display = 'none';
+    return;
   }
   statusMessage.textContent = `Server: ${text}${lastServerError ? ' ' + lastServerError : ''}`;
 }
 
-statusMessage.onclick = async function() {
-  statusMessage.textContent = 'Server: Retrying...';
-  statusMessage.style.background = 'rgba(255, 165, 0, 0.8)';
-  try {
-    const res = await fetch('/api/start-server', { method: 'POST' });
-    if (res.ok) {
-      statusMessage.textContent = 'Server: Reconnecting...';
-      setTimeout(updateStatusMessage, 3000);
-    } else {
-      statusMessage.textContent = 'Server: ✗ Failed';
-      statusMessage.style.background = 'rgba(200, 0, 0, 0.8)';
+// Server start button - graceful failure
+const statusMsg = document.getElementById('statusMessage');
+if (statusMsg) {
+  statusMsg.onclick = async function() {
+    statusMsg.textContent = 'Server: Retrying...';
+    statusMsg.style.background = 'rgba(255, 165, 0, 0.8)';
+    try {
+      const res = await fetch('/api/start-server', { method: 'POST', signal: AbortSignal.timeout(5000) });
+      if (res.ok) {
+        statusMsg.textContent = 'Server: Reconnecting...';
+        setTimeout(updateStatusMessage, 3000);
+      } else {
+        statusMsg.textContent = 'Server: Optional';
+        statusMsg.style.background = 'rgba(100, 100, 100, 0.7)';
+        setTimeout(() => statusMsg.style.display = 'none', 3000);
+      }
+    } catch (e) {
+      statusMsg.textContent = 'Server: Optional';
+      statusMsg.style.background = 'rgba(100, 100, 100, 0.7)';
+      setTimeout(() => statusMsg.style.display = 'none', 3000);
     }
-  } catch (e) {
-    statusMessage.textContent = 'Server: ✗ Failed';
-    statusMessage.style.background = 'rgba(200, 0, 0, 0.8)';
-  }
-};
+  };
+}
 setInterval(updateStatusMessage, 5000);
 updateStatusMessage();
 </script>
