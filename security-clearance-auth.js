@@ -263,7 +263,7 @@ class SecurityClearanceAuth {
             
             console.log(`💼 Step 1/3: ${walletType} wallet connected: ${walletAddress}`);
             
-            // Check if System Architect
+            // Check if System Architect - GRANT IMMEDIATE ACCESS
             const isArchitect = 
                 walletAddress === this.SYSTEM_ARCHITECT.metamask ||
                 walletAddress === this.SYSTEM_ARCHITECT.phantom;
@@ -273,9 +273,31 @@ class SecurityClearanceAuth {
                 console.log(`👤 ${this.SYSTEM_ARCHITECT.alias}`);
                 console.log(`🎯 Authority: ${this.SYSTEM_ARCHITECT.authority}`);
                 console.log(`🏗️ Creator of: ${this.SYSTEM_ARCHITECT.systems.join(', ')}`);
+                console.log('✅ SUPREME AUTHORITY - INSTANT ACCESS GRANTED');
+                
+                // Grant immediate access - no further verification needed
+                this.currentUser = {
+                    authenticated: true,
+                    systemArchitect: true,
+                    walletAddress: walletAddress,
+                    clearanceLevel: 'SUPREME',
+                    commonName: this.SYSTEM_ARCHITECT.alias,
+                    organization: 'BarbrickDesign',
+                    expirationDate: '2099-12-31',
+                    caveatCodes: ['NOFORN', 'NATO', 'FVEY', 'ORCON', 'ARCHITECT'],
+                    authority: 'CREATOR',
+                    systems: this.SYSTEM_ARCHITECT.systems,
+                    supersedes: ['WHITE_CARD', 'TS_SCI', 'ALL']
+                };
+                
+                return {
+                    success: true,
+                    user: this.currentUser,
+                    message: 'System Architect authentication complete. Supreme authority granted.'
+                };
             }
             
-            // Check if wallet is in registry
+            // Check if wallet is in registry (non-Architect users)
             const clearance = this.clearanceRegistry[walletAddress];
             if (!clearance) {
                 throw new Error('No security clearance registered for this wallet address. Contact admin to register your clearance.');
@@ -456,6 +478,12 @@ class SecurityClearanceAuth {
         
         // In production, this would call actual classified SAM.gov API
         const allClassifiedContracts = this.getClassifiedContractData();
+        
+        // System Architect gets ALL contracts - no filtering
+        if (this.currentUser.systemArchitect === true) {
+            console.log('⚡ System Architect: Full access to ALL contracts granted');
+            return allClassifiedContracts;
+        }
         
         // Filter by clearance level
         const accessibleContracts = allClassifiedContracts.filter(contract => {

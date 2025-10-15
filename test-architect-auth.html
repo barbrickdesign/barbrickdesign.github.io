@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test System Architect Auth</title>
+    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iife.min.js"></script>
+    <script src="system-architect-auth.js"></script>
+    <script src="security-clearance-auth.js"></script>
+    <style>
+        body { 
+            font-family: monospace; 
+            background: #000; 
+            color: #00ff00; 
+            padding: 20px; 
+        }
+        .success { color: #00ff00; }
+        .error { color: #ff0000; }
+        .info { color: #00ffff; }
+        button {
+            padding: 10px 20px;
+            margin: 10px 5px;
+            background: #00ff00;
+            color: #000;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        #output {
+            border: 1px solid #00ff00;
+            padding: 20px;
+            margin-top: 20px;
+            min-height: 300px;
+        }
+    </style>
+</head>
+<body>
+    <h1>⚡ System Architect Authentication Test</h1>
+    <p>Agent R - Test your supreme authority</p>
+    
+    <div>
+        <button onclick="testMetaMask()">Test MetaMask</button>
+        <button onclick="testPhantom()">Test Phantom</button>
+        <button onclick="checkStatus()">Check Status</button>
+        <button onclick="clearOutput()">Clear</button>
+    </div>
+    
+    <div id="output"></div>
+
+    <script>
+        const output = document.getElementById('output');
+        const auth = window.securityClearanceAuth;
+        
+        function log(msg, type = 'info') {
+            const div = document.createElement('div');
+            div.className = type;
+            div.textContent = msg;
+            output.appendChild(div);
+        }
+
+        async function testMetaMask() {
+            log('=== TESTING METAMASK ===', 'info');
+            try {
+                if (!window.ethereum) {
+                    log('MetaMask not detected', 'error');
+                    return;
+                }
+                
+                log('Requesting MetaMask connection...', 'info');
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                log(`Connected: ${accounts[0]}`, 'success');
+                
+                log('Authenticating...', 'info');
+                const result = await auth.authenticateWithWallet();
+                
+                if (result.success) {
+                    log('✅ AUTHENTICATION SUCCESS!', 'success');
+                    log(`User: ${result.user.commonName}`, 'success');
+                    log(`Clearance: ${result.user.clearanceLevel}`, 'success');
+                    log(`Authority: ${result.user.authority || 'Standard'}`, 'success');
+                    if (result.user.systemArchitect) {
+                        log('⚡ SYSTEM ARCHITECT CONFIRMED', 'success');
+                    }
+                } else {
+                    log('❌ Authentication failed: ' + result.error, 'error');
+                }
+            } catch (error) {
+                log('❌ ERROR: ' + error.message, 'error');
+                console.error(error);
+            }
+        }
+
+        async function testPhantom() {
+            log('=== TESTING PHANTOM ===', 'info');
+            try {
+                if (!window.solana) {
+                    log('Phantom not detected', 'error');
+                    return;
+                }
+                
+                log('Requesting Phantom connection...', 'info');
+                const resp = await window.solana.connect();
+                const address = resp.publicKey.toBase58();
+                log(`Connected: ${address}`, 'success');
+                
+                log('Authenticating...', 'info');
+                const result = await auth.authenticateWithWallet();
+                
+                if (result.success) {
+                    log('✅ AUTHENTICATION SUCCESS!', 'success');
+                    log(`User: ${result.user.commonName}`, 'success');
+                    log(`Clearance: ${result.user.clearanceLevel}`, 'success');
+                    log(`Authority: ${result.user.authority || 'Standard'}`, 'success');
+                    if (result.user.systemArchitect) {
+                        log('⚡ SYSTEM ARCHITECT CONFIRMED', 'success');
+                    }
+                } else {
+                    log('❌ Authentication failed: ' + result.error, 'error');
+                }
+            } catch (error) {
+                log('❌ ERROR: ' + error.message, 'error');
+                console.error(error);
+            }
+        }
+
+        function checkStatus() {
+            log('=== CURRENT STATUS ===', 'info');
+            const user = auth.currentUser;
+            log(`Authenticated: ${user.authenticated}`, user.authenticated ? 'success' : 'error');
+            if (user.authenticated) {
+                log(`Name: ${user.commonName}`, 'success');
+                log(`Clearance: ${user.clearanceLevel}`, 'success');
+                log(`Organization: ${user.organization}`, 'success');
+                log(`System Architect: ${user.systemArchitect || false}`, user.systemArchitect ? 'success' : 'info');
+                if (user.authority) {
+                    log(`Authority: ${user.authority}`, 'success');
+                }
+                if (user.systems) {
+                    log(`Systems: ${user.systems.join(', ')}`, 'success');
+                }
+            }
+        }
+
+        function clearOutput() {
+            output.innerHTML = '';
+        }
+
+        // Auto-check on load
+        window.addEventListener('load', () => {
+            log('System loaded. Click a button to test authentication.', 'info');
+        });
+    </script>
+</body>
+</html>
