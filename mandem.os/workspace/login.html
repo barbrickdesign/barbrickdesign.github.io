@@ -286,10 +286,10 @@
                 const btn = document.getElementById('phantom-connect');
                 btn.disabled = true;
                 btn.innerHTML = '⏳ Connecting...';
-                
+
                 try {
-                    const authInfo = await window.universalWalletAuth.connect();
-                    
+                    const authInfo = await window.sharedWalletSystem.connect('solana');
+
                     if (authInfo) {
                         console.log('✅ Phantom connected:', authInfo.address);
                         // Redirect
@@ -303,7 +303,8 @@
                     console.error('❌ Phantom connection error:', error);
                     alert('Phantom connection failed: ' + error.message);
                     btn.disabled = false;
-                    btn.innerHTML = '<img src="..." alt="Phantom">👻 Connect Phantom';
+                    const imgSrc = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MCA1MCI+PHRpdGxlPnBoYW50b20tZmF2aWNvbi0yPC90aXRsZT48cGF0aCBkPSJNMjUsMEM0MC41MDc4LDAsMzAuNDQzOCwwLDQ2LjY5MjksMy4wOTI0YzAsMCw0Ljg0ODgsMTEuMzQ3MS00Ljg0ODgsMTkuMDA3MUMyOS42OCwyOC43NTI5LDI2LjU1NzYsMjMuNzY0NywyNSwyMi4xMzY1VjE2LjYxMThjOC4yNjEyLDEuMjM1MywzLjQxMTgtNy4wNywyLjIyMzUtOS4yOTQxSDI1VjBaIiBmaWxsPSIjZmZmIi8+PHBhdGggZD0iTTI1LDQ3LjExNzZjLTE1LjUwNzgsMC01LjQ0MzgsMC0yMS42OTI5LTMuMDkyNEMzLjMwNzEsMzIuNjc1OSw4LjE1NTksMzMuNzE3Niw4LjE1NTksMjQgYzAtOS43MTc2LTQuODQ4OC04LjY3NTktNC44NDg4LTE5LjQzNThDMzQuMDIxMSwwLDI1LDAsMjUsMHY3LjMxNzZoLTIuMjIzNUM4LjczODMsNC44NzA2LDE2Ljc4MzIsMTIuMzUyOSwyNSwxNC4wMjM1djYuNDg1M2MtMTcuMjQsMC43Niw2LjEzODMsMjYuNjA5NC0zLjMwNzEsMjYuNjA5NEgyNXY3LjMxNzZaIiBmaWxsPSIjZmZmIi8+PHBhdGggZD0iTTI1LDQ3LjExNzZjLTE1LjUwNzgsMC01LjQ0MzgsMC0yMS42OTI5LTMuMDkyNEMzLjMwNzEsMzIuNjc1OSw4LjE1NTksMzMuNzE3Niw4LjE1NTksMjQgYzAtOS43MTc2LTQuODQ4OC04LjY3NTktNC44NDg4LTE5LjQzNThDMzQuMDIxMSwwLDI1LDAsMjUsMHY3LjMxNzZoLTIuMjIzNUM4LjczODMsNC44NzA2LDE2Ljc4MzIsMTIuMzUyOSwyNSwxNC4wMjM1djYuNDg1M2MtMTcuMjQsMC43Niw2LjEzODMsMjYuNjA5NC0zLjMwNzEsMjYuNjA5NEgyNXY3LjMxNzZaIiBmaWxsPSIjZmZmIi8+PC9zdmc+';
+                    btn.innerHTML = '<img src="' + imgSrc + '" alt="Phantom" style="width: 24px; height: 24px; margin-right: 8px;">👻 Connect Phantom';
                 }
             });
             
