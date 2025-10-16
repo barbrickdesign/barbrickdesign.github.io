@@ -360,15 +360,34 @@
     <script src="../../universal-wallet-auth.js"></script>
     <script src="../../auth-integration.js"></script>
     
-    <!-- Agent System Dependencies -->
-    <script src="../../agent-core.js"></script>
-    <script src="../../agent-types.js"></script>
-    <script src="../../monitoring-systems.js"></script>
-    <script src="../../agent-system.js"></script>
-    <script src="../../agent-display.js"></script>
-    
     <!-- Pump.fun Token Integration -->
     <script src="../../pumpfun-token-config.js"></script>
+
+    <!-- Load Agent System after DOM is ready -->
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Load agent scripts after DOM is ready
+        const agentScripts = [
+            '../../agent-core.js',
+            '../../agent-types.js',
+            '../../monitoring-systems.js',
+            '../../agent-system.js',
+            '../../agent-display.js'
+        ];
+
+        agentScripts.forEach(script => {
+            const scriptElement = document.createElement('script');
+            scriptElement.src = script;
+            scriptElement.onload = function() {
+                console.log('Agent script loaded:', script);
+            };
+            scriptElement.onerror = function() {
+                console.error('Failed to load agent script:', script);
+            };
+            document.head.appendChild(scriptElement);
+        });
+    });
+    </script>
     </head>     
     <body> 
         <header> 
