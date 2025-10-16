@@ -366,12 +366,11 @@
     <!-- Load Agent System after DOM is ready -->
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Load agent scripts after DOM is ready
+        // Load core agent scripts after DOM is ready
         const agentScripts = [
             '../../agent-core.js',
             '../../agent-types.js',
             '../../monitoring-systems.js',
-            '../../agent-system.js',
             '../../agent-display.js'
         ];
 
@@ -385,7 +384,7 @@
             scriptElement.onload = function() {
                 console.log('✅ Agent script loaded:', script);
                 loadedScripts++;
-                checkAgentSystemReady();
+                checkAllCoreScriptsLoaded();
             };
 
             scriptElement.onerror = function() {
@@ -397,11 +396,37 @@
             document.head.appendChild(scriptElement);
         });
 
+        // Function to check if all core scripts are loaded
+        function checkAllCoreScriptsLoaded() {
+            if (loadedScripts >= agentScripts.length) {
+                console.log('✅ All core agent scripts loaded, initializing agent system...');
+                loadAgentSystemModule();
+            }
+        }
+
+        // Load agent-system.js after core dependencies are ready
+        function loadAgentSystemModule() {
+            const agentSystemScript = document.createElement('script');
+            agentSystemScript.src = '../../agent-system.js';
+
+            agentSystemScript.onload = function() {
+                console.log('✅ Agent system module loaded');
+                checkAgentSystemReady();
+            };
+
+            agentSystemScript.onerror = function() {
+                console.error('❌ Failed to load agent-system.js');
+            };
+
+            document.head.appendChild(agentSystemScript);
+        }
+
         // Function to check if agent system is ready
         function checkAgentSystemReady() {
             if (typeof window.agentSystem !== 'undefined' &&
                 typeof window.agentDisplay !== 'undefined' &&
-                typeof window.agentTypes !== 'undefined') {
+                typeof window.BaseAgent !== 'undefined' &&
+                typeof window.setupEnhancedErrorMonitoring !== 'undefined') {
                 console.log('✅ Agent system fully loaded and ready');
                 // Cancel any pending timeout checks
                 if (window.agentLoadCheckTimeout) {
@@ -424,7 +449,7 @@
                     retryScript.onload = function() {
                         console.log('✅ Script retry successful:', scriptUrl);
                         loadedScripts++;
-                        checkAgentSystemReady();
+                        checkAllCoreScriptsLoaded();
                     };
 
                     retryScript.onerror = function() {
