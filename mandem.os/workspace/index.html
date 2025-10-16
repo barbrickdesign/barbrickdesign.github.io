@@ -563,27 +563,9 @@
     function initGlobe() {
       try {
         // Prevent duplicate initialization
-        if (window.globeInitialized) {
-          console.log('✅ Globe already initialized');
-          return;
-        }
+        animate();
 
-        console.log('🌍 Starting 3D globe initialization...');
-
-        // Get the container
-        const container = document.getElementById('globe-container');
-
-        if (!container) {
-          console.error('❌ Globe container not found!');
-          return;
-        }
-
-        // Check if Three.js is loaded
-        if (typeof THREE === 'undefined') {
-          console.error('❌ Three.js not loaded! Retrying in 1 second...');
-          setTimeout(initGlobe, 1000);
-          return;
-        }
+        console.log('🎉 Gem Bot Universe 3D Scene fully loaded and running!');
 
         console.log('✅ Three.js loaded, creating scene...');
 
