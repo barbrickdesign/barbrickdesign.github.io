@@ -215,97 +215,242 @@ class CryptoBiddingSystem {
     }
 
     /**
-     * Submit bid with enhanced validation and SAM.gov sync
+     * Validate bid data comprehensively
      */
-    async submitBid(bidData) {
+    validateBidData(bidData) {
+        const errors = [];
+
+        if (!bidData.contractId) errors.push('Contract ID required');
+        if (!bidData.walletAddress) errors.push('Wallet address required');
+        if (!bidData.bidAmount || bidData.bidAmount <= 0) errors.push('Valid bid amount required');
+        if (!bidData.crypto || !this.supportedCrypto[bidData.crypto]) errors.push('Supported cryptocurrency required');
+        if (!bidData.timeline || bidData.timeline < 1) errors.push('Valid timeline required');
+        if (!bidData.approach || bidData.approach.length < 50) errors.push('Detailed approach description required');
+
+        return {
+            valid: errors.length === 0,
+            errors: errors
+        };
+    }
+
+    /**
+     * Check contractor eligibility including SAM.gov status
+     */
+    async checkContractorEligibility(walletAddress) {
         try {
-            // Validate bid data
-            const validation = this.validateBidData(bidData);
-            if (!validation.valid) {
-                return {
-                    success: false,
-                    error: validation.errors.join(', ')
-                };
-            }
+            let samGovEntity = null;
 
-            // Check if contractor is eligible (SAM.gov verification)
-            const eligibility = await this.checkContractorEligibility(bidData.walletAddress);
-            if (!eligibility.eligible) {
-                return {
-                    success: false,
-                    error: `Ineligible: ${eligibility.reason}`
-                };
-            }
-
-            // Get current performance score
-            const performanceScore = this.calculatePerformanceScore(bidData.walletAddress);
-
-            // Create enhanced bid object
-            const bidId = this.generateBidId();
-            const enhancedBid = {
-                id: bidId,
-                contractId: bidData.contractId,
-                contractor: {
-                    walletAddress: bidData.walletAddress,
-                    name: bidData.contractorName,
-                    organization: bidData.organization,
-                    performanceScore: performanceScore.score,
-                    reputation: performanceScore.reputation,
-                    eligibilityVerified: eligibility.eligible,
-                    samGovEntity: eligibility.samGovEntity
-                },
-                bid: {
-                    amount: bidData.bidAmount,
-                    currency: bidData.crypto,
-                    timeline: bidData.timeline,
-                    approach: bidData.approach,
-                    milestones: bidData.milestones,
-                    submittedAt: new Date().toISOString(),
-                    status: 'pending'
-                },
-                validation: {
-                    technicalFeasibility: this.assessTechnicalFeasibility(bidData),
-                    marketCompetitiveness: this.assessMarketCompetitiveness(bidData),
-                    riskAssessment: this.assessRisk(bidData)
-                },
-                samGovSync: {
-                    synced: false,
-                    opportunityId: null,
-                    lastSyncAttempt: null
-                }
-            };
-
-            // Store bid
-            if (!this.bids[bidData.contractId]) {
-                this.bids[bidData.contractId] = [];
-            }
-            this.bids[bidData.contractId].push(enhancedBid);
-
-            this.saveBids();
-
-            // Auto-sync with SAM.gov if opportunity matches
+            // Check SAM.gov status if integration available
             if (window.samGovIntegration) {
                 try {
-                    await this.syncBidWithSAMGov(enhancedBid);
-                } catch (syncError) {
-                    console.warn('SAM.gov sync failed, but bid submitted locally:', syncError);
+                    // Get contractor profile if available
+                    const contractor = window.contractorRegistry?.getContractor(walletAddress);
+
+                    if (contractor?.uei) {
+                        samGovEntity = await window.samGovIntegration.validateEntity(contractor.uei);
+
+                        if (!samGovEntity.valid) {
+                            return {
+                                eligible: false,
+                                reason: 'SAM.gov entity not found or inactive'
+                            };
+                        }
+
+                        if (samGovEntity.exclusions.length > 0) {
+                            return {
+                                eligible: false,
+                                reason: 'Active SAM.gov exclusions found'
+                            };
+                        }
+                    }
+                } catch (error) {
+                    console.warn('SAM.gov eligibility check failed:', error);
                 }
             }
 
             return {
-                success: true,
-                bidId: bidId,
-                message: 'Bid submitted successfully and synced with SAM.gov',
-                enhancedBid: enhancedBid
+                eligible: true,
+                reason: 'Contractor meets all requirements',
+                samGovEntity: samGovEntity
             };
 
         } catch (error) {
-            console.error('Error submitting bid:', error);
+            console.error('Error checking eligibility:', error);
             return {
-                success: false,
-                error: error.message
+                eligible: false,
+                reason: error.message
             };
         }
+    }
+
+    /**
+     * Assess technical feasibility of bid
+     */
+    assessTechnicalFeasibility(bidData) {
+        let score = 50; // Base score
+
+        // Timeline realism
+        if (parseInt(bidData.timeline) < 30) score += 10;
+        if (parseInt(bidData.timeline) > 180) score -= 10;
+
+        // Approach detail
+        if (bidData.approach.length > 200) score += 15;
+        if (bidData.approach.length > 500) score += 10;
+
+        // Contractor experience (from performance data)
+        const contractor = window.contractorRegistry?.getContractor(bidData.walletAddress);
+        if (contractor) {
+            if (contractor.experience === '20+') score += 20;
+            if (contractor.experience === '16-20') score += 15;
+            if (contractor.experience === '11-15') score += 10;
+        }
+
+        return Math.min(100, Math.max(0, score));
+    }
+
+    /**
+     * Assess market competitiveness
+     */
+    assessMarketCompetitiveness(bidData) {
+        // This would integrate with SAM.gov market data
+        // For now, provide basic assessment
+        const marketData = window.samGovIntegration?.getMarketStatistics('software-development');
+
+        if (marketData) {
+            const avgValue = marketData.averageValue;
+            const bidRatio = bidData.bidAmount / avgValue;
+
+            if (bidRatio < 0.8) return 'Very Competitive';
+            if (bidRatio < 1.0) return 'Competitive';
+            if (bidRatio < 1.2) return 'Fair';
+            return 'Above Market';
+        }
+
+        return 'Market data unavailable';
+    }
+
+    /**
+     * Assess project risk
+     */
+    assessRisk(bidData) {
+        let riskScore = 50; // Base risk
+
+        // Timeline risk
+        if (parseInt(bidData.timeline) < 60) riskScore += 20; // Aggressive timeline
+        if (parseInt(bidData.timeline) > 365) riskScore -= 10; // Very long timeline
+
+        // Amount risk
+        if (bidData.bidAmount > 10000000) riskScore += 15; // Large projects
+
+        // Technical complexity
+        if (bidData.approach.toLowerCase().includes('blockchain') ||
+            bidData.approach.toLowerCase().includes('ai') ||
+            bidData.approach.toLowerCase().includes('security')) {
+            riskScore += 10; // Complex technologies
+        }
+
+        return {
+            score: Math.min(100, riskScore),
+            level: riskScore > 70 ? 'High' : riskScore > 50 ? 'Medium' : 'Low',
+            factors: this.getRiskFactors(bidData)
+        };
+    }
+
+    /**
+     * Get risk factors for bid
+     */
+    getRiskFactors(bidData) {
+        const factors = [];
+
+        if (parseInt(bidData.timeline) < 60) {
+            factors.push('Aggressive timeline may impact quality');
+        }
+
+        if (bidData.bidAmount > 5000000) {
+            factors.push('Large project scope increases complexity');
+        }
+
+        if (bidData.approach.length < 200) {
+            factors.push('Limited approach detail may indicate incomplete planning');
+        }
+
+        return factors;
+    }
+
+    /**
+     * Generate unique bid ID
+     */
+    generateBidId() {
+        return `BID-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+    }
+
+    /**
+     * Sync bid with SAM.gov opportunity
+     */
+    async syncBidWithSAMGov(bid) {
+        try {
+            // Find matching SAM.gov opportunity
+            const opportunities = await window.samGovIntegration.findOpportunities(['software'], ['software']);
+
+            const matchingOpportunity = opportunities.find(opp =>
+                this.calculateBidOpportunityMatch(bid, opp) > 0.7
+            );
+
+            if (matchingOpportunity) {
+                bid.samGovSync.synced = true;
+                bid.samGovSync.opportunityId = matchingOpportunity.id;
+                bid.samGovSync.lastSyncAttempt = new Date().toISOString();
+
+                // Update opportunity status if needed
+                // This would integrate with SAM.gov API in production
+
+                this.saveBids();
+
+                console.log(`✅ Bid ${bid.id} synced with SAM.gov opportunity ${matchingOpportunity.id}`);
+            }
+
+        } catch (error) {
+            console.error('Error syncing bid with SAM.gov:', error);
+            throw error;
+        }
+    }
+
+    /**
+     * Calculate match score between bid and SAM.gov opportunity
+     */
+    calculateBidOpportunityMatch(bid, opportunity) {
+        let score = 0;
+
+        // Technical capability match
+        const bidCapabilities = bid.contractor.capabilities || [];
+        const oppRequirements = opportunity.requirements || [];
+
+        const capabilityMatches = bidCapabilities.filter(cap =>
+            oppRequirements.some(req => req.toLowerCase().includes(cap.toLowerCase()))
+        );
+
+        score += (capabilityMatches.length / Math.max(oppRequirements.length, 1)) * 40;
+
+        // Timeline match
+        if (opportunity.deadline) {
+            const oppDeadline = new Date(opportunity.deadline);
+            const bidTimelineDays = parseInt(bid.bid.timeline);
+
+            if (bidTimelineDays <= 30 && (oppDeadline - new Date()) / (1000 * 60 * 60 * 24) <= 60) {
+                score += 30; // Matches urgent timeline
+            }
+        }
+
+        // Budget match
+        if (opportunity.estimatedValue) {
+            const budgetRatio = bid.bid.amount / opportunity.estimatedValue;
+
+            if (budgetRatio >= 0.8 && budgetRatio <= 1.2) {
+                score += 30; // Within reasonable budget range
+            }
+        }
+
+        return Math.min(100, score);
     }
 
     /**
@@ -332,59 +477,109 @@ class CryptoBiddingSystem {
     }
 
     /**
-     * Rank bids by multiple factors
+     * Enhanced bid ranking with SAM.gov integration
      */
     rankBids(contractId) {
-        const contractBids = this.getContractBids(contractId);
-        
+        const contractBids = this.bids[contractId] || [];
+
         if (contractBids.length === 0) {
             return [];
         }
-        
-        // Calculate ranking score for each bid
+
+        // Enhanced ranking algorithm
         const rankedBids = contractBids.map(bid => {
-            // Factors:
-            // 1. Performance score (40% weight)
-            // 2. Price competitiveness (30% weight)
-            // 3. Timeline (20% weight)
-            // 4. Experience level (10% weight)
-            
-            const lowestBid = Math.min(...contractBids.map(b => b.bidAmount));
-            const priceScore = (lowestBid / bid.bidAmount) * 100;
-            
-            const performanceWeight = bid.performanceScore * 0.40;
-            const priceWeight = priceScore * 0.30;
-            const timelineWeight = 20; // Placeholder - could calculate based on timeline
-            const experienceWeight = Math.min((bid.totalCompletedProjects / 10) * 100, 100) * 0.10;
-            
-            const rankingScore = performanceWeight + priceWeight + timelineWeight + experienceWeight;
-            
+            const ranking = this.calculateBidRanking(bid);
+
             return {
                 ...bid,
-                rankingScore: Math.round(rankingScore),
-                priceCompetitiveness: Math.round(priceScore),
-                recommendation: this.generateBidRecommendation(rankingScore)
+                rankingScore: ranking.totalScore,
+                rankingBreakdown: ranking,
+                recommendation: this.generateBidRecommendation(ranking)
             };
         });
-        
+
         // Sort by ranking score (highest first)
-        rankedBids.sort((a, b) => b.rankingScore - a.rankingScore);
-        
-        return rankedBids;
+        return rankedBids.sort((a, b) => b.rankingScore - a.rankingScore);
     }
 
     /**
-     * Generate bid recommendation
+     * Calculate comprehensive bid ranking
      */
-    generateBidRecommendation(score) {
-        if (score >= 85) {
-            return '🌟 Highly Recommended - Excellent value and proven track record';
-        } else if (score >= 70) {
-            return '✅ Recommended - Strong bid with good credentials';
-        } else if (score >= 55) {
-            return '⚠️ Consider - Competitive but verify details';
+    calculateBidRanking(bid) {
+        const ranking = {
+            performanceScore: 0,
+            priceCompetitiveness: 0,
+            timelineFeasibility: 0,
+            technicalCapability: 0,
+            riskAssessment: 0,
+            samGovAlignment: 0,
+            totalScore: 0
+        };
+
+        // Performance score (40% weight)
+        ranking.performanceScore = bid.contractor.performanceScore || 0;
+        ranking.performanceScore = Math.min(100, ranking.performanceScore);
+
+        // Price competitiveness (30% weight)
+        const contractBids = this.bids[bid.contractId] || [];
+        if (contractBids.length > 1) {
+            const amounts = contractBids.map(b => b.bid.amount);
+            const avgAmount = amounts.reduce((a, b) => a + b, 0) / amounts.length;
+            const priceRatio = bid.bid.amount / avgAmount;
+
+            if (priceRatio <= 0.9) ranking.priceCompetitiveness = 100;
+            else if (priceRatio <= 1.1) ranking.priceCompetitiveness = 80;
+            else if (priceRatio <= 1.3) ranking.priceCompetitiveness = 60;
+            else ranking.priceCompetitiveness = 40;
         } else {
-            return '❌ Not Recommended - Better options available';
+            ranking.priceCompetitiveness = 70; // Default for single bid
+        }
+
+        // Timeline feasibility (20% weight)
+        const timelineDays = parseInt(bid.bid.timeline);
+        if (timelineDays >= 60 && timelineDays <= 180) {
+            ranking.timelineFeasibility = 100; // Optimal range
+        } else if (timelineDays < 60) {
+            ranking.timelineFeasibility = 60; // Aggressive
+        } else {
+            ranking.timelineFeasibility = 40; // Very long
+        }
+
+        // Technical capability (10% weight)
+        ranking.technicalCapability = bid.validation?.technicalFeasibility || 50;
+
+        // Risk assessment (bonus/penalty)
+        const riskScore = bid.validation?.riskAssessment?.score || 50;
+        ranking.riskAssessment = Math.max(0, 100 - riskScore); // Lower risk = higher score
+
+        // SAM.gov alignment (bonus)
+        if (bid.samGovSync.synced) {
+            ranking.samGovAlignment = 20; // Bonus for SAM.gov sync
+        }
+
+        // Calculate total score
+        ranking.totalScore = (
+            ranking.performanceScore * 0.4 +
+            ranking.priceCompetitiveness * 0.3 +
+            ranking.timelineFeasibility * 0.2 +
+            ranking.technicalCapability * 0.1
+        ) + ranking.riskAssessment + ranking.samGovAlignment;
+
+        return ranking;
+    }
+
+    /**
+     * Generate recommendation for bid
+     */
+    generateBidRecommendation(ranking) {
+        if (ranking.totalScore >= 85) {
+            return 'Highly Recommended - Excellent match for project requirements';
+        } else if (ranking.totalScore >= 70) {
+            return 'Recommended - Good fit with minor considerations';
+        } else if (ranking.totalScore >= 50) {
+            return 'Consider with Caution - Meets minimum requirements';
+        } else {
+            return 'Not Recommended - Does not meet key requirements';
         }
     }
 
