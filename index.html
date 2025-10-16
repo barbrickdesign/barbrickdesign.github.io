@@ -864,13 +864,16 @@
                     await registration.sync.register('sync-data');
                     await registration.sync.register('sync-time-entries');
                     await registration.sync.register('sync-wallet-state');
-                    } catch (error) {
-                    }
+                    console.log('✅ Background sync registered');
+                } catch (error) {
+                    console.log('⚠️ Background sync not available:', error);
+                }
             }
         }
 
         // Online/offline detection
         window.addEventListener('online', () => {
+            console.log('✅ Back online! Syncing data...');
             registerBackgroundSync();
             
             // Show notification
@@ -896,6 +899,8 @@
         });
 
         window.addEventListener('offline', () => {
+            console.log('⚠️ Offline mode activated');
+            
             const notification = document.createElement('div');
             notification.style.cssText = `
                 position: fixed;
