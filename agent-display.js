@@ -232,11 +232,22 @@ class AgentDisplay {
             const statusColor = agent.isActive ? '#00ff00' : '#ff6b6b';
             const statusIcon = agent.isActive ? '●' : '○';
 
+            // Get agent stats
+            const agentStats = stats.agentStats ? stats.agentStats[agent.id] : null;
+            const repairs = agentStats ? agentStats.repairs : 0;
+            const efficiency = agentStats ? agentStats.efficiency : 0;
+            const uptime = agentStats ? Math.floor((Date.now() - agentStats.startTime) / 1000) : 0;
+
             return `
                 <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; padding: 4px 0; border-bottom: 1px solid rgba(0,255,255,0.1);">
                     <div style="flex: 1;">
-                        <span style="color: ${statusColor}; font-weight: bold;">${statusIcon}</span>
-                        <span style="margin-left: 6px; font-size: 10px;">${agent.name}</span>
+                        <div style="display: flex; align-items: center; margin-bottom: 2px;">
+                            <span style="color: ${statusColor}; font-weight: bold; margin-right: 4px;">${statusIcon}</span>
+                            <span style="font-size: 10px; font-weight: bold;">${agent.name}</span>
+                        </div>
+                        <div style="font-size: 9px; color: #8addff; margin-left: 12px;">
+                            Repairs: ${repairs} (${efficiency}%) | Uptime: ${Math.floor(uptime/3600)}h ${Math.floor((uptime%3600)/60)}m
+                        </div>
                     </div>
                     <div style="font-size: 9px; color: #8addff;">
                         ${agent.lastActivity ? new Date(agent.lastActivity).toLocaleTimeString() : 'Idle'}
@@ -246,7 +257,7 @@ class AgentDisplay {
         }).join('');
 
         this.agentsContainer.innerHTML = `
-            <div style="font-size: 11px; font-weight: bold; margin-bottom: 8px; color: #00ffff;">👥 ACTIVE AGENTS</div>
+            <div style="font-size: 11px; font-weight: bold; margin-bottom: 8px; color: #00ffff;">👥 AGENT PERFORMANCE</div>
             ${agentsHtml}
         `;
     }
