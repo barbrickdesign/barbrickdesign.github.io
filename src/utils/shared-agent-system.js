@@ -369,7 +369,18 @@ class SharedAgentSystem {
     }
 }
 
-// Create global instance
-window.sharedAgentSystem = new SharedAgentSystem();
+// Auto-initialize when DOM is ready - DISABLED on main page to prevent errors
+// if (document.readyState === 'loading') {
+//     document.addEventListener('DOMContentLoaded', () => {
+//         window.sharedAgentSystem = new SharedAgentSystem();
+//     });
+// } else {
+//     window.sharedAgentSystem = new SharedAgentSystem();
+// }
+
+// Export
+if (typeof module !== 'undefined' && module.exports) {
+    module.exports = SharedAgentSystem;
+}
 
 console.log('🤖 Shared Agent System loaded - consolidating all agent functionality');
