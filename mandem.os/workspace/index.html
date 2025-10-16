@@ -1962,33 +1962,6 @@
       updateAuthButton();
     }
 
-    // --- Global Agent System with Server Integration ---
-    let playerHeartbeatInterval = null;
-    let leaderboardRefreshInterval = null;
-
-    function renderAllAgentsTableFromUsers(users) {
-      const tbody = document.getElementById('allAgentsTable').querySelector('tbody');
-      tbody.innerHTML = '';
-      users.forEach(user => {
-        const emoji = user.maskEmoji || user.maskColor || '🤖';
-        tbody.innerHTML += `
-          <tr>
-            <td><span style="font-size:20px">${emoji}</span></td>
-            <td>${user.displayName || user.username || 'Player'}</td>
-            <td>${(user.mgcBalance || 0).toFixed(2)}</td>
-            <td>${user.uptimeMinutes || user.uptimeBalance || 0} min</td>
-            <td>${user.isOnline || user.online ? '<span class="online-dot"></span>Online' : '<span class="offline-dot"></span>Offline'}</td>
-            <td>${user.role || 'Player'}</td>
-          </tr>
-        `;
-      });
-      if (users.length === 0) tbody.innerHTML = '<tr><td colspan="6">No players online. Start server!</td></tr>';
-    }
-
-    async function fetchLeaderboardFromServer() {
-      const tbody = document.getElementById('allAgentsTable').querySelector('tbody');
-      try {
-        const res = await fetch('/api/players/leaderboard?limit=50', { cache: 'no-store' });
         if (res.ok) {
           const players = await res.json();
           renderAllAgentsTableFromUsers(players);
