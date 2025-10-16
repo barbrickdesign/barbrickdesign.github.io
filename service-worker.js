@@ -25,6 +25,8 @@ const CACHE_URLS = [
     '/samgov-integration.js',
     '/crypto-bidding-system.js',
     '/mobile-responsive.css',
+    '/agent-system.js',
+    '/agent-display.js',
     '/dev-time-tracker.html',
     '/gembot-control-3d.html',
     '/investment-dashboard.html',
