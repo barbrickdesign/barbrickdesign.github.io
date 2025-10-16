@@ -17,7 +17,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Universal Dev Compensation | Fair Pay for ALL Developers</title>
-    <link rel="stylesheet" href="mobile-responsive.css">
+    <link rel="preload" href="" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="mobile-responsive.css"></noscript>
     <style>
         * {
             margin: 0;
@@ -313,9 +314,9 @@
 </head>
 <body>
     <div class="container">
-        <script src="universal-auth.js"></script>
-        <script src="universal-wallet-connect.js"></script>
-        <script src="universal-dev-tracker-complete.js"></script>
+        <script src="universal-auth.js" defer></script>
+        <script src="universal-wallet-connect.js" defer></script>
+        <script src="universal-dev-tracker-complete.js" defer></script>
         <div class="terminal-header">
             <div class="terminal-dot dot-yellow"></div>
             <div class="terminal-dot dot-green"></div>

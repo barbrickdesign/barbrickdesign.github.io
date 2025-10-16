@@ -17,10 +17,11 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>GemBot Admin Forge Access</title>
-  <link rel="stylesheet" href="public/styles.css">
-  <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/GLTFLoader.js"></script>
+  <link rel="preload" href="" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="public/styles.css"></noscript>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/GLTFLoader.js" defer></script>
   <style>
     body {
       font-family: 'Arial', sans-serif;
@@ -406,10 +407,10 @@
   </style>
   
   <!-- Universal Wallet Authentication -->
-  <script src="../../fpds-contract-schema.js"></script>
-  <script src="../../contractor-registry.js"></script>
-  <script src="../../universal-wallet-auth.js"></script>
-  <script src="../../auth-integration.js"></script>
+  <script src="../../fpds-contract-schema.js" defer></script>
+  <script src="../../contractor-registry.js" defer></script>
+  <script src="../../universal-wallet-auth.js" defer></script>
+  <script src="../../auth-integration.js" defer></script>
 </head>
 <body>
   <script>
@@ -701,6 +702,6 @@
     </div>
   </div>
 
-  <script src="admin-forge.js"></script>
+  <script src="admin-forge.js" defer></script>
 </body>
 </html>

@@ -17,9 +17,12 @@
         <meta charset="UTF-8"> 
         <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
         <title>Explorer - GeoMine</title>         
-        <link href="css/theme.css" rel="stylesheet" type="text/css">
-        <link rel="stylesheet" href="public/styles.css"> 
-        <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet"> 
+        <link rel="preload" href="" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link href="css/theme.css" rel="stylesheet" type="text/css"></noscript>
+        <link rel="preload" href="" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="public/styles.css"></noscript> 
+        <link rel="preload" href="" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet"></noscript> 
         <style>body { margin: 0; padding: 0; overflow: hidden; width: 100vw; height: 100vh; font-family: 'Orbitron', sans-serif; background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d); background-size: 600% 600%; animation: gradient 15s ease infinite; } @keyframes gradient { 0% {  background-position: 0% 50%; }  50% {  background-position: 100% 50%; }  100% {  background-position: 0% 50%; } } header { background-color: rgba(0, 0, 0, 0.7); color: white; padding: 15px; position: fixed; top: 0; left: 0; right: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5); text-align: center; border-bottom: 2px solid #2196f3; backdrop-filter: blur(5px); -webkit-backdrop-filter: blur(5px); } header h1 { margin: 0; font-size: 28px; font-family: 'Orbitron', sans-serif; background: linear-gradient(45deg, #2196f3, #21f3c7); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent; display: inline-block; vertical-align: middle; } .auth-links { position: fixed; top: 20px; right: 20px; z-index: 1001; } .auth-button { background-color: #2196f3; color: white; border: none; border-radius: 5px; padding: 8px 15px; margin-left: 10px; text-decoration: none; font-size: 14px; cursor: pointer; transition: background-color 0.3s; } .auth-button:hover { background-color: #0d8aee; } #mgcBalanceDisplay { margin-top: 8px; font-size: 16px; color: #00ff99; font-family: 'Orbitron', monospace; display: none; } .tip-tag { background: #21f3c7; color: #222; border-radius: 6px; padding: 4px 10px; margin-right: 8px; font-size: 15px; display: inline-block; margin-bottom: 8px; } .desc-box { background: rgba(0,0,0,0.7); border-radius: 10px; padding: 18px; margin: 80px auto 24px auto; max-width: 700px; } #error { position: fixed; top: 10px; left: 10px; background-color: rgba(255, 0, 0, 0.7); color: white; padding: 10px; border-radius: 5px; display: none; z-index: 100; } #loading { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.8); color: white; display: flex; justify-content: center; align-items: center; font-size: 24px; z-index: 90; } .location-label { position: fixed; bottom: 20px; left: 20px; background-color: rgba(0, 0, 0, 0.6); color: white; padding: 10px 20px; border-radius: 5px; font-size: 18px; font-family: 'Orbitron', sans-serif; z-index: 50; } .interactive-hint { position: fixed; bottom: 60px; right: 90px; background-color: rgba(0, 0, 0, 0.6); color: white; padding: 10px 20px; border-radius: 5px; font-size: 14px; font-family: 'Orbitron', sans-serif; z-index: 50; max-width: 300px; } @keyframes reward-pulse { 0%, 100% {  transform: scale(1); }  50% {  transform: scale(1.05); } } .auth-header { padding: 8px 16px !important; } /* GeoMine Interface Buttons */.action-buttons { position: fixed; top: 20px; right: 20px; display: flex; flex-direction: column; gap: 10px; z-index: 60; } .action-btn { padding: 12px 20px; border: none; border-radius: 5px; font-family: 'Orbitron', sans-serif; font-weight: bold; background: linear-gradient(135deg, #4a69bd, #1e3799); color: white; cursor: pointer; box-shadow: 0 2px 5px rgba(0,0,0,0.3); transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; } .action-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.4); background: linear-gradient(135deg, #5a79cd, #2e47a9); } .action-btn .icon { margin-right: 8px; font-size: 18px; } .mgc-balance { position: fixed; top: 20px; left: 20px; background: rgba(0, 0, 0, 0.7); color: #50c878; padding: 10px 15px; border-radius: 20px; font-weight: bold; font-size: 16px; z-index: 60; cursor: pointer; text-decoration: underline; } /* Gem Found Animation */@keyframes gem-pop { 0% {  transform: scale(0);  opacity: 0; }  60% {  transform: scale(1.2);  opacity: 1; }  100% {  transform: scale(1);  opacity: 1; } } .gem-found { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0, 0, 0, 0.8); border-radius: 10px; padding: 20px; text-align: center; color: white; z-index: 100; animation: gem-pop 0.5s forwards; display: none; } .gem-found img { width: 80px; height: 80px; margin-bottom: 10px; } .gem-name { font-size: 18px; margin: 5px 0; } .gem-rarity { font-size: 14px; margin-bottom: 15px; } .modal-close { padding: 8px 15px; background: #4a69bd; border: none; border-radius: 5px; color: white; cursor: pointer; margin-top: 10px; } /* Stats Panel */.stats-panel { position: fixed; left: 20px; top: 70px; background: rgba(0,0,0,0.7); color: white; padding: 15px; border-radius: 8px; max-width: 250px; font-size: 14px; z-index: 55; display: none; } .stats-panel h3 { margin-top: 0; color: #50c878; } .stat-row { display: flex; justify-content: space-between; margin: 5px 0; } /* Mini-map styles */.mini-map { position: fixed; bottom: 20px; right: 20px; width: 180px; height: 180px; background: rgba(0, 0, 0, 0.7); border: 2px solid #4a69bd; border-radius: 50%; overflow: hidden; z-index: 55; } .mini-map-container { position: relative; width: 100%; height: 100%; } .mini-map-player { position: absolute; width: 10px; height: 10px; background: #50c878; border-radius: 50%; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 57; } .mini-map-plot { position: absolute; width: 8px; height: 8px; background: rgba(255, 255, 255, 0.5); border-radius: 50%; z-index: 56; } .mini-map-portal { position: absolute; width: 6px; height: 6px; background: #f39c12; border-radius: 50%; z-index: 56; } /* Jetpack UI */.jetpack-ui { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: rgba(0, 0, 0, 0.7); padding: 10px 15px; border-radius: 20px; z-index: 60; } .jetpack-fuel { width: 150px; height: 10px; background: rgba(255, 255, 255, 0.3); border-radius: 5px; overflow: hidden; } .jetpack-fuel-level { height: 100%; width: 100%; background: linear-gradient(90deg, #f39c12, #e74c3c); transition: width 0.2s; } .jetpack-controls { display: flex; justify-content: center; margin-top: 5px; } .jetpack-btn { padding: 5px 10px; margin: 0 5px; background: #3498db; border: none; border-radius: 3px; color: white; font-size: 12px; cursor: pointer; } /* Full GeoMine Interface */.geomine-container { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.9); z-index: 200; display: none; } .geomine-header { display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: rgba(30, 55, 153, 0.8); color: white; } .geomine-close { background: none; border: none; color: white; font-size: 24px; cursor: pointer; } .geomine-controls { display: flex; justify-content: space-around; padding: 15px 0; background: rgba(30, 55, 153, 0.5); } .geomine-btn { padding: 10px 15px; background: #3498db; border: none; border-radius: 5px; color: white; cursor: pointer; } /* Energy Use System */.energy-bar { position: fixed; top: 70px; left: 20px; background: rgba(0, 0, 0, 0.7); border-radius: 20px; padding: 8px 15px; z-index: 59; } .energy-label { color: white; font-size: 12px; margin-bottom: 4px; } .energy-meter { width: 150px; height: 8px; background: rgba(255, 255, 255, 0.3); border-radius: 4px; overflow: hidden; } .energy-level { height: 100%; width: 100%; background: linear-gradient(90deg, #2ecc71, #27ae60); transition: width 0.3s; } /* Toast notification */.toast { position: fixed; top: 120px; left: 50%; transform: translateX(-50%); background: rgba(0, 0, 0, 0.8); color: white; padding: 10px 20px; border-radius: 5px; z-index: 70; display: none; } #jetpack-ui { display: none; }
         /* --- UI Fixes and Mobile Improvements --- */
         @media (max-width: 700px) {
@@ -43,15 +46,18 @@
         </style>         
         <link rel="preconnect" href="https://fonts.googleapis.com"> 
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> 
-        <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet"> 
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"> 
-        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+        <link rel="preload" href="" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet"></noscript> 
+        <link rel="preload" href="" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"></noscript> 
+        <link rel="preload" href="" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" /></noscript>
         
         <!-- Universal Wallet Authentication -->
-        <script src="../../fpds-contract-schema.js"></script>
-        <script src="../../contractor-registry.js"></script>
-        <script src="../../universal-wallet-auth.js"></script>
-        <script src="../../auth-integration.js"></script>
+        <script src="../../fpds-contract-schema.js" defer></script>
+        <script src="../../contractor-registry.js" defer></script>
+        <script src="../../universal-wallet-auth.js" defer></script>
+        <script src="../../auth-integration.js" defer></script>
     </head>     
     <body> 
         <header> 
@@ -270,7 +276,7 @@
             </div>             
         </div>         
         <div class="gem-found" id="gem-found"> 
-            <img id="gem-img" src="" alt="Gem"> 
+            <img id="gem-img" src="" alt="Gem" loading="lazy"> 
             <h3>You found a gem!</h3> 
             <div class="gem-name" id="gem-name"></div>             
             <div class="gem-rarity" id="gem-rarity"></div>             
@@ -437,7 +443,7 @@ map.whenReady(function() {
 });
 </script>
         <!-- Include helper scripts first -->         
-        <script src="public/sceneHelper.js"></script>         
+        <script src="public/sceneHelper.js" defer></script>         
         <script>
     document.addEventListener('DOMContentLoaded', function() {
       // Wait for THREE and PlayerControlsManager
@@ -455,15 +461,15 @@ map.whenReady(function() {
     });
     </script>         
         <!-- Include authentication scripts -->         
-        <script src="src/auth.js"></script>         
-        <script src="public/environment.js"></script>         
-        <script src="public/uptimeRewards.js"></script>         
+        <script src="src/auth.js" defer></script>         
+        <script src="public/environment.js" defer></script>         
+        <script src="public/uptimeRewards.js" defer></script>         
         <!-- Add TVDisplay script before loading outdoor.js -->         
-        <script src="public/tvDisplay.js"></script>         
+        <script src="public/tvDisplay.js" defer></script>         
         <!-- Include GeoMine Script -->         
-        <script src="public/geomine.js"></script>         
+        <script src="public/geomine.js" defer></script>         
         <!-- Add Leaflet JS -->
-        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" defer></script>
         <script>
 // --- Leaflet Map Initialization ---
 const map = L.map('geomine-map', {
@@ -879,7 +885,7 @@ function showActiveUsers() {
   alert('Show all active users online, their GPS locations, and total MGC balance. (Implement real modal here)');
 }
 </script>
-        <script src="public/phantomLogin.js"></script>
+        <script src="public/phantomLogin.js" defer></script>
         <script>
 );
 );

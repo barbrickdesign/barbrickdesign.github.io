@@ -17,13 +17,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Realm Management - Collaborative Worlds</title>
-  <link rel="stylesheet" href="public/styles.css">
+  <link rel="preload" href="" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="public/styles.css"></noscript>
   
   <!-- Universal Wallet Authentication -->
-  <script src="../../fpds-contract-schema.js"></script>
-  <script src="../../contractor-registry.js"></script>
-  <script src="../../universal-wallet-auth.js"></script>
-  <script src="../../auth-integration.js"></script>
+  <script src="../../fpds-contract-schema.js" defer></script>
+  <script src="../../contractor-registry.js" defer></script>
+  <script src="../../universal-wallet-auth.js" defer></script>
+  <script src="../../auth-integration.js" defer></script>
 </head>
 <body>
   <script>
@@ -74,6 +75,6 @@
       </div>
     </div>
   </main>
-  <script src="realm_management.js"></script>
+  <script src="realm_management.js" defer></script>
 </body>
 </html>

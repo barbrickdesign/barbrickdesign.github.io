@@ -153,7 +153,7 @@ a:visited { color: #1e9b55; }
     <title>Ember Terminal</title>
 
     <!-- Pump.fun Integration -->
-    <script src="../pumpfun-integration.js"></script>
+    <script src="../pumpfun-integration.js" defer></script>
     <a href="https://barbrickdesign.github.io/ember-terminal/index.html"><title>MandemOS 2049 - Soul Server With Ember.Terminal</title></a>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -4967,12 +4967,12 @@ a:visited { color: #1e9b55; }
     </style>
     
     <!-- Universal Wallet Authentication System -->
-    <script src="../contractor-registry.js"></script>
-    <script src="../universal-wallet-auth.js"></script>
-    <script src="../auth-integration.js"></script>
+    <script src="../contractor-registry.js" defer></script>
+    <script src="../universal-wallet-auth.js" defer></script>
+    <script src="../auth-integration.js" defer></script>
     
     <!-- Pump.fun Token Integration -->
-    <script src="../pumpfun-token-config.js"></script>
+    <script src="../pumpfun-token-config.js" defer></script>
     
     <!-- Ember Terminal specific wallet integration -->
     <style>
@@ -9401,7 +9401,7 @@ tracking enabled');
     coinDisplay.innerHTML = `
       <div style="background: linear-gradient(135deg, rgba(124,92,255,0.1), rgba(0,212,255,0.1)); border: 1px solid rgba(124,92,255,0.3); border-radius: 8px; padding: 15px; margin: 10px 0; font-family: monospace;">
         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-          <img src="${mandemCoin.image}" alt="$MNDM" style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid #7c5cff;" />
+          <img src="${mandemCoin.image}" alt="$MNDM" style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid #7c5cff;" / loading="lazy">
           <div>
             <div style="font-weight: bold; color: #7c5cff; font-size: 14px;">$MNDM - MANDEM.OS Token</div>
             <div style="font-size: 12px; color: #6ee7b7;">Market Cap: $${mandemCoin.marketCap.toLocaleString()}</div>

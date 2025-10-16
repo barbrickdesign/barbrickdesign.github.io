@@ -17,11 +17,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gem Bot Mini - Industrial Simulator & Training Platform</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
-    <script src="wallet-adapter.js"></script>
-    <link rel="stylesheet" href="wallet-button.css">
-    <link rel="stylesheet" href="mobile-responsive.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js" defer></script>
+    <script src="wallet-adapter.js" defer></script>
+    <link rel="preload" href="" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="wallet-button.css"></noscript>
+    <link rel="preload" href="" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="mobile-responsive.css"></noscript>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&family=Orbitron:wght@400;700;900&display=swap');
         
@@ -381,10 +383,10 @@
     </style>
     
     <!-- Universal Wallet Authentication & FPDS Integration -->
-    <script src="fpds-contract-schema.js"></script>
-    <script src="contractor-registry.js"></script>
-    <script src="universal-wallet-auth.js"></script>
-    <script src="auth-integration.js"></script>
+    <script src="fpds-contract-schema.js" defer></script>
+    <script src="contractor-registry.js" defer></script>
+    <script src="universal-wallet-auth.js" defer></script>
+    <script src="auth-integration.js" defer></script>
 </head>
 <body>
     <!-- 3D Visualization Canvas -->

@@ -123,10 +123,10 @@
     </style>
     
     <!-- Universal Wallet Authentication -->
-    <script src="../../fpds-contract-schema.js"></script>
-    <script src="../../contractor-registry.js"></script>
-    <script src="../../universal-wallet-auth.js"></script>
-    <script src="../../auth-integration.js"></script>
+    <script src="../../fpds-contract-schema.js" defer></script>
+    <script src="../../contractor-registry.js" defer></script>
+    <script src="../../universal-wallet-auth.js" defer></script>
+    <script src="../../auth-integration.js" defer></script>
 </head>
 <body>
     <a href="index.html" class="back-home">Back to Home</a>
@@ -173,12 +173,12 @@
     </section>
     <div id="debug-log" style="background:rgba(0,0,0,0.8);color:#fff;padding:10px;margin:10px 0 20px 0;border-radius:6px;font-size:13px;max-width:600px;word-break:break-all;display:block;min-height:40px;">Debug log area loaded. Waiting for script...</div>
     <!-- Solana web3.js and SPL Token for blockchain functionality -->
-    <script src="https://unpkg.com/@solana/web3.js@1.95.2/lib/index.iife.js"></script>
-    <script src="https://unpkg.com/@solana/spl-token@0.3.10/lib/index.iife.js"></script>
+    <script src="https://unpkg.com/@solana/web3.js@1.95.2/lib/index.iife.js" defer></script>
+    <script src="https://unpkg.com/@solana/spl-token@0.3.10/lib/index.iife.js" defer></script>
     <!-- Include auth.js for wallet and MGC logic -->
-    <script src="./src/auth.js"></script>
-    <script src="/WorkingProject/profile.js"></script>
-    <script src="public/phantomLogin.js"></script>
+    <script src="./src/auth.js" defer></script>
+    <script src="/WorkingProject/profile.js" defer></script>
+    <script src="public/phantomLogin.js" defer></script>
     <script>
     function showDebugLog(msg) {
         var logDiv = document.getElementById('debug-log');

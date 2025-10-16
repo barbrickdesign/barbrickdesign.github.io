@@ -65,10 +65,10 @@
     </style>
     
     <!-- Universal Wallet Authentication -->
-    <script src="../../fpds-contract-schema.js"></script>
-    <script src="../../contractor-registry.js"></script>
-    <script src="../../universal-wallet-auth.js"></script>
-    <script src="../../auth-integration.js"></script>
+    <script src="../../fpds-contract-schema.js" defer></script>
+    <script src="../../contractor-registry.js" defer></script>
+    <script src="../../universal-wallet-auth.js" defer></script>
+    <script src="../../auth-integration.js" defer></script>
 </head>
 <body>
     <div id="error"></div>
@@ -76,13 +76,13 @@
     <div class="location-label">Grand Exchange Trade Center</div>
     
     <!-- Include helper scripts first -->
-    <script src="public/sceneHelper.js"></script>
+    <script src="public/sceneHelper.js" defer></script>
     
     <!-- Add TVDisplay script before loading grand_exchange.js -->
-    <script src="public/tvDisplay.js"></script>
+    <script src="public/tvDisplay.js" defer></script>
     
     <!-- Import Three.js from CDN -->
-    <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
+    <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js" defer></script>
     
     <script type="importmap">
         {
@@ -103,8 +103,7 @@
             .then(() => {
                 // Hide loading message when script is loaded
                 if (loadingElement) loadingElement.style.display = 'none';
-                console.log("Grand Exchange script loaded successfully");
-            })
+                })
             .catch(error => {
                 console.error("Error loading Grand Exchange script:", error);
                 const errorDiv = document.getElementById('error');
