@@ -311,18 +311,8 @@ class UniversalWalletAuth {
             // Reconnect wallet silently
             if (session.walletType === 'ethereum' && window.ethereum) {
                 this.wallet = window.ethereum;
-            } else if (session.walletType === 'solana') {
-                // Try to reconnect to Solana wallet
-                if (window.phantom?.solana) {
-                    this.wallet = window.phantom.solana;
-                } else if (window.solana) {
-                    this.wallet = window.solana;
-                } else {
-                    // Wallet not available, clear session
-                    console.log('⚠️ Solana wallet not available for restoration');
-                    this.clearSession();
-                    return;
-                }
+            } else if (session.walletType === 'solana' && window.solana) {
+                this.wallet = window.solana;
             }
 
             // Update last activity
@@ -332,7 +322,7 @@ class UniversalWalletAuth {
             this.startTimeTracking();
 
             console.log('✅ Session restored for:', this.address);
-            
+
             // Notify app
             this.notifyAuthSuccess();
 
