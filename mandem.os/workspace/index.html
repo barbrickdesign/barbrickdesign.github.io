@@ -3223,6 +3223,40 @@
       if (syncDropdownVisible) updateSyncDropdown();
     });
 
+    // Dashboard access button
+    const dashboardBtn = document.createElement('button');
+    dashboardBtn.id = 'dashboardBtn';
+    dashboardBtn.textContent = '📊 Dashboard';
+    dashboardBtn.style.cssText = `
+        background: rgba(0, 255, 255, 0.2);
+        border: 2px solid rgba(0, 255, 255, 0.5);
+        color: #00ffff;
+        padding: 8px 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-family: inherit;
+        font-size: 0.9em;
+        margin-left: 10px;
+        transition: all 0.3s ease;
+    `;
+    dashboardBtn.onclick = () => {
+        window.open('dashboard.html', '_blank');
+    };
+    dashboardBtn.onmouseover = () => {
+        dashboardBtn.style.background = 'rgba(0, 255, 255, 0.3)';
+        dashboardBtn.style.borderColor = 'rgba(0, 255, 255, 0.8)';
+    };
+    dashboardBtn.onmouseout = () => {
+        dashboardBtn.style.background = 'rgba(0, 255, 255, 0.2)';
+        dashboardBtn.style.borderColor = 'rgba(0, 255, 255, 0.5)';
+    };
+
+    // Add dashboard button next to Command Center button
+    const controlsContainer = contentToggleBtn.parentNode;
+    if (controlsContainer) {
+        controlsContainer.appendChild(dashboardBtn);
+    }
+
     // Hide dropdown if user clicks outside (mobile friendly)
     document.addEventListener('click', function(e) {
       if (syncDropdownVisible && !syncDropdown.contains(e.target) && e.target !== contentToggleBtn) {
