@@ -71,6 +71,41 @@
     z-index: 5;
     margin: 20px auto;
     max-width: 1200px;
+    padding: 20px;
+}
+
+/* Ensure no overlapping with globe */
+.welcome-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: #fff;
+    padding: 20px;
+}
+
+/* Post-login content positioning */
+.post-login-content {
+    position: relative;
+    z-index: 5;
+    margin-top: 20px;
+    padding: 20px;
+}
+
+/* Agent log panel positioning */
+#agentLogPanel {
+    position: relative;
+    z-index: 5;
+    margin: 20px 0;
+    max-width: 100%;
 }
 
 /* Agent log panel positioning */
