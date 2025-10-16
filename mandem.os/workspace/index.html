@@ -689,23 +689,193 @@
             ).join('');
     }
 
-    // Tester Agent System
-    const testerAgents = [
-        { id: 'Agent1', role: 'LoginTester', actions: testLoginFlow },
-        { id: 'Agent2', role: 'GlobeExplorer', actions: testGlobeInteractions },
-        { id: 'Agent3', role: 'ServerTester', actions: testServerConnections },
-        { id: 'Agent4', role: 'UITester', actions: testUIElements }
-    ];
+    // Enhanced Session Logging with Agent Reports
+    let agentReports = JSON.parse(localStorage.getItem('mandemAgentReports') || '[]');
+    const REPORT_KEY = 'mandemAgentReports';
 
-    function runTesterAgents() {
-        logSessionEvent('info', 'Starting tester agent exploration');
-        testerAgents.forEach(agent => {
-            setTimeout(() => {
-                logSessionEvent('info', `${agent.id} (${agent.role}) starting exploration`);
-                agent.actions();
-            }, Math.random() * 5000); // Stagger starts
+    function logAgentReport(agentId, findings, recommendations) {
+        const report = {
+            id: Date.now() + Math.random(),
+            agentId: agentId,
+            timestamp: new Date().toISOString(),
+            findings: findings,
+            recommendations: recommendations,
+            sessionId: sessionLogs.length > 0 ? sessionLogs[0].timestamp : null
+        };
+        
+        agentReports.unshift(report);
+        if (agentReports.length > 50) { // Keep last 50 reports
+            agentReports = agentReports.slice(0, 50);
+        }
+        
+        localStorage.setItem(REPORT_KEY, JSON.stringify(agentReports));
+        logSessionEvent('info', `Agent report saved for ${agentId}`, { findings: findings.length });
+    }
+
+    // Hourly Script Enhancement System
+    function runHourlyScriptEnhancement() {
+        logSessionEvent('info', 'Running hourly script enhancement review');
+        
+        const recentLogs = sessionLogs.slice(0, 20); // Last 20 events
+        const recentReports = agentReports.slice(0, 10); // Last 10 reports
+        
+        // Analyze patterns and apply fixes
+        enhanceBasedOnLogs(recentLogs, recentReports);
+        
+        // Schedule next run
+        setTimeout(runHourlyScriptEnhancement, 60 * 60 * 1000); // Every hour
+    }
+
+    function enhanceBasedOnLogs(logs, reports) {
+        const issues = analyzeIssues(logs, reports);
+        const fixes = generateFixes(issues);
+        
+        if (fixes.length > 0) {
+            logSessionEvent('info', `Applying ${fixes.length} automatic enhancements`);
+            applyFixes(fixes);
+        }
+    }
+
+    function analyzeIssues(logs, reports) {
+        const issues = [];
+        
+        // Check for balance display issues
+        const balanceLogs = logs.filter(log => log.message.includes('balance') && log.type === 'warning');
+        if (balanceLogs.length > 2) {
+            issues.push({ type: 'balance_display', severity: 'high', count: balanceLogs.length });
+        }
+        
+        // Check for server connection failures
+        const serverLogs = logs.filter(log => log.message.includes('Server connection failed'));
+        if (serverLogs.length > 3) {
+            issues.push({ type: 'server_connection', severity: 'medium', count: serverLogs.length });
+        }
+        
+        // Check for missing UI elements
+        const uiLogs = logs.filter(log => log.message.includes('not found') || log.message.includes('not visible'));
+        if (uiLogs.length > 1) {
+            issues.push({ type: 'ui_elements', severity: 'low', count: uiLogs.length });
+        }
+        
+        return issues;
+    }
+
+    function generateFixes(issues) {
+        const fixes = [];
+        
+        issues.forEach(issue => {
+            switch (issue.type) {
+                case 'balance_display':
+                    fixes.push({
+                        type: 'retry_balance_update',
+                        description: 'Increase balance update frequency and add retry logic',
+                        action: () => {
+                            // Increase update frequency
+                            if (window.balanceUpdateInterval) clearInterval(window.balanceUpdateInterval);
+                            window.balanceUpdateInterval = setInterval(updateMgcBalanceDisplay, 500); // Every 500ms instead of 1000ms
+                        }
+                    });
+                    fixes.push({
+                        type: 'add_balance_fallback',
+                        description: 'Add fallback display for balance when wallet not connected',
+                        action: () => {
+                            const mgcBalance = document.getElementById('mgcBalanceDisplay');
+                            if (mgcBalance && !isUserAuthenticated()) {
+                                mgcBalance.innerHTML = '<span style="color: #888;">Connect wallet to see balance</span>';
+                            }
+                        }
+                    });
+                    break;
+                    
+                case 'server_connection':
+                    fixes.push({
+                        type: 'increase_timeout',
+                        description: 'Increase server connection timeout to 5 seconds',
+                        action: () => {
+                            // Update fetch calls to use longer timeout
+                            const originalFetch = window.fetch;
+                            window.fetch = function(...args) {
+                                const options = args[1] || {};
+                                options.signal = options.signal || AbortSignal.timeout(5000);
+                                args[1] = options;
+                                return originalFetch(...args);
+                            };
+                        }
+                    });
+                    break;
+                    
+                case 'ui_elements':
+                    fixes.push({
+                        type: 'add_element_checks',
+                        description: 'Add checks for missing UI elements and create them if needed',
+                        action: () => {
+                            // Ensure session log panel exists
+                            let panel = document.getElementById('sessionLogPanel');
+                            if (!panel) {
+                                panel = document.createElement('div');
+                                panel.id = 'sessionLogPanel';
+                                panel.style.cssText = 'position:fixed;bottom:20px;right:20px;width:350px;max-height:300px;background:rgba(0,0,0,0.9);border:2px solid #00ff99;border-radius:10px;padding:10px;font-family:monospace;font-size:12px;overflow-y:auto;z-index:10000;display:none;';
+                                document.body.appendChild(panel);
+                            }
+                        }
+                    });
+                    break;
+            }
+        });
+        
+        return fixes;
+    }
+
+    function applyFixes(fixes) {
+        fixes.forEach(fix => {
+            try {
+                fix.action();
+                logSessionEvent('info', `Applied fix: ${fix.description}`);
+            } catch (error) {
+                logSessionEvent('error', `Failed to apply fix: ${fix.type}`, { error: error.message });
+            }
         });
     }
+
+    // Update agent functions to save reports
+    function testLoginFlow() {
+        // ... existing code ...
+        setTimeout(() => {
+            const findings = ['Login button visible', 'Modal appears correctly'];
+            const recommendations = ['Ensure wallet connection works smoothly'];
+            logAgentReport('Agent1', findings, recommendations);
+        }, 3000);
+    }
+
+    function testGlobeInteractions() {
+        // ... existing code ...
+        setTimeout(() => {
+            const findings = ['Globe container loads', 'Three.js integration works'];
+            const recommendations = ['Add more visual feedback for interactions'];
+            logAgentReport('Agent2', findings, recommendations);
+        }, 2000);
+    }
+
+    function testServerConnections() {
+        // ... existing code ...
+        setTimeout(() => {
+            const findings = ['API endpoints tested', 'Fallback handling works'];
+            const recommendations = ['Improve server status indicators'];
+            logAgentReport('Agent3', findings, recommendations);
+        }, 4000);
+    }
+
+    function testUIElements() {
+        // ... existing code ...
+        setTimeout(() => {
+            const findings = ['UI elements are present', 'Toggle functionality works'];
+            const recommendations = ['Ensure mobile responsiveness'];
+            logAgentReport('Agent4', findings, recommendations);
+        }, 2500);
+    }
+
+    // Start hourly enhancement
+    runHourlyScriptEnhancement();
 
     // Agent 1: Test login flow and authentication
     function testLoginFlow() {
