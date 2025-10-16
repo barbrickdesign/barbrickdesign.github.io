@@ -262,13 +262,68 @@
   .profile-card, .container, .post-login-content {
     padding: 8px !important;
   }
-}
-/* Larger touch targets for mobile */
-@media (max-width: 700px) {
   button, .auth-button {
     min-height: 44px;
     font-size: 18px;
   }
+}
+
+/* Move login button to bottom left on mobile */
+@media (max-width: 700px) {
+  #loginBtn {
+    position: fixed !important;
+    left: 18px;
+    bottom: 18px;
+    z-index: 1200;
+    margin: 0 !important;
+    width: auto;
+    min-width: 90px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px #0002;
+  }
+  #profileBtn {
+    position: fixed !important;
+    left: 18px;
+    bottom: 18px;
+    z-index: 1200;
+    margin: 0 !important;
+    width: auto;
+    min-width: 90px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px #0002;
+  }
+}
+
+/* Session Log Panel */
+#sessionLogPanel {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 350px;
+    max-height: 300px;
+    background: rgba(0, 0, 0, 0.9);
+    border: 2px solid #00ff99;
+    border-radius: 10px;
+    padding: 10px;
+    font-family: monospace;
+    font-size: 12px;
+    overflow-y: auto;
+    z-index: 10000;
+    display: none;
+}
+
+#sessionLogToggle {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #00ff99;
+    color: #000;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 12px;
+    z-index: 10001;
 }
 </style>
     
@@ -572,8 +627,7 @@
                 <button id="modalLoginBtn" class="auth-button">Connect Wallet</button>                 
                 <button id="modalCloseBtn" class="auth-button">Continue Without Login</button>                 
             </div>             
-        </div>         
-        <footer> 
+        </div> 
             <p>&copy; 2025 Gem Bot Project | All Rights Reserved</p> 
         </footer>         
         <!-- Load JavaScript files -->         
@@ -586,11 +640,59 @@
         <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/PointerLockControls.js"></script>         
         <!-- New globe script -->         
         <script>
-    // Check if the user is logged in
-    function isUserLoggedIn() {
-      // Check for both authentication methods to ensure compatibility
-      return localStorage.getItem('currentUser') !== null || localStorage.getItem('userLoggedIn') === 'true';
+    // Session Logging System
+    let sessionLogs = JSON.parse(localStorage.getItem('mandemSessionLogs') || '[]');
+    const MAX_LOGS = 100;
+
+    function logSessionEvent(type, message, data = {}) {
+        const logEntry = {
+            timestamp: new Date().toISOString(),
+            type: type,
+            message: message,
+            data: data,
+            url: window.location.href,
+            userAgent: navigator.userAgent
+        };
+        
+        sessionLogs.unshift(logEntry);
+        if (sessionLogs.length > MAX_LOGS) {
+            sessionLogs = sessionLogs.slice(0, MAX_LOGS);
+        }
+        
+        localStorage.setItem('mandemSessionLogs', JSON.stringify(sessionLogs));
+        console.log(`[${type}] ${message}`, data);
+        
+        // Update UI log panel if visible
+        updateSessionLogPanel();
     }
+
+    function toggleSessionLog() {
+        const panel = document.getElementById('sessionLogPanel');
+        if (panel.style.display === 'block') {
+            panel.style.display = 'none';
+        } else {
+            panel.style.display = 'block';
+            updateSessionLogPanel();
+        }
+    }
+
+    function updateSessionLogPanel() {
+        const panel = document.getElementById('sessionLogPanel');
+        if (!panel || panel.style.display === 'none') return;
+        
+        panel.innerHTML = '<h4>Session Logs</h4>' +
+            sessionLogs.slice(0, 20).map(log => 
+                `<div style="margin-bottom:5px;border-bottom:1px solid #333;padding:2px;">
+                    <small style="color:#888">${new Date(log.timestamp).toLocaleTimeString()}</small>
+                    <strong style="color:#00ff99">[${log.type}]</strong> ${log.message}
+                </div>`
+            ).join('');
+    }
+
+    // Initialize logging on page load
+    logSessionEvent('info', 'Page loaded', { url: window.location.href });
+    window.addEventListener('error', (e) => logSessionEvent('error', e.message, { stack: e.stack }));
+    window.addEventListener('unhandledrejection', (e) => logSessionEvent('error', 'Unhandled promise rejection', { reason: e.reason }));
     
     // Wallet-based authentication check (same as profile.js)
     function isUserAuthenticated() {
@@ -631,9 +733,10 @@
       const contentToggleBtn = document.getElementById('contentToggleBtn');
       const welcomeOverlay = document.querySelector('.welcome-overlay');
       
-      // Always show content toggle for better UX
+      // Always show content toggle for better UX - no blocking
       if (contentToggleBtn) {
         contentToggleBtn.style.display = 'block';
+        logSessionEvent('info', 'Content toggle enabled', { loggedIn: isLoggedIn });
       }
       
       // Hide welcome overlay after first visit or if logged in
@@ -643,6 +746,17 @@
       
       // Mark as visited
       localStorage.setItem('visited', 'true');
+      
+      // Show non-blocking login suggestion if not logged in
+      if (!isLoggedIn) {
+        setTimeout(() => {
+          const modal = document.getElementById('loginModal');
+          if (modal && modal.style.display === 'none') {
+            modal.style.display = 'flex';
+            logSessionEvent('info', 'Non-blocking login modal shown');
+          }
+        }, 3000); // Show after 3 seconds to avoid immediate interruption
+      }
     }
     
     // Quick Phantom wallet connect for modal
@@ -702,6 +816,7 @@
       if (mgcDiv && mgcSpan) {
         mgcDiv.style.display = 'block';
         mgcSpan.textContent = balance;
+        logSessionEvent('info', 'MGC balance displayed', { balance: balance });
       }
     }
     
@@ -735,6 +850,7 @@
       
       if (mgcSpan) mgcSpan.textContent = balance.toFixed ? balance.toFixed(2) : balance;
       if (displayMgcSpan) displayMgcSpan.textContent = balance.toFixed ? balance.toFixed(2) : balance;
+      logSessionEvent('info', 'MGC balance updated', { balance: balance });
     }
 
     // Toggle the post-login content
@@ -854,6 +970,17 @@
       
       const earth = new THREE.Mesh(earthGeometry, earthMaterial);
       scene.add(earth);
+      
+      // Load Earth texture
+      const textureLoader = new THREE.TextureLoader();
+      textureLoader.load('https://threejs.org/examples/textures/planets/earth_atmos_2048.jpg', function(texture) {
+        earthMaterial.map = texture;
+        earthMaterial.needsUpdate = true;
+        logSessionEvent('info', 'Earth texture loaded successfully');
+      }, undefined, function(error) {
+        console.error('Failed to load Earth texture:', error);
+        logSessionEvent('error', 'Earth texture failed to load', { error: error.message });
+      });
       
       // Position camera
       camera.position.z = 15;
@@ -1860,31 +1987,34 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-async function updateStatusMessage() {
-  const statusMessage = document.getElementById('statusMessage');
-  if (!statusMessage) return;
-  
-  let text = '';
-  let lastServerError = '';
-  try {
-    const res = await fetch('/api/ping', { cache: 'no-store', signal: AbortSignal.timeout(2000) });
-    if (res.ok) {
-      text = '✓ Online';
-      lastServerError = '';
-      statusMessage.style.background = 'rgba(0, 200, 0, 0.8)';
-      statusMessage.style.display = 'block';
-    } else {
-      text = '✗ Offline';
-      lastServerError = `(${res.status})`;
-      statusMessage.style.background = 'rgba(200, 0, 0, 0.8)';
+    async function updateStatusMessage() {
+        const statusMessage = document.getElementById('statusMessage');
+        if (!statusMessage) return;
+        
+        let text = '';
+        let lastServerError = '';
+        try {
+            const res = await fetch('/api/ping', { cache: 'no-store', signal: AbortSignal.timeout(2000) });
+            if (res.ok) {
+                text = '✓ Online';
+                lastServerError = '';
+                statusMessage.style.background = 'rgba(0, 200, 0, 0.8)';
+                statusMessage.style.display = 'block';
+                logSessionEvent('info', 'Server connection successful');
+            } else {
+                text = '✗ Offline';
+                lastServerError = `(${res.status})`;
+                statusMessage.style.background = 'rgba(200, 0, 0, 0.8)';
+                logSessionEvent('warning', 'Server returned error', { status: res.status });
+            }
+        } catch (e) {
+            // Server offline is normal - hide status to avoid clutter
+            statusMessage.style.display = 'none';
+            logSessionEvent('info', 'Server connection failed (expected offline)', { error: e.message });
+            return;
+        }
+        statusMessage.textContent = `Server: ${text}${lastServerError ? ' ' + lastServerError : ''}`;
     }
-  } catch (e) {
-    // Server offline is normal - hide status to avoid clutter
-    statusMessage.style.display = 'none';
-    return;
-  }
-  statusMessage.textContent = `Server: ${text}${lastServerError ? ' ' + lastServerError : ''}`;
-}
 
 // Server start button - graceful failure
 const statusMsg = document.getElementById('statusMessage');
