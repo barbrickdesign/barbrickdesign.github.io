@@ -652,10 +652,10 @@
 
             // Add orbiting satellites with labels
             const environments = [
-                { name: 'Grand Exchange', color: 0x3399ff, url: '../grand-exchange.html' },
-                { name: 'Laboratory', color: 0x00cc66, url: '../laboratory.html' },
-                { name: 'Warehouse', color: 0xffcc00, url: '../warehouse.html' },
-                { name: 'Explorer', color: 0x66ff99, url: '../outdoor.html' },
+                { name: 'Grand Exchange', color: 0x3399ff, url: 'grand_exchange.html' },
+                { name: 'Laboratory', color: 0x00cc66, url: 'laboratory.html' },
+                { name: 'Warehouse', color: 0xffcc00, url: 'warehouse.html' },
+                { name: 'Explorer', color: 0x66ff99, url: 'outdoor.html' },
             ];
 
             satellites = []; // Clear and repopulate global array
@@ -698,7 +698,7 @@
 
                 sprite.position.x = Math.cos(angle) * (radius + 1.5);
                 sprite.position.z = Math.sin(angle) * (radius + 1.5);
-                sprite.position.y = Math.sin(angle) * 2 + 2.5;
+                sprite.position.y = Math.sin(angle) * 2 + 1.8; // Lowered from +2.5 to +1.8
                 sprite.scale.set(4, 1, 1);
 
                 sprite.userData = { satellite: satellite };
