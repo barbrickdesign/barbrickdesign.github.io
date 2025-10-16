@@ -759,5 +759,65 @@
             }
         }
     </script>
+
+    <script>
+        // Initialize contractor registration system
+        window.addEventListener('DOMContentLoaded', async function() {
+            try {
+                // Initialize wallet auth
+                await window.authIntegration.init({
+                    showUI: false,
+                    onAuthSuccess: (authInfo) => {
+                        console.log('🎉 Contractor Registration: Wallet connected', authInfo.address);
+                        updateWalletStatus(authInfo);
+                        showRegistrationForm();
+                    },
+                    onAuthFail: () => {
+                        console.log('⚠️ Contractor Registration: No wallet connected');
+                        updateWalletStatus(null);
+                        hideRegistrationForm();
+                    }
+                });
+
+                // Check for System Architect access
+                if (window.universalWalletAuth && window.universalWalletAuth.isSystemArchitect()) {
+                    console.log('👑 System Architect detected - auto-approving access');
+                    showRegistrationForm();
+                }
+
+            } catch (error) {
+                console.error('❌ Contractor registration initialization failed:', error);
+            }
+        });
+
+        function updateWalletStatus(authInfo) {
+            const walletStatus = document.getElementById('walletStatus');
+            if (!walletStatus) return;
+
+            if (authInfo) {
+                walletStatus.innerHTML = `
+                    <span style="color: #00ff00;">●</span> Connected: ${authInfo.shortAddress}
+                `;
+            } else {
+                walletStatus.innerHTML = `
+                    <span style="color: #ff4444;">●</span> Wallet Not Connected
+                `;
+            }
+        }
+
+        function showRegistrationForm() {
+            const form = document.getElementById('registrationForm');
+            const connectMsg = document.getElementById('connectMessage');
+            if (form) form.style.display = 'block';
+            if (connectMsg) connectMsg.style.display = 'none';
+        }
+
+        function hideRegistrationForm() {
+            const form = document.getElementById('registrationForm');
+            const connectMsg = document.getElementById('connectMessage');
+            if (form) form.style.display = 'none';
+            if (connectMsg) connectMsg.style.display = 'block';
+        }
+    </script>
 </body>
 </html>
