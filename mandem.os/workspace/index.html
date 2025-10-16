@@ -1165,353 +1165,77 @@
       // --- Globe Satellite Navigation Fix ---
       // Make satellites, camera, raycaster globally accessible for event handlers
       window.satellites = satellites;
-      window.camera = camera;
-      window.raycaster = raycaster;
-      window.mouse = mouse;
-
-      function handleGlobePointer(event) {
-        const container = document.getElementById('globe-container');
-        const rect = container.getBoundingClientRect();
-        let x, y;
-        if (event.type.startsWith('touch')) {
-          x = ((event.changedTouches[0].clientX - rect.left) / rect.width) * 2 - 1;
-          y = -((event.changedTouches[0].clientY - rect.top) / rect.height) * 2 + 1;
-        } else {
-          x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-          y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-        }
-        window.mouse.x = x;
-        window.mouse.y = y;
-        window.raycaster.setFromCamera(window.mouse, window.camera);
-        const intersects = window.raycaster.intersectObjects(window.satellites);
-        if (intersects.length > 0) {
-          const sat = intersects[0].object;
-          const targetUrl = sat.userData.url;
-
-          // Define public pages that don't require login
-          const publicPages = [
-            'laboratory.html',
-            'warehouse.html',
-            'outdoor.html',
-            'grand_exchange.html'
-          ];
-
-          if (publicPages.includes(targetUrl) || isUserLoggedIn()) {
-            window.location.href = targetUrl;
-          } else {
-            // Show login modal instead of redirecting
-            showLoginModal();
-          }
-        }
-      }
-      // Remove any previous event listeners to avoid duplicates
-      const globeContainer = document.getElementById('globe-container');
-      globeContainer.onclick = null;
-      globeContainer.ontouchend = null;
-      globeContainer.addEventListener('click', handleGlobePointer);
-      globeContainer.addEventListener('touchend', handleGlobePointer);
-    }
-
-    // --- Location Logs UI ---
-    // Add a section to display user location logs
-    function renderLocationLogs(logs) {
-      let html = '<h3>Location Logs</h3>';
-      if (!logs || logs.length === 0) {
-        html += '<p>No location logs found.</p>';
-      } else {
-        html += '<ul style="max-height:200px;overflow-y:auto;padding-left:1em;">';
-        logs.forEach(log => {
-          html += `<li><b>${log.location}</b> <span style='color:#888;font-size:0.9em;'>(${new Date(log.timestamp).toLocaleString()})</span></li>`;
-        });
-        html += '</ul>';
-      }
-      let logDiv = document.getElementById('locationLogs');
-      if (!logDiv) {
-        logDiv = document.createElement('div');
-        logDiv.id = 'locationLogs';
-        logDiv.style.margin = '1em 0';
-        const postLoginContent = document.getElementById('postLoginContent');
-        postLoginContent.insertBefore(logDiv, postLoginContent.firstChild);
-      }
-      logDiv.innerHTML = html;
-    }
-
-    // Fetch and display logs for the current user
-    async function fetchAndShowLocationLogs() {
-      const user = JSON.parse(localStorage.getItem('userProfile') || '{}');
-      if (!user.walletAddress) return;
-      try {
-        const res = await fetch(`/api/location-logs/${user.walletAddress}`);
-        if (!res.ok) throw new Error('Failed to fetch logs');
-        const logs = await res.json();
-        renderLocationLogs(logs);
-      } catch (e) {
-        renderLocationLogs([]);
-      }
-    }
-
-    // Call this after login
-    if (isUserLoggedIn()) {
-      fetchAndShowLocationLogs();
-      updateAuthButton();
-    }
-
-    // --- Global Agent System with Server Integration ---
-    let playerHeartbeatInterval = null;
-    let leaderboardRefreshInterval = null;
-
-    function renderAllAgentsTableFromUsers(users) {
-      const tbody = document.getElementById('allAgentsTable').querySelector('tbody');
-      tbody.innerHTML = '';
-      users.forEach(user => {
-        const emoji = user.maskEmoji || user.maskColor || '🤖';
-        tbody.innerHTML += `
-          <tr>
-            <td><span style="font-size:20px">${emoji}</span></td>
-            <td>${user.displayName || user.username || 'Player'}</td>
-            <td>${(user.mgcBalance || 0).toFixed(2)}</td>
-            <td>${user.uptimeMinutes || user.uptimeBalance || 0} min</td>
-            <td>${user.isOnline || user.online ? '<span class="online-dot"></span>Online' : '<span class="offline-dot"></span>Offline'}</td>
-            <td>${user.role || 'Player'}</td>
-          </tr>
-        `;
-      });
-      if (users.length === 0) tbody.innerHTML = '<tr><td colspan="6">No players online. Start server!</td></tr>';
-    }
-
-    async function fetchLeaderboardFromServer() {
-      const tbody = document.getElementById('allAgentsTable').querySelector('tbody');
-      try {
-        const res = await fetch('/api/players/leaderboard?limit=50', { cache: 'no-store' });
-        if (res.ok) {
-          const players = await res.json();
-          renderAllAgentsTableFromUsers(players);
-        } else {
-          tbody.innerHTML = '<tr><td colspan="6">Server offline. Run: node server.js</td></tr>';
-        }
-      } catch (e) {
-        tbody.innerHTML = '<tr><td colspan="6">Server not running</td></tr>';
-      }
-    }
-
-    async function updatePlayerOnServer() {
-      if (!isUserAuthenticated()) return;
-      const user = JSON.parse(localStorage.getItem('currentUser') || 'null');
-      if (!user || !user.walletAddress) return;
-      
-      const profile = JSON.parse(localStorage.getItem('userProfile') || '{}');
-      const playerData = {
-        walletAddress: user.walletAddress,
-        displayName: user.displayName || `Player ${user.walletAddress.slice(0, 4)}`,
-        maskEmoji: '💎',
-        mgcBalance: profile.inGameMGC || 0,
-        status: 'Active',
-        role: 'Player',
-        uptimeMinutes: 0
-      };
-      
-      try {
-        await fetch('/api/players/update', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(playerData)
-        });
-        console.log('[Leaderboard] Player registered:', playerData.walletAddress);
-      } catch (e) {
-        console.warn('[Leaderboard] Server not available');
-      }
-    }
-
-    async function sendPlayerHeartbeat() {
-      if (!isUserAuthenticated()) return;
-      const user = JSON.parse(localStorage.getItem('currentUser') || 'null');
-      if (!user || !user.walletAddress) return;
-      
-      try {
-        await fetch('/api/players/heartbeat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ walletAddress: user.walletAddress })
-        });
-      } catch (e) {
-        // Server offline, ignore
-      }
-    }
-
-    function startPlayerTracking() {
-      // Register player
-      updatePlayerOnServer();
-      
-      // Send heartbeat every 60 seconds
-      if (playerHeartbeatInterval) clearInterval(playerHeartbeatInterval);
-      playerHeartbeatInterval = setInterval(sendPlayerHeartbeat, 60000);
-      
-      console.log('[Leaderboard] Player tracking started');
-    }
-
-    function stopPlayerTracking() {
-      if (playerHeartbeatInterval) {
-        clearInterval(playerHeartbeatInterval);
-        playerHeartbeatInterval = null;
-      }
-    }
-
-    function startLeaderboardRefresh() {
-      // Initial fetch
-      fetchLeaderboardFromServer();
-      
-      // Refresh every 10 seconds
-      if (leaderboardRefreshInterval) clearInterval(leaderboardRefreshInterval);
-      leaderboardRefreshInterval = setInterval(fetchLeaderboardFromServer, 10000);
-      
-      console.log('[Leaderboard] Auto-refresh started');
-    }
-
-    function stopLeaderboardRefresh() {
-      if (leaderboardRefreshInterval) {
-        clearInterval(leaderboardRefreshInterval);
-        leaderboardRefreshInterval = null;
-      }
-    }
-
     document.addEventListener('DOMContentLoaded', function() {
-      // Start leaderboard system
-      startLeaderboardRefresh();
-      
-      // Start player tracking if logged in
-      if (isUserAuthenticated()) {
-        startPlayerTracking();
+      // Setup welcome overlay hover disappear
+      const welcomeOverlay = document.querySelector('.welcome-overlay');
+      let hoverTimer;
+
+      welcomeOverlay.addEventListener('mouseenter', function() {
+        hoverTimer = setTimeout(function() {
+          welcomeOverlay.style.opacity = '0';
+          // Hide completely after fade animation completes
+          setTimeout(function() {
+            welcomeOverlay.style.display = 'none';
+          }, 1000);
+        }, 2000); // 2 seconds
+      });
+
+      welcomeOverlay.addEventListener('mouseleave', function() {
+        clearTimeout(hoverTimer);
+      });
+
+      // Setup modal buttons
+      document.getElementById('modalLoginBtn').addEventListener('click', function() {
+        window.location.href = 'login.html';
+      });
+
+      document.getElementById('modalCloseBtn').addEventListener('click', function() {
+        document.getElementById('loginModal').style.display = 'none';
+      });
+
+      // Setup content toggle button
+      document.getElementById('contentToggleBtn').addEventListener('click', toggleControls);
+
+      // Setup build tracker toggle
+      document.getElementById('buildTrackerToggle').addEventListener('click', function() {
+        document.getElementById('buildTrackerPanel').classList.toggle('active');
+      });
+
+      // Add click handler for MGC balance link to go to profile
+      const mgcLink = document.getElementById('mgcBalanceLink');
+      if (mgcLink) {
+        mgcLink.addEventListener('click', function(e) {
+          e.preventDefault();
+          window.location.href = 'profile.html';
+        });
       }
-      
-      // Agent log panel toggle
-      const agentLogPanel = document.getElementById('agentLogPanel');
-      const showAgentLogBtn = document.getElementById('showAgentLogBtn');
-      const toggleAgentLog = document.getElementById('toggleAgentLog');
-      showAgentLogBtn.onclick = function() {
-        agentLogPanel.style.display = 'block';
-        showAgentLogBtn.style.display = 'none';
-      };
-      toggleAgentLog.onclick = function() {
-        agentLogPanel.style.display = 'none';
-        showAgentLogBtn.style.display = 'none';
-      };
-      
-      // Cleanup on page unload
-      window.addEventListener('beforeunload', function() {
-        stopPlayerTracking();
-        stopLeaderboardRefresh();
-      });
-    });
 
-    // Glowing blue box toggles All Players panel
-    const glowingBox = document.getElementById('allPlayersGlowingBox');
-    const agentLogPanel = document.getElementById('agentLogPanel');
-    glowingBox.onclick = function() {
-      agentLogPanel.style.display = 'block';
-    };
-    // Hide panel button already works
-    // Make usernames in All Players table clickable for admin access
-    function makeUsernamesAdminClickable() {
-      const tbody = document.getElementById('allAgentsTable').querySelector('tbody');
-      Array.from(tbody.querySelectorAll('tr')).forEach(row => {
-        const usernameCell = row.children[1];
-        if (usernameCell && !usernameCell.classList.contains('admin-link')) {
-          usernameCell.classList.add('admin-link');
-          usernameCell.style.cursor = 'pointer';
-          usernameCell.style.textDecoration = 'underline';
-          usernameCell.onclick = function(e) {
-            e.stopPropagation();
-            // Wallet-based admin authentication
-            const ADMIN_VAULT = '6HTjfgWZYMbENnMAJJFhxWR2VZDxdze3qV7zznSAsfk';
-            const user = JSON.parse(localStorage.getItem('currentUser') || 'null');
-            if (user && user.walletAddress === ADMIN_VAULT) {
-              localStorage.setItem('admin_authenticated', 'true');
-              localStorage.setItem('admin_wallet', user.walletAddress);
-              window.location.href = 'admin.html';
-            } else {
-              alert('Access denied. Admin vault wallet required.');
-            }
-          };
+      // Update UI based on login state
+      updateUIForLoginState();
+
+      // Show MGC balance if logged in
+      if (isUserLoggedIn()) {
+        fetchMgcBalance().then(showMgcBalance);
+      }
+
+      // Update auth buttons
+      updateAuthButton(); // Ensure button is correct on page load
+      enforceAuthNavigation();
+
+      // Update profileBtn click to go to login if not authenticated
+      document.getElementById('profileBtn').addEventListener('click', function(e) {
+        if (!isUserAuthenticated()) {
+          e.preventDefault();
+          window.location.href = 'login.html';
         }
       });
-    }
-    // Patch into table update
-    const origRenderAllAgents = renderAllAgentsTableFromUsers;
-    renderAllAgentsTableFromUsers = function(users) {
-      origRenderAllAgents(users);
-      makeUsernamesAdminClickable();
-    };
 
-    // --- Auto-logout on session end or inactivity (home page) ---
-    function logoutAndRedirect() {
-      localStorage.removeItem('currentUser');
-      localStorage.removeItem('userProfile');
-      localStorage.removeItem('userLoggedIn');
-      localStorage.removeItem('lastWalletAuth');
-      window.location.href = 'login.html';
-    }
+      // Initialize 3D Globe when document is ready
+      initGlobe();
 
-    // Logout on page refresh (session end)
-    window.addEventListener('beforeunload', () => {
-      logoutAndRedirect();
+      setInterval(updateMgcBalanceDisplay, 1000);
+      updateMgcBalanceDisplay();
     });
-
-    // Logout after 5 minutes of inactivity
-    let inactivityTimeout;
-    function resetInactivityTimer() {
-      if (inactivityTimeout) clearTimeout(inactivityTimeout);
-      inactivityTimeout = setTimeout(() => {
-        logoutAndRedirect();
-      }, 5 * 60 * 1000); // 5 minutes
-    }
-    ['mousemove', 'keydown', 'mousedown', 'touchstart'].forEach(evt => {
-      window.addEventListener(evt, resetInactivityTimer);
-    });
-    resetInactivityTimer();
-
-    // Utility: detect mobile
-    function isMobile() {
-      return /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-    }
-    // Hide chat for mobile
-    if (isMobile()) {
-      const hideChat = () => {
-        const chat = document.getElementById('global-chat-container');
-        const chatBtn = document.getElementById('chat-minimized-button');
-        if (chat) chat.style.display = 'none';
-        if (chatBtn) chatBtn.style.display = 'none';
-      };
-      // Try immediately and after DOMContentLoaded
-      hideChat();
-      document.addEventListener('DOMContentLoaded', hideChat);
-    }
-    // Globe: make satellites navigable on mobile tap
-    function enableMobileGlobeLinks() {
-      const container = document.getElementById('globe-container');
-      if (!container) return;
-      container.addEventListener('touchend', function(event) {
-        // Use the same raycasting logic as click
-        if (typeof THREE === 'undefined') return;
-        const rect = container.getBoundingClientRect();
-        const x = ((event.changedTouches[0].clientX - rect.left) / rect.width) * 2 - 1;
-        const y = -((event.changedTouches[0].clientY - rect.top) / rect.height) * 2 + 1;
-        if (window.camera && window.raycaster && window.satellites) {
-          window.mouse = window.mouse || new THREE.Vector2();
-          window.mouse.x = x;
-          window.mouse.y = y;
-          window.raycaster.setFromCamera(window.mouse, window.camera);
-          const intersects = window.raycaster.intersectObjects(window.satellites);
-          if (intersects.length > 0) {
-            const sat = intersects[0].object;
-            if (isUserLoggedIn()) {
-              window.location.href = sat.userData.url;
-            } else {
-              window.location.href = 'login.html';
-            }
-          }
-        }
-      });
-    }
     document.addEventListener('DOMContentLoaded', enableMobileGlobeLinks);
     console.log('Page loaded at', new Date().toLocaleTimeString());
     window.addEventListener('DOMContentLoaded', () => {
