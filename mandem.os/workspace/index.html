@@ -382,11 +382,23 @@
             <!-- Pump.fun Token Widget -->
             <div id="pumpfun-token-container" style="max-width: 400px; margin: 15px auto 0;"></div>             
         </header>         
-        <!-- Fullscreen 3D globe container -->         
-        <div id="globe-container"> 
-            <!-- 3D Globe will be rendered here by Three.js -->             
+        <!-- Active Users Display -->
+        <div id="activeUsersDisplay" style="
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0, 0, 0, 0.8);
+            color: #00ff99;
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 2px solid #00ff99;
+            font-family: monospace;
+            font-size: 14px;
+            z-index: 1000;
+        ">
+            <div>🤖 Active Agents: <span id="activeAgentsCount">8</span></div>
+            <div>👥 Real Users: <span id="realUsersCount">1</span></div>
         </div>         
-        <div class="tooltip" id="globeTooltip"></div>         
         <!-- Welcome overlay (initially shown, fades out) -->
         <div class="welcome-overlay" id="welcomeOverlay">
             <h2>Gem Bot Universe</h2>
