@@ -673,7 +673,11 @@
                 satellite.position.z = Math.sin(angle) * radius;
                 satellite.position.y = Math.sin(angle) * 2;
 
-                satellite.userData = { name: env.name, url: env.url };
+                satellite.userData = {
+                    name: env.name,
+                    url: env.url,
+                    originalEmissive: satelliteMaterial.emissive ? satelliteMaterial.emissive.getHex() : 0x000000
+                };
                 scene.add(satellite);
                 satellites.push(satellite);
 
