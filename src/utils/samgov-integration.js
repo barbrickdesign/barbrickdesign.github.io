@@ -1119,28 +1119,79 @@ class SAMGovIntegration {
     }
 
     /**
-     * Infer category from opportunity description
+     * Get mock contract data for fallback
      */
-    inferCategoryFromDescription(description) {
-        const desc = description.toLowerCase();
+    getMockContractData() {
+        return [
+            {
+                id: 'GS35F0156T',
+                title: 'Cybersecurity Platform Development',
+                agency: 'Department of Homeland Security',
+                value: 15750000,
+                description: 'Advanced threat detection and response system for critical infrastructure protection',
+                category: 'cybersecurity'
+            },
+            {
+                id: 'W15P7T23C0052',
+                title: 'Blockchain Supply Chain System',
+                agency: 'Department of Defense',
+                value: 24500000,
+                description: 'Development and deployment of blockchain-based tracking for military logistics',
+                category: 'web3-blockchain'
+            }
+        ];
+    }
 
-        if (desc.includes('blockchain') || desc.includes('web3') || desc.includes('cryptocurrency')) {
-            return 'web3-blockchain';
-        }
-        if (desc.includes('cybersecurity') || desc.includes('security') || desc.includes('threat')) {
-            return 'cybersecurity';
-        }
-        if (desc.includes('cloud') || desc.includes('infrastructure')) {
-            return 'cloud-infrastructure';
-        }
-        if (desc.includes('ai') || desc.includes('machine learning') || desc.includes('ml')) {
-            return 'ai-ml';
-        }
-        if (desc.includes('data') || desc.includes('analytics')) {
-            return 'data-analytics';
-        }
+    /**
+     * Deduplicate contracts by ID
+     */
+    deduplicateContracts(contracts) {
+        const seen = new Set();
+        return contracts.filter(contract => {
+            if (seen.has(contract.id)) {
+                return false;
+            }
+            seen.add(contract.id);
+            return true;
+        });
+    }
 
-        return 'software-development';
+    /**
+     * Generate search terms from project keywords
+     */
+    generateSearchTerms(keywords, category) {
+        const terms = [keywords];
+        
+        // Add category-specific terms
+        if (category) {
+            const categoryTerms = {
+                'cybersecurity': ['security', 'threat detection', 'cyber'],
+                'web3-blockchain': ['blockchain', 'web3', 'cryptocurrency'],
+                'ai-ml': ['artificial intelligence', 'machine learning', 'AI'],
+                'cloud-infrastructure': ['cloud', 'infrastructure', 'hosting'],
+                'data-analytics': ['data', 'analytics', 'visualization']
+            };
+            
+            if (categoryTerms[category]) {
+                terms.push(...categoryTerms[category]);
+            }
+        }
+        
+        return terms;
+    }
+
+    /**
+     * Calculate market value for compensation reports
+     */
+    calculateMarketValue(projectData, similarContracts) {
+        const avgValue = similarContracts.reduce((sum, c) => sum + (c.value || c.award_amount || 0), 0) / similarContracts.length;
+        const confidence = Math.min(similarContracts.length / 5, 1); // Max confidence at 5+ similar contracts
+        
+        return {
+            marketValue: avgValue || 1000000,
+            confidence: confidence,
+            similarContractsCount: similarContracts.length
+        };
     }
 }
 
