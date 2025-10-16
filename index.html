@@ -423,6 +423,28 @@
         </div>
     </div>
 
+    <!-- Pump.fun Portfolio Ticker -->
+    <div class="portfolio-ticker" id="pumpFunTicker" style="display: none; background: linear-gradient(90deg, rgba(124,92,255,0.1), rgba(0,212,255,0.1)); border-top: 2px solid #7c5cff;">
+        <div class="ticker-content">
+            <div class="ticker-item">
+                <span class="ticker-label">🚀 Pump.fun Portfolio:</span>
+                <span class="ticker-value" id="pumpFunTotal">$0</span>
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-label">🪙 Coins:</span>
+                <span class="ticker-value" id="pumpFunCoins">0</span>
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-label">⭐ Top Coin:</span>
+                <span class="ticker-value" id="pumpFunTop">$MNDM</span>
+            </div>
+            <div class="ticker-item">
+                <span class="ticker-label">⏰ Last Update:</span>
+                <span class="ticker-value" id="pumpFunUpdate">Loading...</span>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Register Service Worker for offline support
         if ('serviceWorker' in navigator) {
@@ -716,6 +738,22 @@
                     }, 500);
                     
                     console.log(`💰 Portfolio loaded: $${dashboard.overview.totalValue.toLocaleString()}`);
+                }
+
+                // Load and display pump.fun portfolio data
+                if (window.pumpFun) {
+                    try {
+                        const pumpSummary = await window.pumpFun.getPortfolioSummary();
+                        console.log('🚀 Pump.fun portfolio loaded:', pumpSummary);
+                        
+                        // Add pump.fun data to portfolio ticker if not already present
+                        const pumpFunTicker = document.getElementById('pumpFunTicker');
+                        if (pumpFunTicker) {
+                            pumpFunTicker.style.display = 'block';
+                        }
+                    } catch (pumpError) {
+                        console.error('Pump.fun portfolio error:', pumpError);
+                    }
                 }
             } catch (error) {
                 console.error('Portfolio ticker error:', error);
