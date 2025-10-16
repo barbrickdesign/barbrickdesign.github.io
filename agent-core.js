@@ -113,27 +113,52 @@ class AgentSystem {
     }
 
     async start() {
-        if (this.isRunning) return;
+        if (this.isRunning) {
+            console.log('🤖 Agent system already running');
+            return;
+        }
 
+        console.log('🚀 Starting Agent System...');
         this.isRunning = true;
         this.log('🚀 Agent System Started');
 
         // Initialize agents if not already done
         if (this.agents.length === 0) {
+            console.log('🔧 Initializing agents...');
             this.initializeAgents();
         }
 
+        console.log(`✅ Initialized ${this.agents.length} agents`);
+
         // Start all agents
+        console.log('🎯 Starting all agents...');
         for (const agent of this.agents) {
-            agent.start(this);
+            try {
+                await agent.start(this);
+                console.log(`✅ Started ${agent.name} (${agent.type})`);
+            } catch (error) {
+                console.error(`❌ Failed to start ${agent.name}:`, error);
+            }
         }
 
+        console.log('🏥 Starting health monitoring...');
         // Begin continuous monitoring
         this.startHealthMonitoring();
         this.startErrorMonitoring();
 
         // Save state
         this.saveToStorage();
+        console.log('💾 Agent system state saved');
+
+        // Force initial update after short delay
+        setTimeout(() => {
+            console.log('🔄 Triggering initial agent display update...');
+            if (typeof updateAgentDisplay === 'function') {
+                updateAgentDisplay();
+            }
+        }, 3000);
+
+        console.log('🎉 Agent System fully operational!');
     }
 
     stop() {
