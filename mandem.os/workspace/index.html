@@ -3215,14 +3215,6 @@
     const syncDropdown = document.getElementById('sync-status-dropdown');
     let syncDropdownVisible = false;
 
-    // Show/hide sync dropdown on button click
-    contentToggleBtn.addEventListener('click', function() {
-      // ...existing code for toggling Mission Control...
-      syncDropdownVisible = !syncDropdownVisible;
-      syncDropdown.style.display = syncDropdownVisible ? 'block' : 'none';
-      if (syncDropdownVisible) updateSyncDropdown();
-    });
-
     // Dashboard access button
     const dashboardBtn = document.createElement('button');
     dashboardBtn.id = 'dashboardBtn';
