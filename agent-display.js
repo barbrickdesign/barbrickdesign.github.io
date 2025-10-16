@@ -43,7 +43,11 @@ class AgentDisplay {
             transform: translateX(100%);
             transition: transform 0.3s ease;
             box-sizing: border-box;
+            touch-action: none;
         `;
+
+        // Mobile responsiveness
+        this.addMobileStyles();
 
         // Create header
         const header = document.createElement('div');
@@ -83,14 +87,89 @@ class AgentDisplay {
             font-weight: bold;
             cursor: pointer;
             transition: all 0.2s;
+            touch-action: manipulation;
         `;
-        toggleBtn.onclick = () => this.toggle();
+        toggleBtn.onclick = (e) => {
+            e.stopPropagation();
+            this.toggle();
+        };
 
         header.appendChild(title);
         header.appendChild(toggleBtn);
 
-        // Create stats section
+        // Create content sections
+        this.createContentSections();
+
+        // Assemble container
+        this.container.appendChild(header);
+        this.container.appendChild(this.statsContainer);
+        this.container.appendChild(this.agentsContainer);
+        this.container.appendChild(this.logsContainer);
+        this.container.appendChild(this.errorsContainer);
+
+        document.body.appendChild(this.container);
+
+        // Add mobile touch handling
+        this.addMobileTouchHandling();
+
+        // Add toggle functionality
+        this.container.addEventListener('click', (e) => {
+            if (e.target === this.container) {
+                this.toggle();
+            }
+        });
+    }
+
+    addMobileStyles() {
+        // Add mobile-specific styles
+        const mobileStyles = document.createElement('style');
+        mobileStyles.textContent = `
+            @media (max-width: 768px) {
+                #agent-display {
+                    width: calc(100vw - 20px) !important;
+                    max-width: calc(100vw - 20px) !important;
+                    top: 10px !important;
+                    right: 10px !important;
+                    padding: 15px !important;
+                    font-size: 11px !important;
+                }
+
+                #agent-display h3 {
+                    font-size: 14px !important;
+                }
+
+                #agent-display .stats-grid {
+                    grid-template-columns: 1fr 1fr !important;
+                }
+
+                #agent-display .agent-item {
+                    font-size: 9px !important;
+                }
+            }
+
+            @media (max-width: 480px) {
+                #agent-display {
+                    width: calc(100vw - 10px) !important;
+                    max-width: calc(100vw - 10px) !important;
+                    top: 5px !important;
+                    right: 5px !important;
+                    padding: 12px !important;
+                    font-size: 10px !important;
+                }
+
+                #agent-display h3 {
+                    font-size: 12px !important;
+                    letter-spacing: 1px !important;
+                }
+            }
+        `;
+        document.head.appendChild(mobileStyles);
+    }
+
+    createContentSections() {
+        // Create stats section with responsive grid
         this.statsContainer = document.createElement('div');
+        this.statsContainer.className = 'stats-grid';
         this.statsContainer.style.cssText = `
             margin-bottom: 15px;
             padding: 10px;
@@ -130,21 +209,49 @@ class AgentDisplay {
             border: 1px solid rgba(255,0,0,0.3);
             font-size: 11px;
         `;
+    }
 
-        // Assemble container
-        this.container.appendChild(header);
-        this.container.appendChild(this.statsContainer);
-        this.container.appendChild(this.agentsContainer);
-        this.container.appendChild(this.logsContainer);
-        this.container.appendChild(this.errorsContainer);
+    addMobileTouchHandling() {
+        // Add touch handling for mobile devices
+        let startX = 0;
+        let startY = 0;
 
-        document.body.appendChild(this.container);
+        this.container.addEventListener('touchstart', (e) => {
+            startX = e.touches[0].clientX;
+            startY = e.touches[0].clientY;
+        }, { passive: true });
 
-        // Add toggle functionality
-        this.container.addEventListener('click', (e) => {
-            if (e.target === this.container) {
-                this.toggle();
+        this.container.addEventListener('touchmove', (e) => {
+            if (!startX || !startY) return;
+
+            const deltaX = Math.abs(e.touches[0].clientX - startX);
+            const deltaY = Math.abs(e.touches[0].clientY - startY);
+
+            // Prevent scrolling if horizontal swipe is detected
+            if (deltaX > deltaY && deltaX > 10) {
+                e.preventDefault();
             }
+        }, { passive: false });
+
+        this.container.addEventListener('touchend', (e) => {
+            if (!startX || !startY) return;
+
+            const deltaX = e.changedTouches[0].clientX - startX;
+            const deltaY = e.changedTouches[0].clientY - startY;
+
+            // Detect swipe gestures
+            if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
+                if (deltaX > 0 && !this.isVisible) {
+                    // Swipe right - show panel
+                    this.show();
+                } else if (deltaX < 0 && this.isVisible) {
+                    // Swipe left - hide panel
+                    this.hide();
+                }
+            }
+
+            startX = 0;
+            startY = 0;
         });
     }
 
@@ -196,6 +303,10 @@ class AgentDisplay {
         const healthColor = stats.healthStatus === 'healthy' ? '#00ff00' :
                            stats.healthStatus === 'degraded' ? '#ffaa00' : '#ff4444';
 
+        // Calculate success rate
+        const totalFixes = stats.agentStats ? Object.values(stats.agentStats).reduce((sum, agent) => sum + agent.fixes, 0) : 0;
+        const successRate = stats.totalFixes > 0 ? Math.round((stats.totalFixes / (stats.totalFixes + stats.openErrors)) * 100) : 0;
+
         this.statsContainer.innerHTML = `
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 8px;">
                 <div style="text-align: center;">
@@ -207,7 +318,7 @@ class AgentDisplay {
                     <div style="font-size: 16px; font-weight: bold; color: ${healthColor};">${stats.healthStatus.toUpperCase()}</div>
                 </div>
             </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px;">
                 <div style="text-align: center;">
                     <div style="font-size: 9px; color: #8addff; margin-bottom: 2px;">TESTS</div>
                     <div style="font-size: 14px; font-weight: bold; color: #00ffff;">${stats.testsRun}</div>
@@ -219,6 +330,16 @@ class AgentDisplay {
                 <div style="text-align: center;">
                     <div style="font-size: 9px; color: #8addff; margin-bottom: 2px;">FIXES</div>
                     <div style="font-size: 14px; font-weight: bold; color: #00ff00;">${stats.totalFixes}</div>
+                </div>
+            </div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <div style="text-align: center;">
+                    <div style="font-size: 9px; color: #8addff; margin-bottom: 2px;">SUCCESS RATE</div>
+                    <div style="font-size: 12px; font-weight: bold; color: ${successRate > 80 ? '#00ff00' : successRate > 50 ? '#ffaa00' : '#ff4444'};">${successRate}%</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 9px; color: #8addff; margin-bottom: 2px;">UPTIME</div>
+                    <div style="font-size: 12px; font-weight: bold; color: #00ffff;">${Math.floor(stats.uptime / 3600000)}h ${Math.floor((stats.uptime % 3600000) / 60000)}m</div>
                 </div>
             </div>
         `;
@@ -270,17 +391,34 @@ class AgentDisplay {
             return;
         }
 
-        const recentLogs = window.agentSystem.logs.slice(-8);
+        const recentLogs = window.agentSystem.logs.slice(-6);
+
+        // Add performance metrics if available
+        const performanceAgent = window.agentSystem.agents?.find(a => a.type === 'performance-monitoring');
+        let performanceInfo = '';
+        if (performanceAgent?.metrics?.memory?.usagePercent) {
+            const memColor = performanceAgent.metrics.memory.usagePercent > 80 ? '#ff6b6b' :
+                           performanceAgent.metrics.memory.usagePercent > 60 ? '#ffaa00' : '#00ff00';
+            performanceInfo = `
+                <div style="margin-bottom: 4px; padding: 4px; background: rgba(0,255,255,0.1); border-radius: 3px;">
+                    <div style="font-size: 9px; color: #8addff; margin-bottom: 2px;">📊 PERFORMANCE</div>
+                    <div style="font-size: 9px; color: #ffffff;">Memory: <span style="color: ${memColor};">${performanceAgent.metrics.memory.usagePercent}%</span> | DOM: ${performanceAgent.metrics.timing?.domContentLoaded || 0}ms</div>
+                </div>`;
+        }
+
         const logsHtml = recentLogs.map(log => {
             const time = new Date(log.timestamp).toLocaleTimeString();
+            const levelColor = log.level === 'error' ? '#ff6b6b' :
+                              log.level === 'warning' ? '#ffaa00' : '#8addff';
             return `<div style="margin-bottom: 2px; padding: 2px 0;">
-                <span style="color: #8addff; font-size: 10px;">${time}</span>
-                <span style="margin-left: 6px; color: #ffffff; font-size: 10px;">${log.message}</span>
+                <span style="color: ${levelColor}; font-size: 10px;">[${time}]</span>
+                <span style="margin-left: 4px; color: #ffffff; font-size: 10px;">${log.message}</span>
             </div>`;
         }).join('');
 
         this.logsContainer.innerHTML = `
             <div style="font-size: 11px; font-weight: bold; margin-bottom: 6px; color: #00ffff;">📋 RECENT LOGS</div>
+            ${performanceInfo}
             ${logsHtml || '<div style="color: #8addff; font-size: 11px;">No recent logs</div>'}
         `;
     }
@@ -322,6 +460,13 @@ class AgentDisplay {
         if (this.container && this.container.parentNode) {
             this.container.parentNode.removeChild(this.container);
         }
+    }
+}
+
+// Global function for agent display updates (called by agent system)
+function updateAgentDisplay() {
+    if (window.agentDisplay) {
+        window.agentDisplay.updateDisplay();
     }
 }
 

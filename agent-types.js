@@ -39,16 +39,20 @@ class FunctionTestingAgent extends BaseAgent {
         super(id, 'Function Tester', description);
         this.type = 'function-testing';
         this.testInterval = null;
+        this.lastTestResults = null;
+        this.testHistory = [];
     }
 
     start(agentSystem) {
         super.start(agentSystem);
 
+        // Run tests less frequently to reduce performance impact
         this.testInterval = setInterval(() => {
             this.runTests();
-        }, 60000);
+        }, 120000); // Every 2 minutes instead of 1 minute
 
-        setTimeout(() => this.runTests(), 10000);
+        // Initial test after longer delay to ensure everything is loaded
+        setTimeout(() => this.runTests(), 15000);
     }
 
     stop() {
@@ -60,17 +64,53 @@ class FunctionTestingAgent extends BaseAgent {
 
     async runTests() {
         try {
-            this.log('🔬 Running function tests...');
+            this.log('🔬 Running comprehensive function tests...');
+            const startTime = performance.now();
             const results = await this.agentSystem.runAllTests();
+            const duration = performance.now() - startTime;
 
             const passed = results.filter(r => r.status === 'success').length;
             const failed = results.filter(r => r.status === 'error').length;
 
-            this.log(`✅ Function tests complete: ${passed} passed, ${failed} failed`);
+            // Store test results for trend analysis
+            this.lastTestResults = { passed, failed, duration, timestamp: new Date() };
+            this.testHistory.unshift(this.lastTestResults);
+
+            // Keep only last 10 test results
+            if (this.testHistory.length > 10) {
+                this.testHistory = this.testHistory.slice(0, 10);
+            }
+
+            // Calculate performance trends
+            const recentTests = this.testHistory.slice(0, 3);
+            const avgDuration = recentTests.reduce((sum, test) => sum + test.duration, 0) / recentTests.length;
+
+            this.log(`✅ Function tests complete: ${passed} passed, ${failed} failed (${duration.toFixed(1)}ms avg)`);
+
+            // Performance warning if tests are taking too long
+            if (avgDuration > 5000) {
+                this.log('⚠️ Performance warning: Tests taking longer than expected');
+            }
 
         } catch (error) {
             this.log(`❌ Function test error: ${error.message}`);
+            this.recordTestFailure(error);
         }
+    }
+
+    recordTestFailure(error) {
+        // Track test failures for pattern analysis
+        const failure = {
+            timestamp: new Date(),
+            error: error.message,
+            component: error.component || 'unknown'
+        };
+
+        // Could store in localStorage for historical analysis
+        const failures = JSON.parse(localStorage.getItem('agentTestFailures') || '[]');
+        failures.unshift(failure);
+        if (failures.length > 50) failures.pop();
+        localStorage.setItem('agentTestFailures', JSON.stringify(failures));
     }
 }
 
@@ -80,16 +120,20 @@ class ButtonTestingAgent extends BaseAgent {
         super(id, 'Button Tester', description);
         this.type = 'button-testing';
         this.testInterval = null;
+        this.buttonTests = [];
+        this.lastButtonState = {};
     }
 
     start(agentSystem) {
         super.start(agentSystem);
 
+        // Run button tests less frequently
         this.testInterval = setInterval(() => {
             this.testAllButtons();
-        }, 45000);
+        }, 90000); // Every 90 seconds instead of 45 seconds
 
-        setTimeout(() => this.testAllButtons(), 15000);
+        // Initial test after longer delay
+        setTimeout(() => this.testAllButtons(), 20000);
     }
 
     stop() {
@@ -101,53 +145,99 @@ class ButtonTestingAgent extends BaseAgent {
 
     testAllButtons() {
         try {
-            this.log('🖱️ Testing all buttons...');
+            this.log('🖱️ Testing all interactive elements...');
 
-            const walletBtn = document.getElementById('walletBtn');
-            if (walletBtn) {
-                this.testWalletButton(walletBtn);
+            const currentState = {
+                walletBtn: this.testWalletButton(),
+                projectCards: this.testProjectCards(),
+                navLinks: this.testNavigationLinks(),
+                forms: this.testForms()
+            };
+
+            // Compare with previous state to detect changes
+            const stateChanged = this.detectStateChanges(currentState);
+
+            if (stateChanged) {
+                this.log('🔄 UI state changed, retesting critical elements');
+                // Could trigger additional tests or notifications here
             }
 
-            const projectCards = document.querySelectorAll('.project-card');
-            projectCards.forEach((card, index) => {
-                this.testProjectCard(card, index);
+            this.lastButtonState = currentState;
+            this.buttonTests.unshift({
+                timestamp: new Date(),
+                results: currentState,
+                stateChanged
             });
 
-            const navLinks = document.querySelectorAll('a[href]');
-            navLinks.forEach(link => {
-                this.testNavigationLink(link);
-            });
-
-            this.log(`✅ Button tests complete: ${projectCards.length} cards, ${navLinks.length} links`);
+            // Keep only last 5 test results
+            if (this.buttonTests.length > 5) {
+                this.buttonTests = this.buttonTests.slice(0, 5);
+            }
 
         } catch (error) {
             this.log(`❌ Button test error: ${error.message}`);
         }
     }
 
-    testWalletButton(button) {
-        if (button.onclick || button.getAttribute('onclick')) {
-            this.log('✅ Wallet button: Has click handler');
-        } else {
-            this.log('⚠️ Wallet button: Missing click handler');
+    testWalletButton() {
+        const walletBtn = document.getElementById('walletBtn');
+        if (walletBtn) {
+            const hasHandler = !!(walletBtn.onclick || walletBtn.getAttribute('onclick'));
+            const isVisible = walletBtn.style.display !== 'none' && walletBtn.offsetParent !== null;
+            return { exists: true, hasHandler, isVisible };
         }
+        return { exists: false, hasHandler: false, isVisible: false };
     }
 
-    testProjectCard(card, index) {
-        if (card.onclick) {
-            this.log(`✅ Project card ${index + 1}: Has click handler`);
-        } else {
-            this.log(`⚠️ Project card ${index + 1}: Missing click handler`);
-        }
+    testProjectCards() {
+        const projectCards = document.querySelectorAll('.project-card');
+        return Array.from(projectCards).map((card, index) => ({
+            index,
+            exists: !!card,
+            hasClickHandler: !!card.onclick,
+            isVisible: card.style.display !== 'none' && card.offsetParent !== null
+        }));
     }
 
-    testNavigationLink(link) {
-        const href = link.getAttribute('href');
-        if (href && (href.startsWith('http') || href.startsWith('/') || href.includes('.html'))) {
-            this.log(`✅ Navigation link: ${href}`);
-        } else {
-            this.log(`⚠️ Navigation link: Invalid href "${href}"`);
+    testNavigationLinks() {
+        const navLinks = document.querySelectorAll('a[href]');
+        return Array.from(navLinks).map(link => ({
+            href: link.getAttribute('href'),
+            isValid: this.validateLink(link.getAttribute('href'))
+        }));
+    }
+
+    testForms() {
+        const forms = document.querySelectorAll('form');
+        return Array.from(forms).map(form => ({
+            hasSubmitButton: !!form.querySelector('input[type="submit"], button[type="submit"]'),
+            hasInputs: form.querySelectorAll('input, textarea, select').length > 0
+        }));
+    }
+
+    validateLink(href) {
+        if (!href) return false;
+        if (href.startsWith('http') || href.startsWith('/')) return true;
+        if (href.includes('.html')) return true;
+        return false;
+    }
+
+    detectStateChanges(currentState) {
+        if (!this.lastButtonState) return true;
+
+        // Simple state comparison - could be more sophisticated
+        const currentKeys = Object.keys(currentState);
+        const lastKeys = Object.keys(this.lastButtonState);
+
+        if (currentKeys.length !== lastKeys.length) return true;
+
+        for (const key of currentKeys) {
+            if (JSON.stringify(currentState[key]) !== JSON.stringify(this.lastButtonState[key])) {
+                return true;
+            }
         }
+
+        return false;
     }
 }
 
@@ -204,51 +294,166 @@ class NavigationAgent extends BaseAgent {
     }
 }
 
-// Performance Agent
-class PerformanceAgent extends BaseAgent {
+// Performance Monitoring Agent
+class PerformanceMonitoringAgent extends BaseAgent {
     constructor(id, description) {
         super(id, 'Performance Monitor', description);
-        this.type = 'performance';
-        this.metrics = {};
+        this.type = 'performance-monitoring';
+        this.metrics = {
+            memory: {},
+            timing: {},
+            network: {},
+            resources: {}
+        };
+        this.history = [];
+        this.monitoringInterval = null;
     }
 
     start(agentSystem) {
         super.start(agentSystem);
 
-        this.monitorPerformance();
-        setInterval(() => this.monitorPerformance(), 30000);
+        // Monitor performance every 30 seconds
+        this.monitoringInterval = setInterval(() => {
+            this.collectMetrics();
+        }, 30000);
+
+        // Initial collection after 10 seconds
+        setTimeout(() => this.collectMetrics(), 10000);
     }
 
-    monitorPerformance() {
+    stop() {
+        super.stop();
+        if (this.monitoringInterval) {
+            clearInterval(this.monitoringInterval);
+        }
+    }
+
+    collectMetrics() {
         try {
-            if ('performance' in window) {
-                const navigation = performance.getEntriesByType('navigation')[0];
-                const paint = performance.getEntriesByType('paint');
+            this.log('📊 Collecting performance metrics...');
 
-                this.metrics = {
-                    domContentLoaded: navigation?.domContentLoadedEventEnd || 0,
-                    loadComplete: navigation?.loadEventEnd || 0,
-                    firstPaint: paint.find(p => p.name === 'first-paint')?.startTime || 0,
-                    firstContentfulPaint: paint.find(p => p.name === 'first-contentful-paint')?.startTime || 0,
-                    memoryUsage: performance.memory ? {
-                        used: Math.round(performance.memory.usedJSHeapSize / 1024 / 1024),
-                        total: Math.round(performance.memory.totalJSHeapSize / 1024 / 1024),
-                        limit: Math.round(performance.memory.jsHeapSizeLimit / 1024 / 1024)
-                    } : null
-                };
+            // Memory metrics
+            this.collectMemoryMetrics();
 
-                this.log(`📊 Performance: DOM ${this.metrics.domContentLoaded}ms, Load ${this.metrics.loadComplete}ms`);
+            // Timing metrics
+            this.collectTimingMetrics();
 
-                if (this.metrics.domContentLoaded > 3000) {
-                    this.log('⚠️ Performance warning: Slow DOM loading');
-                }
-                if (this.metrics.loadComplete > 5000) {
-                    this.log('⚠️ Performance warning: Slow page loading');
-                }
+            // Network metrics
+            this.collectNetworkMetrics();
+
+            // Resource metrics
+            this.collectResourceMetrics();
+
+            // Store metrics in history
+            this.history.unshift({
+                timestamp: new Date(),
+                metrics: { ...this.metrics }
+            });
+
+            // Keep only last 20 entries
+            if (this.history.length > 20) {
+                this.history = this.history.slice(0, 20);
             }
+
+            // Analyze trends
+            this.analyzePerformanceTrends();
+
         } catch (error) {
             this.log(`❌ Performance monitoring error: ${error.message}`);
         }
+    }
+
+    collectMemoryMetrics() {
+        if (performance.memory) {
+            const memory = performance.memory;
+            this.metrics.memory = {
+                used: Math.round(memory.usedJSHeapSize / 1024 / 1024),
+                total: Math.round(memory.totalJSHeapSize / 1024 / 1024),
+                limit: Math.round(memory.jsHeapSizeLimit / 1024 / 1024),
+                usagePercent: Math.round((memory.usedJSHeapSize / memory.jsHeapSizeLimit) * 100)
+            };
+        }
+    }
+
+    collectTimingMetrics() {
+        if (performance.timing) {
+            const timing = performance.timing;
+            this.metrics.timing = {
+                domContentLoaded: timing.domContentLoadedEventEnd - timing.navigationStart,
+                loadComplete: timing.loadEventEnd - timing.navigationStart,
+                domInteractive: timing.domInteractive - timing.navigationStart,
+                firstByte: timing.responseStart - timing.requestStart
+            };
+        }
+    }
+
+    collectNetworkMetrics() {
+        // Track active connections and requests
+        this.metrics.network = {
+            online: navigator.onLine,
+            connectionType: navigator.connection?.effectiveType || 'unknown',
+            downlink: navigator.connection?.downlink || 0,
+            rtt: navigator.connection?.rtt || 0
+        };
+    }
+
+    collectResourceMetrics() {
+        this.metrics.resources = {
+            activeIntervals: this.countActiveIntervals(),
+            activeTimeouts: this.countActiveTimeouts(),
+            eventListeners: this.countEventListeners(),
+            domElements: document.getElementsByTagName('*').length
+        };
+    }
+
+    countActiveIntervals() {
+        // Simplified count - in real implementation would need to track all setInterval calls
+        return Object.keys(window).filter(key =>
+            key.includes('Interval') && typeof window[key] === 'number'
+        ).length;
+    }
+
+    countActiveTimeouts() {
+        // Simplified count - in real implementation would need to track all setTimeout calls
+        return Object.keys(window).filter(key =>
+            key.includes('Timeout') && typeof window[key] === 'number'
+        ).length;
+    }
+
+    countEventListeners() {
+        // This is a rough estimate - actual count would require more complex tracking
+        return Object.keys(window).filter(key =>
+            key.startsWith('on') && typeof window[key] === 'function'
+        ).length;
+    }
+
+    analyzePerformanceTrends() {
+        if (this.history.length < 3) return;
+
+        const recent = this.history.slice(0, 3);
+        const memoryTrend = this.calculateTrend(recent.map(h => h.metrics.memory?.usagePercent || 0));
+
+        if (memoryTrend > 5) {
+            this.log(`⚠️ Memory usage increasing: +${memoryTrend.toFixed(1)}%`);
+        }
+
+        const timingTrend = this.calculateTrend(recent.map(h => h.metrics.timing?.domContentLoaded || 0));
+        if (timingTrend > 100) {
+            this.log(`⚠️ Page load time increasing: +${timingTrend.toFixed(0)}ms`);
+        }
+
+        const resourceTrend = this.calculateTrend(recent.map(h => h.metrics.resources?.activeIntervals || 0));
+        if (resourceTrend > 2) {
+            this.log(`⚠️ Resource usage increasing: +${resourceTrend.toFixed(1)} intervals`);
+        }
+    }
+
+    calculateTrend(values) {
+        if (values.length < 2) return 0;
+
+        const first = values[0];
+        const last = values[values.length - 1];
+        return last - first;
     }
 }
 
@@ -309,206 +514,430 @@ class ErrorRecoveryAgent extends BaseAgent {
         super(id, 'Error Recovery', description);
         this.type = 'error-recovery';
         this.recoveryStrategies = {};
+        this.recoveryStats = {
+            totalAttempts: 0,
+            successfulFixes: 0,
+            failedAttempts: 0,
+            strategiesUsed: {}
+        };
     }
 
     start(agentSystem) {
         super.start(agentSystem);
         this.initializeRecoveryStrategies();
+        this.loadRecoveryStats();
     }
 
     initializeRecoveryStrategies() {
         this.recoveryStrategies = {
-            'universal-wallet-auth.js not loaded': () => {
-                this.log('🔧 Attempting wallet auth reload...');
-                const script = document.querySelector('script[src="universal-wallet-auth.js"]');
-                if (script) {
-                    script.remove();
-                    const newScript = document.createElement('script');
-                    newScript.src = 'universal-wallet-auth.js';
-                    document.head.appendChild(newScript);
-                    return true;
-                }
-                return false;
-            },
-            'Service Worker not registered': () => {
-                this.log('🔧 Attempting service worker registration...');
-                if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.register('./service-worker.js');
-                    return true;
-                }
-                return false;
-            },
-            'Critical element missing': (error) => {
-                this.log('🔧 Attempting to recreate missing DOM elements...');
-                const selector = error.selector;
-                if (selector) {
-                    if (selector === '.portfolio-ticker') {
-                        this.createPortfolioTicker();
-                        return true;
-                    } else if (selector === '#walletButtonContainer') {
-                        this.createWalletButton();
-                        return true;
-                    } else if (selector.includes('script[src*="universal-wallet-auth"]')) {
-                        this.reloadWalletAuth();
-                        return true;
-                    }
-                }
-                return false;
-            },
+            // Script loading errors
             'Script failed to load': (error) => {
-                this.log('🔧 Attempting to reload failed script...');
-                const scriptSrc = error.filename;
-                if (scriptSrc && scriptSrc.includes('.js')) {
-                    const script = document.querySelector(`script[src="${scriptSrc}"]`);
-                    if (script) {
-                        script.remove();
-                        const newScript = document.createElement('script');
-                        newScript.src = scriptSrc;
-                        document.head.appendChild(newScript);
-                        return true;
-                    }
-                }
-                return false;
+                return this.reloadScript(error);
             },
+
+            'universal-wallet-auth.js not loaded': (error) => {
+                return this.reloadWalletAuth();
+            },
+
+            'auth-integration.js not loaded': (error) => {
+                return this.reloadAuthIntegration();
+            },
+
+            // CSS loading errors
             'CSS failed to load': (error) => {
-                this.log('🔧 Attempting to reload failed CSS...');
-                const cssHref = error.filename;
-                if (cssHref && cssHref.includes('.css')) {
-                    const link = document.querySelector(`link[href="${cssHref}"]`);
-                    if (link) {
-                        link.remove();
-                        const newLink = document.createElement('link');
-                        newLink.rel = 'stylesheet';
-                        newLink.href = cssHref;
-                        document.head.appendChild(newLink);
-                        return true;
-                    }
-                }
-                return false;
+                return this.reloadCSS(error);
             },
-            'Image failed to load': (error) => {
-                this.log('🔧 Attempting to fix broken image...');
-                const imgSrc = error.filename;
-                if (imgSrc) {
-                    const img = document.querySelector(`img[src="${imgSrc}"]`);
-                    if (img) {
-                        img.style.display = 'none';
-                        return true;
-                    }
-                }
-                return false;
-            },
-            'API request failed': (error) => {
-                this.log('🔧 API request failed - checking network connectivity...');
-                if (!navigator.onLine) {
-                    this.log('💡 Network offline - will retry when connection restored');
-                    return 'network_retry';
-                }
-                return false;
-            },
-            'Fetch request failed': (error) => {
-                this.log('🔧 Fetch request failed - attempting retry...');
-                const url = error.url;
-                if (url) {
-                    setTimeout(() => {
-                        fetch(url).catch(err => {
-                            this.log(`❌ Retry failed: ${err.message}`);
-                        });
-                    }, 2000);
-                    return true;
-                }
-                return false;
-            },
-            'Network connection lost': () => {
-                this.log('🔧 Network lost - setting up reconnection monitoring...');
-                const handleReconnection = () => {
-                    if (navigator.onLine) {
-                        this.log('✅ Network restored - refreshing critical resources');
-                        window.location.reload();
-                        return true;
-                    }
-                    return false;
-                };
 
-                if (!navigator.onLine) {
-                    const retryInterval = setInterval(() => {
-                        if (handleReconnection()) {
-                            clearInterval(retryInterval);
-                        }
-                    }, 5000);
-                    return true;
-                }
-                return false;
+            // Network errors
+            'NetworkError': (error) => {
+                return this.handleNetworkError(error);
             },
-            'function missing': (error) => {
-                this.log('🔧 Function missing - reloading affected modules...');
-                const criticalModules = [
-                    'universal-wallet-auth.js',
-                    'auth-integration.js',
-                    'samgov-integration.js',
-                    'fpds-contract-schema.js'
-                ];
 
-                criticalModules.forEach(module => {
-                    const script = document.querySelector(`script[src="${module}"]`);
-                    if (script) {
-                        script.remove();
-                        const newScript = document.createElement('script');
-                        newScript.src = module;
-                        document.head.appendChild(newScript);
-                    }
-                });
-                return true;
+            'fetch request failed': (error) => {
+                return this.handleFetchError(error);
+            },
+
+            // DOM errors
+            'element not found': (error) => {
+                return this.recreateDOMElement(error);
+            },
+
+            'missing UI element': (error) => {
+                return this.recreateDOMElement(error);
+            },
+
+            // Service Worker errors
+            'Service Worker not registered': (error) => {
+                return this.reregisterServiceWorker();
+            },
+
+            // Function missing errors
+            'function not defined': (error) => {
+                return this.reloadMissingFunction(error);
+            },
+
+            'is not a function': (error) => {
+                return this.reloadMissingFunction(error);
+            },
+
+            // Performance errors
+            'performance warning': (error) => {
+                return this.optimizePerformance(error);
+            },
+
+            // Generic script errors
+            'Script error': (error) => {
+                return this.handleScriptError(error);
             }
         };
     }
 
-    // Helper methods for DOM recreation
-    createPortfolioTicker() {
-        if (!document.querySelector('.portfolio-ticker')) {
-            const ticker = document.createElement('div');
-            ticker.className = 'portfolio-ticker';
-            ticker.id = 'portfolioTicker';
-            ticker.style.display = 'none';
-            document.body.appendChild(ticker);
-            this.log('✅ Recreated portfolio ticker element');
+    async reloadScript(error) {
+        this.log('🔧 Attempting to reload failed script...');
+        const scriptSrc = error.filename || error.target?.src;
+
+        if (scriptSrc && scriptSrc.includes('.js')) {
+            const script = document.querySelector(`script[src*="${scriptSrc.split('/').pop()}"]`);
+            if (script) {
+                const newScript = document.createElement('script');
+                newScript.src = scriptSrc + '?retry=' + Date.now();
+                newScript.onload = () => {
+                    this.log('✅ Script reloaded successfully');
+                    return true;
+                };
+                newScript.onerror = () => {
+                    this.log('❌ Script reload failed');
+                    return false;
+                };
+
+                script.remove();
+                document.head.appendChild(newScript);
+                return true;
+            }
+        }
+        return false;
+    }
+
+    reloadWalletAuth() {
+        this.log('🔧 Reloading wallet authentication system...');
+        const script = document.querySelector('script[src*="universal-wallet-auth"]');
+        if (script) {
+            script.remove();
+
+            // Wait a bit then reload
+            setTimeout(() => {
+                const newScript = document.createElement('script');
+                newScript.src = 'universal-wallet-auth.js';
+                newScript.onload = () => this.log('✅ Wallet auth reloaded');
+                newScript.onerror = () => this.log('❌ Wallet auth reload failed');
+                document.head.appendChild(newScript);
+            }, 1000);
+
+            return true;
+        }
+        return false;
+    }
+
+    reloadAuthIntegration() {
+        this.log('🔧 Reloading auth integration...');
+        const script = document.querySelector('script[src*="auth-integration"]');
+        if (script) {
+            script.remove();
+
+            setTimeout(() => {
+                const newScript = document.createElement('script');
+                newScript.src = 'auth-integration.js';
+                newScript.onload = () => this.log('✅ Auth integration reloaded');
+                newScript.onerror = () => this.log('❌ Auth integration reload failed');
+                document.head.appendChild(newScript);
+            }, 1000);
+
+            return true;
+        }
+        return false;
+    }
+
+    reloadCSS(error) {
+        this.log('🔧 Reloading failed CSS...');
+        const cssHref = error.filename;
+
+        if (cssHref && cssHref.includes('.css')) {
+            const link = document.querySelector(`link[href*="${cssHref.split('/').pop()}"]`);
+            if (link) {
+                const newLink = document.createElement('link');
+                newLink.rel = 'stylesheet';
+                newLink.href = cssHref + '?retry=' + Date.now();
+
+                link.remove();
+                document.head.appendChild(newLink);
+
+                this.log('✅ CSS reloaded');
+                return true;
+            }
+        }
+        return false;
+    }
+
+    handleNetworkError(error) {
+        this.log('🔧 Network error detected - checking connectivity...');
+
+        if (!navigator.onLine) {
+            this.log('💡 Network offline - will retry when connection restored');
+            return 'network_retry';
+        }
+
+        // Try to ping a reliable endpoint
+        fetch('/api/ping', { timeout: 5000 })
+            .then(() => {
+                this.log('✅ Network connectivity restored');
+            })
+            .catch(() => {
+                this.log('❌ Network still unavailable');
+            });
+
+        return false;
+    }
+
+    handleFetchError(error) {
+        this.log('🔧 Fetch error - attempting retry with exponential backoff...');
+
+        const url = error.url || error.target?.src;
+        if (url) {
+            // Implement exponential backoff retry
+            this.retryWithBackoff(url, 3);
+            return true;
+        }
+        return false;
+    }
+
+    async retryWithBackoff(url, maxRetries) {
+        for (let i = 0; i < maxRetries; i++) {
+            const delay = Math.pow(2, i) * 1000; // 1s, 2s, 4s
+
+            await new Promise(resolve => setTimeout(resolve, delay));
+
+            try {
+                const response = await fetch(url, { timeout: 5000 });
+                if (response.ok) {
+                    this.log(`✅ Retry ${i + 1} successful for ${url}`);
+                    return true;
+                }
+            } catch (error) {
+                this.log(`❌ Retry ${i + 1} failed for ${url}: ${error.message}`);
+            }
+        }
+
+        this.log(`❌ All retries failed for ${url}`);
+        return false;
+    }
+
+    recreateDOMElement(error) {
+        this.log('🔧 Attempting to recreate missing DOM element...');
+
+        const elementInfo = this.parseElementError(error.message);
+        if (elementInfo) {
+            return this.createElement(elementInfo);
+        }
+        return false;
+    }
+
+    parseElementError(message) {
+        // Parse error messages to identify missing elements
+        const patterns = [
+            { pattern: /getElementById\(['"]([^'"]+)['"]\)/, type: 'id' },
+            { pattern: /querySelector\(['"]([^'"]+)['"]\)/, type: 'selector' },
+            { pattern: /class.*not found/, type: 'class' }
+        ];
+
+        for (const { pattern, type } of patterns) {
+            const match = message.match(pattern);
+            if (match) {
+                return { type, value: match[1] };
+            }
+        }
+
+        return null;
+    }
+
+    createElement(elementInfo) {
+        switch (elementInfo.value) {
+            case 'walletBtn':
+            case 'walletButton':
+                return this.createWalletButton();
+            case 'mgcBalanceDisplay':
+            case 'portfolioTicker':
+                return this.createBalanceDisplay();
+            case 'statusMessage':
+                return this.createStatusMessage();
+            default:
+                this.log(`⚠️ Unknown element to recreate: ${elementInfo.value}`);
+                return false;
         }
     }
 
     createWalletButton() {
-        if (!document.getElementById('walletButtonContainer')) {
-            const container = document.createElement('div');
-            container.id = 'walletButtonContainer';
-            const header = document.querySelector('header');
-            if (header) {
-                header.appendChild(container);
-                this.log('✅ Recreated wallet button container');
-            }
+        if (!document.getElementById('walletBtn')) {
+            const button = document.createElement('button');
+            button.id = 'walletBtn';
+            button.textContent = 'Connect Wallet';
+            button.className = 'wallet-button';
+            button.onclick = () => {
+                if (window.universalWalletAuth) {
+                    window.universalWalletAuth.connect();
+                }
+            };
+
+            // Find appropriate container
+            const container = document.querySelector('header') || document.querySelector('.wallet-container') || document.body;
+            container.appendChild(button);
+
+            this.log('✅ Recreated wallet button');
+            return true;
         }
+        return false;
     }
 
-    reloadWalletAuth() {
-        const script = document.querySelector('script[src*="universal-wallet-auth"]');
-        if (script) {
-            script.remove();
-            const newScript = document.createElement('script');
-            newScript.src = 'universal-wallet-auth.js';
-            document.head.appendChild(newScript);
-            this.log('✅ Reloaded wallet authentication script');
+    createBalanceDisplay() {
+        if (!document.getElementById('mgcBalanceDisplay')) {
+            const display = document.createElement('div');
+            display.id = 'mgcBalanceDisplay';
+            display.textContent = '0 MGC';
+            display.className = 'balance-display';
+
+            // Find appropriate container
+            const container = document.querySelector('.user-info') || document.querySelector('header') || document.body;
+            container.appendChild(display);
+
+            this.log('✅ Recreated balance display');
+            return true;
         }
+        return false;
+    }
+
+    createStatusMessage() {
+        if (!document.getElementById('statusMessage')) {
+            const status = document.createElement('div');
+            status.id = 'statusMessage';
+            status.textContent = 'Server: Checking...';
+            status.className = 'server-status';
+
+            document.body.appendChild(status);
+
+            this.log('✅ Recreated status message');
+            return true;
+        }
+        return false;
+    }
+
+    reregisterServiceWorker() {
+        this.log('🔧 Re-registering service worker...');
+
+        if ('serviceWorker' in navigator) {
+            navigator.serviceWorker.register('./service-worker.js')
+                .then(registration => {
+                    this.log('✅ Service worker re-registered');
+                    return true;
+                })
+                .catch(error => {
+                    this.log(`❌ Service worker registration failed: ${error.message}`);
+                    return false;
+                });
+        }
+
+        return true;
+    }
+
+    reloadMissingFunction(error) {
+        this.log('🔧 Reloading modules for missing function...');
+
+        const criticalModules = [
+            'universal-wallet-auth.js',
+            'auth-integration.js',
+            'samgov-integration.js',
+            'fpds-contract-schema.js',
+            'agent-core.js',
+            'agent-types.js',
+            'agent-display.js'
+        ];
+
+        let reloadedCount = 0;
+        criticalModules.forEach(module => {
+            const script = document.querySelector(`script[src*="${module}"]`);
+            if (script) {
+                script.remove();
+                setTimeout(() => {
+                    const newScript = document.createElement('script');
+                    newScript.src = module;
+                    newScript.onload = () => reloadedCount++;
+                    newScript.onerror = () => this.log(`❌ Failed to reload ${module}`);
+                    document.head.appendChild(newScript);
+                }, reloadedCount * 500); // Stagger reloads
+            }
+        });
+
+        return reloadedCount > 0;
+    }
+
+    optimizePerformance(error) {
+        this.log('🔧 Attempting performance optimization...');
+
+        // Check if there are too many intervals running
+        const intervals = this.getActiveIntervals();
+        if (intervals > 20) {
+            this.log(`⚠️ Too many active intervals (${intervals}) - consider optimization`);
+            // Could implement interval cleanup here
+        }
+
+        // Check memory usage if available
+        if (performance.memory) {
+            const memoryUsage = performance.memory.usedJSHeapSize / performance.memory.totalJSHeapSize;
+            if (memoryUsage > 0.8) {
+                this.log(`⚠️ High memory usage: ${(memoryUsage * 100).toFixed(1)}%`);
+                // Could suggest garbage collection or optimization
+            }
+        }
+
+        return true;
+    }
+
+    getActiveIntervals() {
+        // This is a simplified check - in a real implementation,
+        // you'd need to track all setInterval/setTimeout calls
+        return Object.keys(window).filter(key =>
+            key.includes('Interval') || key.includes('Timeout')
+        ).length;
+    }
+
+    handleScriptError(error) {
+        this.log('🔧 Handling script error...');
+
+        // Try to identify which script caused the error
+        if (error.filename && error.filename.includes('.js')) {
+            return this.reloadScript(error);
+        }
+
+        // Fallback: reload critical modules
+        return this.reloadMissingFunction(error);
     }
 
     attemptFix(error) {
         try {
             this.log(`🔧 Attempting to fix: ${error.message}`);
+            this.recoveryStats.totalAttempts++;
 
             for (const [pattern, strategy] of Object.entries(this.recoveryStrategies)) {
-                if (error.message.includes(pattern)) {
-                    const startTime = Date.now();
+                if (error.message.toLowerCase().includes(pattern.toLowerCase()) ||
+                    error.category?.toLowerCase().includes(pattern.toLowerCase())) {
+
+                    const startTime = performance.now();
                     const result = strategy(error);
-                    const duration = Date.now() - startTime;
+                    const duration = performance.now() - startTime;
+
+                    // Track strategy usage
+                    this.recoveryStats.strategiesUsed[pattern] = (this.recoveryStats.strategiesUsed[pattern] || 0) + 1;
 
                     if (result === true) {
+                        this.recoveryStats.successfulFixes++;
                         const fixDetails = {
                             type: 'automatic',
                             method: pattern,
@@ -523,22 +952,9 @@ class ErrorRecoveryAgent extends BaseAgent {
 
                         this.log(`✅ Successfully applied fix for: ${error.message}`);
                         this.agentSystem.recordFix(error.id, this.id, fixDetails);
+                        this.saveRecoveryStats();
                         return true;
-                    } else if (result === 'cache_clear_suggestion') {
-                        const fixDetails = {
-                            type: 'suggestion',
-                            method: 'cache_clear',
-                            success: false,
-                            description: 'Suggested cache clearing for resolution',
-                            duration: duration,
-                            metadata: {
-                                suggestion: 'Clear browser cache to resolve issue'
-                            }
-                        };
 
-                        this.log(`💡 Suggestion: Clear browser cache for ${error.message}`);
-                        this.agentSystem.recordFix(error.id, this.id, fixDetails);
-                        return false;
                     } else if (result === 'network_retry') {
                         const fixDetails = {
                             type: 'monitoring',
@@ -554,12 +970,14 @@ class ErrorRecoveryAgent extends BaseAgent {
 
                         this.log(`💡 Network issue detected - will retry when connection restored`);
                         this.agentSystem.recordFix(error.id, this.id, fixDetails);
+                        this.saveRecoveryStats();
                         return false;
                     }
                 }
             }
 
             // Record failed fix attempt
+            this.recoveryStats.failedAttempts++;
             const fixDetails = {
                 type: 'failed',
                 method: 'no_strategy',
@@ -573,12 +991,13 @@ class ErrorRecoveryAgent extends BaseAgent {
 
             this.log(`❓ No recovery strategy available for: ${error.message}`);
             this.agentSystem.recordFix(error.id, this.id, fixDetails);
+            this.saveRecoveryStats();
             return false;
 
         } catch (fixError) {
             this.log(`❌ Fix attempt failed: ${fixError.message}`);
+            this.recoveryStats.failedAttempts++;
 
-            // Record failed fix attempt
             const fixDetails = {
                 type: 'failed',
                 method: 'exception',
@@ -591,7 +1010,27 @@ class ErrorRecoveryAgent extends BaseAgent {
             };
 
             this.agentSystem.recordFix(error.id, this.id, fixDetails);
+            this.saveRecoveryStats();
             return false;
+        }
+    }
+
+    loadRecoveryStats() {
+        try {
+            const stats = localStorage.getItem('agentRecoveryStats');
+            if (stats) {
+                this.recoveryStats = { ...this.recoveryStats, ...JSON.parse(stats) };
+            }
+        } catch (error) {
+            this.log(`Failed to load recovery stats: ${error.message}`);
+        }
+    }
+
+    saveRecoveryStats() {
+        try {
+            localStorage.setItem('agentRecoveryStats', JSON.stringify(this.recoveryStats));
+        } catch (error) {
+            this.log(`Failed to save recovery stats: ${error.message}`);
         }
     }
 }

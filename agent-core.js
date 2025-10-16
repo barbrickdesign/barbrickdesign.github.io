@@ -91,7 +91,7 @@ class AgentSystem {
             new FunctionTestingAgent('function-tester', 'Tests all site functions and APIs', this),
             new ButtonTestingAgent('button-tester', 'Tests all buttons and clickable elements', this),
             new NavigationAgent('navigation-tester', 'Tests navigation between pages', this),
-            new PerformanceAgent('performance-monitor', 'Monitors site performance and speed', this),
+            new PerformanceMonitoringAgent('performance-monitor', 'Monitors site performance and system resources', this),
             new SecurityAgent('security-monitor', 'Monitors security and authentication', this),
             new ErrorRecoveryAgent('error-recovery', 'Automatically fixes detected errors', this)
         ];
