@@ -542,14 +542,16 @@
         updateAuthButton();
         enforceAuthNavigation();
 
-        // Update profileBtn click to go to login if not authenticated
+        // Update profileBtn click to show alert if not authenticated (login.html is broken)
         const profileBtn = document.getElementById('profileBtn');
         if (profileBtn) {
             profileBtn.addEventListener('click', function(e) {
                 if (!isUserAuthenticated()) {
                     e.preventDefault();
-                    window.location.href = 'login.html';
+                    alert('Please connect your wallet to access profile features.');
+                    return false;
                 }
+                // If authenticated, allow normal navigation to profile.html
             });
         }
 
