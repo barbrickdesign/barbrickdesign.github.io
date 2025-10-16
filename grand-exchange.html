@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grand Exchange - Web3 Trading Hub</title>
+    
+    <!-- Universal Wallet Auth -->
+    <script src="contractor-registry.js"></script>
+    <script src="universal-wallet-auth.js"></script>
+    <script src="auth-integration.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=MedievalSharp&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #e4e4e4;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        /* Header */
+        header {
+            background: linear-gradient(135deg, rgba(139,69,19,0.9), rgba(160,82,45,0.9));
+            border-bottom: 4px solid #ffd700;
+            padding: 20px;
+            box-shadow: 0 4px 20px rgba(255,215,0,0.3);
+        }
+        
+        .header-content {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+        
+        h1 {
+            font-family: 'MedievalSharp', cursive;
+            font-size: 2.5em;
+            color: #ffd700;
+            text-shadow: 0 0 20px rgba(255,215,0,0.8),
+                         0 0 40px rgba(255,215,0,0.4);
+        }
+        
+        .wallet-status {
+            background: rgba(0,0,0,0.6);
+            padding: 12px 20px;
+            border-radius: 8px;
+            border: 2px solid #ffd700;
+        }
+        
+        /* Main Layout */
+        .container {
+            max-width: 1600px;
+            margin: 30px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 300px 1fr 300px;
+            gap: 20px;
+        }
+        
+        @media (max-width: 1200px) {
+            .container {
+                grid-template-columns: 1fr;
+            }
+        }
+        
+        /* Trading Panel (Center) */
+        .trading-panel {
+            background: linear-gradient(135deg, rgba(30,30,50,0.95), rgba(40,40,60,0.95));
+            border: 3px solid #ffd700;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 10px 40px rgba(255,215,0,0.2);
+        }
+        
+        .panel-title {
+            font-size: 1.8em;
+            color: #ffd700;
+            margin-bottom: 25px;
+            text-align: center;
+            font-family: 'MedievalSharp', cursive;
+        }
+        
+        /* Buy/Sell Tabs */
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+        }
+        
+        .tab {
+            flex: 1;
+            padding: 15px;
+            background: rgba(0,0,0,0.4);
+            border: 2px solid #666;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            font-weight: bold;
+            transition: all 0.3s ease;
+        }
+        
+        .tab.active {
+            background: linear-gradient(90deg, #00ff00, #00cc00);
+            border-color: #00ff00;
+            color: #000;
+            box-shadow: 0 0 20px rgba(0,255,0,0.5);
+        }
+        
+        .tab.sell.active {
+            background: linear-gradient(90deg, #ff4444, #cc0000);
+            border-color: #ff4444;
+            box-shadow: 0 0 20px rgba(255,68,68,0.5);
+        }
+        
+        /* Item Search */
+        .item-search {
+            margin-bottom: 25px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 15px;
+            background: rgba(0,0,0,0.6);
+            border: 2px solid #ffd700;
+            border-radius: 8px;
+            color: #fff;
+            font-size: 16px;
+            font-family: 'Orbitron', sans-serif;
+        }
+        
+        /* Item Grid */
+        .item-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+            max-height: 400px;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        .item-card {
+            background: rgba(0,0,0,0.6);
+            border: 2px solid #666;
+            border-radius: 10px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+        
+        .item-card:hover {
+            border-color: #ffd700;
+            transform: translateY(-5px);
+            box-shadow: 0 5px 20px rgba(255,215,0,0.3);
+        }
+        
+        .item-icon {
+            font-size: 3em;
+            margin-bottom: 10px;
+        }
+        
+        .item-name {
+            font-size: 0.9em;
+            color: #ffd700;
+            margin-bottom: 5px;
+        }
+        
+        .item-price {
+            font-size: 0.85em;
+            color: #00ff00;
+        }
+        
+        /* Trading Form */
+        .trading-form {
+            background: rgba(0,0,0,0.4);
+            padding: 25px;
+            border-radius: 10px;
+            border: 2px solid #ffd700;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            color: #ffd700;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0,0,0,0.6);
+            border: 2px solid #666;
+            border-radius: 6px;
+            color: #fff;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+        }
+        
+        .crypto-select {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+        
+        .crypto-option {
+            padding: 12px;
+            background: rgba(0,0,0,0.6);
+            border: 2px solid #666;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        
+        .crypto-option.selected {
+            border-color: #ffd700;
+            background: rgba(255,215,0,0.2);
+        }
+        
+        .submit-btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(90deg, #00ff00, #00cc00);
+            border: none;
+            border-radius: 8px;
+            color: #000;
+            font-size: 1.1em;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: 'Orbitron', sans-serif;
+            transition: all 0.3s ease;
+        }
+        
+        .submit-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px rgba(0,255,0,0.6);
+        }
+        
+        .submit-btn.sell {
+            background: linear-gradient(90deg, #ff4444, #cc0000);
+        }
+        
+        /* Sidebar Panels */
+        .sidebar-panel {
+            background: linear-gradient(135deg, rgba(30,30,50,0.95), rgba(40,40,60,0.95));
+            border: 3px solid #666;
+            border-radius: 15px;
+            padding: 20px;
+            height: fit-content;
+        }
+        
+        .sidebar-title {
+            font-size: 1.3em;
+            color: #ffd700;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .trade-item {
+            background: rgba(0,0,0,0.4);
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            border-left: 4px solid #00ff00;
+        }
+        
+        .trade-item.sell {
+            border-left-color: #ff4444;
+        }
+        
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.4);
+            border-radius: 4px;
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: #ffd700;
+            border-radius: 4px;
+        }
+        
+        .back-link {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.8);
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 2px solid #ffd700;
+            color: #ffd700;
+            text-decoration: none;
+            font-weight: bold;
+            z-index: 1000;
+        }
+        
+        .back-link:hover {
+            background: rgba(255,215,0,0.2);
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-link">← Back to Hub</a>
+    
+    <header>
+        <div class="header-content">
+            <h1>⚔️ Grand Exchange ⚔️</h1>
+            <div class="wallet-status" id="walletStatus">
+                <span id="walletDisplay">Connect Wallet to Trade</span>
+            </div>
+        </div>
+    </header>
+    
+    <div class="container">
+        <!-- Left Sidebar: Active Buy Orders -->
+        <div class="sidebar-panel">
+            <div class="sidebar-title">🟢 Active Buy Orders</div>
+            <div id="buyOrders">
+                <div class="trade-item">
+                    <div style="font-weight: bold;">⚔️ Gem Bot NFT</div>
+                    <div style="font-size: 0.85em; color: #00ff00;">Buying: 1 @ 0.5 ETH</div>
+                    <div style="font-size: 0.75em; color: #999;">0xABC...def</div>
+                </div>
+                <div class="trade-item">
+                    <div style="font-weight: bold;">💎 GBU Token</div>
+                    <div style="font-size: 0.85em; color: #00ff00;">Buying: 1000 @ $4.48/ea</div>
+                    <div style="font-size: 0.75em; color: #999;">0x123...789</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Center: Trading Panel -->
+        <div class="trading-panel">
+            <div class="panel-title">Trade Digital Assets</div>
+            
+            <div class="tabs">
+                <div class="tab active" id="buyTab" onclick="switchTab('buy')">
+                    🟢 BUY
+                </div>
+                <div class="tab sell" id="sellTab" onclick="switchTab('sell')">
+                    🔴 SELL
+                </div>
+            </div>
+            
+            <div class="item-search">
+                <input type="text" class="search-input" placeholder="🔍 Search items..." id="searchInput">
+            </div>
+            
+            <div class="item-grid" id="itemGrid">
+                <!-- Items will be populated by JavaScript -->
+            </div>
+            
+            <div class="trading-form" id="tradingForm" style="display: none;">
+                <div class="form-group">
+                    <label>Selected Item:</label>
+                    <div id="selectedItem" style="color: #fff; font-size: 1.2em; padding: 10px 0;"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Quantity:</label>
+                    <input type="number" class="form-input" id="quantity" min="1" value="1">
+                </div>
+                
+                <div class="form-group">
+                    <label>Price Per Item:</label>
+                    <input type="number" class="form-input" id="pricePerItem" step="0.001" placeholder="0.000">
+                </div>
+                
+                <div class="form-group">
+                    <label>Payment Method:</label>
+                    <div class="crypto-select">
+                        <div class="crypto-option selected" onclick="selectCrypto('ETH')">
+                            ⟠ Ethereum
+                        </div>
+                        <div class="crypto-option" onclick="selectCrypto('SOL')">
+                            ◎ Solana
+                        </div>
+                        <div class="crypto-option" onclick="selectCrypto('USDC')">
+                            💵 USDC
+                        </div>
+                        <div class="crypto-option" onclick="selectCrypto('USDT')">
+                            💵 USDT
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="submit-btn" id="submitBtn" onclick="placeOrder()">
+                    Place Buy Order
+                </button>
+            </div>
+        </div>
+        
+        <!-- Right Sidebar: Active Sell Orders -->
+        <div class="sidebar-panel">
+            <div class="sidebar-title">🔴 Active Sell Orders</div>
+            <div id="sellOrders">
+                <div class="trade-item sell">
+                    <div style="font-weight: bold;">🎮 Game Asset #42</div>
+                    <div style="font-size: 0.85em; color: #ff6666;">Selling: 1 @ 0.3 ETH</div>
+                    <div style="font-size: 0.75em; color: #999;">0x456...abc</div>
+                </div>
+                <div class="trade-item sell">
+                    <div style="font-weight: bold;">🏆 Achievement NFT</div>
+                    <div style="font-size: 0.85em; color: #ff6666;">Selling: 5 @ 0.1 SOL</div>
+                    <div style="font-size: 0.75em; color: #999;">0x789...xyz</div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        // Initialize Universal Wallet Auth
+        window.addEventListener('DOMContentLoaded', async () => {
+            console.log('⚔️ Grand Exchange - Initializing...');
+            
+            try {
+                await window.authIntegration.init({
+                    showUI: false,
+                    onAuthSuccess: (authInfo) => {
+                        console.log('✅ Wallet connected:', authInfo.address);
+                        document.getElementById('walletDisplay').textContent = `Connected: ${authInfo.shortAddress}`;
+                        loadMarketData();
+                    },
+                    onAuthFail: () => {
+                        console.log('⚠️ No wallet connected');
+                    }
+                });
+            } catch (error) {
+                console.error('❌ Auth init failed:', error);
+            }
+            
+            loadItems();
+        });
+        
+        // Sample market items
+        const marketItems = [
+            { id: 1, name: 'Gem Bot NFT', icon: '⚔️', price: 0.5, category: 'nft' },
+            { id: 2, name: 'GBU Token', icon: '💎', price: 4.48, category: 'token' },
+            { id: 3, name: 'Game Asset', icon: '🎮', price: 0.3, category: 'asset' },
+            { id: 4, name: 'Achievement NFT', icon: '🏆', price: 0.1, category: 'nft' },
+            { id: 5, name: 'Ember Token', icon: '🔥', price: 0.324, category: 'token' },
+            { id: 6, name: 'Mandem Coin', icon: '🌐', price: 2.35, category: 'token' },
+            { id: 7, name: 'Rare Artifact', icon: '📿', price: 1.25, category: 'nft' },
+            { id: 8, name: 'Power Crystal', icon: '💠', price: 0.75, category: 'asset' },
+            { id: 9, name: 'Golden Sword', icon: '⚜️', price: 2.0, category: 'nft' },
+            { id: 10, name: 'Magic Scroll', icon: '📜', price: 0.45, category: 'asset' }
+        ];
+        
+        let selectedCrypto = 'ETH';
+        let currentMode = 'buy';
+        let selectedItemData = null;
+        
+        function loadItems() {
+            const grid = document.getElementById('itemGrid');
+            grid.innerHTML = marketItems.map(item => `
+                <div class="item-card" onclick="selectItem(${item.id})">
+                    <div class="item-icon">${item.icon}</div>
+                    <div class="item-name">${item.name}</div>
+                    <div class="item-price">~${item.price} ETH</div>
+                </div>
+            `).join('');
+        }
+        
+        function selectItem(itemId) {
+            selectedItemData = marketItems.find(i => i.id === itemId);
+            if (!selectedItemData) return;
+            
+            document.getElementById('itemGrid').style.display = 'none';
+            document.getElementById('tradingForm').style.display = 'block';
+            document.getElementById('selectedItem').textContent = `${selectedItemData.icon} ${selectedItemData.name}`;
+            document.getElementById('pricePerItem').value = selectedItemData.price;
+        }
+        
+        function switchTab(mode) {
+            currentMode = mode;
+            
+            document.getElementById('buyTab').classList.toggle('active', mode === 'buy');
+            document.getElementById('sellTab').classList.toggle('active', mode === 'sell');
+            
+            const submitBtn = document.getElementById('submitBtn');
+            if (mode === 'buy') {
+                submitBtn.textContent = 'Place Buy Order';
+                submitBtn.classList.remove('sell');
+            } else {
+                submitBtn.textContent = 'Place Sell Order';
+                submitBtn.classList.add('sell');
+            }
+            
+            // Reset form
+            document.getElementById('itemGrid').style.display = 'grid';
+            document.getElementById('tradingForm').style.display = 'none';
+        }
+        
+        function selectCrypto(crypto) {
+            selectedCrypto = crypto;
+            document.querySelectorAll('.crypto-option').forEach(opt => {
+                opt.classList.remove('selected');
+            });
+            event.target.closest('.crypto-option').classList.add('selected');
+        }
+        
+        async function placeOrder() {
+            // Check authentication
+            if (!window.universalWalletAuth.isAuthenticated()) {
+                alert('Please connect your wallet first!');
+                await window.universalWalletAuth.connect();
+                return;
+            }
+            
+            const quantity = document.getElementById('quantity').value;
+            const price = document.getElementById('pricePerItem').value;
+            
+            if (!quantity || !price) {
+                alert('Please fill in all fields!');
+                return;
+            }
+            
+            const total = (parseFloat(quantity) * parseFloat(price)).toFixed(4);
+            
+            const orderData = {
+                type: currentMode,
+                item: selectedItemData.name,
+                icon: selectedItemData.icon,
+                quantity: parseInt(quantity),
+                pricePerItem: parseFloat(price),
+                total: parseFloat(total),
+                crypto: selectedCrypto,
+                wallet: window.universalWalletAuth.getAddress(),
+                timestamp: new Date().toISOString()
+            };
+            
+            console.log('📋 Order placed:', orderData);
+            
+            // Save to localStorage
+            const orders = JSON.parse(localStorage.getItem('grand_exchange_orders') || '[]');
+            orders.push(orderData);
+            localStorage.setItem('grand_exchange_orders', JSON.stringify(orders));
+            
+            alert(`✅ ${currentMode.toUpperCase()} order placed!\n\n${selectedItemData.icon} ${selectedItemData.name}\nQuantity: ${quantity}\nPrice: ${price} ${selectedCrypto}\nTotal: ${total} ${selectedCrypto}`);
+            
+            // Reset
+            switchTab(currentMode);
+            loadMarketData();
+        }
+        
+        function loadMarketData() {
+            const orders = JSON.parse(localStorage.getItem('grand_exchange_orders') || '[]');
+            
+            const buyOrders = orders.filter(o => o.type === 'buy').slice(-5);
+            const sellOrders = orders.filter(o => o.type === 'sell').slice(-5);
+            
+            if (buyOrders.length > 0) {
+                document.getElementById('buyOrders').innerHTML = buyOrders.map(o => `
+                    <div class="trade-item">
+                        <div style="font-weight: bold;">${o.icon} ${o.item}</div>
+                        <div style="font-size: 0.85em; color: #00ff00;">Buying: ${o.quantity} @ ${o.pricePerItem} ${o.crypto}</div>
+                        <div style="font-size: 0.75em; color: #999;">${o.wallet?.slice(0,6)}...${o.wallet?.slice(-3)}</div>
+                    </div>
+                `).reverse().join('');
+            }
+            
+            if (sellOrders.length > 0) {
+                document.getElementById('sellOrders').innerHTML = sellOrders.map(o => `
+                    <div class="trade-item sell">
+                        <div style="font-weight: bold;">${o.icon} ${o.item}</div>
+                        <div style="font-size: 0.85em; color: #ff6666;">Selling: ${o.quantity} @ ${o.pricePerItem} ${o.crypto}</div>
+                        <div style="font-size: 0.75em; color: #999;">${o.wallet?.slice(0,6)}...${o.wallet?.slice(-3)}</div>
+                    </div>
+                `).reverse().join('');
+            }
+        }
+        
+        // Search functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase();
+                const filtered = marketItems.filter(item => 
+                    item.name.toLowerCase().includes(query) ||
+                    item.category.toLowerCase().includes(query)
+                );
+                
+                const grid = document.getElementById('itemGrid');
+                grid.innerHTML = filtered.map(item => `
+                    <div class="item-card" onclick="selectItem(${item.id})">
+                        <div class="item-icon">${item.icon}</div>
+                        <div class="item-name">${item.name}</div>
+                        <div class="item-price">~${item.price} ETH</div>
+                    </div>
+                `).join('');
+            });
+        });
+    </script>
+</body>
+</html>

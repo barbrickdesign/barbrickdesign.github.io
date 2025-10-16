@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Gem Bot Portal</title>
+    <title>Connect Wallet - Gem Bot Universe</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -149,23 +149,28 @@
     <a href="index.html" class="back-home">Back to Home</a>
     <div class="status-indicator" id="serverStatus">Server: ...</div>
     
-    <div class="auth-container" id="login-form">
-        <h1>Login</h1>
-        <div class="form-group">
-            <label for="email">Email</label>
-            <input type="email" id="email" placeholder="Enter your email">
-        </div>
-        <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password" id="password" placeholder="Enter your password">
-        </div>
-        <button type="button" id="login-button">Login</button>
-        <button type="button" id="phantom-login" class="phantom-btn">
-            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MCA1MCI+PHRpdGxlPnBoYW50b20tZmF2aWNvbi0yPC90aXRsZT48cGF0aCBkPSJNMjUsMEM0MC41MDc4LDAsMzAuNDQzOCwwLDQ2LjY5MjksMy4wOTI0YzAsMCw0Ljg0ODgsMTEuMzQ3MS00Ljg0ODgsMTkuMDA3MUMyOS42OCwyOC43NTI5LDI2LjU1NzYsMjMuNzY0NywyNSwyMi4xMzY1VjE2LjYxMThjOC4yNjEyLDEuMjM1MywzLjQxMTgtNy4wNywyLjIyMzUtOS4yOTQxSDI1VjBaIiBmaWxsPSIjZmZmIi8+PHBhdGggZD0iTTI1LDQ3LjExNzZjLTE1LjUwNzgsMC01LjQ0MzgsMC0yMS42OTI5LTMuMDkyNEMzLjMwNzEsMzIuNjc1OSw4LjE1NTksMzMuNzE3Niw4LjE1NTksMjQgYzAtOS43MTc2LTQuODQ4OC04LjY3NTktNC44NDg4LTE5LjQzNThDMzQuMDIxMSwwLDI1LDAsMjUsMHY3LjMxNzZoLTIuMjIzNUM4LjczODMsNC44NzA2LDE2Ljc4MzIsMTIuMzUyOSwyNSwxNC4wMjM1djYuNDg1M2MtMTcuMjQsMC43Niw2LjEzODMsMjYuNjA5NC0zLjMwNzEsMjYuNjA5NEgyNXY3LjMxNzZaIiBmaWxsPSIjZmZmIi8+PHBhdGggZD0iTTI1LDQ3LjExNzZjLTE1LjUwNzgsMC01LjQ0MzgsMC0yMS42OTI5LTMuMDkyNEMzLjMwNzEsMzIuNjc1OSw4LjE1NTksMzMuNzE3Niw4LjE1NTksMjQgYzAtOS43MTc2LTQuODQ4OC04LjY3NTktNC44NDg4LTE5LjQzNThDMzQuMDIxMSwwLDI1LDAsMjUsMHY3LjMxNzZoLTIuMjIzNUM4LjczODMsNC44NzA2LDE2Ljc4MzIsMTIuMzUyOSwyNSwxNC4wMjM1djYuNDg1M2MtMTcuMjQsMC43Niw2LjEzODMsMjYuNjA5NC0zLjMwNzEsMjYuNjA5NEgyNXY3LjMxNzZaIiBmaWxsPSIjZmZmIi8+PC9zdmc+" alt="Phantom">
-            Login with Phantom Wallet
+    <div class="auth-container" id="wallet-connect-form">
+        <h1>🔌 Connect Your Wallet</h1>
+        <p style="color: #ccc; margin-bottom: 25px; line-height: 1.6;">
+            Connect your crypto wallet to access Gem Bot Universe.<br>
+            No email or password needed - just your wallet!
+        </p>
+        
+        <button type="button" id="metamask-connect" style="background: linear-gradient(90deg, #ff6b35, #f7931e); margin-bottom: 15px;">
+            🦊 Connect MetaMask
         </button>
-        <div class="switch-form">
-            Don't have an account? <a href="#" id="show-signup">Sign up</a>
+        
+        <button type="button" id="phantom-connect" class="phantom-btn">
+            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MCA1MCI+PHRpdGxlPnBoYW50b20tZmF2aWNvbi0yPC90aXRsZT48cGF0aCBkPSJNMjUsMEM0MC41MDc4LDAsMzAuNDQzOCwwLDQ2LjY5MjksMy4wOTI0YzAsMCw0Ljg0ODgsMTEuMzQ3MS00Ljg0ODgsMTkuMDA3MUMyOS42OCwyOC43NTI5LDI2LjU1NzYsMjMuNzY0NywyNSwyMi4xMzY1VjE2LjYxMThjOC4yNjEyLDEuMjM1MywzLjQxMTgtNy4wNywyLjIyMzUtOS4yOTQxSDI1VjBaIiBmaWxsPSIjZmZmIi8+PHBhdGggZD0iTTI1LDQ3LjExNzZjLTE1LjUwNzgsMC01LjQ0MzgsMC0yMS42OTI5LTMuMDkyNEMzLjMwNzEsMzIuNjc1OSw4LjE1NTksMzMuNzE3Niw4LjE1NTksMjQgYzAtOS43MTc2LTQuODQ4OC04LjY3NTktNC44NDg4LTE5LjQzNThDMzQuMDIxMSwwLDI1LDAsMjUsMHY3LjMxNzZoLTIuMjIzNUM4LjczODMsNC44NzA2LDE2Ljc4MzIsMTIuMzUyOSwyNSwxNC4wMjM1djYuNDg1M2MtMTcuMjQsMC43Niw2LjEzODMsMjYuNjA5NC0zLjMwNzEsMjYuNjA5NEgyNXY3LjMxNzZaIiBmaWxsPSIjZmZmIi8+PHBhdGggZD0iTTI1LDQ3LjExNzZjLTE1LjUwNzgsMC01LjQ0MzgsMC0yMS42OTI5LTMuMDkyNEMzLjMwNzEsMzIuNjc1OSw4LjE1NTksMzMuNzE3Niw4LjE1NTksMjQgYzAtOS43MTc2LTQuODQ4OC04LjY3NTktNC44NDg4LTE5LjQzNThDMzQuMDIxMSwwLDI1LDAsMjUsMHY3LjMxNzZoLTIuMjIzNUM4LjczODMsNC44NzA2LDE2Ljc4MzIsMTIuMzUyOSwyNSwxNC4wMjM1djYuNDg1M2MtMTcuMjQsMC43Niw2LjEzODMsMjYuNjA5NC0zLjMwNzEsMjYuNjA5NEgyNXY3LjMxNzZaIiBmaWxsPSIjZmZmIi8+PC9zdmc+" alt="Phantom">
+            👻 Connect Phantom
+        </button>
+        
+        <div style="margin-top: 25px; padding: 20px; background: rgba(0,255,153,0.1); border: 1px solid rgba(0,255,153,0.3); border-radius: 8px;">
+            <p style="color: #00ff99; font-size: 14px; margin: 0;">
+                ✅ <strong>Secure</strong> - Your wallet, your keys<br>
+                ✅ <strong>Fast</strong> - Instant authentication<br>
+                ✅ <strong>Simple</strong> - No passwords to remember
+            </p>
         </div>
     </div>
 
@@ -183,29 +188,7 @@
         </div>
     </div>
 
-    <div class="auth-container" id="signup-form" style="display: none;">
-        <h1>Sign Up</h1>
-        <div class="form-group">
-            <label for="display-name">Display Name</label>
-            <input type="text" id="display-name" placeholder="Choose a display name">
-        </div>
-        <div class="form-group">
-            <label for="signup-email">Email</label>
-            <input type="email" id="signup-email" placeholder="Enter your email">
-        </div>
-        <div class="form-group">
-            <label for="signup-password">Password</label>
-            <input type="password" id="signup-password" placeholder="Create a password">
-        </div>
-        <button type="button" id="signup-button">Sign Up</button>
-        <button type="button" id="phantom-signup" class="phantom-btn">
-            <img src="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA1MCA1MCI+PHRpdGxlPnBoYW50b20tZmF2aWNvbi0yPC90aXRsZT48cGF0aCBkPSJNMjUsMEM0MC41MDc4LDAsMzAuNDQzOCwwLDQ2LjY5MjksMy4wOTI0YzAsMCw0Ljg0ODgsMTEuMzQ3MS00Ljg0ODgsMTkuMDA3MUMyOS42OCwyOC43NTI5LDI2LjU1NzYsMjMuNzY0NywyNSwyMi4xMzY1VjE2LjYxMThjOC4yNjEyLDEuMjM1MywzLjQxMTgtNy4wNywyLjIyMzUtOS4yOTQxSDI1VjBaIiBmaWxsPSIjZmZmIi8+PHBhdGggZD0iTTI1LDQ3LjExNzZjLTE1LjUwNzgsMC01LjQ0MzgsMC0yMS42OTI5LTMuMDkyNEMzLjMwNzEsMzIuNjc1OSw4LjE1NTksMzMuNzE3Niw4LjE1NTksMjQgYzAtOS43MTc2LTQuODQ4OC04LjY3NTktNC44NDg4LTE5LjQzNThDMzQuMDIxMSwwLDI1LDAsMjUsMHY3LjMxNzZoLTIuMjIzNUM4LjczODMsNC44NzA2LDE2Ljc4MzIsMTIuMzUyOSwyNSwxNC4wMjM1djYuNDg1M2MtMTcuMjQsMC43Niw2LjEzODMsMjYuNjA5NC0zLjMwNzEsMjYuNjA5NEgyNXY3LjMxNzZaIiBmaWxsPSIjZmZmIi8+PHBhdGggZD0iTTI1LDQ3LjExNzZjLTE1LjUwNzgsMC01LjQ0MzgsMC0yMS42OTI5LTMuMDkyNEMzLjMwNzEsMzIuNjc1OSw4LjE1NTksMzMuNzE3Niw4LjE1NTksMjQgYzAtOS43MTc2LTQuODQ4OC04LjY3NTktNC44NDg4LTE5LjQzNThDMzQuMDIxMSwwLDI1LDAsMjUsMHY3LjMxNzZoLTIuMjIzNUM4LjczODMsNC44NzA2LDE2Ljc4MzIsMTIuMzUyOSwyNSwxNC4wMjM1djYuNDg1M2MtMTcuMjQsMC43Niw2LjEzODMsMjYuNjA5NC0zLjMwNzEsMjYuNjA5NEgyNXY3LjMxNzZaIiBmaWxsPSIjZmZmIi8+PC9zdmc+" alt="Phantom">
-            Sign up with Phantom Wallet
-        </button>
-        <div class="switch-form">
-            Already have an account? <a href="#" id="show-login">Login</a>
-        </div>
-    </div>
+    <!-- Removed signup form - wallet connection handles everything -->
 
     <!-- Transaction UI for authenticated users -->
     <div class="auth-container" id="transaction-section" style="display:none; margin-top: 30px;">
@@ -238,156 +221,94 @@
         </div>
     </div>
 
+    <!-- Universal Wallet Authentication System -->
+    <script src="../../contractor-registry.js"></script>
+    <script src="../../universal-wallet-auth.js"></script>
+    <script src="../../auth-integration.js"></script>
+    
     <!-- Solana web3.js and SPL Token for blockchain functionality -->
     <script src="https://unpkg.com/@solana/web3.js@1.95.2/lib/index.iife.js"></script>
     <script src="https://unpkg.com/@solana/spl-token@0.3.10/lib/index.iife.js"></script>
-    <!-- Include auth.js directly as a regular script, not a module -->
-    <script src="./src/auth.js"></script>
-    <script src="public/phantomLogin.js"></script>
     
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            // Toggle between login and signup forms
-            document.getElementById('show-signup').addEventListener('click', (e) => {
-                e.preventDefault();
-                document.getElementById('login-form').style.display = 'none';
-                document.getElementById('signup-form').style.display = 'block';
-            });
-
-            document.getElementById('show-login').addEventListener('click', (e) => {
-                e.preventDefault();
-                document.getElementById('signup-form').style.display = 'none';
-                document.getElementById('login-form').style.display = 'block';
-            });
+        document.addEventListener('DOMContentLoaded', async () => {
+            console.log('🔌 Gem Bot Universe - Wallet Connect Page');
             
-            // Check if URL has #signup hash
-            if (window.location.hash === '#signup') {
-                document.getElementById('login-form').style.display = 'none';
-                document.getElementById('signup-form').style.display = 'block';
-            }
-
-            // Handle login form submission
-            document.getElementById('login-button').addEventListener('click', () => {
-                const email = document.getElementById('email').value;
-                const password = document.getElementById('password').value;
-                
-                // Use the global login function
-                if (typeof login === 'function') {
-                    login(email, password);
-                    
-                    // Smart redirect: back to where they came from or to index
-                    const redirectUrl = localStorage.getItem('authRedirect') || document.referrer || 'index.html';
-                    localStorage.removeItem('authRedirect');
-                    
-                    // If redirect is login.html itself, go to index
-                    if (redirectUrl.includes('login.html')) {
-                        window.location.href = 'index.html';
-                    } else {
-                        window.location.href = redirectUrl;
-                    }
-                } else {
-                    console.error("Login function not found");
-                    alert("Login functionality is not available. Please try again later.");
-                }
-            });
-
-            // Handle signup form submission
-            document.getElementById('signup-button').addEventListener('click', () => {
-                const displayName = document.getElementById('display-name').value;
-                const email = document.getElementById('signup-email').value;
-                const password = document.getElementById('signup-password').value;
-                
-                // Use the global signUp function
-                if (typeof signUp === 'function') {
-                    signUp(email, password, displayName);
-                    
-                    // Smart redirect: back to where they came from or to index
-                    const redirectUrl = localStorage.getItem('authRedirect') || document.referrer || 'index.html';
-                    localStorage.removeItem('authRedirect');
-                    
-                    // If redirect is login.html itself, go to index
-                    if (redirectUrl.includes('login.html')) {
-                        window.location.href = 'index.html';
-                    } else {
-                        window.location.href = redirectUrl;
-                    }
-                } else {
-                    console.error("SignUp function not found");
-                    alert("Signup functionality is not available. Please try again later.");
-                }
-            });
-
-            // Handle Phantom Wallet login
-            const phantomLoginBtn = document.getElementById('phantom-login');
-            if (phantomLoginBtn) {
-              phantomLoginBtn.addEventListener('click', async () => {
-                if (typeof connectPhantomWallet === 'function') {
-                  // Determine smart redirect
-                  const redirectUrl = localStorage.getItem('authRedirect') || document.referrer || 'index.html';
-                  const finalRedirect = redirectUrl.includes('login.html') ? 'index.html' : redirectUrl;
-                  
-                  const success = await connectPhantomWallet({ redirect: finalRedirect });
-                  if (!success) {
-                    alert('Phantom login failed. Please try again.');
-                  } else {
-                    localStorage.removeItem('authRedirect');
-                    window.location.href = finalRedirect;
-                  }
-                } else {
-                  alert('Phantom wallet functionality is not available. Please try again later.');
-                }
-              });
-            }
-
-            // Handle Phantom Wallet signup
-            document.getElementById('phantom-signup').addEventListener('click', async () => {
-                if (typeof connectPhantomWallet === 'function') {
-                    // Determine smart redirect
-                    const redirectUrl = localStorage.getItem('authRedirect') || document.referrer || 'index.html';
-                    const finalRedirect = redirectUrl.includes('login.html') ? 'index.html' : redirectUrl;
-                    
-                    const success = await connectPhantomWallet({ redirect: finalRedirect });
-                    if (success) {
+            // Initialize universal auth
+            try {
+                await window.authIntegration.init({
+                    showUI: false,  // Custom UI
+                    onAuthSuccess: (authInfo) => {
+                        console.log('✅ Already authenticated:', authInfo.address);
+                        // Redirect to referring page or index
+                        const redirectUrl = localStorage.getItem('authRedirect') || document.referrer || 'index.html';
                         localStorage.removeItem('authRedirect');
-                        window.location.href = finalRedirect;
+                        window.location.href = redirectUrl.includes('login.html') ? 'index.html' : redirectUrl;
                     }
-                } else {
-                    console.error("connectPhantomWallet function not found");
-                    alert("Phantom wallet functionality is not available. Please try again later.");
+                });
+            } catch (error) {
+                console.error('❌ Auth init failed:', error);
+            }
+            
+            // MetaMask Connect
+            document.getElementById('metamask-connect').addEventListener('click', async () => {
+                const btn = document.getElementById('metamask-connect');
+                btn.disabled = true;
+                btn.textContent = '⏳ Connecting...';
+                
+                try {
+                    const authInfo = await window.universalWalletAuth.connect();
+                    
+                    if (authInfo) {
+                        console.log('✅ MetaMask connected:', authInfo.address);
+                        // Redirect
+                        const redirectUrl = localStorage.getItem('authRedirect') || document.referrer || 'index.html';
+                        localStorage.removeItem('authRedirect');
+                        window.location.href = redirectUrl.includes('login.html') ? 'index.html' : redirectUrl;
+                    } else {
+                        throw new Error('Connection failed');
+                    }
+                } catch (error) {
+                    console.error('❌ MetaMask connection error:', error);
+                    alert('MetaMask connection failed: ' + error.message);
+                    btn.disabled = false;
+                    btn.textContent = '🦊 Connect MetaMask';
+                }
+            });
+
+            // Phantom Connect
+            document.getElementById('phantom-connect').addEventListener('click', async () => {
+                const btn = document.getElementById('phantom-connect');
+                btn.disabled = true;
+                btn.innerHTML = '⏳ Connecting...';
+                
+                try {
+                    const authInfo = await window.universalWalletAuth.connect();
+                    
+                    if (authInfo) {
+                        console.log('✅ Phantom connected:', authInfo.address);
+                        // Redirect
+                        const redirectUrl = localStorage.getItem('authRedirect') || document.referrer || 'index.html';
+                        localStorage.removeItem('authRedirect');
+                        window.location.href = redirectUrl.includes('login.html') ? 'index.html' : redirectUrl;
+                    } else {
+                        throw new Error('Connection failed');
+                    }
+                } catch (error) {
+                    console.error('❌ Phantom connection error:', error);
+                    alert('Phantom connection failed: ' + error.message);
+                    btn.disabled = false;
+                    btn.innerHTML = '<img src="..." alt="Phantom">👻 Connect Phantom';
                 }
             });
             
-            // Wallet-based authentication check (same as profile.js)
-            function isUserAuthenticated() {
-                const user = JSON.parse(localStorage.getItem('currentUser') || 'null');
-                const lastAuth = localStorage.getItem('lastWalletAuth');
-                if (!user || !user.walletAddress || !lastAuth) return false;
-                const lastAuthTime = new Date(lastAuth).getTime();
-                const now = Date.now();
-                return (now - lastAuthTime) < 86400000;
-            }
-
-            // Smart redirect for already authenticated users
-            if (isUserAuthenticated()) {
-                const redirectUrl = localStorage.getItem('authRedirect');
-                const referrer = document.referrer;
-                
-                if (redirectUrl && !redirectUrl.includes('login.html')) {
-                    localStorage.removeItem('authRedirect');
-                    window.location.href = redirectUrl;
-                } else if (referrer && !referrer.includes('login.html') && !referrer.includes('profile.html')) {
-                    // Go back to referring page (likely index.html)
-                    window.location.href = referrer;
-                } else {
-                    // Default to Gem Bot Universe home
-                    window.location.href = 'index.html';
-                }
-            }
+            // OLD email/password code removed - using wallet-only authentication now
+            console.log('✅ Wallet-only authentication active');
         });
 
         function showTransactionSection() {
-            document.getElementById('login-form').style.display = 'none';
-            document.getElementById('signup-form').style.display = 'none';
+            const walletForm = document.getElementById('wallet-connect-form');
+            if (walletForm) walletForm.style.display = 'none';
             document.getElementById('transaction-section').style.display = 'block';
             updateBalancesAndLog();
         }

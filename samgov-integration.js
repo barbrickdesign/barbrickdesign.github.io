@@ -3,6 +3,7 @@
  * Pulls real government contract data from multiple sources:
  * - SAM.gov: Open opportunities and future contracts
  * - FPDS (Federal Procurement Data System): Historical awarded contracts
+ * - FPDS Contract Number Schema: Validates and parses contract identifiers
  * Uses data to accurately value projects and match contractors
  */
 
@@ -18,12 +19,16 @@ class SAMGovIntegration {
         
         this.apiKey = null; // SAM.gov API key (set via environment)
         
+        // Initialize FPDS Contract Schema Parser
+        this.fpdsSchema = window.fpdsSchema || (window.FPDSContractSchema ? new window.FPDSContractSchema() : null);
+        
         this.cache = {
             samContracts: [],
             fpdsContracts: [],
             opportunities: [],
             lastUpdate: null,
-            similarProjects: {}
+            similarProjects: {},
+            parsedContracts: {} // Cache for parsed contract numbers
         };
         
         // Contract categories mapped to NAICS codes
@@ -33,8 +38,59 @@ class SAMGovIntegration {
             'web3-blockchain': ['541511', '541519'],
             'cloud-infrastructure': ['518210', '541513'],
             'ai-ml': ['541512', '541715'],
-            'data-analytics': ['541512', '541690']
+            'data-analytics': ['541512', '541690'],
+            'hardware-engineering': ['541330', '541712'],
+            'it-consulting': ['541512', '541519'],
+            'telecommunications': ['517311', '517312'],
+            'aerospace': ['336411', '336412'],
+            'defense-systems': ['541712', '334511']
         };
+    }
+    
+    /**
+     * Parse and validate a contract number using FPDS schema
+     */
+    parseContractNumber(contractNumber) {
+        if (!this.fpdsSchema) {
+            console.warn('FPDS Schema not loaded');
+            return { valid: false, error: 'Schema not available' };
+        }
+        
+        // Check cache first
+        if (this.cache.parsedContracts[contractNumber]) {
+            return this.cache.parsedContracts[contractNumber];
+        }
+        
+        const parsed = this.fpdsSchema.parseContractNumber(contractNumber);
+        
+        // Cache the result
+        if (parsed.valid) {
+            this.cache.parsedContracts[contractNumber] = parsed;
+        }
+        
+        return parsed;
+    }
+    
+    /**
+     * Validate contract number format
+     */
+    validateContractNumber(contractNumber) {
+        if (!this.fpdsSchema) {
+            return { valid: false, error: 'Schema not available' };
+        }
+        
+        return this.fpdsSchema.validateContractNumber(contractNumber);
+    }
+    
+    /**
+     * Generate a properly formatted contract number
+     */
+    generateContractNumber(agencyCode, fiscalYear = null) {
+        if (!this.fpdsSchema) {
+            return null;
+        }
+        
+        return this.fpdsSchema.generateSampleContractNumber(agencyCode, fiscalYear);
     }
 
     /**
