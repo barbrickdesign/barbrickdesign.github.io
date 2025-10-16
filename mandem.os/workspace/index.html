@@ -2862,14 +2862,19 @@
       localStorage.removeItem('currentUser');
       localStorage.removeItem('userProfile');
       localStorage.removeItem('userLoggedIn');
-      // Active Users Tracking
-      let activeAgentsCount = 8; // Total tester agents
-      let realUsersCount = 1; // Current session
-      let realUserSessions = JSON.parse(localStorage.getItem('realUserSessions') || '{}');
+      localStorage.removeItem('lastWalletAuth');
+      window.location.href = 'login.html';
+    }
 
-      function updateActiveUsersDisplay() {
-          document.getElementById('activeAgentsCount').textContent = activeAgentsCount;
-          document.getElementById('realUsersCount').textContent = realUsersCount;
+    // Logout on page refresh (session end)
+    window.addEventListener('beforeunload', () => {
+      logoutAndRedirect();
+    });
+
+    // Logout after 5 minutes of inactivity
+    let inactivityTimeout;
+    function resetInactivityTimer() {
+      if (inactivityTimeout) clearTimeout(inactivityTimeout);
       inactivityTimeout = setTimeout(() => {
         logoutAndRedirect();
       }, 5 * 60 * 1000); // 5 minutes
@@ -2878,6 +2883,69 @@
       window.addEventListener(evt, resetInactivityTimer);
     });
     resetInactivityTimer();
+
+    // Active Users Tracking
+    let activeAgentsCount = 8; // Total tester agents
+    let realUsersCount = 1; // Current session
+    let realUserSessions = JSON.parse(localStorage.getItem('realUserSessions') || '{}');
+
+    function updateActiveUsersDisplay() {
+        const agentsElement = document.getElementById('activeAgentsCount');
+        const usersElement = document.getElementById('realUsersCount');
+        if (agentsElement) agentsElement.textContent = activeAgentsCount;
+        if (usersElement) usersElement.textContent = realUsersCount;
+    }
+
+    function trackRealUserSession() {
+        const sessionId = generateSessionId();
+        const now = Date.now();
+        
+        // Clean old sessions (older than 24 hours)
+        Object.keys(realUserSessions).forEach(key => {
+            if (now - realUserSessions[key] > 24 * 60 * 60 * 1000) {
+                delete realUserSessions[key];
+            }
+        });
+        
+        // Add current session
+        realUserSessions[sessionId] = now;
+        localStorage.setItem('realUserSessions', JSON.stringify(realUserSessions));
+        
+        // Count active sessions (within last 5 minutes)
+        const activeSessions = Object.values(realUserSessions).filter(timestamp => 
+            now - timestamp < 5 * 60 * 1000
+        ).length;
+        
+        realUsersCount = activeSessions;
+        updateActiveUsersDisplay();
+        
+        logSessionEvent('info', 'Real user session tracked', { sessionId, activeUsers: realUsersCount });
+    }
+
+    function generateSessionId() {
+        return 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    }
+
+    function simulateAgentActivity() {
+        // Agents are always active in this simulation
+        activeAgentsCount = 8; // Fixed for demo, but could be dynamic
+        
+        // Update display
+        updateActiveUsersDisplay();
+        
+        // Log agent activity
+        logSessionEvent('info', 'Agent activity updated', { activeAgents: activeAgentsCount });
+    }
+
+    // Initialize tracking
+    trackRealUserSession();
+    simulateAgentActivity();
+    
+    // Update every 30 seconds
+    setInterval(() => {
+        trackRealUserSession();
+        simulateAgentActivity();
+    }, 30000);
 
     // Utility: detect mobile
     function isMobile() {
