@@ -219,8 +219,8 @@ class PumpFunTradingManager {
 
             this.agentPositions[token.address] = position;
 
-            // Simulate buy transaction
-            await this.executeBuyOrder(token.address, positionSize);
+            // Execute individual trade
+            await this.executeTrade(this.mainWallet, token, this.riskManagement);
 
             console.log(`🚀 Entered position in ${token.symbol}: ${positionSize} SOL at ${entryPrice}`);
 
@@ -363,18 +363,33 @@ class PumpFunTradingManager {
 
         for (const agentWallet of agentWallets) {
             try {
-                // Transfer from main wallet to agent wallet
-                await this.transferToAgentWallet(agentWallet.publicKey.toString(), amountPerAgent);
+                // Check if real trading is available
+                if (window.realSolanaManager && window.realSolanaManager.canExecuteRealTrades()) {
+                    // Use real Solana transfer
+                    const result = await window.realSolanaManager.transferToAgentWallet(
+                        agentWallet.publicKey.toString(),
+                        amountPerAgent
+                    );
 
-                console.log(`💰 Distributed ${amountPerAgent} SOL to agent ${agentWallet.agentName}`);
+                    if (result.success) {
+                        console.log(`💰 Real transfer: ${amountPerAgent} SOL to agent ${agentWallet.agentName}`);
+                    } else {
+                        console.log(`❌ Real transfer failed: ${result.reason}`);
+                    }
+                } else {
+                    // Fallback to simulation
+                    await this.simulateTransferToAgentWallet(agentWallet.publicKey.toString(), amountPerAgent);
+                    console.log(`💰 Simulated transfer: ${amountPerAgent} SOL to agent ${agentWallet.agentName}`);
+                }
+
             } catch (error) {
                 console.error(`Failed to fund agent ${agentWallet.agentName}:`, error);
             }
         }
     }
 
-    // Transfer funds to agent wallet (simulated)
-    async transferToAgentWallet(agentAddress, amount) {
+    // Simulate fund transfer (fallback for when real trading isn't available)
+    async simulateTransferToAgentWallet(agentAddress, amount) {
         // Simulate Solana transfer
         await new Promise(resolve => setTimeout(resolve, Math.random() * 1000 + 500));
 
@@ -382,7 +397,7 @@ class PumpFunTradingManager {
             throw new Error('Transfer failed - network congestion');
         }
 
-        console.log(`✅ Transferred ${amount} SOL to ${agentAddress}`);
+        console.log(`✅ Simulated transfer: ${amount} SOL to ${agentAddress}`);
     }
 
     // Get trading statistics
