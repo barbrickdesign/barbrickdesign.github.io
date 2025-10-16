@@ -2862,19 +2862,14 @@
       localStorage.removeItem('currentUser');
       localStorage.removeItem('userProfile');
       localStorage.removeItem('userLoggedIn');
-      localStorage.removeItem('lastWalletAuth');
-      window.location.href = 'login.html';
-    }
+      // Active Users Tracking
+      let activeAgentsCount = 8; // Total tester agents
+      let realUsersCount = 1; // Current session
+      let realUserSessions = JSON.parse(localStorage.getItem('realUserSessions') || '{}');
 
-    // Logout on page refresh (session end)
-    window.addEventListener('beforeunload', () => {
-      logoutAndRedirect();
-    });
-
-    // Logout after 5 minutes of inactivity
-    let inactivityTimeout;
-    function resetInactivityTimer() {
-      if (inactivityTimeout) clearTimeout(inactivityTimeout);
+      function updateActiveUsersDisplay() {
+          document.getElementById('activeAgentsCount').textContent = activeAgentsCount;
+          document.getElementById('realUsersCount').textContent = realUsersCount;
       inactivityTimeout = setTimeout(() => {
         logoutAndRedirect();
       }, 5 * 60 * 1000); // 5 minutes
