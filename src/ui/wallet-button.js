@@ -46,7 +46,18 @@ class WalletButton {
      * Render the button (Pump.fun style - clean and simple)
      */
     render() {
-        const wallet = window.universalWalletAuth?.getAuthInfo();
+        // Check shared wallet system first, fallback to universal auth
+        let wallet = null;
+        if (window.sharedWalletSystem && window.sharedWalletSystem.connected) {
+            wallet = {
+                address: window.sharedWalletSystem.address,
+                shortAddress: window.sharedWalletSystem.address ?
+                    window.sharedWalletSystem.address.slice(0, 6) + '...' + window.sharedWalletSystem.address.slice(-4) : 'Unknown',
+                authenticated: true
+            };
+        } else if (window.universalWalletAuth) {
+            wallet = window.universalWalletAuth.getAuthInfo();
+        }
 
         if (wallet && wallet.authenticated) {
             // Connected state - show address with dropdown
