@@ -474,9 +474,11 @@
                 });
             }
 
-            // Force reload with cache bypass
+            // Force reload with cache bypass and timestamp
             const timestamp = new Date().getTime();
-            window.location.href = window.location.href + '?cachebust=' + timestamp;
+            const currentUrl = new URL(window.location.href);
+            currentUrl.searchParams.set('cachebust', timestamp);
+            window.location.href = currentUrl.toString();
         }
 
         // Check for loading issues on page load
