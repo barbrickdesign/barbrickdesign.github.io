@@ -5,9 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contractor Payouts - Real-Time Earnings</title>
     
-    <!-- Dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iife.min.js"></script>
-    <script src="universal-wallet-connect.js"></script>
+    <script src="universal-wallet-auth.js"></script>
+    <script src="auth-integration.js"></script>
     <link rel="stylesheet" href="mobile-responsive.css">
     
     <style>
@@ -378,18 +378,18 @@
             btn.textContent = '⏳ CONNECTING...';
             
             try {
-                const result = await window.walletConnector.connect();
-                if (result.success) {
-                    document.getElementById('connectBtn').style.display = 'none';
-                    document.getElementById('walletInfo').style.display = 'block';
-                    document.getElementById('walletAddress').textContent = 
-                        result.address.slice(0, 8) + '...' + result.address.slice(-6);
-                    
-                    // Load dashboard
-                    loadDashboard();
-                } else {
-                    throw new Error(result.error);
-                }
+                await window.authIntegration.init({
+                    showUI: false,
+                    onAuthSuccess: (authInfo) => {
+                        document.getElementById('connectBtn').style.display = 'none';
+                        document.getElementById('walletInfo').style.display = 'block';
+                        document.getElementById('walletAddress').textContent = 
+                            authInfo.address.slice(0, 8) + '...' + authInfo.address.slice(-6);
+                        
+                        // Load dashboard
+                        loadDashboard();
+                    }
+                });
             } catch (error) {
                 alert('Wallet connection failed: ' + error.message);
                 btn.disabled = false;

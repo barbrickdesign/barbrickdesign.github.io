@@ -3,15 +3,13 @@
  * Enables all projects to work offline and sync when back online
  */
 
-const CACHE_NAME = 'barbrickdesign-v5';
+const CACHE_NAME = 'barbrickdesign-v6';
 const OFFLINE_URL = 'offline.html';
 
 // Files to cache for offline access
 const CACHE_URLS = [
     '/',
     '/index.html',
-    '/universal-wallet-connect.js',
-    '/wallet-adapter.js',
     '/universal-wallet-auth.js',
     '/auth-integration.js',
     '/contractor-registry.js',

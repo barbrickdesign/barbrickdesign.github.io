@@ -6,8 +6,8 @@
     <title>BARBRICKDESIGN - Investment Dashboard</title>
     <link rel="stylesheet" href="mobile-responsive.css">
     <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iife.min.js"></script>
-    <script src="universal-auth.js"></script>
-    <script src="universal-wallet-connect.js"></script>
+    <script src="universal-wallet-auth.js"></script>
+    <script src="auth-integration.js"></script>
     <script src="project-tokenomics.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
@@ -583,8 +583,7 @@
 
         function investInProject(pumpFunUrl, symbol) {
             // Check wallet connection
-            const walletState = window.walletConnector?.getState();
-            if (!walletState || !walletState.connected) {
+            if (!window.universalWalletAuth || !window.universalWalletAuth.isAuthenticated()) {
                 alert('Please connect your wallet first!\n\nGo to the main hub and connect your Phantom or MetaMask wallet.');
                 window.location.href = 'index.html';
                 return;

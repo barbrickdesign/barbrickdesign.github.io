@@ -5,19 +5,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BARBRICKDESIGN - Elite Web3 Hub</title>
     
-    <!-- Wallet System (Pump.fun Style) -->
-    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iife.min.js"></script>
-    <script src="wallet-adapter.js"></script>
+    <!-- Core Authentication System -->
+    <script src="universal-wallet-auth.js"></script>
+    <script src="auth-integration.js"></script>
+    
+    <!-- Wallet UI Components -->
     <script src="wallet-button.js"></script>
     <link rel="stylesheet" href="wallet-button.css">
     
-    <!-- Authentication & Integrations -->
-    <script src="universal-auth.js"></script>
+    <!-- Government Contract Integration -->
     <script src="fpds-contract-schema.js"></script>
+    <script src="samgov-integration.js"></script>
     <script src="samgov-api-integration.js"></script>
+    
+    <!-- Other Systems -->
     <script src="coinbase-wallet-integration.js"></script>
     <script src="pumpfun-integration.js"></script>
-    <script src="samgov-integration.js"></script>
     <script src="project-tokenomics.js"></script>
     <link rel="stylesheet" href="mobile-responsive.css">
     
@@ -415,88 +418,42 @@
             });
         }
 
-        // Auto-initialize all project systems
-        class SystemInitializer {
-            constructor() {
-                this.systems = [];
-                this.initialized = false;
-            }
-
-            addSystem(name, initFunction) {
-                this.systems.push({ name, initFunction });
-            }
-
-            async initializeAll() {
-                console.log('🚀 Initializing all systems...');
-                
-                for (const system of this.systems) {
-                    try {
-                        console.log(`⚡ Starting: ${system.name}`);
-                        await system.initFunction();
-                        console.log(`✅ ${system.name} initialized`);
-                    } catch (error) {
-                        console.error(`❌ ${system.name} failed:`, error);
+        // Initialize universal wallet auth system
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // Initialize universal wallet auth
+                await window.authIntegration.init({
+                    showUI: true,
+                    onAuthSuccess: (authInfo) => {
+                        console.log('✅ Wallet connected:', authInfo.address);
+                        console.log('⏱️ Work time:', authInfo.workTimeMinutes, 'minutes');
+                        
+                        // Update wallet button UI
+                        const btn = document.getElementById('walletBtn');
+                        const btnText = document.getElementById('btnText');
+                        if (btn && btnText) {
+                            btn.classList.add('connected');
+                            btnText.textContent = '✅ CONNECTED';
+                        }
+                    },
+                    onAuthFail: () => {
+                        console.log('❌ Wallet not connected');
+                        
+                        // Update wallet button UI
+                        const btn = document.getElementById('walletBtn');
+                        const btnText = document.getElementById('btnText');
+                        if (btn && btnText) {
+                            btn.classList.remove('connected');
+                            btnText.textContent = '🔗 CONNECT WALLET';
+                        }
                     }
-                }
+                });
                 
-                this.initialized = true;
-                console.log('🎉 All systems initialized');
+                // Initialize other systems
+                window.systemInit.initializeAll();
                 
-                // Trigger custom event
-                window.dispatchEvent(new CustomEvent('systemsReady'));
-            }
-        }
-
-        // Create global initializer
-        window.systemInit = new SystemInitializer();
-
-        // Register all project systems
-        window.systemInit.addSystem('Wallet Connector', async () => {
-            // Universal wallet system already loaded
-            if (window.walletConnector) {
-                if (typeof window.walletConnector.init === 'function') {
-                    await window.walletConnector.init();
-                } else {
-                    console.log('✅ Wallet Connector ready (no init needed)');
-                }
-            }
-        });
-
-        window.systemInit.addSystem('SAM.gov API', async () => {
-            if (window.samGovAPI) {
-                if (typeof window.samGovAPI.init === 'function') {
-                    await window.samGovAPI.init();
-                } else {
-                    console.log('✅ SAM.gov API ready (no init needed)');
-                }
-            }
-        });
-
-        window.systemInit.addSystem('Coinbase Wallet', async () => {
-            if (window.coinbaseWallet) {
-                if (typeof window.coinbaseWallet.init === 'function') {
-                    await window.coinbaseWallet.init();
-                } else {
-                    console.log('✅ Coinbase Wallet ready (no init needed)');
-                }
-            }
-        });
-
-        window.systemInit.addSystem('Pump.fun Integration', async () => {
-            if (window.pumpFun) {
-                console.log(`💎 ${window.pumpFun.coins.length} pump.fun coins loaded`);
-            }
-        });
-
-        window.systemInit.addSystem('Dev Compensation', async () => {
-            if (window.devCompensation) {
-                console.log('💰 Compensation calculator ready');
-            }
-        });
-
-        window.systemInit.addSystem('Project Tokenomics', async () => {
-            if (window.projectTokenomics) {
-                console.log('📊 Tokenomics engine ready');
+            } catch (error) {
+                console.error('❌ System initialization failed:', error);
             }
         });
 
@@ -566,208 +523,47 @@
             }, 3000);
         });
 
-        // Universal wallet connection with improved detection
+        // Universal wallet connection using the consolidated auth system
         async function connectWallet() {
-            const btn = document.getElementById('walletBtn');
-            const btnText = document.getElementById('btnText');
-            const walletInfo = document.getElementById('walletInfo');
-            
             try {
-                btnText.textContent = '⏳ DETECTING...';
-                btn.disabled = true;
-                
-                // Check if walletConnector is loaded
-                if (!window.walletConnector) {
-                    throw new Error('Wallet connector not loaded. Please refresh the page.');
+                if (window.universalWalletAuth && window.universalWalletAuth.isAuthenticated()) {
+                    console.log('✅ Already authenticated');
+                    return window.universalWalletAuth.getAuthInfo();
                 }
                 
-                // Detect available wallets
-                await window.walletConnector.detectWallets();
-                const detected = window.walletConnector.detectedWallets;
-                
-                console.log('🔍 Detected wallets:', detected);
-                
-                // If multiple wallets detected, let user choose
-                let result;
-                if (detected.length > 1) {
-                    const choice = confirm(
-                        `Multiple wallets detected:\n\n` +
-                        detected.map((w, i) => `${i + 1}. ${w.name} ${w.icon}`).join('\n') +
-                        `\n\nClick OK for ${detected[0].name} or Cancel for ${detected[1].name}`
-                    );
-                    
-                    if (choice) {
-                        // Use first wallet (usually Phantom)
-                        if (detected[0].type === 'solana') {
-                            result = await window.walletConnector.connectPhantom();
-                        } else {
-                            result = await window.walletConnector.connectMetaMask();
-                        }
-                    } else {
-                        // Use second wallet
-                        if (detected[1].type === 'solana') {
-                            result = await window.walletConnector.connectPhantom();
-                        } else {
-                            result = await window.walletConnector.connectMetaMask();
-                        }
-                    }
-                } else if (detected.length === 1) {
-                    // Single wallet detected
-                    btnText.textContent = `⏳ CONNECTING TO ${detected[0].name.toUpperCase()}...`;
-                    if (detected[0].type === 'solana') {
-                        result = await window.walletConnector.connectPhantom();
-                    } else {
-                        result = await window.walletConnector.connectMetaMask();
-                    }
-                } else {
-                    // No wallets detected - give platform-specific guidance
-                    console.log('No auto-detected wallets, checking manually...');
-                    
-                    // Check if mobile
-                    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-                    
-                    // Try Phantom first
-                    if (window.solana && window.solana.isPhantom) {
-                        btnText.textContent = '⏳ CONNECTING TO PHANTOM...';
-                        result = await window.walletConnector.connectPhantom();
-                    }
-                    // Then MetaMask
-                    else if (window.ethereum) {
-                        btnText.textContent = '⏳ CONNECTING TO METAMASK...';
-                        result = await window.walletConnector.connectMetaMask();
-                    }
-                    // No wallet found - provide helpful guidance
-                    else {
-                        if (isMobile) {
-                            throw new Error(
-                                'Mobile Wallet Not Detected!\n\n' +
-                                '📱 MOBILE USERS:\n' +
-                                '1. Install Phantom or MetaMask app\n' +
-                                '2. Open this site INSIDE the wallet app:\n' +
-                                '   • Phantom: Use built-in browser\n' +
-                                '   • MetaMask: Use built-in browser\n\n' +
-                                '⚠️ Safari/Chrome cannot access wallet extensions on mobile.\n' +
-                                'You MUST use the wallet\'s built-in browser!'
-                            );
-                        } else {
-                            throw new Error(
-                                'No Wallet Extension Detected!\n\n' +
-                                '💻 DESKTOP USERS:\n' +
-                                '1. Install a wallet extension:\n' +
-                                '   • Phantom: phantom.app\n' +
-                                '   • MetaMask: metamask.io\n\n' +
-                                '2. Refresh this page after installing\n\n' +
-                                '⚠️ Make sure the extension is enabled in your browser settings!'
-                            );
-                        }
-                    }
-                }
-                
-                if (result && result.success) {
-                    // Update UI
-                    btn.classList.add('connected');
-                    btnText.textContent = '✅ CONNECTED';
-                    
-                    // Show wallet info
-                    walletInfo.style.display = 'inline-flex';
-                    document.getElementById('walletType').textContent = 
-                        result.type === 'solana' ? '👻 Phantom' : '🦊 MetaMask';
-                    const shortAddr = result.address.slice(0, 6) + '...' + result.address.slice(-4);
-                    document.getElementById('walletAddress').textContent = shortAddr;
-                    document.getElementById('walletBalance').textContent = 
-                        result.balance + (result.type === 'solana' ? ' SOL' : ' ETH');
-                    
-                    // Save state
-                    window.walletConnector.saveState();
-                    
-                    console.log('✅ Wallet connected:', result);
-                    
-                    // Sign verification message
-                    setTimeout(() => signVerificationMessage(result), 1000);
-                } else {
-                    throw new Error(result?.error || 'Connection failed');
-                }
-                
-                btn.disabled = false;
+                // Use the universal wallet auth system
+                return await window.universalWalletAuth.connect();
             } catch (error) {
-                console.error('❌ Wallet connection error:', error);
-                btnText.textContent = '❌ CONNECTION FAILED';
-                btn.disabled = false;
-                
-                // Show help banner instead of alert for wallet detection errors
-                if (error.message.includes('No wallet') || error.message.includes('not detected')) {
-                    document.getElementById('walletHelpBanner').style.display = 'block';
-                } else {
-                    // Show alert for other errors (user rejection, etc.)
-                    alert('Wallet Connection Failed\n\n' + error.message);
-                }
-                
-                setTimeout(() => {
-                    btnText.textContent = '🔗 CONNECT WALLET';
-                    btn.disabled = false;
-                }, 3000);
-            }
-        }
-        
-        // Sign verification message for authenticated access
-        async function signVerificationMessage(walletResult) {
-            try {
-                const message = `BARBRICKDESIGN Authentication\n\nTimestamp: ${new Date().toISOString()}\nAddress: ${walletResult.address}\n\nBy signing, you verify ownership of this wallet.`;
-                
-                let signature;
-                if (walletResult.type === 'solana' && window.solana) {
-                    // Solana signature
-                    const encodedMessage = new TextEncoder().encode(message);
-                    const signedMessage = await window.solana.signMessage(encodedMessage, 'utf8');
-                    signature = signedMessage.signature;
-                    console.log('✅ Solana message signed');
-                } else if (walletResult.type === 'ethereum' && window.ethereum) {
-                    // Ethereum signature
-                    signature = await window.ethereum.request({
-                        method: 'personal_sign',
-                        params: [message, walletResult.address]
-                    });
-                    console.log('✅ Ethereum message signed');
-                }
-                
-                // Store verification
-                if (signature) {
-                    localStorage.setItem('wallet_verified', 'true');
-                    localStorage.setItem('wallet_signature', JSON.stringify(signature));
-                    localStorage.setItem('wallet_verified_at', new Date().toISOString());
-                    console.log('✅ Wallet verified and authenticated');
-                }
-            } catch (error) {
-                console.warn('⚠️ Message signing failed (optional):', error.message);
-                // Don't fail the connection if signing fails
+                console.error('❌ Wallet connection failed:', error);
+                throw error;
             }
         }
         
         // Disconnect wallet
         async function disconnectWallet() {
-            const btn = document.getElementById('walletBtn');
-            const btnText = document.getElementById('btnText');
-            const walletInfo = document.getElementById('walletInfo');
-            
             try {
-                // Disconnect via connector
-                if (window.walletConnector) {
-                    await window.walletConnector.disconnect();
+                if (window.universalWalletAuth) {
+                    await window.universalWalletAuth.disconnect();
+                    console.log('👋 Wallet disconnected');
+                    
+                    // Clear UI
+                    const btn = document.getElementById('walletBtn');
+                    const btnText = document.getElementById('btnText');
+                    const walletInfo = document.getElementById('walletInfo');
+                    
+                    if (btn) btn.classList.remove('connected');
+                    if (btnText) btnText.textContent = '🔗 CONNECT WALLET';
+                    if (walletInfo) walletInfo.style.display = 'none';
+                    
+                    // Clear verification
+                    localStorage.removeItem('wallet_verified');
+                    localStorage.removeItem('wallet_signature');
+                    localStorage.removeItem('wallet_verified_at');
+                    
+                    console.log('✅ Wallet disconnected');
                 }
-                
-                // Clear UI
-                btn.classList.remove('connected');
-                btnText.textContent = '🔗 CONNECT WALLET';
-                walletInfo.style.display = 'none';
-                
-                // Clear verification
-                localStorage.removeItem('wallet_verified');
-                localStorage.removeItem('wallet_signature');
-                localStorage.removeItem('wallet_verified_at');
-                
-                console.log('✅ Wallet disconnected');
             } catch (error) {
-                console.error('Disconnect error:', error);
+                console.error('❌ Disconnect error:', error);
             }
         }
         
@@ -848,39 +644,6 @@
         // Check for existing connection on load
         window.addEventListener('DOMContentLoaded', async function() {
             console.log('🚀 BARBRICKDESIGN Hub loaded');
-            
-            // Wait for wallet connector to finish initial detection
-            await new Promise(resolve => setTimeout(resolve, 2000));
-            
-            // Check if wallet was previously connected
-            if (window.walletConnector && window.walletConnector.loadState()) {
-                const state = window.walletConnector.getState();
-                if (state.address) {
-                    const btn = document.getElementById('walletBtn');
-                    const btnText = document.getElementById('btnText');
-                    const walletInfo = document.getElementById('walletInfo');
-                    
-                    btn.classList.add('connected');
-                    btnText.textContent = '✅ CONNECTED';
-                    walletInfo.style.display = 'inline-flex';
-                    
-                    const shortAddr = state.address.slice(0, 6) + '...' + state.address.slice(-4);
-                    document.getElementById('walletAddress').textContent = shortAddr;
-                    document.getElementById('walletBalance').textContent = 
-                        (state.balance || '0.00') + ' ' + (state.walletType === 'Phantom' ? 'SOL' : 'ETH');
-                    
-                    console.log('✅ Previous wallet connection restored');
-                }
-            }
-            
-            // Don't auto-show help banner - only show when user tries to connect and fails
-            console.log('Page loaded. Wallets detected:', window.walletConnector?.detectedWallets.length || 0);
-            
-            // Initialize all systems
-            await window.systemInit.initializeAll();
-            
-            // Register background sync
-            registerBackgroundSync();
             
             // Load and display portfolio ticker
             loadPortfolioTicker();

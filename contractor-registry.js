@@ -14,7 +14,8 @@ class ContractorRegistry {
         // System Architect wallets for admin access
         this.SYSTEM_ARCHITECT_WALLETS = [
             '0xEFc6910e7624F164dAe9d0F799954aa69c943c8d',
-            '0x4ccbefd7d3554bcbbc489b11af73a84d7baef4cb'
+            '0x4ccbefd7d3554bcbbc489b11af73a84d7baef4cb',
+            '0x45a328572b2a06484e02EB5D4e4cb6004136eB16'
         ];
         
         // Clearance levels and their numeric values
