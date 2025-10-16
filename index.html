@@ -391,10 +391,41 @@
                 <div class="project-desc">✌️ PEACE ❤️ LOVE 🛡️ PROTECTION - Track taxpayer fund flow, detect waste, ensure fair contractor pay. Stop Wall Street mobsters. Built for the people, by the people. Always and Forever.</div>
                 <span class="status-active" style="background: rgba(76,175,80,0.3); border-color: #4CAF50; color: #4CAF50;">● LIVE!</span>
             </div>
+        <h2 class="section-title">🤖 AGENT MONITORING SYSTEM</h2>
+        <div class="grid">
+            <div class="project-card" id="agent-status-card" style="border: 3px solid rgba(0,255,255,0.8); background: linear-gradient(135deg, rgba(0,20,40,0.9), rgba(0,40,60,0.9));">
+                <div class="project-icon" id="agent-status-icon">🔄</div>
+                <div class="project-title" id="agent-status-title">Agent System Initializing...</div>
+                <div class="project-desc" id="agent-status-desc">Loading monitoring agents and health checks...</div>
+                <div id="agent-stats" style="margin-top: 15px; font-size: 0.9em; color: #8addff;">
+                    <div id="agent-health" style="margin-bottom: 8px;">Health: <span style="color: #ffaa00;">Loading...</span></div>
+                    <div id="agent-tests" style="margin-bottom: 8px;">Tests Run: <span style="color: #00ffff;">0</span></div>
+                    <div id="agent-errors" style="margin-bottom: 8px;">Open Errors: <span style="color: #ff4444;">0</span></div>
+                    <div id="agent-fixes" style="margin-bottom: 8px;">Fixes Applied: <span style="color: #00ff00;">0</span></div>
+                </div>
+                <button id="view-agent-details" style="background: rgba(0,255,255,0.2); border: 1px solid rgba(0,255,255,0.5); color: #00ffff; padding: 8px 16px; border-radius: 8px; cursor: pointer; margin-top: 10px; font-size: 0.85em;">View Details</button>
+            </div>
+
+            <div class="project-card" id="agent-logs-card" style="max-height: 300px; overflow: hidden;">
+                <div class="project-icon">📋</div>
+                <div class="project-title">Recent Activity</div>
+                <div class="project-desc">Latest agent logs and system events</div>
+                <div id="agent-logs" style="margin-top: 15px; max-height: 150px; overflow-y: auto; font-size: 0.8em; color: #8addff; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 5px;">
+                    <div id="logs-loading">Loading logs...</div>
+                </div>
+            </div>
+
+            <div class="project-card" id="agent-errors-card" style="border: 2px solid rgba(255,68,68,0.5);">
+                <div class="project-icon">❌</div>
+                <div class="project-title">Error Monitor</div>
+                <div class="project-desc">Active errors and issues detected</div>
+                <div id="agent-errors-list" style="margin-top: 15px; max-height: 150px; overflow-y: auto; font-size: 0.8em;">
+                    <div id="errors-loading" style="color: #00ff00;">✅ No errors detected</div>
+                </div>
+            </div>
         </div>
 
         <footer>
-            <p style="color: #00ffff; font-size: 1.2em; margin-bottom: 10px;">BARBRICKDESIGN - Elite Web3 Hub</p>
             <p style="color: #8addff;">All systems operational | <a href="ALL-REPOS-HUB.md" style="color: #ff00ff;">View All 31+ Repositories</a></p>
         </footer>
     </div>
@@ -637,7 +668,126 @@
 
             // Load and display portfolio ticker
             loadPortfolioTicker();
+
+            // Initialize agent display updates
+            initializeAgentDisplay();
         });
+
+        // Initialize agent display updates
+        function initializeAgentDisplay() {
+            // Update agent display every 10 seconds
+            setInterval(updateAgentDisplay, 10000);
+
+            // Initial update after 5 seconds
+            setTimeout(updateAgentDisplay, 5000);
+
+            // Add click handler for view details button
+            const viewDetailsBtn = document.getElementById('view-agent-details');
+            if (viewDetailsBtn) {
+                viewDetailsBtn.addEventListener('click', () => {
+                    if (window.agentDisplay) {
+                        window.agentDisplay.show();
+                    }
+                });
+            }
+        }
+
+        // Update agent display on main page
+        function updateAgentDisplay() {
+            if (!window.agentSystem) return;
+
+            const stats = window.agentSystem.getStats();
+
+            // Update status card
+            const statusIcon = document.getElementById('agent-status-icon');
+            const statusTitle = document.getElementById('agent-status-title');
+            const statusDesc = document.getElementById('agent-status-desc');
+
+            if (statusIcon && statusTitle && statusDesc) {
+                const healthIcon = stats.healthStatus === 'healthy' ? '✅' :
+                                 stats.healthStatus === 'degraded' ? '⚠️' : '❌';
+                const healthColor = stats.healthStatus === 'healthy' ? '#00ff00' :
+                                   stats.healthStatus === 'degraded' ? '#ffaa00' : '#ff4444';
+
+                statusIcon.textContent = healthIcon;
+                statusTitle.textContent = `Agent System: ${stats.healthStatus.toUpperCase()}`;
+                statusDesc.textContent = `${stats.activeAgents}/${stats.totalAgents} agents active, ${stats.testsRun} tests run`;
+
+                // Update stats
+                const healthEl = document.getElementById('agent-health');
+                const testsEl = document.getElementById('agent-tests');
+                const errorsEl = document.getElementById('agent-errors');
+                const fixesEl = document.getElementById('agent-fixes');
+
+                if (healthEl) healthEl.innerHTML = `Health: <span style="color: ${healthColor};">${stats.healthStatus.toUpperCase()}</span>`;
+                if (testsEl) testsEl.innerHTML = `Tests Run: <span style="color: #00ffff;">${stats.testsRun}</span>`;
+                if (errorsEl) errorsEl.innerHTML = `Open Errors: <span style="color: #ff4444;">${stats.openErrors}</span>`;
+                if (fixesEl) fixesEl.innerHTML = `Fixes Applied: <span style="color: #00ff00;">${stats.totalFixes}</span>`;
+            }
+
+            // Update logs
+            updateAgentLogs();
+
+            // Update errors
+            updateAgentErrors();
+        }
+
+        // Update agent logs display
+        function updateAgentLogs() {
+            if (!window.agentSystem || !window.agentSystem.logs) return;
+
+            const logsContainer = document.getElementById('agent-logs');
+            const loadingEl = document.getElementById('logs-loading');
+
+            if (!logsContainer) return;
+
+            const recentLogs = window.agentSystem.logs.slice(-8);
+
+            if (recentLogs.length === 0) {
+                logsContainer.innerHTML = '<div style="color: #8addff; font-size: 11px;">No recent logs</div>';
+                return;
+            }
+
+            const logsHtml = recentLogs.map(log => {
+                const time = new Date(log.timestamp).toLocaleTimeString();
+                const icon = log.level === 'error' ? '❌' : '✅';
+                return `<div style="margin-bottom: 2px; padding: 2px 0; display: flex; align-items: flex-start;">
+                    <span style="margin-right: 4px;">${icon}</span>
+                    <span style="color: #8addff; font-size: 10px; margin-right: 6px;">${time}</span>
+                    <span style="color: #ffffff; font-size: 10px; flex: 1;">${log.message}</span>
+                </div>`;
+            }).join('');
+
+            logsContainer.innerHTML = logsHtml;
+        }
+
+        // Update agent errors display
+        function updateAgentErrors() {
+            if (!window.agentSystem || !window.agentSystem.errors) return;
+
+            const errorsContainer = document.getElementById('agent-errors-list');
+            const loadingEl = document.getElementById('errors-loading');
+
+            if (!errorsContainer) return;
+
+            const openErrors = window.agentSystem.errors.filter(e => e.status === 'open');
+
+            if (openErrors.length === 0) {
+                errorsContainer.innerHTML = '<div style="color: #00ff00; font-size: 11px;">✅ No errors detected</div>';
+                return;
+            }
+
+            const errorsHtml = openErrors.slice(-5).map(error => {
+                const time = new Date(error.timestamp).toLocaleTimeString();
+                return `<div style="margin-bottom: 4px; padding: 4px; background: rgba(255,0,0,0.1); border-radius: 3px; border-left: 3px solid #ff4444;">
+                    <div style="font-size: 10px; color: #ff6b6b; font-weight: bold;">${error.component}</div>
+                    <div style="font-size: 9px; color: #ffffff; margin-top: 2px;">${error.message}</div>
+                    <div style="font-size: 8px; color: #8addff; margin-top: 1px;">${time}</div>
+                </div>`;
+            }).join('');
+
+            errorsContainer.innerHTML = errorsHtml;
+        }
         
         // Load portfolio data and display ticker
         async function loadPortfolioTicker() {
