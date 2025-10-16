@@ -1,14 +1,17 @@
 {
   "name": "barbrickdesign-platform",
-  "version": "2.0.0",
-  "description": "BarbrickDesign - Web3 Platform with Government Contract Integration",
-  "main": "start-all-servers.js",
+  "version": "2.2.1",
+  "description": "BarbrickDesign - Web3 Platform with Government Contract Integration (Reorganized Structure)",
+  "main": "src/core/universal-wallet-auth.js",
   "scripts": {
     "start": "node start-all-servers.js",
     "dev": "node start-all-servers.js",
+    "build": "mkdir -p dist && cp -r src/* dist/ && cp *.html dist/ && cp service-worker.js dist/",
     "test": "echo \"Running health checks...\" && node test-servers.js",
-    "deploy": "node deploy.js",
-    "health-check": "node health-check.js"
+    "deploy": "npm run build && node deploy.js",
+    "health-check": "node health-check.js",
+    "clean": "rm -rf dist/ && rm -rf src/",
+    "reorganize": "echo \"Files reorganized into src/ structure\""
   },
   "keywords": [
     "web3",
@@ -16,7 +19,9 @@
     "government-contracts",
     "samgov",
     "coinbase",
-    "wallet"
+    "wallet",
+    "reorganized",
+    "structured"
   ],
   "author": "BarbrickDesign",
   "license": "MIT",
@@ -27,5 +32,11 @@
   "engines": {
     "node": ">=14.0.0",
     "npm": ">=6.0.0"
+  },
+  "directories": {
+    "src": "src",
+    "dist": "dist",
+    "docs": "docs",
+    "test": "tests"
   }
 }
