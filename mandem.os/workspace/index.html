@@ -794,6 +794,7 @@
             // Hover effect with debouncing
             let hoverTimeout;
             let lastHoveredSatellite = null;
+            let isHovering = false; // Track hover state to prevent animation interference
 
             container.addEventListener('mousemove', function(event) {
                 // Clear previous timeout
