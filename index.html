@@ -957,40 +957,54 @@
 
         // Update agent display on main page
         function updateAgentDisplay() {
-            if (!window.agentSystem) return;
-
-            const stats = window.agentSystem.getStats();
-
-            // Update status card
-            const statusIcon = document.getElementById('agent-status-icon');
-            const statusTitle = document.getElementById('agent-status-title');
-            const statusDesc = document.getElementById('agent-status-desc');
-
-            if (statusIcon && statusTitle && statusDesc) {
-                const healthIcon = stats.healthStatus === 'healthy' ? '✅' :
-                                 stats.healthStatus === 'degraded' ? '⚠️' : '❌';
-                const healthColor = stats.healthStatus === 'healthy' ? 'healthy' :
-                                   stats.healthStatus === 'degraded' ? 'degraded' : 'critical';
-
-                statusIcon.textContent = healthIcon;
-                statusTitle.textContent = `Agent System: ${stats.healthStatus.toUpperCase()}`;
-                statusDesc.textContent = `${stats.activeAgents}/${stats.totalAgents} agents active, ${stats.testsRun} tests run`;
-
-                // Update stats with animation
-                updateStatValue('agent-health', stats.healthStatus.toUpperCase(), healthColor);
-                updateStatValue('agent-tests', stats.testsRun.toString(), 'tests');
-                updateStatValue('agent-errors', stats.openErrors.toString(), 'errors');
-                updateStatValue('agent-fixes', stats.totalFixes.toString(), 'fixes');
+            // Safety check - only proceed if agent system exists
+            if (!window.agentSystem || typeof window.agentSystem.getStats !== 'function') {
+                console.log('⚠️ Agent system not available, skipping update');
+                return;
             }
 
-            // Update mini agent indicators
-            updateMiniIndicators(stats);
+            try {
+                const stats = window.agentSystem.getStats();
 
-            // Update logs
-            updateAgentLogs();
+                // Update status card
+                const statusIcon = document.getElementById('agent-status-icon');
+                const statusTitle = document.getElementById('agent-status-title');
+                const statusDesc = document.getElementById('agent-status-desc');
 
-            // Update errors
-            updateAgentErrors();
+                if (statusIcon && statusTitle && statusDesc) {
+                    const healthIcon = stats.healthStatus === 'healthy' ? '✅' :
+                                     stats.healthStatus === 'degraded' ? '⚠️' : '❌';
+                    const healthColor = stats.healthStatus === 'healthy' ? 'healthy' :
+                                       stats.healthStatus === 'degraded' ? 'degraded' : 'critical';
+
+                    statusIcon.textContent = healthIcon;
+                    statusTitle.textContent = `Agent System: ${stats.healthStatus.toUpperCase()}`;
+                    statusDesc.textContent = `${stats.activeAgents || 0}/${stats.totalAgents || 0} agents active, ${stats.testsRun || 0} tests run`;
+
+                    // Update stats with animation
+                    updateStatValue('agent-health', stats.healthStatus.toUpperCase(), healthColor);
+                    updateStatValue('agent-tests', (stats.testsRun || 0).toString(), 'tests');
+                    updateStatValue('agent-errors', (stats.openErrors || 0).toString(), 'errors');
+                    updateStatValue('agent-fixes', (stats.totalFixes || 0).toString(), 'fixes');
+                }
+
+                // Update mini agent indicators safely
+                updateMiniIndicators(stats);
+
+                // Update logs safely
+                updateAgentLogs();
+
+                // Update errors safely
+                updateAgentErrors();
+
+            } catch (error) {
+                console.warn('⚠️ Error updating agent display:', error.message);
+                // Show fallback status
+                const statusIcon = document.getElementById('agent-status-icon');
+                const statusTitle = document.getElementById('agent-status-title');
+                if (statusIcon) statusIcon.textContent = '⚠️';
+                if (statusTitle) statusTitle.textContent = 'Agent System: Limited Mode';
+            }
         }
 
         function updateStatValue(elementId, value, type) {
