@@ -15,6 +15,9 @@
 
 class FPDSContractSchema {
     constructor() {
+        // Prevent infinite recursion
+        this._parsingStack = new Set();
+        
         // Major Federal Agencies and their contract prefix codes
         this.agencyCodes = {
             // Department of Defense
