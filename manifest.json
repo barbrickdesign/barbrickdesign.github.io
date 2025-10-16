@@ -1,0 +1,63 @@
+{
+  "name": "BARBRICKDESIGN",
+  "short_name": "Barbrick",
+  "description": "Elite Web3 Development and Design Hub",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#000000",
+  "theme_color": "#000000",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "icon-192x192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "screenshot1.png",
+      "sizes": "1280x800",
+      "type": "image/png",
+      "form_factor": "wide"
+    },
+    {
+      "src": "screenshot2.png",
+      "sizes": "750x1334",
+      "type": "image/png",
+      "form_factor": "narrow"
+    }
+  ],
+  "categories": ["web3", "blockchain", "development", "design"],
+  "shortcuts": [
+    {
+      "name": "Dashboard",
+      "short_name": "Home",
+      "description": "Go to main dashboard",
+      "url": "/"
+    },
+    {
+      "name": "Projects",
+      "short_name": "Projects",
+      "description": "View all projects",
+      "url": "/#projects"
+    },
+    {
+      "name": "Agent Monitor",
+      "short_name": "Agents",
+      "description": "Monitor agent status",
+      "url": "/#agents"
+    }
+  ],
+  "prefer_related_applications": false,
+  "related_applications": [],
+  "scope": "/",
+  "dir": "ltr",
+  "lang": "en-US"
+}
