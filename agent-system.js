@@ -874,7 +874,7 @@ class ErrorRecoveryAgent extends BaseAgent {
     }
 
     initializeRecoveryStrategies() {
-        // Define recovery strategies for common errors
+        // Define recovery strategies for real site errors
         this.recoveryStrategies = {
             'universal-wallet-auth.js not loaded': () => {
                 this.log('🔧 Attempting wallet auth reload...');
@@ -887,6 +887,133 @@ class ErrorRecoveryAgent extends BaseAgent {
                     return true;
                 }
                 return false;
+            },
+            'Critical element missing': (error) => {
+                this.log('🔧 Attempting to recreate missing DOM elements...');
+                const selector = error.selector;
+                if (selector) {
+                    // Try to recreate common elements
+                    if (selector === '.portfolio-ticker') {
+                        this.createPortfolioTicker();
+                        return true;
+                    } else if (selector === '#walletButtonContainer') {
+                        this.createWalletButton();
+                        return true;
+                    } else if (selector.includes('script[src*="universal-wallet-auth"]')) {
+                        this.reloadWalletAuth();
+                        return true;
+                    }
+                }
+                return false;
+            },
+            'Script failed to load': (error) => {
+                this.log('🔧 Attempting to reload failed script...');
+                const scriptSrc = error.filename;
+                if (scriptSrc && scriptSrc.includes('.js')) {
+                    const script = document.querySelector(`script[src="${scriptSrc}"]`);
+                    if (script) {
+                        script.remove();
+                        const newScript = document.createElement('script');
+                        newScript.src = scriptSrc;
+                        document.head.appendChild(newScript);
+                        return true;
+                    }
+                }
+                return false;
+            },
+            'CSS failed to load': (error) => {
+                this.log('🔧 Attempting to reload failed CSS...');
+                const cssHref = error.filename;
+                if (cssHref && cssHref.includes('.css')) {
+                    const link = document.querySelector(`link[href="${cssHref}"]`);
+                    if (link) {
+                        link.remove();
+                        const newLink = document.createElement('link');
+                        newLink.rel = 'stylesheet';
+                        newLink.href = cssHref;
+                        document.head.appendChild(newLink);
+                        return true;
+                    }
+                }
+                return false;
+            },
+            'Image failed to load': (error) => {
+                this.log('🔧 Attempting to fix broken image...');
+                const imgSrc = error.filename;
+                if (imgSrc) {
+                    const img = document.querySelector(`img[src="${imgSrc}"]`);
+                    if (img) {
+                        // Replace with placeholder or hide
+                        img.style.display = 'none';
+                        return true;
+                    }
+                }
+                return false;
+            },
+            'API request failed': (error) => {
+                this.log('🔧 API request failed - checking network connectivity...');
+                if (!navigator.onLine) {
+                    this.log('💡 Network offline - will retry when connection restored');
+                    return 'network_retry';
+                }
+                return false;
+            },
+            'Fetch request failed': (error) => {
+                this.log('🔧 Fetch request failed - attempting retry...');
+                const url = error.url;
+                if (url) {
+                    // Attempt to retry the fetch request
+                    setTimeout(() => {
+                        fetch(url).catch(err => {
+                            this.log(`❌ Retry failed: ${err.message}`);
+                        });
+                    }, 2000);
+                    return true;
+                }
+                return false;
+            },
+            'Network connection lost': () => {
+                this.log('🔧 Network lost - setting up reconnection monitoring...');
+                // Set up reconnection handler
+                const handleReconnection = () => {
+                    if (navigator.onLine) {
+                        this.log('✅ Network restored - refreshing critical resources');
+                        window.location.reload();
+                        return true;
+                    }
+                    return false;
+                };
+
+                if (!navigator.onLine) {
+                    const retryInterval = setInterval(() => {
+                        if (handleReconnection()) {
+                            clearInterval(retryInterval);
+                        }
+                    }, 5000);
+                    return true;
+                }
+                return false;
+            },
+            'function missing': (error) => {
+                this.log('🔧 Function missing - reloading affected modules...');
+                // Reload critical modules that might have missing functions
+                const criticalModules = [
+                    'universal-wallet-auth.js',
+                    'auth-integration.js',
+                    'samgov-integration.js',
+                    'fpds-contract-schema.js'
+                ];
+
+                criticalModules.forEach(module => {
+                    const script = document.querySelector(`script[src="${module}"]`);
+                    if (script) {
+                        script.remove();
+                        const newScript = document.createElement('script');
+                        newScript.src = module;
+                        document.head.appendChild(newScript);
+                    }
+                });
+                return true;
             },
             'Service Worker not registered': () => {
                 this.log('🔧 Attempting service worker registration...');
@@ -916,21 +1043,6 @@ class ErrorRecoveryAgent extends BaseAgent {
                 }
                 return false;
             },
-            'function missing': (error) => {
-                this.log('🔧 Attempting to reload missing function modules...');
-                // Try to reload scripts that might contain missing functions
-                const scripts = ['universal-wallet-auth.js', 'auth-integration.js', 'samgov-integration.js'];
-                scripts.forEach(scriptSrc => {
-                    const script = document.querySelector(`script[src="${scriptSrc}"]`);
-                    if (script) {
-                        script.remove();
-                        const newScript = document.createElement('script');
-                        newScript.src = scriptSrc;
-                        document.head.appendChild(newScript);
-                    }
-                });
-                return true;
-            },
             'Contract parsing failed': () => {
                 this.log('🔧 Attempting to fix contract parsing by reloading FPDS schema...');
                 const script = document.querySelector('script[src="fpds-contract-schema.js"]');
@@ -953,6 +1065,41 @@ class ErrorRecoveryAgent extends BaseAgent {
                 return brokenLinks.length > 0;
             }
         };
+    }
+
+    // Helper methods for DOM recreation
+    createPortfolioTicker() {
+        if (!document.querySelector('.portfolio-ticker')) {
+            const ticker = document.createElement('div');
+            ticker.className = 'portfolio-ticker';
+            ticker.id = 'portfolioTicker';
+            ticker.style.display = 'none';
+            document.body.appendChild(ticker);
+            this.log('✅ Recreated portfolio ticker element');
+        }
+    }
+
+    createWalletButton() {
+        if (!document.getElementById('walletButtonContainer')) {
+            const container = document.createElement('div');
+            container.id = 'walletButtonContainer';
+            const header = document.querySelector('header');
+            if (header) {
+                header.appendChild(container);
+                this.log('✅ Recreated wallet button container');
+            }
+        }
+    }
+
+    reloadWalletAuth() {
+        const script = document.querySelector('script[src*="universal-wallet-auth"]');
+        if (script) {
+            script.remove();
+            const newScript = document.createElement('script');
+            newScript.src = 'universal-wallet-auth.js';
+            document.head.appendChild(newScript);
+            this.log('✅ Reloaded wallet authentication script');
+        }
     }
 
     attemptFix(error) {
