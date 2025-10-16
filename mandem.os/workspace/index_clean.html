@@ -1,0 +1,726 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://barbrickdesign.github.io/">
+    <meta name="twitter:title" content="BARBRICKDESIGN - Elite Web3 Hub">
+    <meta name="twitter:description" content="Cutting-edge Web3 development and design solutions">
+    <meta name="twitter:image" content="https://barbrickdesign.github.io/header.jpg">
+    <meta property="og:url" content="https://barbrickdesign.github.io/">
+    <meta property="og:title" content="BARBRICKDESIGN - Elite Web3 Hub">
+    <meta property="og:description" content="Cutting-edge Web3 development and design solutions">
+    <meta property="og:image" content="https://barbrickdesign.github.io/header.jpg">
+    <meta name="description" content="BARBRICKDESIGN - Elite Web3 Development and Design Hub">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' https:; connect-src 'self' https:;">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <title>Gem Bot Universe for this project by Ryan Barbrick. of BarbrickDesign.com</title>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="public/styles.css">
+    <link href="css/theme.css" rel="stylesheet" type="text/css">
+    <link rel="manifest" href="../../manifest.json">
+    <meta name="theme-color" content="#0ff">
+    <link rel="apple-touch-icon" href="public/apple-touch-icon.png">
+    <style>
+/* 3D Globe Container - ensure proper positioning */
+#globe-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1;
+    pointer-events: none;
+}
+
+/* Tooltip for globe interactions */
+#globeTooltip {
+    position: fixed;
+    background: rgba(0, 0, 0, 0.8);
+    color: #00ff99;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    pointer-events: none;
+    z-index: 100;
+    display: none;
+    border: 1px solid #00ff99;
+}
+
+/* Ensure content doesn't interfere with globe */
+.welcome-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    color: #fff;
+    padding: 20px;
+}
+
+/* Post-login content positioning */
+.post-login-content {
+    position: relative;
+    z-index: 5;
+    margin-top: 20px;
+    padding: 20px;
+}
+
+/* MGC promotion section positioning */
+#mgc-promotion {
+    position: relative;
+    z-index: 5;
+    margin: 20px auto;
+    max-width: 1200px;
+    padding: 20px;
+}
+
+/* Agent log panel positioning */
+#agentLogPanel {
+    position: relative;
+    z-index: 5;
+    margin: 20px 0;
+    max-width: 100%;
+}
+
+/* Status message positioning */
+#statusMessage {
+    position: fixed;
+    top: 80px;
+    left: 20px;
+    z-index: 500;
+    max-width: 200px;
+    cursor: pointer;
+    background: rgba(34, 34, 34, 0.9);
+    color: #fff;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: bold;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+    transition: opacity 0.3s;
+}
+
+/* Modal positioning */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.85);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10000;
+}
+
+.modal-content {
+  background: linear-gradient(135deg, #1a1a2e, #16213e);
+  padding: 30px;
+  border-radius: 16px;
+  max-width: 450px;
+  width: 90%;
+  box-shadow: 0 10px 40px rgba(0, 255, 153, 0.3);
+  border: 2px solid #00ff99;
+  text-align: center;
+}
+
+.modal-content h3 {
+  margin: 0 0 15px 0;
+  color: #00ff99;
+  font-size: 24px;
+}
+
+.modal-content p {
+  margin: 0 0 20px 0;
+  color: #ccc;
+  line-height: 1.6;
+}
+
+.modal-content .auth-button {
+  margin: 8px;
+  min-width: 140px;
+}
+
+/* Mobile responsiveness */
+@media (max-width: 700px) {
+  #loginBtn {
+    position: fixed !important;
+    left: 18px;
+    bottom: 18px;
+    z-index: 1200;
+    margin: 0 !important;
+    width: auto;
+    min-width: 90px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px #0002;
+  }
+  #profileBtn {
+    position: fixed !important;
+    left: 18px;
+    bottom: 18px;
+    z-index: 1200;
+    margin: 0 !important;
+    width: auto;
+    min-width: 90px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px #0002;
+  }
+}
+
+/* Mobile table scroll */
+@media (max-width: 700px) {
+  table, .stat-table {
+    display: block;
+    overflow-x: auto;
+    width: 100%;
+    max-width: 100vw;
+    -webkit-overflow-scrolling: touch;
+  }
+  th, td {
+    min-width: 90px;
+    font-size: 15px;
+  }
+  .profile-card, .container, .post-login-content {
+    padding: 8px !important;
+  }
+  button, .auth-button {
+    min-height: 44px;
+    font-size: 18px;
+  }
+  /* Fix z-index stacking issues */
+  .welcome-overlay {
+    z-index: 10 !important;
+  }
+  .globe-container {
+    z-index: 1 !important;
+  }
+  /* Fix position conflicts */
+  .welcome-overlay, .post-login-content {
+    position: relative !important;
+    z-index: auto !important;
+  }
+  /* Fix horizontal overflow */
+  body {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+  .welcome-overlay, .post-login-content {
+    max-width: 100vw;
+    box-sizing: border-box;
+  }
+  /* Fix flex layout wrapping */
+  .mgc-promotion > div {
+    flex-wrap: wrap !important;
+    justify-content: center !important;
+  }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+    body { font-size: 16px; }
+    h1 { font-size: 2em; }
+    .container { padding: 10px; }
+    button, .btn { min-height: 44px; font-size: 16px; }
+}
+    </style>
+
+    <!-- Universal Wallet Authentication System -->
+    <script src="../../contractor-registry.js"></script>
+    <script src="../../universal-wallet-auth.js"></script>
+    <script src="../../auth-integration.js"></script>
+    <script src="../../wallet-button.js"></script>
+    <script src="../../auth-bootstrap.js"></script>
+
+    <!-- Pump.fun Token Integration -->
+    <script src="../../pumpfun-token-config.js"></script>
+
+    <!-- Agent Monitoring System -->
+    <script src="../../agent-types.js"></script>
+    <script src="../../monitoring-systems.js"></script>
+    <script src="../../agent-core.js"></script>
+    <script src="../../agent-system.js"></script>
+    <script src="../../agent-display.js"></script>
+    <script src="../../drip_protocol.js"></script>
+    <script src="../../real_agent_trading.js"></script>
+    <script src="../../wallet-auto-repair.js"></script>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Initialize feature systems
+        if (typeof window.dripProtocol !== 'undefined') {
+            window.dripProtocol.initialize();
+        } else {
+            // Fallback simulation code here if needed
+        }
+
+        if (typeof window.realAgentTradingManager !== 'undefined') {
+            window.realAgentTradingManager.initialize();
+        } else {
+            // Fallback simulation code here if needed
+        }
+    });
+    </script>
+    </head>
+    <body>
+        <header>
+            <div class="header-left">
+                <button id="contentToggleBtn" class="content-toggle-button">Mission Control</button>
+            </div>
+            <h1>Gem Bot Universe</h1>
+            <p class="header-desc">by Ryan Barbrick · BarbrickDesign.com<br>Explore our virtual environments.</p>
+            <div class="auth-links-header" id="authLinksHeader" style="margin-top:1em; text-align:center;">
+                <a href="login.html" class="auth-button" id="loginBtn" style="display: inline-block;">Log In</a>
+                <a href="profile.html" class="auth-button" id="profileBtn" style="display:none;">Profile</a>
+            </div>
+            <div id="mgcBalanceDisplay">
+                <a id="mgcBalanceLink" href="profile.html">MGC Balance: <span id="mgcBalance">0</span></a>
+                <span style="margin: 0 10px; color: #666;">|</span>
+                <span style="color: #FF6B35; font-weight: bold;">🔥 GBPT: <span id="mndmBalance">0</span></span>
+            </div>
+            <!-- Pump.fun Token Widget -->
+            <div id="pumpfun-token-container" style="max-width: 400px; margin: 15px auto 0;"></div>
+        </header>
+
+        <!-- Hard Refresh Button for Cache Issues -->
+        <button id="hardRefreshBtn" style="
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: linear-gradient(135deg, #ff6b35, #ff8c42);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            z-index: 10000;
+            box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
+            display: none;
+        " title="Force refresh and clear cache">
+            🔄 Hard Refresh
+        </button>
+
+        <script>
+        // Show hard refresh button if there are loading issues
+        function checkForLoadingIssues() {
+            const agentSystemLoaded = typeof window.agentSystem !== 'undefined';
+            const agentDisplayLoaded = typeof window.agentDisplay !== 'undefined';
+            const baseAgentLoaded = typeof window.BaseAgent !== 'undefined';
+            const monitoringLoaded = typeof window.setupEnhancedErrorMonitoring !== 'undefined';
+
+            if (!agentSystemLoaded || !agentDisplayLoaded || !baseAgentLoaded || !monitoringLoaded) {
+                console.warn('⚠️ Agent system not fully loaded, showing hard refresh option');
+                document.getElementById('hardRefreshBtn').style.display = 'block';
+            } else {
+                document.getElementById('hardRefreshBtn').style.display = 'none';
+            }
+        }
+
+        // Hard refresh function that clears cache
+        function hardRefresh() {
+            try {
+                localStorage.clear();
+                sessionStorage.clear();
+            } catch (e) {
+                console.warn('⚠️ Could not clear storage:', e);
+            }
+
+            if ('serviceWorker' in navigator) {
+                navigator.serviceWorker.getRegistrations().then(registrations => {
+                    registrations.forEach(registration => {
+                        registration.unregister();
+                    });
+                });
+            }
+
+            if ('caches' in window) {
+                caches.keys().then(names => {
+                    names.forEach(name => {
+                        caches.delete(name);
+                    });
+                });
+            }
+
+            const timestamp = new Date().getTime();
+            const separator = window.location.href.indexOf('?') === -1 ? '?' : '&';
+            window.location.href = window.location.href + separator + 'cachebust=' + timestamp;
+        }
+
+        document.addEventListener('DOMContentLoaded', checkForLoadingIssues);
+        setTimeout(checkForLoadingIssues, 8000);
+        setTimeout(checkForLoadingIssues, 12000);
+
+        // Add event listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            const hardRefreshBtn = document.getElementById('hardRefreshBtn');
+            if (hardRefreshBtn) {
+                hardRefreshBtn.addEventListener('click', hardRefresh);
+            }
+        });
+        </script>
+
+        <!-- Welcome overlay (initially shown, fades out) -->
+        <div class="welcome-overlay" id="welcomeOverlay">
+            <h2>Gem Bot Universe</h2>
+            <p>Explore our interactive 3D environments by navigating the Globe Interface. Log in to access additional features and control your Gem Bot deployment.</p>
+
+            <!-- Single MGC Promotion Card in welcome overlay -->
+            <div class="mgc-promotion" style="
+                background: linear-gradient(135deg, #ffd700, #ffaa00);
+                padding: 20px;
+                border-radius: 15px;
+                margin: 20px 0;
+                text-align: center;
+                color: #333;
+                box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+                max-width: 600px;
+            ">
+                <h3 style="margin: 0 0 15px 0; color: #222;">💎 Welcome to Gem Bot Universe!</h3>
+                <p style="margin: 0 0 15px 0; font-size: 16px; font-weight: bold;">
+                    Earn <span style="color: #ff6b35; text-shadow: 0 0 5px #ff6b35;">MGC</span> (Mandem Game Currency)
+                    by exploring, completing quests, and trading in our virtual worlds!
+                </p>
+                <div style="display: flex; justify-content: center; gap: 15px; margin: 15px 0; flex-wrap: wrap;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 24px; margin-bottom: 5px;">🔍</div>
+                        <div style="font-size: 14px; font-weight: bold;">Explore</div>
+                        <div style="font-size: 12px; opacity: 0.8;">Discover hidden gems</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 24px; margin-bottom: 5px;">⚔️</div>
+                        <div style="font-size: 14px; font-weight: bold;">Quest</div>
+                        <div style="font-size: 12px; opacity: 0.8;">Complete challenges</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 24px; margin-bottom: 5px;">💰</div>
+                        <div style="font-size: 14px; font-weight: bold;">Trade</div>
+                        <div style="font-size: 12px; opacity: 0.8;">Exchange treasures</div>
+                    </div>
+                </div>
+                <p style="margin: 15px 0 0 0; font-size: 14px;">
+                    <strong>🔥 Plus:</strong> Connect your wallet to earn <span style="color: #ff6b35;">MANDEM tokens</span>
+                    and access exclusive features!
+                </p>
+                <div style="margin-top: 15px;">
+                    <button id="connectWalletForMGC" style="
+                        background: #ff6b35;
+                        color: white;
+                        border: none;
+                        padding: 12px 24px;
+                        border-radius: 8px;
+                        font-size: 16px;
+                        font-weight: bold;
+                        cursor: pointer;
+                        box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
+                        transition: all 0.3s;
+                    " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(255, 107, 53, 0.4)'"
+                       onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(255, 107, 53, 0.3)'">
+                        🚀 Start Earning MGC Now!
+                    </button>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 20px;">
+                <button id="hideWelcomeOverlay" style="
+                    background: rgba(255, 255, 255, 0.2);
+                    color: white;
+                    border: 2px solid rgba(255, 255, 255, 0.3);
+                    padding: 12px 24px;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-size: 16px;
+                ">✨ Enter Gem Bot Universe</button>
+            </div>
+        </div>
+
+        <!-- Post-login content (initially hidden) -->
+        <div class="post-login-content" id="postLoginContent" style="display:none;">
+            <section id="labControls">
+                <h2>Lab Controls</h2>
+                <button id="launchLabBtn">🚀 Launch Virtual Lab</button>
+                <button id="checkConnectionBtn">🔗 Check Connection</button>
+                <button id="syncSettingsBtn">🔄 Sync Lab Settings</button>
+                <button id="globalMapBtn">🌎 View Global Lab Map</button>
+                <button id="seedPlatformBtn">🌱 Seed Next Platform</button>
+                <button id="deployNowBtn">📡 Deploy & Launch</button>
+                <button id="toggleModeBtn">🔄 Switch to Physical Mode</button>
+            </section>
+
+            <!-- Status and Info Panel -->
+            <section id="machineStatus">
+                <h2>Digital Readouts</h2>
+                <div class="status-grid">
+                    <div class="status-item"> <span class="status-label">Current Mode</span> <span id="modeStatus" class="status-value">Virtual</span> </div>
+                    <div class="status-item"> <span class="status-label">Connection</span> <span id="connectionStatus" class="status-value">Connected</span> </div>
+                    <div class="status-item"> <span class="status-label">Current Progress</span> <span id="progressStatus" class="status-value">0%</span> </div>
+                    <div class="status-item"> <span class="status-label">Estimated Time</span> <span id="timeStatus" class="status-value">00:00:00</span> </div>
+                </div>
+            </section>
+
+            <!-- Copilot Dashboard -->
+            <section id="copilotDashboard">
+                <h2>Copilot D3 Feedback</h2>
+                <div id="copilotLogs"><!-- Virtual user logs will display here --></div>
+            </section>
+
+            <!-- Idea Tracker for Development Planning -->
+            <section id="ideaTrackerSection">
+                <h2>💡 Idea Tracker</h2>
+                <div class="idea-tracker-container">
+                    <div class="idea-form">
+                        <input type="text" id="ideaTitle" placeholder="New idea title..."/>
+                        <textarea id="ideaDescription" placeholder="Describe your idea..."></textarea>
+                        <div class="idea-form-row">
+                            <select id="ideaPriority" aria-label="Idea Priority">
+                                <option value="low">Low Priority</option>
+                                <option value="medium" selected>Medium Priority</option>
+                                <option value="high">High Priority</option>
+                                <option value="critical">Critical Priority</option>
+                            </select>
+                            <button id="addIdeaBtn">Add Idea</button>
+                        </div>
+                    </div>
+                    <div class="idea-filters">
+                        <button class="filter-btn active" data-filter="all">All Ideas</button>
+                        <button class="filter-btn" data-filter="low">Low Priority</button>
+                        <button class="filter-btn" data-filter="medium">Medium Priority</button>
+                        <button class="filter-btn" data-filter="high">High Priority</button>
+                        <button class="filter-btn" data-filter="critical">Critical Priority</button>
+                    </div>
+                    <div class="idea-list" id="ideaList"><!-- Ideas will be dynamically added here --></div>
+                </div>
+            </section>
+
+            <!-- Build Tracker Panel -->
+            <div id="buildTrackerPanel" class="build-tracker-panel"><!-- ...existing build tracker content... --></div>
+            <button id="buildTrackerToggle" class="build-tracker-toggle">📊 Build Status</button>
+
+            <!-- Sketchfab Integration UI -->
+            <div style="text-align:center;margin:1.5em 0;">
+                <button id="sketchfabBrowseBtn" class="auth-button" style="margin-bottom:0.5em;">Browse 3D Assets (Sketchfab)</button>
+                <button id="sketchfabEmbedBtn" class="auth-button">Embed 3D Model</button>
+            </div>
+            <div id="sketchfabModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.7);z-index:5000;align-items:center;justify-content:center;">
+                <div style="background:#222;padding:2em 1.5em;border-radius:12px;max-width:95vw;width:420px;text-align:center;position:relative;">
+                    <button id="closeSketchfabModal" style="position:absolute;top:8px;right:12px;font-size:20px;background:none;border:none;color:#fff;cursor:pointer;">&times;</button>
+                    <h3>Embed a Sketchfab Model</h3>
+                    <input id="sketchfabInput" type="text" placeholder="Paste Sketchfab URL or Model UID" style="width:90%;padding:8px;margin:1em 0;" />
+                    <button id="embedSketchfabModel" class="auth-button">Embed</button>
+                    <div id="sketchfabEmbedContainer" style="margin-top:1em;"></div>
+                </div>
+            </div>
+
+            <!-- 3D Model Gallery Section -->
+            <section id="modelGallerySection" style="margin:2em 0;">
+              <h2>3D Model Gallery</h2>
+              <input id="modelSearchInput" type="text" placeholder="Search models..." style="width:220px;padding:6px;margin-bottom:1em;" />
+              <div id="modelGalleryGrid" style="display:flex;flex-wrap:wrap;gap:18px;"></div>
+              <div id="modelPreviewModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.8);z-index:6000;align-items:center;justify-content:center;">
+                <div style="background:#222;padding:1.5em 1em;border-radius:12px;max-width:95vw;width:480px;text-align:center;position:relative;">
+                  <button id="closeModelPreview" style="position:absolute;top:8px;right:12px;font-size:20px;background:none;border:none;color:#fff;cursor:pointer;">&times;</button>
+                  <h3 id="previewModelName"></h3>
+                  <div id="previewModelViewer" style="width:100%;height:320px;background:#111;"></div>
+                  <div id="previewModelMeta" style="color:#aaa;font-size:13px;margin-top:8px;"></div>
+                </div>
+              </div>
+            </section>
+        </div>
+
+        <!-- Agent/Tester Log Panel -->
+        <div class="profile-card" id="agentLogPanel">
+            <h2>All Players (Live)</h2>
+            <table class="stat-table" id="allAgentsTable">
+                <thead>
+                    <tr>
+                        <th>Mask</th>
+                        <th>Username</th>
+                        <th>MGC</th>
+                        <th>Uptime</th>
+                        <th>Status</th>
+                        <th>Role</th>
+                    </tr>
+                </thead>
+                <tbody></tbody>
+            </table>
+            <button id="toggleAgentLog" class="auth-button">Hide</button>
+        </div>
+
+        <!-- Move All Players button to bottom right, left of chat -->
+        <button id="showAgentLogBtn" class="auth-button all-players-bottom-btn" style="display:none;">All Players</button>
+        <!-- Glowing blue box for All Players panel -->
+        <div id="allPlayersGlowingBox" style="position:fixed;right:110px;bottom:18px;width:48px;height:48px;border-radius:12px;background:radial-gradient(circle,#00f6ff 60%,#0ff 100%);box-shadow:0 0 18px 6px #00e6ff,0 0 32px 12px #0ff;z-index:1000;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:box-shadow 0.2s;">
+          <span style="color:#fff;font-size:28px;font-weight:bold;user-select:none;">👥</span>
+        </div>
+
+        <!-- Server Sync Status Banner -->
+        <div id="sync-status-banner" style="display:none;position:fixed;top:0;left:0;width:100vw;z-index:3000;background:#222;color:#fff;text-align:center;padding:8px 0;font-weight:bold;font-size:16px;box-shadow:0 2px 8px #000;">Servers are syncing... Real-time player data may be delayed.</div>
+
+        <!-- Server Sync Status Dropdown (hidden by default) -->
+        <div id="sync-status-dropdown" style="display:none;position:absolute;top:60px;left:18px;right:18px;z-index:4000;background:#222;color:#fff;text-align:center;padding:14px 0 10px 0;font-weight:bold;font-size:16px;box-shadow:0 2px 12px #000;border-radius:12px;max-width:420px;margin:auto;">
+          <div id="sync-status-main">Servers are syncing... Real-time player data may be delayed.</div>
+          <div id="sync-status-times" style="font-size:13px;color:#aaa;margin-top:6px;"></div>
+        </div>
+
+        <!-- Server Status Message (clickable link to server status indicator) -->
+        <div id="statusMessage" style="position: fixed; top: 80px; left: 20px; z-index: 500; max-width: 200px; cursor: pointer; background: rgba(34, 34, 34, 0.9); color: #fff; padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: bold; box-shadow: 0 2px 6px rgba(0,0,0,0.5); transition: opacity 0.3s;">Server: ...</div>
+
+        <!-- Session Log Panel -->
+        <div id="sessionLogPanel"></div>
+        <button id="sessionLogToggle">📋 Logs</button>
+
+        <!-- Login Check Modal (Now non-blocking) -->
+        <div id="loginModal" class="modal" style="display:none">
+            <div class="modal-content">
+                <h3>Enhanced Features Available</h3>
+                <p>Connect your wallet to access advanced features like live feeds, MGC balance tracking, and exclusive 3D environments.</p>
+                <button id="modalLoginBtn" class="auth-button">Connect Wallet</button>
+                <button id="modalCloseBtn" class="auth-button">Continue Without Login</button>
+            </div>
+        </div>
+
+        <footer>
+            <p>&copy; 2025 Gem Bot Project | All Rights Reserved</p>
+        </footer>
+
+        <!-- Load JavaScript files -->
+        <!-- Solana Wallet Integration -->
+        <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@latest/lib/index.iife.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl-fast.min.js"></script>
+        <script src="../../mandem.os/workspace/public/phantomLogin.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/three@latest/build/three.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/three@latest/examples/js/controls/OrbitControls.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/three@latest/examples/js/controls/PointerLockControls.js"></script>
+
+        <!-- Clean session logging script -->
+        <script>
+    // Clean Session Logging System
+    let sessionLogs = JSON.parse(localStorage.getItem('mandemSessionLogs') || '[]');
+    const MAX_LOGS = 50;
+
+    function logSessionEvent(type, message, data = {}) {
+        const logEntry = {
+            timestamp: new Date().toISOString(),
+            type: type,
+            message: message,
+            data: data,
+            url: window.location.href,
+            userAgent: navigator.userAgent
+        };
+
+        sessionLogs.unshift(logEntry);
+        if (sessionLogs.length > MAX_LOGS) {
+            sessionLogs = sessionLogs.slice(0, MAX_LOGS);
+        }
+
+        localStorage.setItem('mandemSessionLogs', JSON.stringify(sessionLogs));
+        updateSessionLogPanel();
+    }
+
+    function toggleSessionLog() {
+        const panel = document.getElementById('sessionLogPanel');
+        if (!panel) return;
+
+        if (panel.style.display === 'block') {
+            panel.style.display = 'none';
+        } else {
+            panel.style.display = 'block';
+            updateSessionLogPanel();
+        }
+    }
+
+    function updateSessionLogPanel() {
+        const panel = document.getElementById('sessionLogPanel');
+        if (!panel || panel.style.display === 'none') return;
+
+        panel.innerHTML = '<h4>Session Logs</h4>' +
+            sessionLogs.slice(0, 10).map(log =>
+                `<div style="margin-bottom:5px;border-bottom:1px solid #333;padding:2px;">
+                    <small style="color:#888">${new Date(log.timestamp).toLocaleTimeString()}</small>
+                    <strong style="color:#00ff99">[${log.type}]</strong> ${log.message}
+                </div>`
+            ).join('');
+    }
+
+    // Add missing function definitions
+    function connectWalletForMGC() {
+        console.log('🔗 Connecting wallet for MGC...');
+        if (window.universalWalletAuth) {
+            window.universalWalletAuth.connect().then(() => {
+                console.log('✅ Wallet connected for MGC');
+                updateMgcBalanceDisplay();
+            }).catch(error => {
+                console.error('❌ Wallet connection failed:', error);
+                alert('Wallet connection failed: ' + error.message);
+            });
+        } else {
+            console.error('❌ Universal wallet auth not available');
+        }
+    }
+
+    function hideWelcomeOverlay() {
+        const overlay = document.getElementById('welcomeOverlay');
+        const content = document.getElementById('postLoginContent');
+
+        if (overlay) {
+            overlay.style.display = 'none';
+        }
+        if (content) {
+            content.style.display = 'block';
+        }
+
+        console.log('✨ Welcome overlay hidden, showing main content');
+    }
+
+    function updateMgcBalanceDisplay() {
+        // Update MGC balance display
+        const mgcElement = document.getElementById('mgcBalance');
+        if (mgcElement && window.universalWalletAuth) {
+            const workTime = window.universalWalletAuth.getWorkTime();
+            const mgcBalance = Math.floor(workTime / 60); // 1 MGC per hour worked
+            mgcElement.textContent = mgcBalance;
+
+            // Update GBPT balance too
+            const gbptElement = document.getElementById('mndmBalance');
+            if (gbptElement) {
+                gbptElement.textContent = mgcBalance * 1000; // 1000 GBPT per MGC
+            }
+        }
+    }
+
+    // Initialize MGC balance updates
+    window.addEventListener('load', function() {
+        updateMgcBalanceDisplay();
+
+        // Update balance every 30 seconds
+        setInterval(updateMgcBalanceDisplay, 30000);
+    });
+
+    // Wallet connection success handler
+    window.addEventListener('authSuccess', function(event) {
+        console.log('🎉 Wallet connected in Mandem.OS:', event.detail.address);
+        updateMgcBalanceDisplay();
+    });
+
+    // Wallet disconnect handler
+    window.addEventListener('authLogout', function() {
+        console.log('👋 Wallet disconnected from Mandem.OS');
+        const mgcElement = document.getElementById('mgcBalance');
+        const gbptElement = document.getElementById('mndmBalance');
+        if (mgcElement) mgcElement.textContent = '0';
+        if (gbptElement) gbptElement.textContent = '0';
+    });
+
+    // Initialize session logging
+    logSessionEvent('info', 'Gem Bot Universe loaded');
+        </script>
+    </body>
+</html>
