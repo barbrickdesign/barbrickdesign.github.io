@@ -649,7 +649,7 @@
 
             console.log('✅ Controls added, starting animation...');
 
-            // Add orbiting satellites
+            // Add orbiting satellites with labels
             const environments = [
                 { name: 'Grand Exchange', color: 0x3399ff, url: '../grand-exchange.html' },
                 { name: 'Laboratory', color: 0x00cc66, url: '../laboratory.html' },
@@ -658,6 +658,7 @@
             ];
 
             satellites = []; // Clear and repopulate global array
+            const labels = []; // Store 3D text labels
 
             environments.forEach((env, index) => {
                 const angle = (index / environments.length) * Math.PI * 2;
@@ -674,6 +675,98 @@
                 satellite.userData = { name: env.name, url: env.url };
                 scene.add(satellite);
                 satellites.push(satellite);
+
+                // Create floating 3D text label
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                canvas.width = 256;
+                canvas.height = 64;
+
+                // Style the text
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 20px Arial';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(env.name, canvas.width / 2, canvas.height / 2);
+
+                const texture = new THREE.CanvasTexture(canvas);
+                const spriteMaterial = new THREE.SpriteMaterial({ map: texture, transparent: true });
+                const sprite = new THREE.Sprite(spriteMaterial);
+
+                sprite.position.x = Math.cos(angle) * (radius + 1.5);
+                sprite.position.z = Math.sin(angle) * (radius + 1.5);
+                sprite.position.y = Math.sin(angle) * 2 + 2.5;
+                sprite.scale.set(4, 1, 1);
+
+                sprite.userData = { satellite: satellite };
+                scene.add(sprite);
+                labels.push(sprite);
+            });
+
+            // Mouse interaction setup
+            const raycaster = new THREE.Raycaster();
+            const mouse = new THREE.Vector2();
+
+            // Hover effect
+            container.addEventListener('mousemove', function(event) {
+                const rect = container.getBoundingClientRect();
+                mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+                mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+                raycaster.setFromCamera(mouse, camera);
+                const intersects = raycaster.intersectObjects(satellites);
+
+                // Reset all satellites
+                satellites.forEach(sat => {
+                    if (sat.material && sat.material.emissive) {
+                        sat.material.emissive.setHex(sat.userData.originalColor || sat.userData.color);
+                    }
+                });
+
+                // Highlight hovered satellite
+                if (intersects.length > 0) {
+                    const sat = intersects[0].object;
+                    if (sat.material && sat.material.emissive) {
+                        sat.material.emissive.setHex(0xffffff); // White highlight
+                    }
+                    container.style.cursor = 'pointer';
+                } else {
+                    container.style.cursor = 'default';
+                }
+            });
+
+            // Click navigation
+            container.addEventListener('click', function(event) {
+                const rect = container.getBoundingClientRect();
+                mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+                mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+
+                raycaster.setFromCamera(mouse, camera);
+                const intersects = raycaster.intersectObjects(satellites);
+
+                if (intersects.length > 0) {
+                    const sat = intersects[0].object;
+                    const targetUrl = sat.userData.url;
+
+                    console.log('🖱️ Satellite clicked:', sat.userData.name, '->', targetUrl);
+
+                    // Always allow navigation to these pages (no login required)
+                    const publicPages = [
+                        '../laboratory.html',
+                        '../warehouse.html',
+                        '../outdoor.html',
+                        '../grand-exchange.html'
+                    ];
+
+                    if (publicPages.includes(targetUrl)) {
+                        window.location.href = targetUrl;
+                    } else {
+                        // For any other pages, still allow navigation
+                        window.location.href = targetUrl;
+                    }
+                }
             });
 
             // Animation loop
