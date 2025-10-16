@@ -798,7 +798,35 @@
         // Load minted tokens on page load
         window.addEventListener('DOMContentLoaded', () => {
             setTimeout(loadMintedTokens, 1000);
+            
+            // Initialize wallet auth
+            window.authIntegration.init({
+                showUI: false,
+                onAuthSuccess: (authInfo) => {
+                    console.log('🎉 Grand Exchange: Wallet connected', authInfo.address);
+                    updateWalletStatus(authInfo);
+                },
+                onAuthFail: () => {
+                    console.log('⚠️ Grand Exchange: No wallet connected');
+                    updateWalletStatus(null);
+                }
+            });
         });
+        
+        function updateWalletStatus(authInfo) {
+            const walletStatus = document.getElementById('walletStatus');
+            if (!walletStatus) return;
+            
+            if (authInfo) {
+                walletStatus.innerHTML = `
+                    <span style="color: #00ff00;">●</span> Connected: ${authInfo.shortAddress}
+                `;
+            } else {
+                walletStatus.innerHTML = `
+                    <span style="color: #ff4444;">●</span> Wallet Not Connected
+                `;
+            }
+        }
     </script>
 </body>
 </html>
