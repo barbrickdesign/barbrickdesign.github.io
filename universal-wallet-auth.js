@@ -1,5 +1,6 @@
 /**
  * UNIVERSAL WALLET AUTHENTICATION SYSTEM
+ * <!-- REF: WALLET-AUTH -->
  * Single Sign-On (SSO) for entire platform
  * - Connect wallet ONCE, stay authenticated across all pages
  * - Session-based auth with automatic expiry

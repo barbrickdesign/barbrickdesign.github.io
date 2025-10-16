@@ -348,15 +348,13 @@ class SAMGovIntegration {
 
 /**
  * SAM.GOV & FPDS CONTRACT DATA INTEGRATION
+ * <!-- REF: FPDS-INTEGRATION -->
  * Pulls real government contract data from multiple sources:
  * - SAM.gov: Open opportunities and future contracts
  * - FPDS (Federal Procurement Data System): Historical awarded contracts
  * - FPDS Contract Number Schema: Validates and parses contract identifiers
  * Uses data to accurately value projects and match contractors
- * Enhanced with live SAM.gov API integration for real-time data
  */
-
-class SAMGovIntegration {
     constructor() {
         // SAM.gov endpoints for opportunities and historical data
         this.samApiEndpoint = 'https://api.sam.gov/prod/opportunities/v2/search';
