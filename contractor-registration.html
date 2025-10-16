@@ -474,20 +474,31 @@
                 
                 // Check for MetaMask
                 if (!window.ethereum) {
-                    throw new Error('MetaMask not found. Please install MetaMask extension.');
+                    throw new Error('MetaMask not found. Please install MetaMask extension from metamask.io');
                 }
                 
-                // Request account access
-                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                connectedWallet = accounts[0];
+                // First check if already connected (no popup needed)
+                let accounts;
+                const existingAccounts = await window.ethereum.request({ method: 'eth_accounts' });
+                
+                if (existingAccounts && existingAccounts.length > 0) {
+                    console.log('✅ Using existing MetaMask connection');
+                    accounts = existingAccounts;
+                } else {
+                    // Request new connection
+                    console.log('📞 Requesting new MetaMask connection...');
+                    accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                }
+                
+                connectedWallet = accounts[0].toLowerCase(); // Normalize to lowercase
                 
                 // Check if System Architect - bypass registration
                 const systemArchitectWallets = [
-                    '0xEFc6910e7624F164dAe9d0F799954aa69c943c8d',
+                    '0xefc6910e7624f164dae9d0f799954aa69c943c8d',
                     '0x4ccbefd7d3554bcbbc489b11af73a84d7baef4cb'
                 ];
                 
-                if (systemArchitectWallets.includes(connectedWallet.toLowerCase())) {
+                if (systemArchitectWallets.includes(connectedWallet)) {
                     showStatus('⚡ System Architect detected! Redirecting to classified contracts...', 'success');
                     setTimeout(() => {
                         window.location.href = 'classified-contracts.html';
@@ -498,9 +509,13 @@
                 // Check if already registered
                 const existing = window.contractorRegistry.getContractor(connectedWallet);
                 if (existing && existing.status === 'approved') {
-                    throw new Error('This wallet is already registered and approved. You can access classified contracts directly.');
+                    showStatus('✅ This wallet is already approved! Redirecting to contracts...', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'classified-contracts.html';
+                    }, 2000);
+                    return;
                 } else if (existing && existing.status === 'pending') {
-                    throw new Error('This wallet already has a pending registration. Please wait for approval.');
+                    throw new Error('This wallet already has a pending registration. Please wait for System Architect approval (typically 1-3 business days).');
                 }
                 
                 // Display wallet address
@@ -517,7 +532,19 @@
                 
             } catch (error) {
                 console.error('Wallet connection error:', error);
-                showStatus('❌ ' + error.message, 'error');
+                
+                let errorMsg = error.message || 'Connection failed';
+                
+                // Provide specific help for common errors
+                if (errorMsg.includes('Unexpected')) {
+                    errorMsg = '⚠️ Wallet connection failed. Please:\n\n1. ✅ UNLOCK your MetaMask wallet\n2. 🔄 REFRESH this page\n3. 🔌 Try disabling Phantom if you have multiple wallets\n4. 🦊 Make sure MetaMask is up to date';
+                } else if (error.code === 4001 || errorMsg.includes('rejected') || errorMsg.includes('denied')) {
+                    errorMsg = 'Connection request rejected. Please approve the connection in MetaMask to continue registration.';
+                } else if (errorMsg.includes('not found')) {
+                    errorMsg = 'MetaMask not detected. Please install MetaMask from metamask.io and refresh this page.';
+                }
+                
+                showStatus('❌ ' + errorMsg, 'error');
                 btn.disabled = false;
                 btn.textContent = 'Connect MetaMask Wallet';
             }
