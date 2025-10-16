@@ -636,10 +636,51 @@
             controls.enableDamping = true;
             controls.dampingFactor = 0.05;
 
+            // Add orbiting satellites
+            const satellites = [];
+            const environments = [
+                { name: 'Grand Exchange', color: 0x3399ff, url: '../grand-exchange.html' },
+                { name: 'Laboratory', color: 0x00cc66, url: '../laboratory.html' },
+                { name: 'Warehouse', color: 0xffcc00, url: '../warehouse.html' },
+                { name: 'Explorer', color: 0x66ff99, url: '../outdoor.html' },
+            ];
+
+            environments.forEach((env, index) => {
+                const angle = (index / environments.length) * Math.PI * 2;
+                const radius = 11;
+
+                const satelliteGeometry = new THREE.SphereGeometry(1, 16, 16);
+                const satelliteMaterial = new THREE.MeshPhongMaterial({ color: env.color });
+                const satellite = new THREE.Mesh(satelliteGeometry, satelliteMaterial);
+
+                satellite.position.x = Math.cos(angle) * radius;
+                satellite.position.z = Math.sin(angle) * radius;
+                satellite.position.y = Math.sin(angle) * 2;
+
+                satellite.userData = { name: env.name, url: env.url };
+                scene.add(satellite);
+                satellites.push(satellite);
+            });
+
             // Animation loop
             function animate() {
                 requestAnimationFrame(animate);
+
+                // Rotate earth
                 earth.rotation.y += 0.005;
+
+                // Rotate satellites
+                satellites.forEach((satellite, index) => {
+                    const speed = 0.0001 * (1 + index * 0.1);
+                    const angle = (Date.now() * speed) % (Math.PI * 2);
+                    const radius = 11;
+
+                    satellite.position.x = Math.cos(angle + index) * radius;
+                    satellite.position.z = Math.sin(angle + index) * radius;
+
+                    satellite.rotation.y += 0.01;
+                });
+
                 controls.update();
                 renderer.render(scene, camera);
             }
