@@ -3,7 +3,7 @@
  * Enables all projects to work offline and sync when back online
  */
 
-const CACHE_NAME = 'barbrickdesign-v4';
+const CACHE_NAME = 'barbrickdesign-v5';
 const OFFLINE_URL = 'offline.html';
 
 // Files to cache for offline access
