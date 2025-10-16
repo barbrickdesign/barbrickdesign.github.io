@@ -141,6 +141,9 @@ class DripProtocol {
         // Execute drips
         const dripResults = await this.executeDrips(dripAllocations);
 
+        // Fund agent Solana wallets for trading
+        await this.fundAgentTradingWallets(dripResults);
+
         // Record drip cycle
         this.recordDripCycle(eligibleAgents, dripResults);
 
@@ -157,6 +160,36 @@ class DripProtocol {
 
         // Schedule next cycle
         this.scheduleNextDrip();
+    }
+
+    // Fund agent Solana wallets for trading
+    async fundAgentTradingWallets(dripResults) {
+        try {
+            // Check if Solana trading system is available
+            if (!window.pumpFunManager) {
+                console.log('⚠️ Pump.fun trading system not available');
+                return;
+            }
+
+            // Calculate total funds to distribute for trading
+            const successfulDrips = dripResults.filter(r => r.success);
+            if (successfulDrips.length === 0) return;
+
+            // Use 50% of dripped funds for trading (configurable)
+            const totalTradingFunds = successfulDrips.reduce((sum, drip) => sum + drip.amount, 0) * 0.5;
+
+            if (totalTradingFunds > 0) {
+                console.log(`💰 Funding agent trading wallets with ${totalTradingFunds} SOL...`);
+
+                // Distribute funds to agent wallets for trading
+                await window.pumpFunManager.distributeFundsToAgents(totalTradingFunds);
+
+                console.log(`✅ Agent trading wallets funded with ${totalTradingFunds} SOL`);
+            }
+
+        } catch (error) {
+            console.error('Failed to fund agent trading wallets:', error);
+        }
     }
 
     // Update scores for all agents
