@@ -177,27 +177,29 @@ const formatted = window.formatTokenAmount(balance, 2);
 ```
 1. Open: /ember-terminal/app.html
 2. Connect wallet  
-3. Look at top status bar
-4. See: "MNDM 🔥 [progress bar] 1,234.56"
-5. Progress bar should fill based on balance
+3. See: MGC Balance: 0 | 🔥 GBPT: [your balance]
+4. See: Token widget below with trade button
+
+Ember Terminal:
+- Check status bar: "GBPT 🔥 [bar] 1,234.56"
+- Check widget: Above nav footer
 ```
 
 ### **Test 3: Third System Architect Wallet**
 ```
-1. Switch to wallet: 0x45a328572b2a06484e02EB5D4e4cb6004136eB16
-2. Connect on any page
-3. Try accessing: /mandem.os/workspace/admin.html
-4. Expected: ✅ Instant access (no "Access Denied")
+1. Connect: 0x45a328572b2a06484e02EB5D4e4cb6004136eB16
+2. Visit: /mandem.os/workspace/admin.html
+3. Expected: ✅ Instant access
 ```
 
 ### **Test 4: Auto-Update**
 ```
 1. Start with wallet disconnected
-2. See: MNDM shows "0"
+2. See: GBPT shows "0"
 3. Connect wallet
-4. See: MNDM updates automatically
+4. See: GBPT updates automatically
 5. Disconnect wallet
-6. See: MNDM returns to "0"
+6. See: GBPT returns to "0"
 ```
 
 ---
@@ -205,7 +207,7 @@ const formatted = window.formatTokenAmount(balance, 2);
 ## 🎯 **Use Cases**
 
 ### **In Mandem.OS:**
-- ✅ Track MNDM balance alongside MGC
+- ✅ Track GBPT balance alongside MGC
 - ✅ View token price and 24h change
 - ✅ Trade directly on pump.fun
 - ✅ Real-time balance updates
@@ -301,7 +303,7 @@ const formatted = window.formatTokenAmount(balance, 2);
 - [ ] Portfolio tracking
 
 ### **Phase 4: Gamification**
-- [ ] Earn MNDM for completing quests
+- [ ] Earn GBPT for completing quests
 - [ ] Reward system for activity
 - [ ] Staking rewards
 - [ ] Token-gated features
@@ -311,7 +313,7 @@ const formatted = window.formatTokenAmount(balance, 2);
 - [ ] On-chain staking
 - [ ] Governance voting
 - [ ] Reward distribution
-- [ ] NFT minting with MNDM
+- [ ] NFT minting with GBPT
 - [ ] Marketplace escrow
 
 ---
@@ -319,7 +321,7 @@ const formatted = window.formatTokenAmount(balance, 2);
 ## 📊 **Final Statistics**
 
 ### **Integration Coverage:**
-- **Pages with MNDM:** 2 (Mandem.OS, Ember Terminal)
+- **Pages with GBPT:** 2 (Mandem.OS, Ember Terminal)
 - **Display Locations:** 4 (2 widgets, 1 header, 1 status bar)
 - **System Architect Wallets:** 3 (was 2, now 3)
 - **Service Worker Version:** 5 (was 4)
@@ -328,7 +330,7 @@ const formatted = window.formatTokenAmount(balance, 2);
 - **Lines of Code Added:** ~150
 
 ### **Token Info:**
-- **Symbol:** MNDM
+- **Symbol:** GBPT
 - **Decimals:** 9
 - **Chain:** Solana
 - **Platform:** pump.fun
