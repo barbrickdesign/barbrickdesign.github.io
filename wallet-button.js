@@ -181,10 +181,16 @@ class WalletButton {
 // Auto-initialize when DOM is ready
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-        window.walletButton = new WalletButton();
+        // Small delay to ensure all scripts are loaded
+        setTimeout(() => {
+            window.walletButton = new WalletButton();
+        }, 100);
     });
 } else {
-    window.walletButton = new WalletButton();
+    // Small delay to ensure all scripts are loaded
+    setTimeout(() => {
+        window.walletButton = new WalletButton();
+    }, 100);
 }
 
 // Export
