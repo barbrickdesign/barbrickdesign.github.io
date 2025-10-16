@@ -391,8 +391,34 @@
       100% { transform: rotate(360deg); }
     }
   </style>
+  
+  <!-- Universal Wallet Authentication -->
+  <script src="../../fpds-contract-schema.js"></script>
+  <script src="../../contractor-registry.js"></script>
+  <script src="../../universal-wallet-auth.js"></script>
+  <script src="../../auth-integration.js"></script>
 </head>
 <body>
+  <script>
+  // System Architect Only - Check on page load
+  window.addEventListener('DOMContentLoaded', async () => {
+      try {
+          await window.authIntegration.init({ showUI: false });
+          
+          // Require System Architect access
+          if (!window.universalWalletAuth.isSystemArchitect()) {
+              alert('⛔ ACCESS DENIED\n\nSystem Architect credentials required.\n\nThis page is restricted to authorized System Architects only.');
+              window.location.href = 'index.html';
+              return;
+          }
+          
+          console.log('✅ System Architect access granted - Admin Forge');
+      } catch (error) {
+          console.error('❌ Auth error:', error);
+          window.location.href = 'login.html';
+      }
+  });
+  </script>
   <div class="login-container" id="login-screen">
     <div class="login-panel">
       <div class="security-icon">🔒</div>
