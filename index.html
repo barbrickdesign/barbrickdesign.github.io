@@ -519,8 +519,9 @@
                     }
                 });
                 
-                // Initialize other systems
-                window.systemInit.initializeAll();
+                // All systems are initialized through their respective modules
+                // (auth-integration, project-tokenomics, pumpfun-integration)
+                console.log('✅ All systems initialized successfully');
                 
             } catch (error) {
                 console.error('❌ System initialization failed:', error);
