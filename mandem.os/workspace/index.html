@@ -671,7 +671,7 @@
 
                 satellite.position.x = Math.cos(angle) * radius;
                 satellite.position.z = Math.sin(angle) * radius;
-                satellite.position.y = Math.sin(angle) * 2;
+                satellite.position.y = 0; // Keep satellites at consistent height
 
                 satellite.userData = {
                     name: env.name,
