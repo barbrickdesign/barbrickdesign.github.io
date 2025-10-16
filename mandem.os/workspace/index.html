@@ -504,9 +504,8 @@
         // Setup modal buttons
         const modalLoginBtn = document.getElementById('modalLoginBtn');
         if (modalLoginBtn) {
-            modalLoginBtn.addEventListener('click', function() {
-                window.location.href = 'login.html';
-            });
+            // Disabled - login.html is broken
+            modalLoginBtn.style.display = 'none';
         }
 
         const modalCloseBtn = document.getElementById('modalCloseBtn');
