@@ -10,6 +10,7 @@ const OFFLINE_URL = 'offline.html';
 const CACHE_URLS = [
     '/',
     '/index.html',
+    '/CODEBASE-OVERVIEW.md',
     '/universal-wallet-auth.js',
     '/auth-integration.js',
     '/contractor-registry.js',
