@@ -522,12 +522,27 @@
             });
         }
 
-        // Prevent loginBtn from navigating to broken login.html
+        // Fix loginBtn to actually connect wallet
         const loginBtn = document.getElementById('loginBtn');
         if (loginBtn) {
-            loginBtn.addEventListener('click', function(e) {
+            loginBtn.addEventListener('click', async function(e) {
                 e.preventDefault();
-                alert('Please connect your wallet to access Gem Bot Universe features.');
+
+                try {
+                    console.log('🔐 Connecting wallet...');
+                    const success = await connectWalletForMGC();
+                    if (success) {
+                        console.log('✅ Wallet connected successfully');
+                        alert('Wallet connected successfully! You can now access all Gem Bot Universe features.');
+                    } else {
+                        console.log('❌ Wallet connection failed');
+                        alert('Wallet connection failed. Please try again.');
+                    }
+                } catch (error) {
+                    console.error('❌ Wallet connection error:', error);
+                    alert('Wallet connection error: ' + error.message);
+                }
+
                 return false;
             });
         }
@@ -725,7 +740,11 @@
                 const radius = 11;
 
                 const satelliteGeometry = new THREE.SphereGeometry(1, 16, 16);
-                const satelliteMaterial = new THREE.MeshPhongMaterial({ color: env.color });
+                const satelliteMaterial = new THREE.MeshPhongMaterial({
+                    color: env.color,
+                    emissive: 0x000000, // Explicitly set emissive to black
+                    shininess: 30
+                });
                 const satellite = new THREE.Mesh(satelliteGeometry, satelliteMaterial);
 
                 satellite.position.x = Math.cos(angle) * radius;
@@ -735,7 +754,7 @@
                 satellite.userData = {
                     name: env.name,
                     url: env.url,
-                    originalEmissive: satelliteMaterial.emissive ? satelliteMaterial.emissive.getHex() : 0x000000
+                    originalEmissive: 0x000000 // Store original emissive color (black)
                 };
                 scene.add(satellite);
                 satellites.push(satellite);
