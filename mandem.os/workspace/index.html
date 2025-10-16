@@ -1121,14 +1121,21 @@
         // Rotate earth
         earth.rotation.y += 0.001;
         
-        // Rotate satellites around the earth
+        // Animate satellites with pulsing glow
         satellites.forEach((satellite, index) => {
           const speed = 0.0001 * (1 + index * 0.1);
           const angle = (Date.now() * speed) % (Math.PI * 2);
-          const radius = 9;
+          const radius = 11;
           
           satellite.position.x = Math.cos(angle + index) * radius;
           satellite.position.z = Math.sin(angle + index) * radius;
+          
+          // Add pulsing emissive effect
+          const pulseIntensity = satellite.userData.baseEmissiveIntensity + 
+                                Math.sin(Date.now() * 0.003 + satellite.userData.pulsePhase) * 0.3;
+          if (satellite.material.emissiveIntensity !== undefined) {
+            satellite.material.emissiveIntensity = Math.max(0.2, pulseIntensity);
+          }
           
           // Make satellites rotate
           satellite.rotation.y += 0.01;
