@@ -11,6 +11,7 @@ class AgentSystem {
         this.isRunning = false;
         this.lastHealthCheck = null;
         this.healthStatus = 'unknown';
+        this.agentStats = {}; // Track individual agent statistics
 
         // Site components to monitor
         this.siteComponents = {
@@ -86,15 +87,30 @@ class AgentSystem {
     }
 
     initializeAgents() {
-        // Create specialized testing agents
+        // Create specialized testing agents with repair capabilities
         this.agents = [
-            new FunctionTestingAgent('function-tester', 'Tests all site functions and APIs'),
-            new ButtonTestingAgent('button-tester', 'Tests all buttons and clickable elements'),
-            new NavigationAgent('navigation-tester', 'Tests navigation between pages'),
-            new PerformanceAgent('performance-monitor', 'Monitors site performance and speed'),
-            new SecurityAgent('security-monitor', 'Monitors security and authentication'),
-            new ErrorRecoveryAgent('error-recovery', 'Automatically fixes detected errors')
+            new FunctionTestingAgent('function-tester', 'Tests all site functions and APIs', this),
+            new ButtonTestingAgent('button-tester', 'Tests all buttons and clickable elements', this),
+            new NavigationAgent('navigation-tester', 'Tests navigation between pages', this),
+            new PerformanceAgent('performance-monitor', 'Monitors site performance and speed', this),
+            new SecurityAgent('security-monitor', 'Monitors security and authentication', this),
+            new ErrorRecoveryAgent('error-recovery', 'Automatically fixes detected errors', this)
         ];
+
+        // Initialize agent statistics
+        this.agents.forEach(agent => {
+            this.agentStats[agent.id] = {
+                id: agent.id,
+                name: agent.name,
+                type: agent.type,
+                repairs: 0,
+                fixes: 0,
+                tests: 0,
+                uptime: 0,
+                efficiency: 0,
+                startTime: Date.now()
+            };
+        });
     }
 
     async start() {
@@ -156,7 +172,7 @@ class AgentSystem {
         return results;
     }
 
-    // Component Testing Functions
+    // Component Testing Functions (same as before)
     async testWalletAuth() {
         if (typeof window.universalWalletAuth === 'undefined') {
             throw new Error('universal-wallet-auth.js not loaded');
@@ -410,22 +426,41 @@ class AgentSystem {
         this.saveToStorage();
     }
 
-    recordFix(errorId) {
+    recordFix(errorId, agentId = null) {
         const error = this.errors.find(e => e.id === errorId);
         if (error) {
             error.status = 'fixed';
             error.fixedAt = new Date().toISOString();
+            error.fixedBy = agentId;
             this.fixes++;
-            this.log(`✅ FIXED: ${error.component} - ${error.message}`);
+
+            // Update agent statistics
+            if (agentId && this.agentStats[agentId]) {
+                this.agentStats[agentId].fixes++;
+                this.agentStats[agentId].repairs++;
+            }
+
+            this.log(`✅ FIXED: ${error.component} - ${error.message} (Agent: ${agentId || 'unknown'})`);
             this.saveToStorage();
         }
     }
 
-    log(message) {
+    recordAgentActivity(agentId, activityType) {
+        if (this.agentStats[agentId]) {
+            if (activityType === 'test') {
+                this.agentStats[agentId].tests++;
+            } else if (activityType === 'repair') {
+                this.agentStats[agentId].repairs++;
+            }
+        }
+    }
+
+    log(message, agentId = null) {
         const logEntry = {
             timestamp: new Date().toISOString(),
             level: 'info',
-            message
+            message,
+            agentId
         };
 
         this.logs.push(logEntry);
@@ -436,7 +471,7 @@ class AgentSystem {
         }
 
         // Also log to console for debugging
-        console.log(`[AGENT] ${message}`);
+        console.log(`[AGENT${agentId ? `:${agentId}` : ''}] ${message}`);
     }
 
     saveToStorage() {
@@ -448,6 +483,7 @@ class AgentSystem {
                 testsRun: this.testsRun,
                 healthStatus: this.healthStatus,
                 lastHealthCheck: this.lastHealthCheck,
+                agentStats: this.agentStats,
                 timestamp: new Date().toISOString()
             }));
         } catch (error) {
@@ -466,6 +502,7 @@ class AgentSystem {
                 this.testsRun = parsed.testsRun || 0;
                 this.healthStatus = parsed.healthStatus || 'unknown';
                 this.lastHealthCheck = parsed.lastHealthCheck ? new Date(parsed.lastHealthCheck) : null;
+                this.agentStats = parsed.agentStats || this.agentStats;
             }
         } catch (error) {
             console.warn('Failed to load agent data from storage:', error);
@@ -480,6 +517,13 @@ class AgentSystem {
             return errorTime > cutoff;
         });
 
+        // Calculate agent efficiency percentages
+        const totalRepairs = Object.values(this.agentStats).reduce((sum, agent) => sum + agent.repairs, 0);
+        Object.values(this.agentStats).forEach(agent => {
+            agent.efficiency = totalRepairs > 0 ? Math.round((agent.repairs / totalRepairs) * 100) : 0;
+            agent.uptime = Date.now() - agent.startTime;
+        });
+
         return {
             totalAgents: this.agents.length,
             activeAgents: this.agents.filter(a => a.isActive).length,
@@ -492,412 +536,9 @@ class AgentSystem {
             testsRun: this.testsRun,
             healthStatus: this.healthStatus,
             lastHealthCheck: this.lastHealthCheck,
-            uptime: this.isRunning ? Date.now() - (this.startTime || Date.now()) : 0
+            uptime: this.isRunning ? Date.now() - (this.startTime || Date.now()) : 0,
+            agentStats: this.agentStats,
+            totalRepairs: totalRepairs
         };
     }
 }
-
-// Base Agent Class
-class BaseAgent {
-    constructor(id, name, description) {
-        this.id = id;
-        this.name = name;
-        this.description = description;
-        this.isActive = false;
-        this.startTime = null;
-        this.lastActivity = null;
-        this.type = 'base';
-    }
-
-    start(agentSystem) {
-        this.isActive = true;
-        this.startTime = new Date();
-        this.agentSystem = agentSystem;
-        this.log(`🚀 Agent ${this.name} started`);
-    }
-
-    stop() {
-        this.isActive = false;
-        this.log(`⏹️ Agent ${this.name} stopped`);
-    }
-
-    log(message) {
-        if (this.agentSystem) {
-            this.lastActivity = new Date();
-            this.agentSystem.log(`[${this.name}] ${message}`);
-        }
-    }
-}
-
-// Function Testing Agent
-class FunctionTestingAgent extends BaseAgent {
-    constructor(id, description) {
-        super(id, 'Function Tester', description);
-        this.type = 'function-testing';
-        this.testInterval = null;
-    }
-
-    start(agentSystem) {
-        super.start(agentSystem);
-
-        // Run tests every 60 seconds
-        this.testInterval = setInterval(() => {
-            this.runTests();
-        }, 60000);
-
-        // Run initial test
-        setTimeout(() => this.runTests(), 10000);
-    }
-
-    stop() {
-        super.stop();
-        if (this.testInterval) {
-            clearInterval(this.testInterval);
-        }
-    }
-
-    async runTests() {
-        try {
-            this.log('🔬 Running function tests...');
-            const results = await this.agentSystem.runAllTests();
-
-            const passed = results.filter(r => r.status === 'success').length;
-            const failed = results.filter(r => r.status === 'error').length;
-
-            this.log(`✅ Function tests complete: ${passed} passed, ${failed} failed`);
-
-        } catch (error) {
-            this.log(`❌ Function test error: ${error.message}`);
-        }
-    }
-}
-
-// Button Testing Agent
-class ButtonTestingAgent extends BaseAgent {
-    constructor(id, description) {
-        super(id, 'Button Tester', description);
-        this.type = 'button-testing';
-        this.testInterval = null;
-    }
-
-    start(agentSystem) {
-        super.start(agentSystem);
-
-        // Test buttons every 45 seconds
-        this.testInterval = setInterval(() => {
-            this.testAllButtons();
-        }, 45000);
-
-        // Initial test
-        setTimeout(() => this.testAllButtons(), 15000);
-    }
-
-    stop() {
-        super.stop();
-        if (this.testInterval) {
-            clearInterval(this.testInterval);
-        }
-    }
-
-    testAllButtons() {
-        try {
-            this.log('🖱️ Testing all buttons...');
-
-            // Test wallet connection button
-            const walletBtn = document.getElementById('walletBtn');
-            if (walletBtn) {
-                this.testWalletButton(walletBtn);
-            }
-
-            // Test project cards (simulate clicks)
-            const projectCards = document.querySelectorAll('.project-card');
-            projectCards.forEach((card, index) => {
-                this.testProjectCard(card, index);
-            });
-
-            // Test navigation links
-            const navLinks = document.querySelectorAll('a[href]');
-            navLinks.forEach(link => {
-                this.testNavigationLink(link);
-            });
-
-            this.log(`✅ Button tests complete: ${projectCards.length} cards, ${navLinks.length} links`);
-
-        } catch (error) {
-            this.log(`❌ Button test error: ${error.message}`);
-        }
-    }
-
-    testWalletButton(button) {
-        if (button.onclick || button.getAttribute('onclick')) {
-            this.log('✅ Wallet button: Has click handler');
-        } else {
-            this.log('⚠️ Wallet button: Missing click handler');
-        }
-    }
-
-    testProjectCard(card, index) {
-        if (card.onclick) {
-            this.log(`✅ Project card ${index + 1}: Has click handler`);
-        } else {
-            this.log(`⚠️ Project card ${index + 1}: Missing click handler`);
-        }
-    }
-
-    testNavigationLink(link) {
-        const href = link.getAttribute('href');
-        if (href && (href.startsWith('http') || href.startsWith('/') || href.includes('.html'))) {
-            this.log(`✅ Navigation link: ${href}`);
-        } else {
-            this.log(`⚠️ Navigation link: Invalid href "${href}"`);
-        }
-    }
-}
-
-// Navigation Agent
-class NavigationAgent extends BaseAgent {
-    constructor(id, description) {
-        super(id, 'Navigation Tester', description);
-        this.type = 'navigation';
-        this.testInterval = null;
-    }
-
-    start(agentSystem) {
-        super.start(agentSystem);
-
-        // Test navigation every 90 seconds
-        this.testInterval = setInterval(() => {
-            this.testNavigation();
-        }, 90000);
-    }
-
-    stop() {
-        super.stop();
-        if (this.testInterval) {
-            clearInterval(this.testInterval);
-        }
-    }
-
-    async testNavigation() {
-        try {
-            this.log('🧭 Testing navigation...');
-
-            // Test if pages are accessible
-            const pages = [
-                'mandem.os/workspace/index.html',
-                'ember-terminal/app.html',
-                'grand-exchange.html',
-                'classified-contracts.html'
-            ];
-
-            for (const page of pages) {
-                try {
-                    const response = await fetch(page, { method: 'HEAD' });
-                    if (response.ok) {
-                        this.log(`✅ Navigation: ${page} accessible`);
-                    } else {
-                        this.log(`❌ Navigation: ${page} returned ${response.status}`);
-                    }
-                } catch (error) {
-                    this.log(`❌ Navigation: ${page} error - ${error.message}`);
-                }
-            }
-
-        } catch (error) {
-            this.log(`❌ Navigation test error: ${error.message}`);
-        }
-    }
-}
-
-// Performance Agent
-class PerformanceAgent extends BaseAgent {
-    constructor(id, description) {
-        super(id, 'Performance Monitor', description);
-        this.type = 'performance';
-        this.metrics = {};
-    }
-
-    start(agentSystem) {
-        super.start(agentSystem);
-
-        // Monitor performance every 30 seconds
-        this.monitorPerformance();
-        setInterval(() => this.monitorPerformance(), 30000);
-    }
-
-    monitorPerformance() {
-        try {
-            if ('performance' in window) {
-                const navigation = performance.getEntriesByType('navigation')[0];
-                const paint = performance.getEntriesByType('paint');
-
-                this.metrics = {
-                    domContentLoaded: navigation?.domContentLoadedEventEnd || 0,
-                    loadComplete: navigation?.loadEventEnd || 0,
-                    firstPaint: paint.find(p => p.name === 'first-paint')?.startTime || 0,
-                    firstContentfulPaint: paint.find(p => p.name === 'first-contentful-paint')?.startTime || 0,
-                    memoryUsage: performance.memory ? {
-                        used: Math.round(performance.memory.usedJSHeapSize / 1024 / 1024),
-                        total: Math.round(performance.memory.totalJSHeapSize / 1024 / 1024),
-                        limit: Math.round(performance.memory.jsHeapSizeLimit / 1024 / 1024)
-                    } : null
-                };
-
-                this.log(`📊 Performance: DOM ${this.metrics.domContentLoaded}ms, Load ${this.metrics.loadComplete}ms`);
-
-                // Check for performance issues
-                if (this.metrics.domContentLoaded > 3000) {
-                    this.log('⚠️ Performance warning: Slow DOM loading');
-                }
-                if (this.metrics.loadComplete > 5000) {
-                    this.log('⚠️ Performance warning: Slow page loading');
-                }
-            }
-        } catch (error) {
-            this.log(`❌ Performance monitoring error: ${error.message}`);
-        }
-    }
-}
-
-// Security Agent
-class SecurityAgent extends BaseAgent {
-    constructor(id, description) {
-        super(id, 'Security Monitor', description);
-        this.type = 'security';
-        this.securityIssues = [];
-    }
-
-    start(agentSystem) {
-        super.start(agentSystem);
-
-        // Monitor security every 60 seconds
-        setInterval(() => this.checkSecurity(), 60000);
-        setTimeout(() => this.checkSecurity(), 20000);
-    }
-
-    checkSecurity() {
-        try {
-            this.log('🔒 Checking security...');
-
-            const issues = [];
-
-            // Check for insecure content
-            const scripts = document.querySelectorAll('script[src]');
-            scripts.forEach(script => {
-                const src = script.src;
-                if (src && src.startsWith('http://')) {
-                    issues.push(`Insecure script: ${src}`);
-                }
-            });
-
-            // Check for mixed content
-            if (window.location.protocol === 'https:' && document.querySelector('script[src^="http://"]')) {
-                issues.push('Mixed content detected');
-            }
-
-            // Check for missing security headers (simulate)
-            if (!document.querySelector('meta[http-equiv="Content-Security-Policy"]')) {
-                // This is informational - CSP might be set via headers
-            }
-
-            this.securityIssues = issues;
-            if (issues.length > 0) {
-                this.log(`⚠️ Security issues found: ${issues.length}`);
-                issues.forEach(issue => this.log(`  - ${issue}`));
-            } else {
-                this.log('✅ No security issues detected');
-            }
-
-        } catch (error) {
-            this.log(`❌ Security check error: ${error.message}`);
-        }
-    }
-}
-
-// Error Recovery Agent
-class ErrorRecoveryAgent extends BaseAgent {
-    constructor(id, description) {
-        super(id, 'Error Recovery', description);
-        this.type = 'error-recovery';
-        this.recoveryStrategies = {};
-    }
-
-    start(agentSystem) {
-        super.start(agentSystem);
-        this.initializeRecoveryStrategies();
-    }
-
-    initializeRecoveryStrategies() {
-        // Define recovery strategies for common errors
-        this.recoveryStrategies = {
-            'universal-wallet-auth.js not loaded': () => {
-                this.log('🔧 Attempting wallet auth reload...');
-                const script = document.querySelector('script[src="universal-wallet-auth.js"]');
-                if (script) {
-                    script.remove();
-                    const newScript = document.createElement('script');
-                    newScript.src = 'universal-wallet-auth.js';
-                    document.head.appendChild(newScript);
-                    return true;
-                }
-                return false;
-            },
-            'Service Worker not registered': () => {
-                this.log('🔧 Attempting service worker registration...');
-                if ('serviceWorker' in navigator) {
-                    navigator.serviceWorker.register('./service-worker.js');
-                    return true;
-                }
-                return false;
-            },
-            'Page not accessible': (error) => {
-                const match = error.message.match(/(\w+\.html) error/);
-                if (match) {
-                    this.log(`🔧 Page ${match[1]} may need cache clearing`);
-                    // Suggest cache clearing
-                    return 'cache_clear_suggestion';
-                }
-                return false;
-            }
-        };
-    }
-
-    attemptFix(error) {
-        try {
-            this.log(`🔧 Attempting to fix: ${error.message}`);
-
-            for (const [pattern, strategy] of Object.entries(this.recoveryStrategies)) {
-                if (error.message.includes(pattern)) {
-                    const result = strategy(error);
-                    if (result === true) {
-                        this.log(`✅ Successfully applied fix for: ${error.message}`);
-                        this.agentSystem.recordFix(error.id);
-                        return true;
-                    } else if (result === 'cache_clear_suggestion') {
-                        this.log(`💡 Suggestion: Clear browser cache for ${error.message}`);
-                        return false;
-                    }
-                }
-            }
-
-            this.log(`❓ No recovery strategy available for: ${error.message}`);
-            return false;
-
-        } catch (fixError) {
-            this.log(`❌ Fix attempt failed: ${fixError.message}`);
-            return false;
-        }
-    }
-}
-
-// Initialize the agent system
-window.agentSystem = new AgentSystem();
-
-// Auto-start when page loads
-window.addEventListener('DOMContentLoaded', () => {
-    setTimeout(() => {
-        window.agentSystem.start();
-    }, 2000);
-});
-
-console.log('🤖 Agent System loaded and ready');
