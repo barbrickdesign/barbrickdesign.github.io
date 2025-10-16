@@ -866,7 +866,7 @@
                         const label = labels[index];
                         label.position.x = Math.cos(angle + index) * (radius + 1.5);
                         label.position.z = Math.sin(angle + index) * (radius + 1.5);
-                        label.position.y = Math.sin(angle + index) * 2 + 1.8;
+                        label.position.y = Math.sin(angle + index) * 2 + 1.2; // Match lowered position - directly above sphere
 
                         // Make labels face the camera
                         label.lookAt(camera.position);
