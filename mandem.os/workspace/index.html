@@ -617,13 +617,6 @@
       const earthGeometry = new THREE.SphereGeometry(5, 32, 32);
       const earthMaterial = new THREE.MeshPhongMaterial();
       
-      // Load Earth texture
-      const textureLoader = new THREE.TextureLoader();
-      textureLoader.load('https://threejs.org/examples/textures/land_ocean_ice_cloud_2048.jpg', function(texture) {
-        earthMaterial.map = texture;
-        earthMaterial.needsUpdate = true;
-      });
-      
       const earth = new THREE.Mesh(earthGeometry, earthMaterial);
       scene.add(earth);
       
@@ -673,11 +666,11 @@
             specular: 0x00ff99 // subtle green specular for a futuristic look
           });
           // Load a futuristic glowing Tron/robot metal texture if available
-          textureLoader.load('images/lab_tron_texture.jpg', function(texture) {
-            satelliteMaterial.map = texture;
-            satelliteMaterial.emissiveMap = texture;
-            satelliteMaterial.needsUpdate = true;
-          });
+          // textureLoader.load('images/lab_tron_texture.jpg', function(texture) {
+          //   satelliteMaterial.map = texture;
+          //   satelliteMaterial.emissiveMap = texture;
+          //   satelliteMaterial.needsUpdate = true;
+          // });
         } else if (isForge) {
           satelliteColor = 0x991a00; // Deep forge orange-red
           satelliteMaterial = new THREE.MeshPhongMaterial({
@@ -687,10 +680,10 @@
             shininess: 100,
             specular: 0x3399ff // blue specular for flame
           });
-          textureLoader.load('images/forge scene.jpg', function(texture) {
-            satelliteMaterial.map = texture;
-            satelliteMaterial.needsUpdate = true;
-          });
+          // textureLoader.load('images/forge scene.jpg', function(texture) {
+          //   satelliteMaterial.map = texture;
+          //   satelliteMaterial.needsUpdate = true;
+          // });
         } else if (isExchange) {
           satelliteColor = 0xffd700; // Gold
           satelliteMaterial = new THREE.MeshPhongMaterial({
@@ -700,20 +693,20 @@
             shininess: 120,
             specular: 0xffffff
           });
-          textureLoader.load('images/image1 (6).jpeg', function(texture) {
-            satelliteMaterial.map = texture;
-            satelliteMaterial.needsUpdate = true;
-          });
+          // textureLoader.load('images/image1 (6).jpeg', function(texture) {
+          //   satelliteMaterial.map = texture;
+          //   satelliteMaterial.needsUpdate = true;
+          // });
         } else {
           satelliteMaterial = new THREE.MeshBasicMaterial({ 
             color: env.color
           });
-          if (env.textureUrl) {
-            textureLoader.load(env.textureUrl, function(texture) {
-              satelliteMaterial.map = texture;
-              satelliteMaterial.needsUpdate = true;
-            });
-          }
+          // if (env.textureUrl) {
+          //   textureLoader.load(env.textureUrl, function(texture) {
+          //     satelliteMaterial.map = texture;
+          //     satelliteMaterial.needsUpdate = true;
+          //   });
+          // }
         }
         const satelliteGeometry = new THREE.SphereGeometry(1, 16, 16);
         const satellite = new THREE.Mesh(satelliteGeometry, satelliteMaterial);
@@ -1568,7 +1561,7 @@
         <script>
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", function () {
-        navigator.serviceWorker.register("../../service-worker.js").then(function (registration) {
+        navigator.serviceWorker.register("service-worker.js").then(function (registration) {
           console.log("Service Worker registered with scope:", registration.scope);
         }, function (err) {
           console.log("Service Worker registration failed:", err);
