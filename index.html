@@ -1106,28 +1106,86 @@
             logsContainer.innerHTML = logsHtml;
         }
 
-        // Update agent errors display
+        // Update agent errors display with enhanced formatting
         function updateAgentErrors() {
             if (!window.agentSystem || !window.agentSystem.errors) return;
 
             const errorsContainer = document.getElementById('agent-errors-list');
             if (!errorsContainer) return;
 
-            const openErrors = window.agentSystem.errors.filter(e => e.status === 'open');
+            const openErrors = window.agentSystem.errors
+                .filter(e => e.status === 'open')
+                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)) // Sort by newest first
+                .slice(0, 5); // Show only 5 most recent
 
             if (openErrors.length === 0) {
                 errorsContainer.innerHTML = '<div style="color: #00ff00; font-size: 11px; text-align: center; padding: 20px;">✅ No errors detected</div>';
                 return;
             }
 
-            const errorsHtml = openErrors.slice(-5).map(error => {
-                const time = new Date(error.timestamp).toLocaleTimeString();
-                return `<div class="error-item">
-                    <div class="error-component">${error.component}</div>
+            const errorsHtml = openErrors.map(error => {
+                const time = new Date(error.timestamp).toLocaleString();
+                const timeAgo = getTimeAgo(error.timestamp);
+                const severityColor = getSeverityColor(error.severity);
+                const categoryIcon = getCategoryIcon(error.category);
+
+                return `<div class="error-item" data-error-id="${error.id}">
+                    <div class="error-header">
+                        <div class="error-component">${categoryIcon} ${error.component}</div>
+                        <div class="error-severity" style="color: ${severityColor};">${error.severity.toUpperCase()}</div>
+                    </div>
                     <div class="error-message">${error.message}</div>
-                    <div class="error-timestamp">${time}</div>
+                    <div class="error-meta">
+                        <span class="error-time">${time}</span>
+                        <span class="error-time-ago">(${timeAgo})</span>
+                        <span class="error-category">📂 ${error.category}</span>
+                    </div>
+                    ${error.fixAttempts.length > 0 ? `
+                    <div class="fix-attempts">
+                        <div class="fix-count">🔧 ${error.fixAttempts.length} fix attempt${error.fixAttempts.length !== 1 ? 's' : ''}</div>
+                    </div>
+                    ` : ''}
                 </div>`;
             }).join('');
+
+            errorsContainer.innerHTML = errorsHtml;
+        }
+
+        function getTimeAgo(timestamp) {
+            const now = new Date();
+            const errorTime = new Date(timestamp);
+            const diffMs = now - errorTime;
+            const diffMinutes = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMinutes / 60);
+            const diffDays = Math.floor(diffHours / 24);
+
+            if (diffMinutes < 1) return 'just now';
+            if (diffMinutes < 60) return `${diffMinutes}m ago`;
+            if (diffHours < 24) return `${diffHours}h ago`;
+            return `${diffDays}d ago`;
+        }
+
+        function getSeverityColor(severity) {
+            switch (severity) {
+                case 'critical': return '#ff4444';
+                case 'high': return '#ff6b35';
+                case 'medium': return '#ffaa00';
+                case 'low': return '#00aaff';
+                default: return '#8addff';
+            }
+        }
+
+        function getCategoryIcon(category) {
+            switch (category) {
+                case 'network': return '🌐';
+                case 'script': return '📜';
+                case 'dom': return '🏗️';
+                case 'auth': return '🔐';
+                case 'performance': return '⚡';
+                case 'security': return '🛡️';
+                default: return '📋';
+            }
+        }
 
         // Load portfolio data and display ticker
         async function loadPortfolioTicker() {
