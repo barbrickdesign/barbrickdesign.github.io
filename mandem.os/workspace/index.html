@@ -298,6 +298,7 @@
     overflow-x: auto;
     width: 100%;
     max-width: 100vw;
+    -webkit-overflow-scrolling: touch;
   }
   th, td {
     min-width: 90px;
@@ -309,6 +310,42 @@
   button, .auth-button {
     min-height: 44px;
     font-size: 18px;
+  }
+  /* Fix z-index stacking issues */
+  .welcome-overlay {
+    z-index: 10 !important;
+  }
+  .globe-container {
+    z-index: 1 !important;
+  }
+  /* Fix position conflicts */
+  .welcome-overlay, .post-login-content {
+    position: relative !important;
+    z-index: auto !important;
+  }
+  /* Ensure proper stacking */
+  #globe-container {
+    z-index: 1 !important;
+  }
+  .welcome-overlay {
+    z-index: 10 !important;
+  }
+  .post-login-content {
+    z-index: 5 !important;
+  }
+  /* Fix horizontal overflow */
+  body {
+    overflow-x: hidden;
+    max-width: 100vw;
+  }
+  .welcome-overlay, .post-login-content {
+    max-width: 100vw;
+    box-sizing: border-box;
+  }
+  /* Fix flex layout wrapping */
+  .mgc-promotion > div {
+    flex-wrap: wrap !important;
+    justify-content: center !important;
   }
 }
 
