@@ -485,14 +485,26 @@
         <script>
         // Show hard refresh button if there are loading issues
         function checkForLoadingIssues() {
-            setTimeout(() => {
-                // Check if agent system loaded properly
-                if (typeof window.agentSystem === 'undefined' ||
-                    typeof window.agentDisplay === 'undefined' ||
-                    document.querySelectorAll('script[src*="agent-"]').length === 0) {
-                    document.getElementById('hardRefreshBtn').style.display = 'block';
-                }
-            }, 3000);
+            // Check if agent system loaded properly
+            const agentSystemLoaded = typeof window.agentSystem !== 'undefined';
+            const agentDisplayLoaded = typeof window.agentDisplay !== 'undefined';
+            const agentTypesLoaded = typeof window.agentTypes !== 'undefined';
+            const scriptsLoaded = document.querySelectorAll('script[src*="agent-"]').length > 0;
+
+            console.log('🔍 Agent loading check:', {
+                agentSystem: agentSystemLoaded,
+                agentDisplay: agentDisplayLoaded,
+                agentTypes: agentTypesLoaded,
+                scriptCount: document.querySelectorAll('script[src*="agent-"]').length,
+                timestamp: new Date().toISOString()
+            });
+
+            if (!agentSystemLoaded || !agentDisplayLoaded || !agentTypesLoaded || !scriptsLoaded) {
+                console.warn('⚠️ Agent system not fully loaded, showing hard refresh option');
+                document.getElementById('hardRefreshBtn').style.display = 'block';
+            } else {
+                console.log('✅ Agent system fully loaded');
+            }
         }
 
         // Hard refresh function that clears cache
@@ -537,8 +549,15 @@
         // Check for loading issues on page load
         document.addEventListener('DOMContentLoaded', checkForLoadingIssues);
 
-        // Also check after agent scripts should have loaded
-        setTimeout(checkForLoadingIssues, 5000);
+        // Also check after agent scripts should have loaded (8 seconds for initial check, 12 seconds for final check)
+        setTimeout(checkForLoadingIssues, 8000);
+        setTimeout(checkForLoadingIssues, 12000);
+
+        // Store timeout reference for potential cancellation
+        window.agentLoadCheckTimeout = setTimeout(() => {
+            console.log('⏰ Final agent loading check after 15 seconds');
+            checkForLoadingIssues();
+        }, 15000);
 
         // Add event listeners for buttons (replacing inline onclick handlers)
         document.addEventListener('DOMContentLoaded', function() {
