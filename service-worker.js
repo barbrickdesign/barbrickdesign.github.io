@@ -24,19 +24,22 @@ const CACHE_URLS = [
 
 // Install event - cache resources
 self.addEventListener('install', (event) => {
-    console.log('[Service Worker] Installing...');
-    
+    console.log('[Service Worker] Installing v8...');
+
     event.waitUntil(
         caches.open(CACHE_NAME)
             .then((cache) => {
-                console.log('[Service Worker] Caching app shell');
+                console.log('[Service Worker] Caching essential files only');
                 return cache.addAll(CACHE_URLS.map(url => new Request(url, {cache: 'reload'})));
             })
             .catch((error) => {
                 console.error('[Service Worker] Cache install failed:', error);
+                // Don't fail the install if caching fails - let it activate anyway
             })
     );
-    
+
+    // Force immediate activation - skip waiting
+    console.log('[Service Worker] Skipping waiting for immediate activation');
     self.skipWaiting();
 });
 
@@ -237,11 +240,12 @@ async function getStoredWalletState() {
 // Message handling
 self.addEventListener('message', (event) => {
     console.log('[Service Worker] Message received:', event.data);
-    
-    if (event.data.type === 'SKIP_WAITING') {
+
+    if (event.data && event.data.type === 'SKIP_WAITING') {
+        console.log('[Service Worker] Skipping waiting, activating immediately');
         self.skipWaiting();
     }
-    
+
     if (event.data.type === 'CACHE_URLS') {
         event.waitUntil(
             caches.open(CACHE_NAME).then((cache) => {
