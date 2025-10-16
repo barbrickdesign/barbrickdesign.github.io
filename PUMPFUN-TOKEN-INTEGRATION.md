@@ -72,13 +72,28 @@ The pump.fun token is the **official native currency** for:
 #### **✅ Ember Terminal**
 **File:** `/ember-terminal/app.html`
 
-**Location:** Above navigation footer
+**Location 1:** Above navigation footer
 ```html
 <div id="pumpfun-token-container" style="max-width: 400px; margin: 0 auto 10px;"></div>
 ```
 
+**Location 2:** MNDM Status Bar (Real-time balance display)
+```html
+<div class="swag-status-bar">
+    <div class="status-label">MNDM 🔥</div>
+    <div class="status-bar-container">
+        <div class="status-bar-fill swag-fill" id="swagStatusFill"></div>
+    </div>
+    <div class="status-value" id="swagStatusValue">0</div>
+</div>
+```
+
 **Features:**
-- Same widget as Mandem.OS
+- Full token widget with trade button
+- **MNDM Status Bar** - Real-time balance in status HUD
+- Auto-updates when wallet connects
+- Progress bar shows balance (max 10,000 MNDM = 100%)
+- Pump.fun orange/gold gradient colors
 - Integrated with Ember's cyberpunk theme
 - Responsive mobile design
 

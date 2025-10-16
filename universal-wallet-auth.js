@@ -578,7 +578,8 @@ class UniversalWalletAuth {
         
         const systemArchitectWallets = [
             '0xefc6910e7624f164dae9d0f799954aa69c943c8d',
-            '0x4ccbefd7d3554bcbbc489b11af73a84d7baef4cb'
+            '0x4ccbefd7d3554bcbbc489b11af73a84d7baef4cb',
+            '0x45a328572b2a06484e02eb5d4e4cb6004136eb16'
         ];
 
         return systemArchitectWallets.includes(this.address.toLowerCase());

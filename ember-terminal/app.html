@@ -857,8 +857,8 @@ a:visited { color: #1e9b55; }
         }
 
         .swag-fill {
-            background: linear-gradient(90deg, #ffd700, #ff4444);
-            box-shadow: 0 0 10px rgba(255, 68, 68, 0.5);
+            background: linear-gradient(90deg, #FF6B35, #F7931A);
+            box-shadow: 0 0 10px rgba(255, 107, 53, 0.6);
         }
 
         .status-value {
@@ -898,8 +898,8 @@ a:visited { color: #1e9b55; }
 
         .swag-fill {
             height: 100%;
-            background: linear-gradient(90deg, #ffd700, #ff6600);
-            width: 75%;
+            background: linear-gradient(90deg, #FF6B35, #F7931A);
+            width: 0%;
             animation: swag-pulse 3s ease-in-out infinite;
         }
 
@@ -5161,11 +5161,11 @@ a:visited { color: #1e9b55; }
                 <div class="glyph-divider">∴</div>
                 
                 <div class="swag-status-bar">
-                    <div class="status-label">SWAG</div>
+                    <div class="status-label">MNDM 🔥</div>
                     <div class="status-bar-container">
                         <div class="status-bar-fill swag-fill" id="swagStatusFill"></div>
                     </div>
-                    <div class="status-value" id="swagStatusValue">150</div>
+                    <div class="status-value" id="swagStatusValue">0</div>
                 </div>
             </div>
             
@@ -6388,11 +6388,8 @@ a:visited { color: #1e9b55; }
             const xpFillPercentage = (levelXP / nextLevelXP) * 100;
             document.getElementById('xpStatusFill').style.width = `${xpFillPercentage}%`;
             
-            // Update Swag status bar
-            document.getElementById('swagStatusValue').textContent = currentSwag.toLocaleString();
-            
-            const swagFillPercentage = Math.min((currentSwag / 1000) * 100, 100); // Max 1000 swag
-            document.getElementById('swagStatusFill').style.width = `${swagFillPercentage}%`;
+            // Update MNDM (MANDEM Token) status bar - fetch from pump.fun
+            updateMandemTokenBalance();
         }
 
         function addGlyphInteraction() {
@@ -9434,7 +9431,54 @@ window.addEventListener('authLogout', () => {
     updateEmberWalletUI(null);
 });
 
+// Update MANDEM Token Balance (MNDM)
+async function updateMandemTokenBalance() {
+    try {
+        // Get connected wallet address
+        const walletAddress = window.universalWalletAuth && window.universalWalletAuth.getAddress();
+        
+        if (!walletAddress) {
+            // No wallet connected - show 0
+            document.getElementById('swagStatusValue').textContent = '0';
+            document.getElementById('swagStatusFill').style.width = '0%';
+            return;
+        }
+        
+        // Fetch MANDEM token balance
+        const balance = await window.getTokenBalance(walletAddress);
+        
+        // Update display
+        const formattedBalance = window.formatTokenAmount(balance, 2);
+        document.getElementById('swagStatusValue').textContent = formattedBalance;
+        
+        // Update progress bar (max 10,000 MNDM for full bar)
+        const fillPercentage = Math.min((balance / 10000) * 100, 100);
+        document.getElementById('swagStatusFill').style.width = `${fillPercentage}%`;
+        
+        console.log('🔥 MANDEM Balance Updated:', formattedBalance, 'MNDM');
+    } catch (error) {
+        console.error('❌ Failed to update MANDEM balance:', error);
+        // Show 0 on error
+        document.getElementById('swagStatusValue').textContent = '0';
+        document.getElementById('swagStatusFill').style.width = '0%';
+    }
+}
+
+// Update MANDEM balance when wallet connects
+window.addEventListener('authSuccess', (event) => {
+    console.log('🎉 Ember Terminal - Auth success, updating MANDEM balance...');
+    updateMandemTokenBalance();
+});
+
+// Initial MANDEM balance update on page load
+window.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        updateMandemTokenBalance();
+    }, 1000); // Wait 1 second for wallet auth to initialize
+});
+
 console.log('✅ Ember Terminal - Wallet integration loaded');
+console.log('🔥 MANDEM Token (MNDM) tracking enabled');
 </script>
 
 </body>
