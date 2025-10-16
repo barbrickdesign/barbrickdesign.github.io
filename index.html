@@ -542,28 +542,38 @@
             }, 3000);
         });
 
-        // Universal wallet connection using the consolidated auth system
+        // Universal wallet connection using the consolidated shared wallet system
         async function connectWallet() {
             try {
-                if (window.universalWalletAuth && window.universalWalletAuth.isAuthenticated()) {
-                    console.log('✅ Already authenticated');
-                    return window.universalWalletAuth.getAuthInfo();
+                // Check if already connected via shared wallet system
+                if (window.sharedWalletSystem && window.sharedWalletSystem.connected) {
+                    console.log('✅ Already authenticated via shared wallet system');
+                    return {
+                        address: window.sharedWalletSystem.address,
+                        shortAddress: window.sharedWalletSystem.address ?
+                            window.sharedWalletSystem.address.slice(0, 6) + '...' + window.sharedWalletSystem.address.slice(-4) : null,
+                        authenticated: true
+                    };
                 }
 
-                // Use the universal wallet auth system
-                return await window.universalWalletAuth.connect();
+                // Use the shared wallet system for connection
+                const authInfo = await window.sharedWalletSystem.connect();
+                console.log('✅ Wallet connected via shared system:', authInfo?.address);
+                return authInfo;
+
             } catch (error) {
                 console.error('❌ Wallet connection failed:', error);
-                throw error;
+                // Don't throw - handle gracefully
+                return null;
             }
         }
 
-        // Disconnect wallet
+        // Disconnect wallet using shared system
         async function disconnectWallet() {
             try {
-                if (window.universalWalletAuth) {
-                    await window.universalWalletAuth.disconnect();
-                    console.log('👋 Wallet disconnected');
+                if (window.sharedWalletSystem) {
+                    await window.sharedWalletSystem.disconnect();
+                    console.log('👋 Wallet disconnected via shared system');
                 }
             } catch (error) {
                 console.error('❌ Disconnect error:', error);
