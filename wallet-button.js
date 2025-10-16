@@ -19,9 +19,9 @@ class WalletButton {
      * Render the button (Pump.fun style - clean and simple)
      */
     render() {
-        const wallet = window.walletAdapter?.getWalletInfo();
-        
-        if (wallet && wallet.connected) {
+        const wallet = window.universalWalletAuth?.getAuthInfo();
+
+        if (wallet && wallet.authenticated) {
             // Connected state - show address with dropdown
             this.container.innerHTML = `
                 <div class="wallet-button-group">
@@ -51,7 +51,7 @@ class WalletButton {
                 </button>
             `;
         }
-        
+
         this.attachClickHandlers();
     }
 
@@ -85,14 +85,14 @@ class WalletButton {
     async connect() {
         const btn = document.getElementById('walletConnectBtn');
         if (!btn) return;
-        
+
         const originalText = btn.innerHTML;
         btn.innerHTML = '<span class="wallet-icon">⏳</span><span class="wallet-text">Connecting...</span>';
         btn.disabled = true;
-        
+
         try {
-            const result = await window.walletAdapter.connect();
-            
+            const result = await window.universalWalletAuth.connect();
+
             if (result) {
                 // Re-render to show connected state
                 this.render();
@@ -108,7 +108,7 @@ class WalletButton {
      * Disconnect wallet
      */
     async disconnect() {
-        await window.walletAdapter.disconnect();
+        await window.universalWalletAuth.disconnect();
         this.render();
     }
 
@@ -126,12 +126,12 @@ class WalletButton {
      * Copy wallet address to clipboard
      */
     async copyAddress() {
-        const wallet = window.walletAdapter?.getWalletInfo();
+        const wallet = window.universalWalletAuth?.getAuthInfo();
         if (!wallet) return;
-        
+
         try {
             await navigator.clipboard.writeText(wallet.address);
-            
+
             // Show copied feedback
             const copyBtn = document.querySelector('.wallet-copy-btn');
             if (copyBtn) {
@@ -151,13 +151,13 @@ class WalletButton {
      */
     setupListeners() {
         // Re-render when wallet connects
-        window.addEventListener('walletConnected', () => {
+        window.addEventListener('authSuccess', () => {
             console.log('🔔 Wallet connected, updating UI');
             this.render();
         });
-        
+
         // Re-render when wallet disconnects
-        window.addEventListener('walletDisconnected', () => {
+        window.addEventListener('authLogout', () => {
             console.log('🔔 Wallet disconnected, updating UI');
             this.render();
         });

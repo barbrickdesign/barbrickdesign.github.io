@@ -578,7 +578,7 @@
                     console.log('✅ Already authenticated');
                     return window.universalWalletAuth.getAuthInfo();
                 }
-                
+
                 // Use the universal wallet auth system
                 return await window.universalWalletAuth.connect();
             } catch (error) {
@@ -586,109 +586,30 @@
                 throw error;
             }
         }
-        
+
         // Disconnect wallet
         async function disconnectWallet() {
             try {
                 if (window.universalWalletAuth) {
                     await window.universalWalletAuth.disconnect();
                     console.log('👋 Wallet disconnected');
-                    
+
                     // Clear UI
                     const btn = document.getElementById('walletBtn');
                     const btnText = document.getElementById('btnText');
                     const walletInfo = document.getElementById('walletInfo');
-                    
+
                     if (btn) btn.classList.remove('connected');
                     if (btnText) btnText.textContent = '🔗 CONNECT WALLET';
                     if (walletInfo) walletInfo.style.display = 'none';
-                    
-                    // Clear verification
-                    localStorage.removeItem('wallet_verified');
-                    localStorage.removeItem('wallet_signature');
-                    localStorage.removeItem('wallet_verified_at');
-                    
+
                     console.log('✅ Wallet disconnected');
                 }
             } catch (error) {
                 console.error('❌ Disconnect error:', error);
             }
         }
-        
-        // Retry wallet detection manually
-        async function retryWalletDetection() {
-            const banner = document.getElementById('walletHelpBanner');
-            banner.innerHTML = '<div style="color: cyan;">🔄 Scanning for wallets... please wait...</div>';
-            
-            console.log('🔄 Manual retry requested...');
-            
-            // Clear previous detection
-            window.walletConnector.detectedWallets = [];
-            
-            // Wait a bit more for slower browsers
-            await new Promise(resolve => setTimeout(resolve, 1000));
-            
-            // Retry detection with more retries
-            await window.walletConnector.detectWallets(5, 200);
-            
-            if (window.walletConnector.detectedWallets.length > 0) {
-                banner.innerHTML = '<div style="color: lime;">✅ Wallets detected! Click "CONNECT WALLET" above.</div>';
-                setTimeout(() => {
-                    banner.style.display = 'none';
-                }, 3000);
-            } else {
-                banner.innerHTML = `
-                    <div style="margin-bottom: 5px;">❌ Still no wallets found</div>
-                    <button onclick="retryWalletDetection()" style="padding: 5px 15px; background: rgba(255,165,0,0.4); border: 1px solid orange; color: orange; cursor: pointer; border-radius: 5px; font-size: 0.9em; margin-right: 10px;">🔄 Try Again</button>
-                    <button onclick="showWalletHelp()" style="padding: 5px 15px; background: rgba(0,255,255,0.2); border: 1px solid cyan; color: cyan; cursor: pointer; border-radius: 5px; font-size: 0.9em;">❓ Help</button>
-                `;
-            }
-        }
-        
-        // Show detailed help for wallet connection
-        function showWalletHelp() {
-            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-            
-            if (isMobile) {
-                alert(
-                    '📱 MOBILE WALLET CONNECTION HELP\n\n' +
-                    '⚠️ Important: Mobile Safari/Chrome CANNOT access wallet extensions!\n\n' +
-                    'SOLUTION:\n' +
-                    '1. Install Phantom or MetaMask mobile app\n' +
-                    '2. Open the app\n' +
-                    '3. Find the BROWSER inside the app\n' +
-                    '4. Navigate to barbrickdesign.github.io\n' +
-                    '5. Connection will work automatically\n\n' +
-                    'WHY: Mobile browsers block extension APIs for security.\n' +
-                    'The wallet\'s built-in browser has direct access.'
-                );
-            } else {
-                alert(
-                    '💻 DESKTOP WALLET CONNECTION HELP\n\n' +
-                    'TROUBLESHOOTING:\n\n' +
-                    '1. ✅ Install Extension:\n' +
-                    '   • Phantom: phantom.app\n' +
-                    '   • MetaMask: metamask.io\n\n' +
-                    '2. ✅ Check Extension is Enabled:\n' +
-                    '   • Click puzzle piece icon (🧩) in browser\n' +
-                    '   • Make sure Phantom/MetaMask is ON\n' +
-                    '   • Pin it for easier access\n\n' +
-                    '3. ✅ Unlock Your Wallet:\n' +
-                    '   • Click the extension icon\n' +
-                    '   • Enter your password\n\n' +
-                    '4. ✅ Refresh This Page:\n' +
-                    '   • Press F5 or Ctrl+R\n' +
-                    '   • Try connecting again\n\n' +
-                    '5. ✅ Try Different Browser:\n' +
-                    '   • Chrome usually works best\n' +
-                    '   • Edge/Brave also supported\n\n' +
-                    'STILL NOT WORKING?\n' +
-                    '• Open Console (F12) for detailed logs\n' +
-                    '• Check if extension appears in browser toolbar'
-                );
-            }
-        }
-        
+
         // Check for existing connection on load
         window.addEventListener('DOMContentLoaded', async function() {
             console.log('🚀 BARBRICKDESIGN Hub loaded');
