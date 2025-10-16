@@ -174,6 +174,13 @@ class SharedWalletSystem {
      */
     async connectEthereum(provider, silent = false) {
         try {
+            // Edge-specific: Add delay for provider initialization
+            const isEdge = /Edg/.test(navigator.userAgent);
+            if (isEdge) {
+                console.log('⏳ Edge detected, waiting for provider initialization...');
+                await new Promise(resolve => setTimeout(resolve, 500));
+            }
+
             const accounts = silent ?
                 await provider.request({ method: 'eth_accounts' }) :
                 await provider.request({ method: 'eth_requestAccounts' });
@@ -185,10 +192,39 @@ class SharedWalletSystem {
             this.address = accounts[0].toLowerCase();
             this.chainId = await provider.request({ method: 'eth_chainId' });
 
+            console.log('✅ Ethereum connection successful:', this.address);
+
         } catch (error) {
+            // Edge-specific error handling
+            if (isEdge && error.message?.includes('Unexpected')) {
+                console.log('🔄 Edge-specific error detected, retrying...');
+                // Retry once for Edge
+                try {
+                    await new Promise(resolve => setTimeout(resolve, 1000));
+                    const accounts = silent ?
+                        await provider.request({ method: 'eth_accounts' }) :
+                        await provider.request({ method: 'eth_requestAccounts' });
+
+                    if (accounts && accounts.length > 0) {
+                        this.address = accounts[0].toLowerCase();
+                        this.chainId = await provider.request({ method: 'eth_chainId' });
+                        console.log('✅ Edge retry successful:', this.address);
+                        return;
+                    }
+                } catch (retryError) {
+                    console.error('Edge retry failed:', retryError);
+                }
+            }
+
             if (error.code === 4001) {
                 throw new Error('Connection rejected by user');
             }
+
+            // More specific error messages for Edge
+            if (isEdge && error.message?.includes('User denied')) {
+                throw new Error('Connection rejected. Please approve the connection in your wallet.');
+            }
+
             throw error;
         }
     }
