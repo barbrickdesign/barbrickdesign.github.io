@@ -198,15 +198,32 @@ function initializeWalletButton() {
     if (document.body && document.getElementById('walletButtonContainer')) {
         window.walletButton = new WalletButton();
     } else {
-        console.warn('⚠️ Wallet button container still not ready, retrying...');
-        // Retry after another delay
+        console.warn('⚠️ Wallet button container not found, creating fallback...');
+        // Create fallback container if it doesn't exist
+        if (document.body && !document.getElementById('walletButtonContainer')) {
+            const container = document.createElement('div');
+            container.id = 'walletButtonContainer';
+            container.style.cssText = 'display: flex; justify-content: center; margin-top: 30px;';
+            // Try to insert near the header
+            const header = document.querySelector('header');
+            if (header) {
+                header.appendChild(container);
+                console.log('✅ Created wallet button container in header');
+            } else {
+                // Fallback to body
+                document.body.insertBefore(container, document.body.firstChild);
+                console.log('✅ Created wallet button container in body');
+            }
+        }
+        // Retry after container creation
         setTimeout(() => {
             if (document.body && document.getElementById('walletButtonContainer')) {
                 window.walletButton = new WalletButton();
+                console.log('✅ Wallet button initialized with fallback container');
             } else {
-                console.error('❌ Wallet button container not found after retry');
+                console.error('❌ Failed to create wallet button container');
             }
-        }, 500);
+        }, 100);
     }
 }
 
