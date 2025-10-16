@@ -3205,10 +3205,6 @@
       });
     }
     document.addEventListener('DOMContentLoaded', enableMobileGlobeLinks);
-    console.log('Page loaded at', new Date().toLocaleTimeString());
-    window.addEventListener('DOMContentLoaded', () => {
-      console.log('DOM fully loaded at', new Date().toLocaleTimeString());
-    });
 
     // Command Center toggle button
     const contentToggleBtn = document.getElementById('contentToggleBtn');
@@ -3248,6 +3244,14 @@
     if (controlsContainer) {
         controlsContainer.appendChild(dashboardBtn);
     }
+
+    // Show/hide sync dropdown on button click
+    contentToggleBtn.addEventListener('click', function() {
+      // ...existing code for toggling Mission Control...
+      syncDropdownVisible = !syncDropdownVisible;
+      syncDropdown.style.display = syncDropdownVisible ? 'block' : 'none';
+      if (syncDropdownVisible) updateSyncDropdown();
+    });
 
     // Hide dropdown if user clicks outside (mobile friendly)
     document.addEventListener('click', function(e) {
@@ -3409,6 +3413,48 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         statusMessage.textContent = `Server: ${text}${lastServerError ? ' ' + lastServerError : ''}`;
     }
+
+    // Trading status indicator
+    const tradingStatus = document.createElement('div');
+    tradingStatus.id = 'tradingStatus';
+    tradingStatus.style.cssText = `
+        position: fixed;
+        top: 20px;
+        left: 250px;
+        background: rgba(255, 165, 0, 0.8);
+        color: #000;
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-family: 'Orbitron', monospace;
+        font-size: 10px;
+        z-index: 10001;
+        border: 1px solid rgba(255, 165, 0, 0.5);
+        cursor: pointer;
+        display: none;
+    `;
+    tradingStatus.textContent = '🤖 Trading: Active';
+    tradingStatus.onclick = () => {
+        if (window.pumpFunManager) {
+            const stats = window.pumpFunManager.getTradingStats();
+            alert(`Trading Stats:\nPositions: ${stats.totalPositions}\nTotal Value: ${stats.totalPositionValue} SOL\nPnL: ${stats.totalUnrealizedPnL} SOL`);
+        }
+    };
+    document.body.appendChild(tradingStatus);
+
+    // Update trading status periodically
+    setInterval(() => {
+        if (window.pumpFunManager) {
+            const stats = window.pumpFunManager.getTradingStats();
+            if (stats.totalPositions > 0) {
+                tradingStatus.style.display = 'block';
+                const pnl = stats.totalUnrealizedPnL;
+                const pnlColor = pnl > 0 ? '#00ff00' : pnl < 0 ? '#ff4444' : '#ffaa00';
+                tradingStatus.innerHTML = `🤖 Trading: ${stats.totalPositions} positions | PnL: <span style="color: ${pnlColor}">${pnl > 0 ? '+' : ''}${pnl.toFixed(2)} SOL</span>`;
+            } else {
+                tradingStatus.style.display = 'none';
+            }
+        }
+    }, 10000); // Update every 10 seconds
 
 // Server start button - graceful failure
 const statusMsg = document.getElementById('statusMessage');
