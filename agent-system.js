@@ -5,7 +5,7 @@
 async function waitForDependencies() {
     const dependencies = {
         'agentSystem': 'agent-core.js',
-        'agentDisplay': 'agent-display.js',
+        'AgentDisplay': 'agent-display.js',
         'BaseAgent': 'agent-types.js',
         'setupEnhancedErrorMonitoring': 'monitoring-systems.js'
     };
