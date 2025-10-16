@@ -111,85 +111,91 @@ class FPDSContractSchema {
         this._parsingStack.add(stackKey);
         
         try {
+            const cleaned = contractNumber.trim().toUpperCase();
         
-        // Try to match standard format: AGENCY-YEAR-TYPE-NUMBER-MOD
-        const standardPattern = /^([A-Z0-9]+)-(\d{2})-([A-Z])-(\d+)(-([A-Z]\d+))?$/;
-        const match = cleaned.match(standardPattern);
-        
-        if (match) {
-            const [, agencyCode, fiscalYear, typeCode, sequenceNumber, , modNumber] = match;
+            // Try to match standard format: AGENCY-YEAR-TYPE-NUMBER-MOD
+            const standardPattern = /^([A-Z0-9]+)-(\d{2})-([A-Z])-(\d+)(-([A-Z]\d+))?$/;
+            const match = cleaned.match(standardPattern);
             
-            return {
-                valid: true,
-                raw: contractNumber,
-                normalized: cleaned,
-                components: {
-                    agencyCode: agencyCode,
-                    agencyName: this.getAgencyName(agencyCode),
-                    fiscalYear: '20' + fiscalYear,
-                    contractType: typeCode,
-                    contractTypeName: this.contractTypes[typeCode] || 'Unknown Type',
-                    sequenceNumber: sequenceNumber,
-                    modificationNumber: modNumber || 'Base Contract'
-                },
-                isModification: !!modNumber,
-                formattedDisplay: this.formatContractNumber(cleaned)
-            };
-        }
-        
-        // Try alternative DoD format: DAAAC-YY-C-NNNN
-        const dodPattern = /^([A-Z0-9]{5})-(\d{2})-([A-Z])-(\d{4})(-([A-Z]\d+))?$/;
-        const dodMatch = cleaned.match(dodPattern);
-        
-        if (dodMatch) {
-            const [, dodaac, fiscalYear, typeCode, sequenceNumber, , modNumber] = dodMatch;
+            if (match) {
+                const [, agencyCode, fiscalYear, typeCode, sequenceNumber, , modNumber] = match;
+                
+                return {
+                    valid: true,
+                    raw: contractNumber,
+                    normalized: cleaned,
+                    components: {
+                        agencyCode: agencyCode,
+                        agencyName: this.getAgencyName(agencyCode),
+                        fiscalYear: '20' + fiscalYear,
+                        contractType: typeCode,
+                        contractTypeName: this.contractTypes[typeCode] || 'Unknown Type',
+                        sequenceNumber: sequenceNumber,
+                        modificationNumber: modNumber || 'Base Contract'
+                    },
+                    isModification: !!modNumber,
+                    formattedDisplay: this.formatContractNumber(cleaned)
+                };
+            }
             
+            // Try alternative DoD format: DAAAC-YY-C-NNNN
+            const dodPattern = /^([A-Z0-9]{5})-(\d{2})-([A-Z])-(\d{4})(-([A-Z]\d+))?$/;
+            const dodMatch = cleaned.match(dodPattern);
+            
+            if (dodMatch) {
+                const [, dodaac, fiscalYear, typeCode, sequenceNumber, , modNumber] = dodMatch;
+                
+                return {
+                    valid: true,
+                    raw: contractNumber,
+                    normalized: cleaned,
+                    components: {
+                        agencyCode: dodaac,
+                        agencyName: this.getAgencyName(dodaac.substring(0, 2)),
+                        dodaac: dodaac,
+                        fiscalYear: '20' + fiscalYear,
+                        contractType: typeCode,
+                        contractTypeName: this.contractTypes[typeCode] || 'Unknown Type',
+                        sequenceNumber: sequenceNumber,
+                        modificationNumber: modNumber || 'Base Contract'
+                    },
+                    isModification: !!modNumber,
+                    isDoDContract: true,
+                    formattedDisplay: this.formatContractNumber(cleaned)
+                };
+            }
+            
+            // Try PIID format (Procurement Instrument Identifier)
+            const piidPattern = /^([A-Z0-9]+)(\d{13})$/;
+            const piidMatch = cleaned.match(piidPattern);
+            
+            if (piidMatch) {
+                return {
+                    valid: true,
+                    raw: contractNumber,
+                    normalized: cleaned,
+                    isPIID: true,
+                    components: {
+                        agencyCode: piidMatch[1],
+                        agencyName: this.getAgencyName(piidMatch[1]),
+                        piidNumber: piidMatch[2]
+                    },
+                    formattedDisplay: contractNumber
+                };
+            }
+            
+            // Fallback: Try to extract any useful information
             return {
-                valid: true,
+                valid: false,
                 raw: contractNumber,
-                normalized: cleaned,
-                components: {
-                    agencyCode: dodaac,
-                    agencyName: this.getAgencyName(dodaac.substring(0, 2)),
-                    dodaac: dodaac,
-                    fiscalYear: '20' + fiscalYear,
-                    contractType: typeCode,
-                    contractTypeName: this.contractTypes[typeCode] || 'Unknown Type',
-                    sequenceNumber: sequenceNumber,
-                    modificationNumber: modNumber || 'Base Contract'
-                },
-                isModification: !!modNumber,
-                isDoDContract: true,
-                formattedDisplay: this.formatContractNumber(cleaned)
+                error: 'Unrecognized contract number format',
+                suggestion: 'Expected format: AGENCY-YY-T-NNNN or similar'
             };
+            
+        } finally {
+            // Always clean up the recursion stack
+            this._parsingStack.delete(stackKey);
         }
-        
-        // Try PIID format (Procurement Instrument Identifier)
-        const piidPattern = /^([A-Z0-9]+)(\d{13})$/;
-        const piidMatch = cleaned.match(piidPattern);
-        
-        if (piidMatch) {
-            return {
-                valid: true,
-                raw: contractNumber,
-                normalized: cleaned,
-                isPIID: true,
-                components: {
-                    agencyCode: piidMatch[1],
-                    agencyName: this.getAgencyName(piidMatch[1]),
-                    piidNumber: piidMatch[2]
-                },
-                formattedDisplay: contractNumber
-            };
-        }
-        
-        // Fallback: Try to extract any useful information
-        return {
-            valid: false,
-            raw: contractNumber,
-            error: 'Unrecognized contract number format',
-            suggestion: 'Expected format: AGENCY-YY-T-NNNN or similar'
-        };
     }
     
     /**
