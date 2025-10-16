@@ -141,6 +141,7 @@ class DashboardManager {
         this.updateStatsCards();
         this.updateAgentTable();
         this.updateDripHistory();
+        this.updateRealAgentTable(this.data.realAgents || []);
         this.updateLastUpdated();
     }
 
@@ -235,6 +236,39 @@ class DashboardManager {
         dripStats.recentCycles.slice(0, 5).forEach(cycle => {
             const item = this.createHistoryItem(cycle);
             container.appendChild(item);
+        });
+    }
+
+    // Update real-world agent table
+    updateRealAgentTable(realAgents) {
+        const tbody = document.getElementById('realAgentTableBody');
+        if (!tbody) return;
+
+        tbody.innerHTML = '';
+
+        if (realAgents.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; color: #8addff;">No real-world agents registered</td></tr>';
+            return;
+        }
+
+        realAgents.forEach(agent => {
+            const row = document.createElement('tr');
+
+            const scoreColor = agent.simulationScore >= 80 ? '#00ff00' : agent.simulationScore >= 60 ? '#ffaa00' : '#ff4444';
+            const pnlColor = agent.pnl > 0 ? '#00ff00' : agent.pnl < 0 ? '#ff4444' : '#8addff';
+            const statusColor = agent.isAuthorized ? '#00ff00' : '#ffaa00';
+
+            row.innerHTML = `
+                <td>${agent.name}</td>
+                <td><span style="color: ${statusColor};">${agent.isAuthorized ? 'Authorized' : 'Pending'}</span></td>
+                <td><span style="color: ${scoreColor};">${agent.simulationScore.toFixed(1)}%</span></td>
+                <td>${agent.tradingVolume.toFixed(2)} SOL</td>
+                <td><span style="color: ${pnlColor};">${agent.pnl > 0 ? '+' : ''}${agent.pnl.toFixed(2)} SOL</span></td>
+                <td><span style="background: rgba(0,255,255,0.2); padding: 2px 6px; border-radius: 8px; font-size: 0.8em;">${agent.strategy}</span></td>
+                <td><small>${this.formatDate(agent.lastActivity)}</small></td>
+            `;
+
+            tbody.appendChild(row);
         });
     }
 
