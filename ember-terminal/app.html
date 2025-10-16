@@ -8837,7 +8837,8 @@ a:visited { color: #1e9b55; }
   function ensureEthers() {
     return new Promise((resolve, reject) => {
       if (window.ethers) return resolve(window.ethers);
-      const src = "https://cdn.jsdelivr.net/npm/ethers@6.9.0/dist/ethers.min.js";
+      // Use UMD version for browser compatibility
+      const src = "https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js";
       const s = document.createElement('script');
       s.src = src;
       s.async = true;
@@ -8863,7 +8864,8 @@ a:visited { color: #1e9b55; }
       }
 
       await ensureEthers();
-      const provider = new ethers.BrowserProvider(window.ethereum, 'any');
+      // Use Web3Provider for ethers v5
+      const provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
       // Request accounts from the provider (prompts user)
       const accounts = await provider.send('eth_requestAccounts', []);
       const account = accounts && accounts[0] ? accounts[0] : null;
@@ -9112,7 +9114,8 @@ a:visited { color: #1e9b55; }
   function ensureEthers() {
     return new Promise((resolve, reject) => {
       if (window.ethers) return resolve(window.ethers);
-      const src = "https://cdn.jsdelivr.net/npm/ethers@6.9.0/dist/ethers.min.js";
+      // Use UMD version for browser compatibility
+      const src = "https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js";
       if (document.querySelector('script[data-ethers-loader]')) {
         // already loading
         const s = document.querySelector('script[data-ethers-loader]');
@@ -9139,7 +9142,8 @@ a:visited { color: #1e9b55; }
         return null;
       }
       await ensureEthers();
-      const provider = new ethers.BrowserProvider(window.ethereum, 'any');
+      // Use Web3Provider for ethers v5
+      const provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
       if (prompt) await provider.send('eth_requestAccounts', []);
       const signer = await provider.getSigner();
       const account = (await provider.listAccounts())[0] || null;
