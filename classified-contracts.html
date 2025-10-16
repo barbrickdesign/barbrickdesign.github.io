@@ -123,6 +123,54 @@
             cursor: not-allowed;
         }
         
+        .auth-method-btn {
+            padding: 20px;
+            background: linear-gradient(135deg, rgba(20,20,20,0.9), rgba(40,40,40,0.9));
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            min-width: 150px;
+        }
+        
+        .auth-method-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(255,255,255,0.2);
+            border-color: #ffaa00;
+        }
+        
+        .auth-method-btn.selected {
+            border-color: #ffaa00;
+            background: linear-gradient(135deg, rgba(255,170,0,0.1), rgba(255,170,0,0.05));
+        }
+        
+        .method-icon {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .method-title {
+            font-size: 1.2em;
+            font-weight: 700;
+            color: #ffaa00;
+            margin-bottom: 5px;
+        }
+        
+        .method-desc {
+            font-size: 0.9em;
+            color: #cccccc;
+        }
+        
+        .samgov-btn {
+            background: linear-gradient(90deg, #0066cc, #0099ff);
+            color: #fff;
+        }
+        
+        .samgov-btn:hover {
+            box-shadow: 0 0 30px rgba(0, 153, 255, 0.6);
+        }
+        
         .clearance-badge {
             display: inline-block;
             padding: 10px 20px;
@@ -369,37 +417,8 @@
             </p>
             <input type="password" id="samGovApiKeyInput" placeholder="Enter SAM.gov API Key" style="margin: 10px; padding: 8px; background: rgba(0,0,0,0.5); border: 2px solid #00ff00; border-radius: 5px; color: #00ff00; width: 300px;">
             <button onclick="setSamGovApiKey()" style="padding: 8px 15px; background: #00ff00; color: #000; border: none; border-radius: 5px; cursor: pointer; font-family: 'Orbitron', sans-serif;">Set API Key</button>
-            <div id="samGovStatus" style="margin-top: 10px; color: #66ff66;"></div>
-        </div>
-
-        <div id="authSection" class="auth-section">
-            <div class="card-icon">🔐</div>
-            <h2 style="color: #ff6666; margin-bottom: 20px;">WALLET AUTHENTICATION REQUIRED</h2>
-            <p style="color: #ff9999; margin-bottom: 20px; line-height: 1.8;">
-                <strong>STEP 1:</strong> Connect your crypto wallet (Phantom or MetaMask)<br>
-                <strong>STEP 2:</strong> Sign authorization message<br>
-                <strong>STEP 3:</strong> Security verification (PIV/CAC if available)<br>
-                <strong>STEP 4:</strong> Access granted based on clearance level
-            </p>
-            <div style="background: rgba(255, 215, 0, 0.1); border: 2px solid rgba(255, 215, 0, 0.3); padding: 20px; border-radius: 10px; margin: 20px 0;">
-                <p style="color: #ffcc00; line-height: 1.8;">
-                    ✌️ <strong>Rooted in Peace, Love, and Understanding</strong><br><br>
-                    This dual verification ensures that only individuals with<br>
-                    BOTH crypto identity AND government clearance<br>
-                    can access classified information.<br><br>
-                    Your White Card (PIV/CAC) must match or exceed<br>
-                    the clearance level registered to your wallet.
                 </p>
             </div>
-            <button id="authBtn" class="auth-btn" onclick="authenticateCard()">
-                🔐 CONNECT WALLET & AUTHENTICATE
-            </button>
-            <p style="margin-top: 20px; color: #ff9999; font-size: 0.9em;">
-                <strong>Supported Wallets:</strong><br>
-                👻 Phantom (Solana) | 🦊 MetaMask (Ethereum)<br><br>
-                <strong>Security Process:</strong><br>
-                ✅ Wallet detection & connection<br>
-                ✅ Signature verification<br>
                 ✅ Clearance registry check<br>
                 ✅ Access level determination
             </p>
@@ -407,6 +426,24 @@
         </div>
 
         <div id="authenticatedSection" style="display: none;">
+            <!-- SAM.gov Welcome Banner -->
+            <div id="samgovWelcome" style="display: none; background: linear-gradient(135deg, rgba(0,100,255,0.2), rgba(0,150,255,0.1)); border: 2px solid rgba(0,150,255,0.5); padding: 25px; border-radius: 15px; margin-bottom: 30px; text-align: center;">
+                <h2 style="color: #66ccff; margin-bottom: 15px;">🏛️ Welcome, SAM.gov User!</h2>
+                <p style="color: #99ddff; line-height: 1.8; margin-bottom: 20px;">
+                    Your SAM.gov profile has been automatically synced with our platform.<br>
+                    <strong>Benefits:</strong> No wallet required • Automatic profile sync • Government-standard security<br>
+                    <strong>Next Steps:</strong> Review your synced profile below and start exploring contracts
+                </p>
+                <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap;">
+                    <button onclick="scrollToContracts()" style="padding: 10px 20px; background: rgba(0,150,255,0.2); border: 2px solid #0099ff; border-radius: 8px; color: #66ccff; font-family: 'Orbitron', sans-serif; cursor: pointer; font-weight: 700;">
+                        📋 View Contracts
+                    </button>
+                    <button onclick="scrollToProfile()" style="padding: 10px 20px; background: rgba(255,215,0,0.2); border: 2px solid #ffd700; border-radius: 8px; color: #ffdd66; font-family: 'Orbitron', sans-serif; cursor: pointer; font-weight: 700;">
+                        👤 Review Profile
+                    </button>
+                </div>
+            </div>
+
             <div class="user-info">
                 <h3>✅ AUTHENTICATED USER</h3>
                 <div class="info-row">
@@ -429,6 +466,73 @@
                     <span class="info-label">Card Expiration:</span>
                     <span class="info-value" id="userExpiration">-</span>
                 </div>
+                <div class="info-row">
+                    <span class="info-label">Authentication Method:</span>
+                    <span class="info-value" id="userAuthMethod">-</span>
+                </div>
+
+                <!-- SAM.gov Sync Section -->
+                <div id="samgovSyncSection" style="margin-top: 20px; padding: 15px; background: rgba(0,100,255,0.1); border: 2px solid rgba(0,150,255,0.3); border-radius: 8px; display: none;">
+                    <div class="info-row">
+                        <span class="info-label">SAM.gov Entity:</span>
+                        <span class="info-value" id="userSAMGovEntity">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Last Sync:</span>
+                        <span class="info-value" id="userLastSync">-</span>
+                    </div>
+                    <button onclick="syncSAMGovProfile()" style="margin-top: 10px; padding: 8px 15px; background: rgba(0,150,255,0.2); border: 2px solid #0099ff; border-radius: 8px; color: #66ccff; font-family: 'Orbitron', sans-serif; cursor: pointer; font-weight: 700;">
+                        🔄 Sync SAM.gov Profile
+                    </button>
+                    <div id="syncStatus" style="margin-top: 10px; font-size: 0.9em;"></div>
+                </div>
+
+                <button onclick="logout()" style="margin-top: 15px; padding: 10px 20px; background: #8b0000; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-family: 'Orbitron', sans-serif;">
+                    🔓 LOGOUT
+                </button>
+            </div>
+                <h3>✅ AUTHENTICATED USER</h3>
+                <div class="info-row">
+                    <span class="info-label">Name:</span>
+                    <span class="info-value" id="userName">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Organization:</span>
+                    <span class="info-value" id="userOrg">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Clearance Level:</span>
+                    <span class="info-value" id="userClearance">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Special Access:</span>
+                    <span class="info-value" id="userCaveats">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Card Expiration:</span>
+                    <span class="info-value" id="userExpiration">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Authentication Method:</span>
+                    <span class="info-value" id="userAuthMethod">-</span>
+                </div>
+
+                <!-- SAM.gov Sync Section -->
+                <div id="samgovSyncSection" style="margin-top: 20px; padding: 15px; background: rgba(0,100,255,0.1); border: 2px solid rgba(0,150,255,0.3); border-radius: 8px; display: none;">
+                    <div class="info-row">
+                        <span class="info-label">SAM.gov Entity:</span>
+                        <span class="info-value" id="userSAMGovEntity">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Last Sync:</span>
+                        <span class="info-value" id="userLastSync">-</span>
+                    </div>
+                    <button onclick="syncSAMGovProfile()" style="margin-top: 10px; padding: 8px 15px; background: rgba(0,150,255,0.2); border: 2px solid #0099ff; border-radius: 8px; color: #66ccff; font-family: 'Orbitron', sans-serif; cursor: pointer; font-weight: 700;">
+                        🔄 Sync SAM.gov Profile
+                    </button>
+                    <div id="syncStatus" style="margin-top: 10px; font-size: 0.9em;"></div>
+                </div>
+
                 <button onclick="logout()" style="margin-top: 15px; padding: 10px 20px; background: #8b0000; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-family: 'Orbitron', sans-serif;">
                     🔓 LOGOUT
                 </button>
@@ -494,6 +598,90 @@
             }
         });
     
+        function selectAuthMethod(method) {
+            // Remove selected class from all buttons
+            document.querySelectorAll('.auth-method-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            
+            // Add selected class to chosen method
+            if (method === 'wallet') {
+                document.getElementById('walletAuthBtn').classList.add('selected');
+                document.getElementById('walletAuthSection').style.display = 'block';
+                document.getElementById('samgovAuthSection').style.display = 'none';
+            } else if (method === 'samgov') {
+                document.getElementById('samgovAuthBtn').classList.add('selected');
+                document.getElementById('samgovAuthSection').style.display = 'block';
+                document.getElementById('walletAuthSection').style.display = 'none';
+            }
+        }
+
+        async function authenticateWallet() {
+            const btn = document.getElementById('authBtn');
+            const status = document.getElementById('authStatus');
+            
+            try {
+                btn.disabled = true;
+                status.textContent = '⏳ Connecting wallet...';
+                status.style.color = '#ffff00';
+                
+                // Use universal auth to connect
+                const authInfo = await window.universalWalletAuth.connect();
+                
+                if (!authInfo) {
+                    throw new Error('Wallet connection failed');
+                }
+                
+                // Use security-clearance-auth for clearance verification
+                const result = await window.securityClearanceAuth.authenticateWithWallet();
+                
+                if (result.success) {
+                    status.textContent = '✅ Authentication successful!';
+                    status.style.color = '#00ff00';
+                    
+                    // Hide auth section, show authenticated content
+                    setTimeout(() => {
+                        document.getElementById('authSection').style.display = 'none';
+                        document.getElementById('authenticatedSection').style.display = 'block';
+                        displayUserInfo(result.user);
+                        loadClassifiedContracts();
+                    }, 1000);
+                } else {
+                    throw new Error(result.error);
+                }
+            } catch (error) {
+                status.textContent = '❌ ' + error.message;
+                status.style.color = '#ff0000';
+                btn.disabled = false;
+            }
+        }
+
+        async function authenticateWithSAMGov() {
+            const btn = document.getElementById('samgovAuthBtn');
+            const status = document.getElementById('samgovAuthStatus');
+            
+            try {
+                btn.disabled = true;
+                status.textContent = '🏛️ Redirecting to SAM.gov...';
+                status.style.color = '#66ccff';
+                
+                // Initiate SAM.gov SSO
+                const result = await window.securityClearanceAuth.authenticateWithSAMGov();
+                
+                if (result.success) {
+                    // Redirect happens automatically, but show success message
+                    status.textContent = '✅ Redirecting to SAM.gov for authentication...';
+                    status.style.color = '#00ff00';
+                } else {
+                    throw new Error(result.error);
+                }
+            } catch (error) {
+                status.textContent = '❌ ' + error.message;
+                status.style.color = '#ff6666';
+                btn.disabled = false;
+            }
+        }
+    
         async function authenticateCard() {
             const btn = document.getElementById('authBtn');
             const status = document.getElementById('authStatus');
@@ -540,6 +728,63 @@
             document.getElementById('userClearance').textContent = user.clearanceLevel.replace('_', '/');
             document.getElementById('userCaveats').textContent = user.caveatCodes.join(', ') || 'None';
             document.getElementById('userExpiration').textContent = user.expirationDate;
+
+            // Show authentication method
+            if (user.samGovAuthenticated) {
+                document.getElementById('userAuthMethod').textContent = 'SAM.gov SSO';
+                document.getElementById('samgovSyncSection').style.display = 'block';
+                document.getElementById('samgovWelcome').style.display = 'block';
+
+                // Show SAM.gov entity info
+                document.getElementById('userSAMGovEntity').textContent = user.samGovProfile?.legalBusinessName || 'Not available';
+                document.getElementById('userLastSync').textContent = user.lastSync ? new Date(user.lastSync).toLocaleString() : 'Never';
+
+                // Show sync status
+                document.getElementById('syncStatus').textContent = '✅ Profile synced with SAM.gov';
+                document.getElementById('syncStatus').style.color = '#00ff00';
+            } else {
+                document.getElementById('userAuthMethod').textContent = 'Crypto Wallet + PIV/CAC';
+                document.getElementById('samgovSyncSection').style.display = 'none';
+                document.getElementById('samgovWelcome').style.display = 'none';
+            }
+        }
+
+        function scrollToContracts() {
+            document.querySelector('h2').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function scrollToProfile() {
+            document.querySelector('.user-info').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        async function syncSAMGovProfile() {
+            const syncStatus = document.getElementById('syncStatus');
+
+            try {
+                syncStatus.textContent = '⏳ Syncing with SAM.gov...';
+                syncStatus.style.color = '#66ccff';
+
+                const result = await window.securityClearanceAuth.syncWithSAMGov();
+
+                if (result.success) {
+                    syncStatus.textContent = '✅ Profile synced successfully!';
+                    syncStatus.style.color = '#00ff00';
+
+                    // Update displayed info
+                    document.getElementById('userSAMGovEntity').textContent = result.profile.organization;
+                    document.getElementById('userLastSync').textContent = new Date().toLocaleString();
+
+                    // Refresh contracts if profile changed
+                    setTimeout(() => {
+                        loadClassifiedContracts();
+                    }, 1000);
+                } else {
+                    throw new Error(result.error);
+                }
+            } catch (error) {
+                syncStatus.textContent = '❌ Sync failed: ' + error.message;
+                syncStatus.style.color = '#ff6666';
+            }
         }
 
         async function loadClassifiedContracts() {
@@ -547,6 +792,9 @@
                 const contracts = await window.securityClearanceAuth.getClassifiedContracts();
                 const summary = window.securityClearanceAuth.getAccessSummary();
                 const user = window.securityClearanceAuth.currentUser;
+                
+                // Load live SAM.gov opportunities if API key is set
+                await loadLiveOpportunities();
                 
                 // Display stats
                 displayStats(summary);
@@ -633,6 +881,72 @@
                 console.error('Error loading contracts:', error);
                 document.getElementById('contractsGrid').innerHTML = 
                     '<div class="access-denied"><h2>❌ ERROR</h2><p>' + error.message + '</p></div>';
+            }
+        }
+        
+        function setSamGovApiKey() {
+            const input = document.getElementById('samGovApiKeyInput');
+            const status = document.getElementById('samGovStatus');
+            
+            if (input.value.trim()) {
+                localStorage.setItem('samGovApiKey', input.value.trim());
+                status.textContent = '✅ API Key set successfully! Live opportunities will be available.';
+                status.style.color = '#00ff00';
+                
+                // Reinitialize SAM.gov integration
+                window.samGovIntegration = new SAMGovIntegration();
+            } else {
+                status.textContent = '❌ Please enter a valid API key.';
+                status.style.color = '#ff6666';
+            }
+        }
+        
+        async function loadLiveOpportunities() {
+            try {
+                // Load live opportunities from SAM.gov
+                const opportunities = await window.samGovIntegration.findOpportunities(['cybersecurity', 'web3', 'blockchain'], ['software']);
+                
+                if (opportunities.length > 0) {
+                    const liveGrid = document.createElement('div');
+                    liveGrid.className = 'contracts-grid';
+                    liveGrid.id = 'liveOpportunitiesGrid';
+                    
+                    opportunities.slice(0, 3).forEach(opp => {
+                        const card = document.createElement('div');
+                        card.className = 'contract-card';
+                        card.innerHTML = `
+                            <div class="contract-header">
+                                <div class="contract-title">${opp.title}</div>
+                            </div>
+                            <div class="clearance-badge badge-confidential">LIVE SAM.GOV</div>
+                            <div class="contract-value">$${(opp.estimatedValue / 1000000).toFixed(1)}M</div>
+                            <div class="contract-details">
+                                <strong>Agency:</strong> ${opp.agency}<br>
+                                <strong>Deadline:</strong> ${opp.deadline}<br>
+                                <strong>Status:</strong> ${opp.status}
+                            </div>
+                            <p style="color: #ff9999; margin: 15px 0;">${opp.description || 'Real-time opportunity from SAM.gov'}</p>
+                            <div class="contract-meta">
+                                ${opp.requirements.map(req => `<span class="meta-tag">${req}</span>`).join('')}
+                            </div>
+                        `;
+                        liveGrid.appendChild(card);
+                    });
+                    
+                    // Insert before the main contracts grid
+                    const mainGrid = document.getElementById('contractsGrid');
+                    mainGrid.parentNode.insertBefore(liveGrid, mainGrid);
+                    
+                    // Add header for live opportunities
+                    const header = document.createElement('h3');
+                    header.textContent = '🔴 LIVE SAM.GOV OPPORTUNITIES';
+                    header.style.color = '#00ff00';
+                    header.style.margin = '40px 0 20px 0';
+                    header.style.textAlign = 'center';
+                    mainGrid.parentNode.insertBefore(header, liveGrid);
+                }
+            } catch (error) {
+                console.log('No live opportunities available or API key not set');
             }
         }
         

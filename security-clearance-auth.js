@@ -89,6 +89,11 @@ class SecurityClearanceAuth {
         
         this.walletConnector = window.walletConnector;
         this.classifiedContracts = [];
+
+        // SAM.gov OAuth Configuration
+        this.samGovClientId = 'your_sam_gov_client_id'; // Replace with actual client ID
+        this.samGovClientSecret = 'your_sam_gov_client_secret'; // Replace with actual client secret
+        this.samGovRedirectUri = `${window.location.origin}/samgov-callback.html`;
     }
 
     /**
@@ -385,24 +390,291 @@ class SecurityClearanceAuth {
     }
 
     /**
-     * Request signature from connected wallet
+     * SAM.gov Single Sign-On Authentication
+     * Allows contractors to use their SAM.gov credentials
      */
-    async requestWalletSignature(message, walletType) {
+    async authenticateWithSAMGov() {
         try {
-            if (walletType === 'phantom') {
-                const encodedMessage = new TextEncoder().encode(message);
-                const signedMessage = await window.solana.signMessage(encodedMessage, 'utf8');
-                return { success: true, signature: signedMessage };
-            } else if (walletType === 'metamask') {
-                const signature = await window.ethereum.request({
-                    method: 'personal_sign',
-                    params: [message, window.ethereum.selectedAddress]
-                });
-                return { success: true, signature };
-            }
+            console.log('🏛️ Initiating SAM.gov SSO authentication...');
+
+            // Generate a state parameter for security
+            const state = this.generateStateParameter();
+
+            // Store state in session storage for verification
+            sessionStorage.setItem('samGovAuthState', state);
+
+            // SAM.gov OAuth authorization URL
+            const authUrl = `https://login.sam.gov/oauth/authorize?` +
+                `client_id=${encodeURIComponent(this.samGovClientId)}&` +
+                `response_type=code&` +
+                `redirect_uri=${encodeURIComponent(this.samGovRedirectUri)}&` +
+                `state=${encodeURIComponent(state)}&` +
+                `scope=openid profile entity`;
+
+            console.log('🔗 Redirecting to SAM.gov for authentication...');
+            window.location.href = authUrl;
+
         } catch (error) {
-            console.error('Signature failed:', error);
-            return { success: false, error: error.message };
+            console.error('SAM.gov SSO initiation error:', error);
+            return {
+                success: false,
+                error: error.message
+            };
+        }
+    }
+
+    /**
+     * Handle SAM.gov OAuth callback and token exchange
+     */
+    async handleSAMGovCallback(code, state) {
+        try {
+            // Verify state parameter
+            const storedState = sessionStorage.getItem('samGovAuthState');
+            if (state !== storedState) {
+                throw new Error('Invalid state parameter - possible CSRF attack');
+            }
+
+            console.log('🔄 Exchanging authorization code for tokens...');
+
+            // Exchange code for access token
+            const tokenResponse = await this.exchangeSAMGovToken(code);
+
+            if (!tokenResponse.success) {
+                throw new Error(tokenResponse.error);
+            }
+
+            // Get user profile from SAM.gov
+            const profileResponse = await this.getSAMGovProfile(tokenResponse.accessToken);
+
+            if (!profileResponse.success) {
+                throw new Error('Failed to retrieve SAM.gov profile');
+            }
+
+            const samGovProfile = profileResponse.profile;
+
+            console.log('✅ SAM.gov profile retrieved:', samGovProfile.legalBusinessName);
+
+            // Check if entity is active and not excluded
+            if (samGovProfile.status !== 'ACTIVE') {
+                throw new Error('SAM.gov entity is not active. Please activate your SAM.gov registration.');
+            }
+
+            // Check for exclusions
+            const exclusions = await window.samGovIntegration.checkExclusions(samGovProfile.ueiSAM);
+            if (exclusions.length > 0) {
+                throw new Error(`Active SAM.gov exclusions found (${exclusions.length}). Please resolve exclusions before proceeding.`);
+            }
+
+            // Create or update contractor profile from SAM.gov data
+            const contractorProfile = await this.createContractorFromSAMGov(samGovProfile, tokenResponse.accessToken);
+
+            // Set current user
+            this.currentUser = {
+                authenticated: true,
+                samGovAuthenticated: true,
+                walletAddress: null, // No wallet required for SAM.gov auth
+                clearanceLevel: 'CONFIDENTIAL', // Default for SAM.gov users
+                commonName: samGovProfile.legalBusinessName,
+                organization: samGovProfile.legalBusinessName,
+                expirationDate: samGovProfile.expirationDate || '2099-12-31',
+                caveatCodes: [],
+                profile: contractorProfile,
+                samGovProfile: samGovProfile,
+                samGovToken: tokenResponse.accessToken,
+                lastSync: new Date().toISOString()
+            };
+
+            // Clean up session storage
+            sessionStorage.removeItem('samGovAuthState');
+
+            console.log('✅ SAM.gov authentication complete');
+            return {
+                success: true,
+                user: this.currentUser,
+                message: 'SAM.gov authentication successful. Profile synced and ready to use.'
+            };
+
+        } catch (error) {
+            console.error('SAM.gov callback handling error:', error);
+            return {
+                success: false,
+                error: error.message
+            };
+        }
+    }
+
+    /**
+     * Exchange authorization code for access token
+     */
+    async exchangeSAMGovToken(code) {
+        try {
+            const response = await fetch('https://login.sam.gov/oauth/token', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'Authorization': `Basic ${btoa(`${this.samGovClientId}:${this.samGovClientSecret}`)}`
+                },
+                body: new URLSearchParams({
+                    grant_type: 'authorization_code',
+                    code: code,
+                    redirect_uri: this.samGovRedirectUri
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`Token exchange failed: ${response.status}`);
+            }
+
+            const data = await response.json();
+            return {
+                success: true,
+                accessToken: data.access_token,
+                refreshToken: data.refresh_token,
+                expiresIn: data.expires_in
+            };
+
+        } catch (error) {
+            console.error('Token exchange error:', error);
+            return {
+                success: false,
+                error: error.message
+            };
+        }
+    }
+
+    /**
+     * Get SAM.gov user profile using access token
+     */
+    async getSAMGovProfile(accessToken) {
+        try {
+            const response = await fetch('https://api.sam.gov/prod/entity-information/v1/entities', {
+                headers: {
+                    'Authorization': `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+
+            if (!response.ok) {
+                throw new Error(`Profile fetch failed: ${response.status}`);
+            }
+
+            const data = await response.json();
+            return {
+                success: true,
+                profile: data.entityData[0] || data
+            };
+
+        } catch (error) {
+            console.error('Profile fetch error:', error);
+            return {
+                success: false,
+                error: error.message
+            };
+        }
+    }
+
+    /**
+     * Create contractor profile from SAM.gov data
+     */
+    async createContractorFromSAMGov(samGovProfile, accessToken) {
+        // Map SAM.gov data to contractor profile
+        const profile = {
+            fullName: samGovProfile.legalBusinessName,
+            organization: samGovProfile.legalBusinessName,
+            email: samGovProfile.electronicBusinessPoc?.email || '',
+            phone: samGovProfile.electronicBusinessPoc?.phone || '',
+            uei: samGovProfile.ueiSAM,
+            duns: samGovProfile.duns,
+            address: samGovProfile.physicalAddress,
+            capabilities: this.inferCapabilitiesFromNAICS(samGovProfile.naicsCodes || []),
+            teamSize: this.inferTeamSize(samGovProfile),
+            experience: '3-5', // Default, can be updated by user
+            certifications: [],
+            linkedIn: '',
+            website: samGovProfile.website || '',
+            samGovProfile: samGovProfile,
+            samGovToken: accessToken,
+            syncedAt: new Date().toISOString()
+        };
+
+        return profile;
+    }
+
+    /**
+     * Infer technical capabilities from NAICS codes
+     */
+    inferCapabilitiesFromNAICS(naicsCodes) {
+        const capabilities = [];
+
+        naicsCodes.forEach(code => {
+            if (code.startsWith('54151')) capabilities.push('Software Development');
+            if (code.startsWith('54171')) capabilities.push('R&D Services');
+            if (code.startsWith('51821')) capabilities.push('Cloud Computing');
+            if (code.startsWith('54133')) capabilities.push('Engineering Services');
+            if (code.startsWith('54169')) capabilities.push('Management Consulting');
+        });
+
+        // Remove duplicates and return
+        return [...new Set(capabilities)];
+    }
+
+    /**
+     * Infer team size from SAM.gov data
+     */
+    inferTeamSize(samGovProfile) {
+        // This is a rough estimate based on business size
+        const size = samGovProfile.businessSize || '';
+
+        if (size.includes('Large')) return '100+';
+        if (size.includes('Small')) return '6-20';
+        if (size.includes('Micro')) return '1-5';
+
+        return '6-20'; // Default
+    }
+
+    /**
+     * Generate secure state parameter for OAuth
+     */
+    generateStateParameter() {
+        return Math.random().toString(36).substring(2, 15) +
+               Math.random().toString(36).substring(2, 15);
+    }
+
+    /**
+     * Sync contractor profile with latest SAM.gov data
+     */
+    async syncWithSAMGov() {
+        if (!this.currentUser.samGovAuthenticated || !this.currentUser.samGovToken) {
+            throw new Error('Not authenticated with SAM.gov');
+        }
+
+        try {
+            const profileResponse = await this.getSAMGovProfile(this.currentUser.samGovToken);
+
+            if (profileResponse.success) {
+                const updatedProfile = await this.createContractorFromSAMGov(
+                    profileResponse.profile,
+                    this.currentUser.samGovToken
+                );
+
+                // Update current user profile
+                this.currentUser.profile = updatedProfile;
+                this.currentUser.samGovProfile = profileResponse.profile;
+                this.currentUser.lastSync = new Date().toISOString();
+
+                console.log('✅ Profile synced with SAM.gov');
+                return {
+                    success: true,
+                    profile: updatedProfile
+                };
+            }
+
+        } catch (error) {
+            console.error('Profile sync error:', error);
+            return {
+                success: false,
+                error: error.message
+            };
         }
     }
 
@@ -425,7 +697,23 @@ class SecurityClearanceAuth {
                 walletAddress = walletAddress.toLowerCase();
             }
             
-            console.log(`💼 Step 1/3: ${walletType} wallet connected: ${walletAddress}`);
+            // STEP 2: Verify No Active Exclusions (SAM.gov Check)
+            if (window.samGovIntegration) {
+                try {
+                    console.log('🔍 Checking SAM.gov exclusions...');
+                    const exclusions = await window.samGovIntegration.checkExclusions(walletAddress);
+                    
+                    if (exclusions.length > 0) {
+                        console.log('🚫 Active exclusions found:', exclusions.length);
+                        throw new Error(`🚫 ACCESS DENIED: Active SAM.gov exclusions found (${exclusions.length} active). Contact System Architect for clearance.`);
+                    }
+                    
+                    console.log('✅ No active SAM.gov exclusions');
+                } catch (exclusionError) {
+                    console.warn('⚠️ Could not verify SAM.gov exclusions:', exclusionError.message);
+                    // Don't fail authentication for API issues, but log it
+                }
+            }
             console.log(`📱 Mobile: ${walletConnection.isMobile || false}`);
             
             // Check if System Architect - GRANT IMMEDIATE ACCESS (case-insensitive)

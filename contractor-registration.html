@@ -8,6 +8,7 @@
     <!-- Dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iife.min.js"></script>
     <script src="contractor-registry.js"></script>
+    <script src="samgov-integration.js"></script>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
@@ -378,6 +379,24 @@
 
                 <div class="section-divider"></div>
 
+                <!-- SAM.gov Entity Validation -->
+                <h3 style="color: #00ff00; margin-bottom: 20px;">🏛️ SAM.gov Entity Validation</h3>
+
+                <div class="form-group">
+                    <label>Unique Entity Identifier (UEI) or DUNS Number</label>
+                    <input type="text" id="ueiDuns" placeholder="Enter your SAM.gov UEI or DUNS number">
+                    <small>Optional: We'll validate your entity in SAM.gov for enhanced verification</small>
+                </div>
+
+                <div style="background: rgba(0,100,255,0.1); border: 2px solid rgba(0,150,255,0.3); padding: 15px; border-radius: 8px; margin: 15px 0;">
+                    <button type="button" onclick="validateSamGovEntity()" style="padding: 10px 20px; background: rgba(0,150,255,0.2); border: 2px solid #0099ff; border-radius: 8px; color: #66ccff; font-family: 'Orbitron', sans-serif; cursor: pointer; font-weight: 700;">
+                        🔍 Validate SAM.gov Entity
+                    </button>
+                    <div id="entityValidationResult" style="margin-top: 15px; display: none;"></div>
+                </div>
+
+                <div class="section-divider"></div>
+
                 <!-- Professional Profile -->
                 <h3 style="color: #00ff00; margin-bottom: 20px;">💼 Professional Profile</h3>
 
@@ -448,7 +467,7 @@
     <script>
         let connectedWallet = null;
 
-        // Initialize capabilities checkboxes
+        // Initialize capabilities checkboxes and check for SAM.gov profile sync
         window.addEventListener('DOMContentLoaded', () => {
             const capabilitiesList = document.getElementById('capabilitiesList');
             const capabilities = window.contractorRegistry.capabilities;
@@ -462,7 +481,49 @@
                 `;
                 capabilitiesList.appendChild(div);
             });
+
+            // Check if user is coming from SAM.gov auth
+            checkForSAMGovProfile();
         });
+
+        async function checkForSAMGovProfile() {
+            // Check URL parameters for SAM.gov auth callback
+            const urlParams = new URLSearchParams(window.location.search);
+            const samGovAuth = urlParams.get('samgov_auth');
+
+            if (samGovAuth === 'success' && window.securityClearanceAuth.currentUser.samGovAuthenticated) {
+                console.log('🔄 SAM.gov authenticated user detected, syncing profile...');
+
+                // Pre-populate form with SAM.gov data
+                const samGovProfile = window.securityClearanceAuth.currentUser.samGovProfile;
+                const contractorProfile = window.securityClearanceAuth.currentUser.profile;
+
+                // Auto-fill form fields
+                document.getElementById('fullName').value = contractorProfile.fullName;
+                document.getElementById('organization').value = contractorProfile.organization;
+                document.getElementById('email').value = contractorProfile.email;
+                document.getElementById('phone').value = contractorProfile.phone;
+                document.getElementById('ueiDuns').value = contractorProfile.uei;
+
+                // Select capabilities based on SAM.gov data
+                contractorProfile.capabilities.forEach(capability => {
+                    const checkbox = document.querySelector(`input[value="${capability}"]`);
+                    if (checkbox) checkbox.checked = true;
+                });
+
+                // Set team size
+                document.getElementById('teamSize').value = contractorProfile.teamSize;
+
+                // Show success message
+                showStatus('✅ SAM.gov profile synced! Form has been pre-populated with your information.', 'success');
+
+                // Show registration form
+                document.getElementById('registrationForm').style.display = 'block';
+
+                // Hide wallet section since no wallet needed for SAM.gov auth
+                document.getElementById('walletSection').style.display = 'none';
+            }
+        }
 
         async function connectWallet() {
             const btn = document.getElementById('connectWalletBtn');
@@ -632,6 +693,56 @@
             
             // Scroll to message
             statusMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        async function validateSamGovEntity() {
+            const ueiDuns = document.getElementById('ueiDuns').value.trim();
+            const resultDiv = document.getElementById('entityValidationResult');
+            
+            if (!ueiDuns) {
+                resultDiv.innerHTML = '<p style="color: #ff6666;">Please enter a UEI or DUNS number first.</p>';
+                resultDiv.style.display = 'block';
+                return;
+            }
+            
+            try {
+                resultDiv.innerHTML = '<p style="color: #66ccff;">⏳ Validating with SAM.gov...</p>';
+                resultDiv.style.display = 'block';
+                
+                const validation = await window.samGovIntegration.validateEntity(ueiDuns);
+                
+                if (validation.valid) {
+                    resultDiv.innerHTML = `
+                        <div style="background: rgba(0,255,0,0.1); border: 2px solid #00ff00; padding: 15px; border-radius: 8px;">
+                            <h4 style="color: #00ff00; margin-bottom: 10px;">✅ Entity Validated Successfully</h4>
+                            <p><strong>Name:</strong> ${validation.name}</p>
+                            <p><strong>UEI:</strong> ${validation.uei}</p>
+                            <p><strong>DUNS:</strong> ${validation.duns || 'Not available'}</p>
+                            <p><strong>Status:</strong> ${validation.status}</p>
+                            ${validation.exclusions.length > 0 ? 
+                                `<p style="color: #ff6666;"><strong>⚠️ Exclusions Found:</strong> ${validation.exclusions.length} active exclusions</p>` :
+                                '<p style="color: #00ff00;">✅ No active exclusions</p>'
+                            }
+                        </div>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <div style="background: rgba(255,0,0,0.1); border: 2px solid #ff0000; padding: 15px; border-radius: 8px;">
+                            <h4 style="color: #ff6666;">❌ Entity Not Found</h4>
+                            <p>${validation.error}</p>
+                            <p style="color: #ff9999; margin-top: 10px;">💡 This doesn't prevent registration, but SAM.gov validation enhances your profile.</p>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <div style="background: rgba(255,0,0,0.1); border: 2px solid #ff0000; padding: 15px; border-radius: 8px;">
+                        <h4 style="color: #ff6666;">❌ Validation Error</h4>
+                        <p>${error.message}</p>
+                        <p style="color: #ff9999;">💡 Make sure you have a valid SAM.gov API key set in the classified contracts page.</p>
+                    </div>
+                `;
+            }
         }
     </script>
 </body>
