@@ -504,26 +504,93 @@ class ErrorRecoveryAgent extends BaseAgent {
 
             for (const [pattern, strategy] of Object.entries(this.recoveryStrategies)) {
                 if (error.message.includes(pattern)) {
+                    const startTime = Date.now();
                     const result = strategy(error);
+                    const duration = Date.now() - startTime;
+
                     if (result === true) {
+                        const fixDetails = {
+                            type: 'automatic',
+                            method: pattern,
+                            success: true,
+                            description: `Applied ${pattern} recovery strategy`,
+                            duration: duration,
+                            metadata: {
+                                pattern: pattern,
+                                strategy: 'recovery'
+                            }
+                        };
+
                         this.log(`✅ Successfully applied fix for: ${error.message}`);
-                        this.agentSystem.recordFix(error.id);
+                        this.agentSystem.recordFix(error.id, this.id, fixDetails);
                         return true;
                     } else if (result === 'cache_clear_suggestion') {
+                        const fixDetails = {
+                            type: 'suggestion',
+                            method: 'cache_clear',
+                            success: false,
+                            description: 'Suggested cache clearing for resolution',
+                            duration: duration,
+                            metadata: {
+                                suggestion: 'Clear browser cache to resolve issue'
+                            }
+                        };
+
                         this.log(`💡 Suggestion: Clear browser cache for ${error.message}`);
+                        this.agentSystem.recordFix(error.id, this.id, fixDetails);
                         return false;
                     } else if (result === 'network_retry') {
+                        const fixDetails = {
+                            type: 'monitoring',
+                            method: 'network_retry',
+                            success: false,
+                            description: 'Network issue detected - will retry when connection restored',
+                            duration: duration,
+                            metadata: {
+                                issue: 'network_connectivity',
+                                action: 'waiting_for_reconnection'
+                            }
+                        };
+
                         this.log(`💡 Network issue detected - will retry when connection restored`);
+                        this.agentSystem.recordFix(error.id, this.id, fixDetails);
                         return false;
                     }
                 }
             }
 
+            // Record failed fix attempt
+            const fixDetails = {
+                type: 'failed',
+                method: 'no_strategy',
+                success: false,
+                description: 'No recovery strategy available for this error type',
+                duration: 0,
+                metadata: {
+                    reason: 'no_matching_strategy'
+                }
+            };
+
             this.log(`❓ No recovery strategy available for: ${error.message}`);
+            this.agentSystem.recordFix(error.id, this.id, fixDetails);
             return false;
 
         } catch (fixError) {
             this.log(`❌ Fix attempt failed: ${fixError.message}`);
+
+            // Record failed fix attempt
+            const fixDetails = {
+                type: 'failed',
+                method: 'exception',
+                success: false,
+                description: `Fix attempt threw exception: ${fixError.message}`,
+                duration: 0,
+                metadata: {
+                    exception: fixError.message
+                }
+            };
+
+            this.agentSystem.recordFix(error.id, this.id, fixDetails);
             return false;
         }
     }
