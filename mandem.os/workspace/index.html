@@ -1986,40 +1986,36 @@
       }
     }
     
-    // Quick Phantom wallet connect for modal
-    async function quickConnectWallet() {
-      try {
-        const provider = window.solana;
-        if (!provider || !provider.isPhantom) {
-          alert('Phantom wallet not found. Please install Phantom browser extension.');
-          window.open('https://phantom.app/', '_blank');
-          return false;
-        }
-        
-        const resp = await provider.connect();
-        const publicKey = resp.publicKey.toBase58();
-        
-        // Store basic auth info
-        const user = {
-          walletAddress: publicKey,
-          displayName: `User ${publicKey.slice(0, 4)}...${publicKey.slice(-4)}`,
-          joinDate: new Date().toISOString()
+    async function showLoginModal() {
+      const modal = document.getElementById('loginModal');
+      if (!modal) return;
+
+      modal.style.display = 'flex';
+
+      const connectBtn = modal.querySelector('#modalConnectWalletBtn');
+      if (connectBtn) {
+        connectBtn.disabled = false;
+        connectBtn.textContent = '🔌 Connect Wallet';
+
+        connectBtn.onclick = async () => {
+          try {
+            connectBtn.disabled = true;
+            connectBtn.textContent = '⏳ Connecting...';
+
+            await window.authIntegration.init({ showUI: false });
+            await window.universalWalletAuth.connect();
+
+            modal.style.display = 'none';
+            updateUIForLoginState();
+            updateMgcBalanceDisplay();
+
+          } catch (error) {
+            console.error('Modal wallet connect failed:', error);
+            alert('Wallet connection failed. Please try again.');
+            connectBtn.disabled = false;
+            connectBtn.textContent = '🔌 Connect Wallet';
+          }
         };
-        
-        localStorage.setItem('currentUser', JSON.stringify(user));
-        localStorage.setItem('userLoggedIn', 'true');
-        localStorage.setItem('lastWalletAuth', new Date().toISOString());
-        
-        // Update UI
-        updateAuthButton();
-        updateMgcBalanceDisplay();
-        
-        console.log('[Auth] Wallet connected:', publicKey);
-        return true;
-      } catch (err) {
-        console.error('[Auth] Connection failed:', err);
-        alert('Wallet connection failed. Please try again.');
-        return false;
       }
     }
     
@@ -2116,9 +2112,15 @@
       });
       
       // Setup modal buttons
-      document.getElementById('modalLoginBtn').addEventListener('click', function() {
-        window.location.href = 'login.html';
-      });
+      const modalConnectBtn = document.getElementById('modalConnectWalletBtn');
+      if (modalConnectBtn) {
+        modalConnectBtn.addEventListener('click', async () => {
+          await window.universalWalletAuth.connect();
+          document.getElementById('loginModal').style.display = 'none';
+          updateUIForLoginState();
+          updateMgcBalanceDisplay();
+        });
+      }
       
       document.getElementById('modalCloseBtn').addEventListener('click', function() {
         document.getElementById('loginModal').style.display = 'none';
@@ -3292,31 +3294,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
-
-// Quick wallet connection function for modal
-async function quickConnectWallet() {
-  try {
-    console.log('🔌 Quick wallet connection initiated...');
-
-    // Use universal wallet auth system
-    if (window.universalWalletAuth) {
-      const authInfo = await window.universalWalletAuth.connect();
-
-      if (authInfo && authInfo.authenticated) {
-        console.log('✅ Quick wallet connection successful:', authInfo.address);
-
-        // Trigger auth success event for UI updates
-        window.dispatchEvent(new CustomEvent('authSuccess', {
-          detail: authInfo
-        }));
-
-        return true;
-      }
-    }
-
-    // Fallback: try wallet adapter
-    if (window.walletAdapter) {
-      const walletInfo = await window.walletAdapter.connect();
       if (walletInfo && walletInfo.connected) {
         console.log('✅ Wallet adapter connection successful');
         return true;
