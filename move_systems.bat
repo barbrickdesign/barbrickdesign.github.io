@@ -1,0 +1,46 @@
+@echo off
+REM Move system-specific JS files to src/systems/
+move advanced_simulator.js src\systems\
+move agent-core.js src\systems\
+move agent-display.js src\systems\
+move agent-system.js src\systems\
+move agent-types.js src\systems\
+move agentScore.js src\systems\
+move architect-valuation-enhancement.js src\systems\
+move auth-bootstrap.js src\systems\
+move auto-iterate-system.js src\systems\
+move automated-info-handler.js src\systems\
+move autopilot.js src\systems\
+move compensation-claim-system.js src\systems\
+move comprehensive-diagnostic.js src\systems\
+move contractor-payment-system.js src\systems\
+move dashboard.js src\systems\
+move dev-compensation-calculator.js src\systems\
+move drip_protocol.js src\systems\
+move final-complete-fixer.js src\systems\
+move final-comprehensive-test.js src\systems\
+move final-test.js src\systems\
+move github-contract-detector.js src\systems\
+move github-integration.js src\systems\
+move mandemos_sync.js src\systems\
+move monitoring-systems.js src\systems\
+move project-enhancement.js src\systems\
+move project-scanner.js src\systems\
+move project-tokenomics.js src\systems\
+move pump_fun_integration.js src\systems\
+move pumpfun-integration.js src\systems\
+move pumpfun-token-config.js src\systems\
+move real_agent_trading.js src\systems\
+move real_solana_trading.js src\systems\
+move samgov-api-integration.js src\systems\
+move samgov-awards-integration.js src\systems\
+move solana_agent_trading.js src\systems\
+move system-architect-auth.js src\systems\
+move universal-auth.js src\systems\
+move universal-dev-tracker-complete.js src\systems\
+move universal-wallet-connect.js src\systems\
+move verify-enhancements.js src\systems\
+move wallet-adapter.js src\systems\
+move wallet-auto-repair.js src\systems\
+move website-quality-agent.js src\systems\
+echo System files moved successfully!
