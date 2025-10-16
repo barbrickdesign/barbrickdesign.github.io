@@ -1337,30 +1337,10 @@
     }
     // Update dropdown every 5s if visible
     setInterval(() => { if (syncDropdownVisible) updateSyncDropdown(); }, 5000);
-  </script>         
+  </script>
         <script src="public/facetProcessor.js"></script>
         <script src="public/simulation.js"></script>
         <script src="public/phantomLogin.js"></script>         
-        <!-- Add login simulation code -->         
-        <script>
-    // Simulate login functionality
-    document.getElementById('loginBtn').addEventListener('click', function(e) {
-      e.preventDefault();
-      // Redirect to login page without setting any flag
-      window.location.href = 'login.html';
-    });
-    
-    // Add a "logged in" indicator if user is logged in
-    if (isUserLoggedIn()) {
-      const loginBtn = document.getElementById('loginBtn');
-      loginBtn.textContent = 'Logged In';
-      loginBtn.style.backgroundColor = '#4CAF50';
-      
-      // Show toggle controls button and update UI
-      updateUIForLoginState();
-      updateAuthButton();
-    }
-  </script>         
         <!-- Register Service Worker - DISABLED -->
         <script>
     // Service Worker disabled to prevent cache issues
