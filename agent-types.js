@@ -597,3 +597,6 @@ class ErrorRecoveryAgent extends BaseAgent {
 }
 
 console.log('🤖 Agent Types loaded');
+
+// Export BaseAgent globally for other modules to use
+window.BaseAgent = BaseAgent;
