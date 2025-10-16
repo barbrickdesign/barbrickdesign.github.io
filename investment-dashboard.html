@@ -728,20 +728,38 @@
         window.addEventListener('DOMContentLoaded', async function() {
             // Add timestamp display
             addTimestampDisplay();
-            
-            // Fetch real-time Solana data
-            const solanaData = await fetchSolanaMarketData();
+
+            // Fetch wallet balance and show wallet section if connected
+            await fetchWalletBalance();
+
+            // Fetch enhanced market data
+            await fetchEnhancedMarketData();
+
             // Initialize dashboard
             await initializeDashboard();
-            
+
             // Update timestamp
             updateTimestamp();
-            
+
             // Set up auto-refresh
             setInterval(async () => {
+                await fetchWalletBalance();
+                await fetchEnhancedMarketData();
                 await initializeDashboard();
                 updateTimestamp();
             }, UPDATE_INTERVAL);
+
+            // Listen for wallet auth events
+            window.addEventListener('authSuccess', async () => {
+                await fetchWalletBalance();
+            });
+
+            window.addEventListener('authLogout', () => {
+                document.getElementById('walletSection').style.display = 'none';
+                document.getElementById('solBalance').textContent = '0 SOL';
+                document.getElementById('portfolioValue').textContent = '$0';
+                document.getElementById('portfolioChange').textContent = '+0%';
+            });
         });
     </script>
 </body>
