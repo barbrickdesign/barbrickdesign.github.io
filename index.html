@@ -520,11 +520,8 @@
                         }
                     }
                 });
-
-                // Initialize wallet button after auth system loads
-                setTimeout(() => {
-                    window.walletButton = new WalletButton('walletButtonContainer');
-                }, 100);
+                
+                // Wallet button will be auto-initialized by wallet-button.js
                 
                 // All systems are initialized through their respective modules
                 // (auth-integration, project-tokenomics, pumpfun-integration)
