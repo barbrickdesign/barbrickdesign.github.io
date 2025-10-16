@@ -839,11 +839,11 @@
         <script src="https://cdn.jsdelivr.net/npm/three@latest/build/three.min.js"></script>         
         <script src="https://cdn.jsdelivr.net/npm/three@latest/examples/js/controls/OrbitControls.js"></script>         
         <script src="https://cdn.jsdelivr.net/npm/three@latest/examples/js/controls/PointerLockControls.js"></script>         
-        <!-- New globe script -->         
+        <!-- Clean session logging script -->
         <script>
-    // Session Logging System
+    // Clean Session Logging System
     let sessionLogs = JSON.parse(localStorage.getItem('mandemSessionLogs') || '[]');
-    const MAX_LOGS = 100;
+    const MAX_LOGS = 50;
 
     function logSessionEvent(type, message, data = {}) {
         const logEntry = {
@@ -854,19 +854,20 @@
             url: window.location.href,
             userAgent: navigator.userAgent
         };
-        
+
         sessionLogs.unshift(logEntry);
         if (sessionLogs.length > MAX_LOGS) {
             sessionLogs = sessionLogs.slice(0, MAX_LOGS);
         }
-        
+
         localStorage.setItem('mandemSessionLogs', JSON.stringify(sessionLogs));
-        // Update UI log panel if visible
         updateSessionLogPanel();
     }
 
     function toggleSessionLog() {
         const panel = document.getElementById('sessionLogPanel');
+        if (!panel) return;
+
         if (panel.style.display === 'block') {
             panel.style.display = 'none';
         } else {
@@ -878,9 +879,9 @@
     function updateSessionLogPanel() {
         const panel = document.getElementById('sessionLogPanel');
         if (!panel || panel.style.display === 'none') return;
-        
+
         panel.innerHTML = '<h4>Session Logs</h4>' +
-            sessionLogs.slice(0, 20).map(log => 
+            sessionLogs.slice(0, 10).map(log =>
                 `<div style="margin-bottom:5px;border-bottom:1px solid #333;padding:2px;">
                     <small style="color:#888">${new Date(log.timestamp).toLocaleTimeString()}</small>
                     <strong style="color:#00ff99">[${log.type}]</strong> ${log.message}
@@ -888,388 +889,11 @@
             ).join('');
     }
 
-    // Enhanced Session Logging with Agent Reports
-    let agentReports = JSON.parse(localStorage.getItem('mandemAgentReports') || '[]');
-    const REPORT_KEY = 'mandemAgentReports';
-
-    function logAgentReport(agentId, findings, recommendations) {
-        const report = {
-            id: Date.now() + Math.random(),
-            agentId: agentId,
-            timestamp: new Date().toISOString(),
-            findings: findings,
-            recommendations: recommendations,
-            sessionId: sessionLogs.length > 0 ? sessionLogs[0].timestamp : null
-        };
-        
-        agentReports.unshift(report);
-        if (agentReports.length > 50) { // Keep last 50 reports
-            agentReports = agentReports.slice(0, 50);
-        }
-        
-        localStorage.setItem(REPORT_KEY, JSON.stringify(agentReports));
-        logSessionEvent('info', `Agent report saved for ${agentId}`, { findings: findings.length });
-    }
-
-    // Hourly Script Enhancement System
-    function runHourlyScriptEnhancement() {
-        logSessionEvent('info', 'Running hourly script enhancement review');
-        
-        const recentLogs = sessionLogs.slice(0, 20); // Last 20 events
-        const recentReports = agentReports.slice(0, 10); // Last 10 reports
-        
-        // Analyze patterns and apply fixes
-        enhanceBasedOnLogs(recentLogs, recentReports);
-        
-        // Schedule next run
-        setTimeout(runHourlyScriptEnhancement, 60 * 60 * 1000); // Every hour
-    }
-
-    function enhanceBasedOnLogs(logs, reports) {
-        const issues = analyzeIssues(logs, reports);
-        const fixes = generateFixes(issues);
-        
-        if (fixes.length > 0) {
-            logSessionEvent('info', `Applying ${fixes.length} automatic enhancements`);
-            applyFixes(fixes);
-        }
-    }
-
-    function analyzeIssues(logs, reports) {
-        const issues = [];
-        
-        // Check for balance display issues
-        const balanceLogs = logs.filter(log => log.message.includes('balance') && log.type === 'warning');
-        if (balanceLogs.length > 2) {
-            issues.push({ type: 'balance_display', severity: 'high', count: balanceLogs.length });
-        }
-        
-        // Check for server connection failures
-        const serverLogs = logs.filter(log => log.message.includes('Server connection failed'));
-        if (serverLogs.length > 3) {
-            issues.push({ type: 'server_connection', severity: 'medium', count: serverLogs.length });
-        }
-        
-        // Check for missing UI elements
-        const uiLogs = logs.filter(log => log.message.includes('not found') || log.message.includes('not visible'));
-        if (uiLogs.length > 1) {
-            issues.push({ type: 'ui_elements', severity: 'low', count: uiLogs.length });
-        }
-        
-        return issues;
-    }
-
-    function generateFixes(issues) {
-        const fixes = [];
-        
-        issues.forEach(issue => {
-            switch (issue.type) {
-                case 'balance_display':
-                    fixes.push({
-                        type: 'retry_balance_update',
-                        description: 'Increase balance update frequency and add retry logic',
-                        action: () => {
-                            // Increase update frequency
-                            if (window.balanceUpdateInterval) clearInterval(window.balanceUpdateInterval);
-                            window.balanceUpdateInterval = setInterval(updateMgcBalanceDisplay, 500); // Every 500ms instead of 1000ms
-                        }
-                    });
-                    fixes.push({
-                        type: 'add_balance_fallback',
-                        description: 'Add fallback display for balance when wallet not connected',
-                        action: () => {
-                            const mgcBalance = document.getElementById('mgcBalanceDisplay');
-                            if (mgcBalance && !isUserAuthenticated()) {
-                                mgcBalance.innerHTML = '<span style="color: #888;">Connect wallet to see balance</span>';
-                            }
-                        }
-                    });
-                    break;
-                    
-                case 'server_connection':
-                    fixes.push({
-                        type: 'increase_timeout',
-                        description: 'Increase server connection timeout to 5 seconds',
-                        action: () => {
-                            // Update fetch calls to use longer timeout
-                            const originalFetch = window.fetch;
-                            window.fetch = function(...args) {
-                                const options = args[1] || {};
-                                options.signal = options.signal || AbortSignal.timeout(5000);
-                                args[1] = options;
-                                return originalFetch(...args);
-                            };
-                        }
-                    });
-                    break;
-                    
-                case 'ui_elements':
-                    fixes.push({
-                        type: 'add_element_checks',
-                        description: 'Add checks for missing UI elements and create them if needed',
-                        action: () => {
-                            // Ensure session log panel exists
-                            let panel = document.getElementById('sessionLogPanel');
-                            if (!panel) {
-                                panel = document.createElement('div');
-                                panel.id = 'sessionLogPanel';
-                                panel.style.cssText = 'position:fixed;bottom:20px;right:20px;width:350px;max-height:300px;background:rgba(0,0,0,0.9);border:2px solid #00ff99;border-radius:10px;padding:10px;font-family:monospace;font-size:12px;overflow-y:auto;z-index:10000;display:none;';
-                                document.body.appendChild(panel);
-                            }
-                        }
-                    });
-                    break;
-            }
-        });
-        
-        return fixes;
-    }
-
-    function applyFixes(fixes) {
-        fixes.forEach(fix => {
-            try {
-                fix.action();
-                logSessionEvent('info', `Applied fix: ${fix.description}`);
-            } catch (error) {
-                logSessionEvent('error', `Failed to apply fix: ${fix.type}`, { error: error.message });
-            }
-        });
-    }
-
-    // Update agent functions to save reports
-    function testLoginFlow() {
-        // ... existing code ...
-        setTimeout(() => {
-            const findings = ['Login button visible', 'Modal appears correctly'];
-            const recommendations = ['Ensure wallet connection works smoothly'];
-            logAgentReport('Agent1', findings, recommendations);
-        }, 3000);
-    }
-
-    function testGlobeInteractions() {
-        // ... existing code ...
-        setTimeout(() => {
-            const findings = ['Globe container loads', 'Three.js integration works'];
-            const recommendations = ['Add more visual feedback for interactions'];
-            logAgentReport('Agent2', findings, recommendations);
-        }, 2000);
-    }
-
-    function testServerConnections() {
-        // ... existing code ...
-        setTimeout(() => {
-            const findings = ['API endpoints tested', 'Fallback handling works'];
-            const recommendations = ['Improve server status indicators'];
-            logAgentReport('Agent3', findings, recommendations);
-        }, 4000);
-    }
-
-    function testUIElements() {
-        // ... existing code ...
-        setTimeout(() => {
-            const findings = ['UI elements are present', 'Toggle functionality works'];
-            const recommendations = ['Ensure mobile responsiveness'];
-            logAgentReport('Agent4', findings, recommendations);
-        }, 2500);
-    }
-
-    // Start hourly enhancement
-    runHourlyScriptEnhancement();
-
-    // Tester Agent System
-    const testerAgents = [
-        { id: 'Agent1', role: 'LoginTester', actions: testLoginFlow },
-        { id: 'Agent2', role: 'GlobeExplorer', actions: testGlobeInteractions },
-        { id: 'Agent3', role: 'ServerTester', actions: testServerConnections },
-        { id: 'Agent4', role: 'UITester', actions: testUIElements }
-    ];
-
-    function runTesterAgents() {
-        logSessionEvent('info', 'Starting tester agent exploration');
-        testerAgents.forEach(agent => {
-            setTimeout(() => {
-                logSessionEvent('info', `${agent.id} (${agent.role}) starting exploration`);
-                agent.actions();
-            }, Math.random() * 5000);
-        });
-    }
-
-    // Agent 1: Test login flow and authentication
-    function testLoginFlow() {
-        logSessionEvent('info', 'Agent1: Checking login button visibility');
-        const loginBtn = document.getElementById('loginBtn');
-        if (loginBtn && loginBtn.style.display !== 'none') {
-            logSessionEvent('info', 'Agent1: Login button visible, simulating click');
-            loginBtn.click();
-            setTimeout(() => {
-                const modal = document.getElementById('loginModal');
-                if (modal && modal.style.display !== 'none') {
-                    logSessionEvent('info', 'Agent1: Login modal appeared');
-                    const connectBtn = document.getElementById('modalLoginBtn');
-                    if (connectBtn) {
-                        logSessionEvent('info', 'Agent1: Clicking connect wallet');
-                        connectBtn.click();
-                    }
-                } else {
-                    logSessionEvent('warning', 'Agent1: Login modal did not appear');
-                }
-            }, 1000);
-        } else {
-            logSessionEvent('warning', 'Agent1: Login button not visible');
-        }
-
-        // Check balance displays
-        setTimeout(() => {
-            logSessionEvent('info', 'Agent1: Checking MGC balance display');
-            const mgcBalance = document.getElementById('mgcBalanceDisplay');
-            if (mgcBalance && mgcBalance.style.display !== 'none') {
-                logSessionEvent('info', 'Agent1: MGC balance visible');
-            } else {
-                logSessionEvent('warning', 'Agent1: MGC balance not visible');
-            }
-            
-            // Save report
-            const findings = ['Login button visible', 'Modal appears correctly', 'Balance display checked'];
-            const recommendations = ['Ensure wallet connection works smoothly'];
-            logAgentReport('Agent1', findings, recommendations);
-        }, 2000);
-    }
-
-    // Agent 2: Test 3D globe interactions
-    function testGlobeInteractions() {
-        logSessionEvent('info', 'Agent2: Checking 3D globe container');
-        const globeContainer = document.getElementById('globe-container');
-        if (globeContainer) {
-            logSessionEvent('info', 'Agent2: Globe container found, checking if Earth is rendered');
-            setTimeout(() => {
-                if (typeof THREE !== 'undefined') {
-                    logSessionEvent('info', 'Agent2: Three.js loaded, attempting globe interaction');
-                    const event = new MouseEvent('mousemove', { clientX: 400, clientY: 300 });
-                    globeContainer.dispatchEvent(event);
-                } else {
-                    logSessionEvent('warning', 'Agent2: Three.js not loaded');
-                }
-                
-                // Save report
-                const findings = ['Globe container loads', 'Three.js integration works'];
-                const recommendations = ['Add more visual feedback for interactions'];
-                logAgentReport('Agent2', findings, recommendations);
-            }, 1000);
-        } else {
-            logSessionEvent('warning', 'Agent2: Globe container not found');
-            const findings = ['Globe container missing'];
-            const recommendations = ['Check globe initialization'];
-            logAgentReport('Agent2', findings, recommendations);
-        }
-    }
-
-    // Agent 3: Test server connections
-    function testServerConnections() {
-        logSessionEvent('info', 'Agent3: Testing server API connections');
-        const apiEndpoints = ['/api/ping', '/api/players/leaderboard', '/api/models'];
-        let successCount = 0;
-        let failureCount = 0;
-        
-        apiEndpoints.forEach(endpoint => {
-            fetch(endpoint, { cache: 'no-store' })
-                .then(response => {
-                    if (response.ok) {
-                        successCount++;
-                        logSessionEvent('info', `Agent3: ${endpoint} connected successfully`);
-                    } else {
-                        failureCount++;
-                        logSessionEvent('warning', `Agent3: ${endpoint} returned ${response.status}`);
-                    }
-                })
-                .catch(error => {
-                    failureCount++;
-                    logSessionEvent('info', `Agent3: ${endpoint} failed (expected offline)`, { error: error.message });
-                });
-        });
-        
-        // Save report after all tests
-        setTimeout(() => {
-            const findings = [`${successCount} endpoints successful`, `${failureCount} endpoints failed`];
-            const recommendations = ['Improve server status indicators'];
-            logAgentReport('Agent3', findings, recommendations);
-        }, 5000);
-    }
-
-    // Agent 4: Test UI elements and responsiveness
-    function testUIElements() {
-        logSessionEvent('info', 'Agent4: Checking UI elements');
-        const elements = [
-            { id: 'contentToggleBtn', name: 'Mission Control Toggle' },
-            { id: 'mgc-promotion', name: 'MGC Promotion Card' },
-            { id: 'sessionLogToggle', name: 'Session Log Toggle' },
-            { id: 'statusMessage', name: 'Server Status' }
-        ];
-
-        let foundCount = 0;
-        elements.forEach(el => {
-            const element = document.getElementById(el.id);
-            if (element) {
-                foundCount++;
-                logSessionEvent('info', `Agent4: ${el.name} found and visible`);
-                if (el.id === 'contentToggleBtn') {
-                    element.click();
-                    setTimeout(() => {
-                        const postLogin = document.getElementById('postLoginContent');
-                        if (postLogin && postLogin.style.display === 'block') {
-                            logSessionEvent('info', 'Agent4: Mission Control toggled successfully');
-                        } else {
-                            logSessionEvent('warning', 'Agent4: Mission Control did not toggle');
-                        }
-                    }, 500);
-                }
-            } else {
-                logSessionEvent('warning', `Agent4: ${el.name} not found`);
-            }
-        });
-        
-        // Save report
-        const findings = [`${foundCount}/${elements.length} UI elements found`];
-        const recommendations = ['Ensure mobile responsiveness'];
-        logAgentReport('Agent4', findings, recommendations);
-    }
-
-    // Multi-Page Crawling Enhancement
-    const sitePages = [
-        { url: 'index.html', name: 'Main Hub', expectedFeatures: ['globe', 'login', 'balance'] },
-        { url: 'login.html', name: 'Login Page', expectedFeatures: ['wallet_connect', 'auth_ui'] },
-        { url: 'profile.html', name: 'Profile Page', expectedFeatures: ['user_info', 'balance_display'] },
-        { url: 'admin-forge.html', name: 'Admin Forge', expectedFeatures: ['admin_controls', 'system_status'] },
-        { url: 'grand-exchange.html', name: 'Grand Exchange', expectedFeatures: ['trading_ui', 'crypto_support'] },
-        { url: 'classified-contracts.html', name: 'Classified Contracts', expectedFeatures: ['contract_list', 'bidding_system'] },
-        { url: 'contractor-registration.html', name: 'Contractor Registration', expectedFeatures: ['registration_form', 'clearance_input'] },
-        { url: 'admin-contractor-dashboard.html', name: 'Admin Dashboard', expectedFeatures: ['approval_queue', 'contractor_list'] }
-    ];
-
-    function runMultiPageCrawling() {
-        logSessionEvent('info', 'Starting multi-page crawler agents');
-        
-        // Agent 5: Page Crawler
-        setTimeout(() => {
-            logSessionEvent('info', 'Agent5 (PageCrawler) starting multi-page exploration');
-            crawlPagesSequentially();
-        }, 10000); // Start after other agents
-    }
-
-    function crawlPagesSequentially() {
-        let currentIndex = 0;
-        
-        function crawlNextPage() {
-            if (currentIndex >= sitePages.length) {
-                logSessionEvent('info', 'Agent5: Completed crawling all pages');
-                generateCrawlReport();
-                return;
-            }
-            
-            const page = sitePages[currentIndex];
-            logSessionEvent('info', `Agent5: Crawling ${page.name} (${page.url})`);
-            
-            // Simulate page navigation and testing
-            simulatePageVisit(page);
+    // Initialize session logging
+    logSessionEvent('info', 'Gem Bot Universe loaded');
+        </script>
+    </body>
+</html>
             
             currentIndex++;
             setTimeout(crawlNextPage, 2000); // 2 second delay between pages
