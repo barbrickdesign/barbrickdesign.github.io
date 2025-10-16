@@ -7,7 +7,7 @@
         <link href="css/theme.css" rel="stylesheet" type="text/css">
         <link rel="stylesheet" href="public/styles.css"> 
         <!-- Link to the manifest -->         
-        <link rel="manifest" href="public/manifest.json"> 
+        <link rel="manifest" href="../../manifest.json"> 
         <!-- Set theme color -->         
         <meta name="theme-color" content="#0ff"> 
         <!-- Apple Touch Icon -->         
@@ -137,7 +137,74 @@
         <!-- Welcome overlay -->         
         <div class="welcome-overlay"> 
             <h2>Gem Bot Universe</h2> 
-            <p>Explore our interactive 3D environments by navigating the Globe Interface. Log in to access additional features and control your Gem Bot deployment.</p> 
+            <p>Explore our interactive 3D environments by navigating the Globe Interface. Log in to access additional features and control your Gem Bot deployment.</p>
+            
+            <!-- MGC Promotion Section -->
+            <div class="mgc-promotion" style="
+                background: linear-gradient(135deg, #ffd700, #ffaa00);
+                padding: 20px;
+                border-radius: 15px;
+                margin: 20px 0;
+                text-align: center;
+                color: #333;
+                box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+            ">
+                <h3 style="margin: 0 0 15px 0; color: #222;">💎 Welcome to Gem Bot Universe!</h3>
+                <p style="margin: 0 0 15px 0; font-size: 16px; font-weight: bold;">
+                    Earn <span style="color: #ff6b35; text-shadow: 0 0 5px #ff6b35;">MGC</span> (Mandem Game Currency) 
+                    by exploring, completing quests, and trading in our virtual worlds!
+                </p>
+                <div style="display: flex; justify-content: center; gap: 15px; margin: 15px 0;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 24px; margin-bottom: 5px;">🔍</div>
+                        <div style="font-size: 14px; font-weight: bold;">Explore</div>
+                        <div style="font-size: 12px; opacity: 0.8;">Discover hidden gems</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 24px; margin-bottom: 5px;">⚔️</div>
+                        <div style="font-size: 14px; font-weight: bold;">Quest</div>
+                        <div style="font-size: 12px; opacity: 0.8;">Complete challenges</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 24px; margin-bottom: 5px;">💰</div>
+                        <div style="font-size: 14px; font-weight: bold;">Trade</div>
+                        <div style="font-size: 12px; opacity: 0.8;">Exchange treasures</div>
+                    </div>
+                </div>
+                <p style="margin: 15px 0 0 0; font-size: 14px;">
+                    <strong>🔥 Plus:</strong> Connect your wallet to earn <span style="color: #ff6b35;">MANDEM tokens</span> 
+                    and access exclusive features!
+                </p>
+                <div style="margin-top: 15px;">
+                    <button onclick="connectWalletForMGC()" style="
+                        background: #ff6b35;
+                        color: white;
+                        border: none;
+                        padding: 12px 24px;
+                        border-radius: 8px;
+                        font-size: 16px;
+                        font-weight: bold;
+                        cursor: pointer;
+                        box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
+                        transition: all 0.3s;
+                    " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(255, 107, 53, 0.4)'" 
+                       onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(255, 107, 53, 0.3)'">
+                        🚀 Start Earning MGC Now!
+                    </button>
+                </div>
+            </div>
+            
+            <div style="text-align: center; margin-top: 20px;">
+                <button onclick="hideWelcomeOverlay()" style="
+                    background: rgba(255, 255, 255, 0.2);
+                    color: white;
+                    border: 2px solid rgba(255, 255, 255, 0.3);
+                    padding: 12px 24px;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-size: 16px;
+                ">✨ Enter Gem Bot Universe</button>
+            </div>
         </div>         
         <!-- Post-login content (initially hidden) -->         
         <div class="post-login-content" id="postLoginContent" style="display:none;"> 
@@ -852,7 +919,9 @@
         
         // Reset all satellites to original color
         satellites.forEach(sat => {
-          sat.material.emissive.setHex(sat.userData.originalColor);
+          if (sat.material && sat.material.emissive) {
+            sat.material.emissive.setHex(sat.userData.originalColor);
+          }
         });
         
         // Hide tooltip by default
@@ -1472,21 +1541,8 @@
     // Update dropdown every 5s if visible
     setInterval(() => { if (syncDropdownVisible) updateSyncDropdown(); }, 5000);
   </script>         
-        <script src="public/facetProcessor.js"></script>         
-        <script src="public/labEnvironment.js"></script>         
-        <script src="public/simulation.js"></script>         
-        <script src="public/deployment.js"></script>         
-        <script src="public/copilot.js"></script>         
-        <script src="public/uptimeRewards.js"></script>         
-        <script src="public/autoUpdate.js"></script>         
-        <script src="public/machineConnection.js"></script>         
-        <script src="public/ideaTracker.js"></script>         
-        <script src="public/clineIntegration.js"></script>         
-        <script src="public/floatingTokens.js"></script>         
-        <script src="public/tokenIntegration.js"></script>         
-        <script src="public/globalChat.js"></script>         
-        <script src="public/tvDisplay.js"></script>         
-        <script src="public/backgroundEffects.js"></script>         
+        <script src="public/facetProcessor.js"></script>
+        <script src="public/simulation.js"></script>
         <script src="public/phantomLogin.js"></script>         
         <!-- Add login simulation code -->         
         <script>
@@ -1512,7 +1568,7 @@
         <script>
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", function () {
-        navigator.serviceWorker.register("/public/sw.js").then(function (registration) {
+        navigator.serviceWorker.register("../../service-worker.js").then(function (registration) {
           console.log("Service Worker registered with scope:", registration.scope);
         }, function (err) {
           console.log("Service Worker registration failed:", err);
