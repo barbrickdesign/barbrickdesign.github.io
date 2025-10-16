@@ -368,10 +368,12 @@
     document.addEventListener('DOMContentLoaded', function() {
         // Load core agent scripts after DOM is ready
         const agentScripts = [
-            '../../agent-core.js',
+            '../../agent-display.js',
             '../../agent-types.js',
             '../../monitoring-systems.js',
-            '../../agent-display.js'
+            '../../agent-core.js',
+            '../../drip_protocol.js',
+            '../../real_agent_trading.js'
         ];
 
         let loadedScripts = 0;
