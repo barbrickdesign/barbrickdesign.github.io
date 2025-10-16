@@ -101,6 +101,11 @@
   }
 }
 </style>
+    
+    <!-- Universal Wallet Authentication System -->
+    <script src="../../contractor-registry.js"></script>
+    <script src="../../universal-wallet-auth.js"></script>
+    <script src="../../auth-integration.js"></script>
     </head>     
     <body> 
         <header> 
@@ -1798,5 +1803,88 @@ document.getElementById('startBrainCellBtn').onclick = function() {
 window.addEventListener('DOMContentLoaded', checkServerAndShowBrainCellBtn);
 // ...existing code...
 </script>
+
+<!-- Mandem.OS Universal Auth Integration -->
+<script>
+// Initialize wallet authentication for Mandem.OS
+window.addEventListener('DOMContentLoaded', async () => {
+    console.log('🌐 Mandem.OS - Initializing Universal Auth...');
+    
+    try {
+        // Initialize universal auth with custom integration
+        await window.authIntegration.init({
+            showUI: false,  // Use existing login UI
+            onAuthSuccess: (authInfo) => {
+                console.log('✅ Mandem.OS - Wallet authenticated:', authInfo.address);
+                updateMandemAuthUI(authInfo);
+            },
+            onAuthFail: () => {
+                console.log('⚠️ Mandem.OS - Wallet not connected');
+            }
+        });
+    } catch (error) {
+        console.error('❌ Mandem.OS - Auth init failed:', error);
+    }
+});
+
+// Update Mandem.OS auth UI
+function updateMandemAuthUI(authInfo) {
+    const loginBtn = document.getElementById('loginBtn');
+    const profileBtn = document.getElementById('profileBtn');
+    
+    if (authInfo && authInfo.authenticated) {
+        // User is authenticated
+        if (loginBtn) loginBtn.style.display = 'none';
+        if (profileBtn) {
+            profileBtn.style.display = 'inline-block';
+            profileBtn.textContent = `👤 ${authInfo.shortAddress}`;
+        }
+        
+        // Show work time if available
+        if (authInfo.workTimeMinutes > 0) {
+            const hours = Math.floor(authInfo.workTimeMinutes / 60);
+            const mins = authInfo.workTimeMinutes % 60;
+            console.log(`⏱️ Work time: ${hours}h ${mins}m`);
+        }
+    } else {
+        // User is not authenticated
+        if (loginBtn) loginBtn.style.display = 'inline-block';
+        if (profileBtn) profileBtn.style.display = 'none';
+    }
+}
+
+// Enhance login button to use universal auth
+const originalLoginBtn = document.getElementById('loginBtn');
+if (originalLoginBtn) {
+    originalLoginBtn.addEventListener('click', async (e) => {
+        e.preventDefault();
+        
+        try {
+            const authInfo = await window.universalWalletAuth.connect();
+            if (authInfo) {
+                console.log('✅ Mandem.OS wallet connected:', authInfo);
+                updateMandemAuthUI(authInfo);
+            }
+        } catch (error) {
+            console.error('❌ Mandem.OS wallet connection error:', error);
+            alert('Wallet connection failed: ' + error.message);
+        }
+    });
+}
+
+// Listen for auth events
+window.addEventListener('authSuccess', (event) => {
+    console.log('🎉 Mandem.OS - Auth success event:', event.detail);
+    updateMandemAuthUI(event.detail);
+});
+
+window.addEventListener('authLogout', () => {
+    console.log('👋 Mandem.OS - Auth logout event');
+    updateMandemAuthUI(null);
+});
+
+console.log('✅ Mandem.OS - Wallet integration loaded');
+</script>
+
     </body>     
 </html>

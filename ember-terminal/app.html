@@ -913,6 +913,32 @@ a:visited { color: #1e9b55; }
             justify-content: space-around;
             align-items: center;
             padding: 15px 20px;
+            gap: 10px;
+            /* Mobile scroll fix */
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+            scroll-behavior: smooth;
+            scrollbar-width: thin;
+            scrollbar-color: rgba(255, 215, 0, 0.3) transparent;
+        }
+        
+        /* Hide scrollbar but keep functionality */
+        .nav-footer::-webkit-scrollbar {
+            height: 4px;
+        }
+        
+        .nav-footer::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.2);
+        }
+        
+        .nav-footer::-webkit-scrollbar-thumb {
+            background: rgba(255, 215, 0, 0.3);
+            border-radius: 2px;
+        }
+        
+        .nav-footer::-webkit-scrollbar-thumb:hover {
+            background: rgba(255, 215, 0, 0.5);
         }
 
         .footer-button {
@@ -929,6 +955,8 @@ a:visited { color: #1e9b55; }
             align-items: center;
             gap: 4px;
             min-width: 80px;
+            flex-shrink: 0; /* Prevent squishing */
+            white-space: nowrap; /* Prevent text wrapping */
         }
 
         .footer-button:hover {
@@ -940,6 +968,7 @@ a:visited { color: #1e9b55; }
         .footer-glyph {
             font-size: 18px;
             color: #ffd700;
+            flex-shrink: 0;
         }
 
         .footer-label {
@@ -947,6 +976,52 @@ a:visited { color: #1e9b55; }
             color: #ccc;
             text-transform: uppercase;
             letter-spacing: 0.5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
+        }
+        
+        /* Mobile responsive adjustments */
+        @media (max-width: 768px) {
+            .nav-footer {
+                justify-content: flex-start;
+                padding: 12px 15px;
+            }
+            
+            .footer-button {
+                min-width: 70px;
+                padding: 10px 12px;
+            }
+            
+            .footer-glyph {
+                font-size: 16px;
+            }
+            
+            .footer-label {
+                font-size: 9px;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .nav-footer {
+                padding: 10px;
+                gap: 8px;
+            }
+            
+            .footer-button {
+                min-width: 65px;
+                padding: 8px 10px;
+            }
+            
+            .footer-glyph {
+                font-size: 14px;
+            }
+            
+            .footer-label {
+                font-size: 8px;
+                letter-spacing: 0.3px;
+            }
         }
 
         /* Quest System */
@@ -4870,6 +4945,99 @@ a:visited { color: #1e9b55; }
             
             .nav-label {
                 font-size: 14px;
+            }
+        }
+    </style>
+    
+    <!-- Universal Wallet Authentication System -->
+    <script src="../contractor-registry.js"></script>
+    <script src="../universal-wallet-auth.js"></script>
+    <script src="../auth-integration.js"></script>
+    
+    <!-- Ember Terminal specific wallet integration -->
+    <style>
+        .ember-wallet-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(20,20,20,0.9));
+            border: 2px solid #ffd700;
+            border-radius: 12px;
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 4px 20px rgba(255,215,0,0.3);
+        }
+        
+        .wallet-status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #ff4444;
+            animation: pulse-red 2s infinite;
+        }
+        
+        .wallet-status-indicator.connected {
+            background: #44ff44;
+            animation: pulse-green 2s infinite;
+        }
+        
+        @keyframes pulse-red {
+            0%, 100% { box-shadow: 0 0 5px #ff4444; opacity: 1; }
+            50% { box-shadow: 0 0 15px #ff4444; opacity: 0.7; }
+        }
+        
+        @keyframes pulse-green {
+            0%, 100% { box-shadow: 0 0 5px #44ff44; opacity: 1; }
+            50% { box-shadow: 0 0 15px #44ff44; opacity: 0.7; }
+        }
+        
+        .wallet-address-display {
+            font-family: monospace;
+            color: #ffd700;
+            font-size: 14px;
+            font-weight: bold;
+        }
+        
+        .wallet-connect-btn {
+            background: linear-gradient(90deg, #ffd700, #ff6600);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            color: #000;
+            font-weight: bold;
+            cursor: pointer;
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+        
+        .wallet-connect-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 15px rgba(255,215,0,0.5);
+        }
+        
+        .wallet-work-time {
+            font-size: 12px;
+            color: #66ff66;
+            font-family: monospace;
+        }
+        
+        @media (max-width: 768px) {
+            .ember-wallet-status {
+                top: 10px;
+                right: 10px;
+                padding: 8px 12px;
+                font-size: 12px;
+            }
+            
+            .wallet-address-display {
+                font-size: 11px;
+            }
+            
+            .wallet-work-time {
+                font-size: 10px;
             }
         }
     </style>
@@ -9142,5 +9310,122 @@ a:visited { color: #1e9b55; }
   });
 })();
 </script>
+
+<!-- Ember Terminal Wallet Status UI -->
+<div class="ember-wallet-status" id="emberWalletStatus">
+    <div class="wallet-status-indicator" id="walletIndicator"></div>
+    <div id="walletContent">
+        <button class="wallet-connect-btn" onclick="connectEmberWallet()">🔌 Connect Wallet</button>
+    </div>
+</div>
+
+<!-- Ember Terminal Universal Auth Integration -->
+<script>
+// Initialize wallet authentication for Ember Terminal
+window.addEventListener('DOMContentLoaded', async () => {
+    console.log('🔥 Ember Terminal - Initializing Universal Auth...');
+    
+    try {
+        // Initialize universal auth
+        await window.authIntegration.init({
+            showUI: false,  // Custom UI
+            onAuthSuccess: (authInfo) => {
+                console.log('✅ Ember Terminal - Wallet authenticated:', authInfo.address);
+                updateEmberWalletUI(authInfo);
+            },
+            onAuthFail: () => {
+                console.log('⚠️ Ember Terminal - Wallet not connected');
+                updateEmberWalletUI(null);
+            }
+        });
+    } catch (error) {
+        console.error('❌ Ember Terminal - Auth init failed:', error);
+    }
+});
+
+// Connect wallet function
+async function connectEmberWallet() {
+    try {
+        const btn = document.querySelector('.wallet-connect-btn');
+        btn.disabled = true;
+        btn.textContent = '⏳ Connecting...';
+        
+        const authInfo = await window.universalWalletAuth.connect();
+        
+        if (authInfo) {
+            console.log('✅ Ember Wallet connected:', authInfo);
+            updateEmberWalletUI(authInfo);
+        } else {
+            throw new Error('Connection failed');
+        }
+    } catch (error) {
+        console.error('❌ Ember wallet connection error:', error);
+        alert('Wallet connection failed: ' + error.message);
+        
+        const btn = document.querySelector('.wallet-connect-btn');
+        if (btn) {
+            btn.disabled = false;
+            btn.textContent = '🔌 Connect Wallet';
+        }
+    }
+}
+
+// Disconnect wallet function
+async function disconnectEmberWallet() {
+    if (confirm('Disconnect wallet from Ember Terminal?')) {
+        await window.universalWalletAuth.disconnect();
+        updateEmberWalletUI(null);
+    }
+}
+
+// Update wallet UI
+function updateEmberWalletUI(authInfo) {
+    const indicator = document.getElementById('walletIndicator');
+    const content = document.getElementById('walletContent');
+    
+    if (!indicator || !content) return;
+    
+    if (authInfo && authInfo.authenticated) {
+        // Connected state
+        indicator.classList.add('connected');
+        
+        const hours = Math.floor(authInfo.workTimeMinutes / 60);
+        const mins = authInfo.workTimeMinutes % 60;
+        
+        content.innerHTML = `
+            <div style="display: flex; flex-direction: column; gap: 4px;">
+                <div class="wallet-address-display">${authInfo.shortAddress}</div>
+                ${authInfo.workTimeMinutes > 0 ? `
+                    <div class="wallet-work-time">⏱️ ${hours}h ${mins}m worked</div>
+                ` : ''}
+            </div>
+            <button class="wallet-connect-btn" onclick="disconnectEmberWallet()" style="background: rgba(255,68,68,0.8);">
+                Disconnect
+            </button>
+        `;
+    } else {
+        // Disconnected state
+        indicator.classList.remove('connected');
+        
+        content.innerHTML = `
+            <button class="wallet-connect-btn" onclick="connectEmberWallet()">🔌 Connect Wallet</button>
+        `;
+    }
+}
+
+// Listen for auth events
+window.addEventListener('authSuccess', (event) => {
+    console.log('🎉 Ember Terminal - Auth success event:', event.detail);
+    updateEmberWalletUI(event.detail);
+});
+
+window.addEventListener('authLogout', () => {
+    console.log('👋 Ember Terminal - Auth logout event');
+    updateEmberWalletUI(null);
+});
+
+console.log('✅ Ember Terminal - Wallet integration loaded');
+</script>
+
 </body>
 </html>
