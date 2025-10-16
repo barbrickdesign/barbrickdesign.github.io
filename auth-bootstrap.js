@@ -51,16 +51,24 @@
                                  document.querySelector('.wallet-button-container');
 
         if (buttonContainer && !window.walletButton) {
+            const initWalletButton = () => {
+                try {
+                    if (window.WalletButton) {
+                        window.walletButton = new window.WalletButton();
+                    } else if (typeof WalletButton !== 'undefined') {
+                        window.walletButton = new WalletButton();
+                    } else {
+                        console.warn('Auth bootstrap: WalletButton component not available.');
+                    }
+                } catch (error) {
+                    console.error('Auth bootstrap: failed to initialize wallet button:', error);
+                }
+            };
+
             if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', () => {
-                    window.walletButton = new window.WalletButton?.constructor
-                        ? new window.WalletButton()
-                        : new WalletButton();
-                }, { once: true });
+                document.addEventListener('DOMContentLoaded', initWalletButton, { once: true });
             } else {
-                window.walletButton = new window.WalletButton?.constructor
-                    ? new window.WalletButton()
-                    : new WalletButton();
+                initWalletButton();
             }
         }
 
