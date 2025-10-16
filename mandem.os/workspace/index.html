@@ -450,7 +450,7 @@
     });
 
     // Initialize 3D Globe when document is ready
-    initGlobe();
+    // Removed duplicate call - initGlobe() is called inside DOMContentLoaded below
 
     setInterval(updateMgcBalanceDisplay, 1000);
     updateMgcBalanceDisplay();
