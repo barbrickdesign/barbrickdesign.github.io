@@ -108,6 +108,16 @@ class WalletAdapter {
                 if (!silent) {
                     this.showMessage('Connection cancelled', 'warning');
                 }
+            } else if (error.message?.includes('Unexpected')) {
+                // Unexpected error - show helpful guidance
+                if (!silent) {
+                    this.showMessage(
+                        'Connection failed. Please unlock MetaMask and refresh the page.',
+                        'error'
+                    );
+                    // Also show in console with full details
+                    console.error('💡 Fix: 1) Unlock MetaMask, 2) Refresh page, 3) Disable Phantom if present');
+                }
             } else {
                 // Show error message
                 if (!silent) {
@@ -226,7 +236,7 @@ class WalletAdapter {
         if (accounts && accounts.length > 0) {
             console.log('✅ Using existing connection');
             this.wallet = window.ethereum;
-            this.publicKey = accounts[0];
+            this.publicKey = accounts[0].toLowerCase(); // Normalize to lowercase
             this.connected = true;
             
             localStorage.setItem('walletAutoConnect', 'true');
@@ -237,14 +247,28 @@ class WalletAdapter {
             return this.getWalletInfo();
         }
         
-        // Request connection
-        const newAccounts = await window.ethereum.request({ 
-            method: 'eth_requestAccounts' 
-        });
-        
-        this.wallet = window.ethereum;
-        this.publicKey = newAccounts[0];
-        this.connected = true;
+        // Request new connection
+        try {
+            const newAccounts = await window.ethereum.request({ 
+                method: 'eth_requestAccounts' 
+            });
+            
+            this.wallet = window.ethereum;
+            this.publicKey = newAccounts[0].toLowerCase(); // Normalize to lowercase
+            this.connected = true;
+        } catch (error) {
+            // Provide specific help for "Unexpected error"
+            if (error.message && error.message.includes('Unexpected')) {
+                throw new Error(
+                    '⚠️ MetaMask connection failed. Please:\n\n' +
+                    '1. ✅ UNLOCK your MetaMask wallet\n' +
+                    '2. 🔄 REFRESH this page\n' +
+                    '3. 🔌 Try disabling Phantom if you have multiple wallets\n' +
+                    '4. 🦊 Make sure MetaMask is up to date'
+                );
+            }
+            throw error; // Re-throw other errors
+        }
         
         // Save state
         localStorage.setItem('walletAutoConnect', 'true');
@@ -324,7 +348,7 @@ class WalletAdapter {
             window.ethereum.on('accountsChanged', (accounts) => {
                 if (accounts.length > 0) {
                     console.log('🔔 Account changed:', accounts[0]);
-                    this.publicKey = accounts[0];
+                    this.publicKey = accounts[0].toLowerCase(); // Normalize to lowercase
                     localStorage.setItem('walletAddress', this.publicKey);
                     this.notifyConnected();
                 } else {
