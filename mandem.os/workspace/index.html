@@ -2848,37 +2848,76 @@
         const logs = await res.json();
         renderLocationLogs(logs);
       } catch (e) {
-        renderLocationLogs([]);
-      }
-    }
+        // Leaderboard refresh system
+        let leaderboardRefreshInterval;
 
-    // Call this after login
-    if (isUserAuthenticated()) {
-      fetchAndShowLocationLogs();
-      updateAuthButton();
-    }
+        function startLeaderboardRefresh() {
+          // Clear any existing interval
+          if (leaderboardRefreshInterval) {
+            clearInterval(leaderboardRefreshInterval);
+          }
 
-    async function fetchLeaderboardFromServer() {
-        const tbody = document.getElementById('allAgentsTable').querySelector('tbody');
-        try {
-            const res = await fetch('/api/players/leaderboard?limit=50', { cache: 'no-store' });
-            if (res.ok) {
-                const players = await res.json();
-                renderAllAgentsTableFromUsers(players);
-            } else {
-                // Use fallback data instead of showing error
-                const fallbackData = getFallbackLeaderboardData();
-                renderAllAgentsTableFromUsers(fallbackData);
-            }
-        } catch (e) {
-            // Use fallback data instead of showing error
-            const fallbackData = getFallbackLeaderboardData();
-            renderAllAgentsTableFromUsers(fallbackData);
+          // Fetch leaderboard data
+          fetchLeaderboardFromServer();
+
+          // Set up periodic refresh every 30 seconds
+          leaderboardRefreshInterval = setInterval(fetchLeaderboardFromServer, 30000);
         }
-    }
 
-    function getFallbackLeaderboardData() {
-        return {
+        function fetchLeaderboardFromServer() {
+          // Try to fetch from API, fallback to local data
+          fetch('/api/players/leaderboard?limit=50')
+            .then(response => {
+              if (response.ok) {
+                return response.json();
+              } else {
+                throw new Error('API not available');
+              }
+            })
+            .then(data => {
+              renderAllAgentsTableFromUsers(data);
+            })
+            .catch(error => {
+              console.warn('Leaderboard API not available, using local data');
+              // Fallback: render with mock data or empty array
+              if (typeof renderAllAgentsTableFromUsers === 'function') {
+                renderAllAgentsTableFromUsers([]);
+              }
+            });
+        }
+
+        // Define the missing function
+        function renderAllAgentsTableFromUsers(users) {
+          const tableBody = document.querySelector('#allAgentsTable tbody');
+          if (!tableBody) return;
+
+          // Clear existing rows
+          tableBody.innerHTML = '';
+
+          // Add rows for each user
+          (users || []).forEach(user => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${user.mask || 'N/A'}</td>
+              <td>${user.username || 'Anonymous'}</td>
+              <td>${user.mgc || 0}</td>
+              <td>${user.uptime || '0m'}</td>
+              <td>${user.status || 'Offline'}</td>
+              <td>${user.role || 'Player'}</td>
+            `;
+            tableBody.appendChild(row);
+          });
+
+          // If no users, show message
+          if ((!users || users.length === 0)) {
+            const row = document.createElement('tr');
+            row.innerHTML = '<td colspan="6" style="text-align: center; color: #888;">No players online</td>';
+            tableBody.appendChild(row);
+          }
+        }
+
+        function getFallbackLeaderboardData() {
+          return {
             players: [
                 { id: 1, name: 'Mandem.OS Player 1', score: 1000, level: 10, walletAddress: '0x1234...5678' },
                 { id: 2, name: 'Mandem.OS Player 2', score: 950, level: 9, walletAddress: '0x2345...6789' },
@@ -3252,14 +3291,14 @@
     // Update dropdown every 5s if visible
     setInterval(() => { if (syncDropdownVisible) updateSyncDropdown(); }, 5000);
   </script>         
-        <script src="agentScore.js" defer></script>
-        <script src="drip_protocol.js" defer></script>
-        <script src="mandemos_sync.js" defer></script>
-        <script src="solana_agent_trading.js" defer></script>
-        <script src="pump_fun_integration.js" defer></script>
-        <script src="real_agent_trading.js" defer></script>
-        <script src="advanced_simulator.js" defer></script>
-        <script src="real_solana_trading.js" defer></script>         
+        <script src="../../agentScore.js" defer></script>
+        <script src="../../drip_protocol.js" defer></script>
+        <script src="../../mandemos_sync.js" defer></script>
+        <script src="../../solana_agent_trading.js" defer></script>
+        <script src="../../pump_fun_integration.js" defer></script>
+        <script src="../../real_agent_trading.js" defer></script>
+        <script src="../../advanced_simulator.js" defer></script>
+        <script src="../../real_solana_trading.js" defer></script>         
         <!-- Add login simulation code -->         
         <script>
     // Simulate login functionality
