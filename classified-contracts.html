@@ -361,6 +361,17 @@
             </p>
         </div>
 
+        <div style="background: rgba(0,255,0,0.15); border: 2px solid #00ff00; padding: 15px; border-radius: 10px; margin: 20px 0; text-align: center;">
+            <p style="color: #66ff66; font-weight: 700; margin-bottom: 8px;">🏛️ LIVE SAM.GOV OPPORTUNITIES</p>
+            <p style="color: #99ff99; font-size: 0.9em;">
+                Access real-time government contract opportunities from SAM.gov<br>
+                <strong>API Key Required:</strong> Enter your SAM.gov API key below for live data integration.
+            </p>
+            <input type="password" id="samGovApiKeyInput" placeholder="Enter SAM.gov API Key" style="margin: 10px; padding: 8px; background: rgba(0,0,0,0.5); border: 2px solid #00ff00; border-radius: 5px; color: #00ff00; width: 300px;">
+            <button onclick="setSamGovApiKey()" style="padding: 8px 15px; background: #00ff00; color: #000; border: none; border-radius: 5px; cursor: pointer; font-family: 'Orbitron', sans-serif;">Set API Key</button>
+            <div id="samGovStatus" style="margin-top: 10px; color: #66ff66;"></div>
+        </div>
+
         <div id="authSection" class="auth-section">
             <div class="card-icon">🔐</div>
             <h2 style="color: #ff6666; margin-bottom: 20px;">WALLET AUTHENTICATION REQUIRED</h2>

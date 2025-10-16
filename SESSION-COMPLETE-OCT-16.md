@@ -296,8 +296,8 @@ Ember Terminal:
 - [ ] Price charts
 
 ### **Phase 3: Trading Features**
-- [ ] Buy MNDM from widget
-- [ ] Sell MNDM from widget
+- [ ] Buy GBPT from widget
+- [ ] Sell GBPT from widget
 - [ ] Price alerts
 - [ ] Trading history
 - [ ] Portfolio tracking
