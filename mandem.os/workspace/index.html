@@ -415,7 +415,7 @@
       const toggleBtn = document.getElementById('contentToggleBtn');
       if (postLoginContent.style.display === 'block') {
         postLoginContent.style.display = 'none';
-        toggleBtn.textContent = 'Show Mission Control';
+        toggleBtn.textContent = 'Mission Control';
         console.log('Mission Control hidden');
       } else {
         postLoginContent.style.display = 'block';
@@ -424,6 +424,41 @@
       }
     }
     
+    // Add click handler for MGC balance link to go to profile
+    const mgcLink = document.getElementById('mgcBalanceLink');
+    if (mgcLink) {
+      mgcLink.addEventListener('click', function(e) {
+        e.preventDefault();
+        window.location.href = 'profile.html';
+      });
+    }
+
+    // Update UI based on login state
+    updateUIForLoginState();
+
+    // Show MGC balance if logged in
+    if (isUserLoggedIn()) {
+      fetchMgcBalance().then(showMgcBalance);
+    }
+
+    // Update auth buttons
+    updateAuthButton(); // Ensure button is correct on page load
+    enforceAuthNavigation();
+
+    // Update profileBtn click to go to login if not authenticated
+    document.getElementById('profileBtn').addEventListener('click', function(e) {
+      if (!isUserAuthenticated()) {
+        e.preventDefault();
+        window.location.href = 'login.html';
+      }
+    });
+
+    // Initialize 3D Globe when document is ready
+    initGlobe();
+
+    setInterval(updateMgcBalanceDisplay, 1000);
+    updateMgcBalanceDisplay();
+
     // Globe and environment configuration
     document.addEventListener('DOMContentLoaded', function() {
       // Setup welcome overlay hover disappear
