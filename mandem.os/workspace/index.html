@@ -850,23 +850,26 @@
                 // Rotate earth
                 earth.rotation.y += 0.005;
 
-                // Rotate satellites and update labels
+                // Rotate satellites and update labels (maintain even spacing)
+                const time = Date.now() * 0.0001; // Same speed for all satellites
                 satellites.forEach((satellite, index) => {
-                    const speed = 0.0001 * (1 + index * 0.1);
-                    const angle = (Date.now() * speed) % (Math.PI * 2);
                     const radius = 11;
+                    // Each satellite maintains its initial angular position + global rotation
+                    const baseAngle = (index / satellites.length) * Math.PI * 2;
+                    const angle = baseAngle + time;
 
-                    satellite.position.x = Math.cos(angle + index) * radius;
-                    satellite.position.z = Math.sin(angle + index) * radius;
+                    satellite.position.x = Math.cos(angle) * radius;
+                    satellite.position.z = Math.sin(angle) * radius;
+                    satellite.position.y = 0; // Keep consistent height
 
                     satellite.rotation.y += 0.01;
 
                     // Update corresponding label position
                     if (labels[index]) {
                         const label = labels[index];
-                        label.position.x = Math.cos(angle + index) * (radius + 1.5);
-                        label.position.z = Math.sin(angle + index) * (radius + 1.5);
-                        label.position.y = Math.sin(angle + index) * 2 + 1.2; // Match lowered position - directly above sphere
+                        label.position.x = Math.cos(angle) * (radius + 1.5);
+                        label.position.z = Math.sin(angle) * (radius + 1.5);
+                        label.position.y = 1.2; // Fixed height above satellites
 
                         // Make labels face the camera
                         label.lookAt(camera.position);
