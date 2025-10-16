@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MandemOS Agent Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Orbitron', 'Courier New', monospace;
+            background: linear-gradient(135deg, #0a0a0a, #1a1a2e);
+            color: #00ffff;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .dashboard-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(0, 255, 255, 0.1);
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 15px;
+        }
+
+        .dashboard-title {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, #00ffff, #ff00ff);
+            background-clip: text;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .dashboard-subtitle {
+            font-size: 1.1em;
+            color: #8addff;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: rgba(0, 40, 60, 0.8);
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2em;
+            font-weight: bold;
+            color: #00ff00;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #8addff;
+        }
+
+        .stat-trend {
+            font-size: 0.8em;
+            margin-top: 5px;
+        }
+
+        .trend-up { color: #00ff00; }
+        .trend-down { color: #ff4444; }
+        .trend-stable { color: #ffaa00; }
+
+        .agent-table-container {
+            background: rgba(0, 40, 60, 0.8);
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 30px;
+        }
+
+        .table-header {
+            background: rgba(0, 255, 255, 0.2);
+            padding: 15px;
+            font-weight: bold;
+            border-bottom: 2px solid rgba(0, 255, 255, 0.3);
+        }
+
+        .agent-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .agent-table th,
+        .agent-table td {
+            padding: 12px;
+            text-align: left;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+        }
+
+        .agent-table th {
+            background: rgba(0, 255, 255, 0.1);
+            font-weight: bold;
+        }
+
+        .agent-table tbody tr:hover {
+            background: rgba(0, 255, 255, 0.05);
+        }
+
+        .score-bar {
+            height: 20px;
+            background: rgba(0, 255, 255, 0.2);
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 5px 0;
+        }
+
+        .score-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ff4444, #ffaa00, #00ff00);
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+
+        .eligibility-badge {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: bold;
+        }
+
+        .eligible { background: rgba(0, 255, 0, 0.2); color: #00ff00; }
+        .ineligible { background: rgba(255, 68, 68, 0.2); color: #ff4444; }
+
+        .drip-history {
+            background: rgba(0, 40, 60, 0.8);
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 10px;
+            padding: 20px;
+        }
+
+        .history-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.2);
+        }
+
+        .history-item:last-child {
+            border-bottom: none;
+        }
+
+        .controls {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .control-btn {
+            background: rgba(0, 255, 255, 0.2);
+            border: 2px solid rgba(0, 255, 255, 0.5);
+            color: #00ffff;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-family: inherit;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+
+        .control-btn:hover {
+            background: rgba(0, 255, 255, 0.3);
+            border-color: rgba(0, 255, 255, 0.8);
+        }
+
+        .control-btn:active {
+            transform: scale(0.95);
+        }
+
+        @media (max-width: 768px) {
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .controls {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .agent-table-container {
+                overflow-x: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <div class="dashboard-header">
+            <h1 class="dashboard-title">🤖 MandemOS Agent Dashboard</h1>
+            <p class="dashboard-subtitle">Sovereign Token Integration & Performance Monitoring</p>
+        </div>
+
+        <div class="controls">
+            <button class="control-btn" onclick="refreshDashboard()">🔄 Refresh Data</button>
+            <button class="control-btn" onclick="forceDripCycle()">💧 Force Drip Cycle</button>
+            <button class="control-btn" onclick="exportData()">📥 Export Data</button>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value" id="totalAgents">-</div>
+                <div class="stat-label">Total Agents</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="activeAgents">-</div>
+                <div class="stat-label">Active Agents</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="eligibilityRate">-</div>
+                <div class="stat-label">Eligibility Rate</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="totalDripped">-</div>
+                <div class="stat-label">Total Tokens Dispersed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="avgScore">-</div>
+                <div class="stat-label">Average Score</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="lastDrip">-</div>
+                <div class="stat-label">Last Drip Cycle</div>
+            </div>
+        </div>
+
+        <div class="agent-table-container">
+            <div class="table-header">Agent Performance & Eligibility</div>
+            <table class="agent-table">
+                <thead>
+                    <tr>
+                        <th>Agent</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Score</th>
+                        <th>Eligibility</th>
+                        <th>Total Drips</th>
+                        <th>Last Activity</th>
+                    </tr>
+                </thead>
+                <tbody id="agentTableBody">
+                    <!-- Agent data will be populated here -->
+                </tbody>
+            </table>
+        </div>
+
+        <div class="drip-history">
+            <h3 style="margin-bottom: 20px; color: #00ffff;">💧 Recent Drip Cycles</h3>
+            <div id="dripHistory">
+                <!-- Drip history will be populated here -->
+            </div>
+        </div>
+    </div>
+
+    <script src="agentScore.js"></script>
+    <script src="drip_protocol.js"></script>
+    <script src="mandemos_sync.js"></script>
+    <script>
+        // Dashboard functionality
+        let dashboardData = {};
+
+        // Initialize dashboard
+        function initDashboard() {
+            console.log('📊 Initializing MandemOS Dashboard...');
+            refreshDashboard();
+
+            // Auto-refresh every 30 seconds
+            setInterval(refreshDashboard, 30000);
+        }
+
+        // Refresh all dashboard data
+        function refreshDashboard() {
+            console.log('🔄 Refreshing dashboard data...');
+
+            // Get agent data
+            if (window.agentSystem && window.agentSystem.agents) {
+                const agents = window.agentSystem.agents.map(agent => {
+                    const score = window.agentScore ? window.agentScore.calculateScore(agent) : 0;
+                    const isEligible = window.agentScore ? window.agentScore.isEligible(score) : false;
+
+                    return {
+                        id: agent.id,
+                        name: agent.name,
+                        type: agent.type,
+                        status: agent.isActive ? 'Active' : 'Inactive',
+                        score: score,
+                        isEligible: isEligible,
+                        totalDrips: window.dripProtocol ? window.dripProtocol.getAgentDripInfo(agent.id)?.totalDripped || 0 : 0,
+                        lastActivity: agent.lastActivity || 'Unknown'
+                    };
+                });
+
+                dashboardData.agents = agents;
+                updateAgentTable(agents);
+            }
+
+            // Get system statistics
+            if (window.agentScore) {
+                const stats = window.agentScore.getScoringStats();
+                dashboardData.scoringStats = stats;
+                updateStatsCards(stats);
+            }
+
+            // Get drip statistics
+            if (window.dripProtocol) {
+                const dripStats = window.dripProtocol.getDripStats();
+                dashboardData.dripStats = dripStats;
+                updateDripHistory(dripStats);
+            }
+
+            // Get token sync status
+            if (window.tokenSyncManager) {
+                const syncStatus = window.tokenSyncManager.getSystemStatus();
+                dashboardData.syncStatus = syncStatus;
+            }
+        }
+
+        // Update agent table
+        function updateAgentTable(agents) {
+            const tbody = document.getElementById('agentTableBody');
+            tbody.innerHTML = '';
+
+            agents.forEach(agent => {
+                const row = document.createElement('tr');
+
+                const scorePercent = Math.round(agent.score * 100);
+                const eligibilityClass = agent.isEligible ? 'eligible' : 'ineligible';
+                const eligibilityText = agent.isEligible ? 'Eligible' : 'Ineligible';
+
+                row.innerHTML = `
+                    <td>${agent.name}</td>
+                    <td>${agent.type}</td>
+                    <td>${agent.status}</td>
+                    <td>
+                        <div class="score-bar">
+                            <div class="score-fill" style="width: ${scorePercent}%"></div>
+                        </div>
+                        ${scorePercent}%
+                    </td>
+                    <td><span class="eligibility-badge ${eligibilityClass}">${eligibilityText}</span></td>
+                    <td>${agent.totalDripped}</td>
+                    <td>${new Date(agent.lastActivity).toLocaleString()}</td>
+                `;
+
+                tbody.appendChild(row);
+            });
+
+            // Update summary stats
+            const totalAgents = agents.length;
+            const activeAgents = agents.filter(a => a.status === 'Active').length;
+            const eligibleAgents = agents.filter(a => a.isEligible).length;
+            const eligibilityRate = totalAgents > 0 ? Math.round((eligibleAgents / totalAgents) * 100) : 0;
+
+            document.getElementById('totalAgents').textContent = totalAgents;
+            document.getElementById('activeAgents').textContent = activeAgents;
+            document.getElementById('eligibilityRate').textContent = `${eligibilityRate}%`;
+        }
+
+        // Update statistics cards
+        function updateStatsCards(stats) {
+            document.getElementById('avgScore').textContent = `${Math.round(stats.averageScore * 100)}%`;
+        }
+
+        // Update drip history
+        function updateDripHistory(dripStats) {
+            const container = document.getElementById('dripHistory');
+            container.innerHTML = '';
+
+            if (!dripStats.recentCycles || dripStats.recentCycles.length === 0) {
+                container.innerHTML = '<p style="color: #8addff;">No recent drip cycles</p>';
+                return;
+            }
+
+            dripStats.recentCycles.slice(0, 5).forEach(cycle => {
+                const item = document.createElement('div');
+                item.className = 'history-item';
+
+                const cycleDate = new Date(cycle.timestamp).toLocaleString();
+                const successRate = cycle.results ?
+                    Math.round((cycle.results.filter(r => r.success).length / cycle.results.length) * 100) : 0;
+
+                item.innerHTML = `
+                    <div>
+                        <div style="font-weight: bold;">Cycle #${cycle.cycle}</div>
+                        <div style="font-size: 0.9em; color: #8addff;">${cycleDate}</div>
+                    </div>
+                    <div style="text-align: right;">
+                        <div>${cycle.totalDripped} tokens</div>
+                        <div style="font-size: 0.9em; color: #8addff;">${cycle.eligibleAgents} eligible • ${successRate}% success</div>
+                    </div>
+                `;
+
+                container.appendChild(item);
+            });
+
+            // Update drip summary stats
+            document.getElementById('totalDripped').textContent = dripStats.totalDripped;
+            document.getElementById('lastDrip').textContent = dripStats.lastDripTime ?
+                new Date(dripStats.lastDripTime).toLocaleDateString() : 'Never';
+        }
+
+        // Force execute drip cycle
+        function forceDripCycle() {
+            if (window.dripProtocol) {
+                window.dripProtocol.forceDripCycle();
+                setTimeout(refreshDashboard, 2000); // Refresh after 2 seconds
+            } else {
+                alert('Drip protocol not loaded');
+            }
+        }
+
+        // Export dashboard data
+        function exportData() {
+            const dataStr = JSON.stringify(dashboardData, null, 2);
+            const blob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `mandemos-dashboard-${new Date().toISOString().split('T')[0]}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+
+            console.log('📥 Dashboard data exported');
+        }
+
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', initDashboard);
+
+        console.log('📊 MandemOS Dashboard loaded');
+    </script>
+</body>
+</html>
