@@ -247,23 +247,31 @@ class SecurityClearanceAuth {
             try {
                 console.log('📞 Requesting MetaMask connection...');
                 
-                let accounts;
+                // First check if already connected (no popup needed)
+                const existingAccounts = await ethereumProvider.request({ method: 'eth_accounts' });
                 
-                if (ethereumProvider.request) {
-                    accounts = await ethereumProvider.request({ 
-                        method: 'eth_requestAccounts' 
-                    });
-                } else if (ethereumProvider.enable) {
-                    accounts = await ethereumProvider.enable();
-                } else if (ethereumProvider.sendAsync) {
-                    accounts = await new Promise((resolve, reject) => {
-                        ethereumProvider.sendAsync({
-                            method: 'eth_requestAccounts'
-                        }, (err, response) => {
-                            if (err) reject(err);
-                            else resolve(response.result);
+                let accounts;
+                if (existingAccounts && existingAccounts.length > 0) {
+                    console.log('✅ Using existing MetaMask connection');
+                    accounts = existingAccounts;
+                } else {
+                    // Request new connection
+                    if (ethereumProvider.request) {
+                        accounts = await ethereumProvider.request({ 
+                            method: 'eth_requestAccounts' 
                         });
-                    });
+                    } else if (ethereumProvider.enable) {
+                        accounts = await ethereumProvider.enable();
+                    } else if (ethereumProvider.sendAsync) {
+                        accounts = await new Promise((resolve, reject) => {
+                            ethereumProvider.sendAsync({
+                                method: 'eth_requestAccounts'
+                            }, (err, response) => {
+                                if (err) reject(err);
+                                else resolve(response.result);
+                            });
+                        });
+                    }
                 }
                 
                 const address = accounts[0];
@@ -306,37 +314,61 @@ class SecurityClearanceAuth {
                     throw new Error('Connection request rejected. Please approve the connection in MetaMask to continue.');
                 }
                 
+                // Check for "Unexpected error" - wallet likely locked or conflicting
+                if (error.message.includes('Unexpected')) {
+                    console.warn('⚠️ MetaMask connection failed - wallet may be locked or conflicting with other extensions');
+                }
+                
                 // Store error but try Phantom next
                 lastError = error;
             }
         }
         
-        // Try Phantom (Solana) - after MetaMask attempt
+        // Try Phantom (Solana) - only if MetaMask failed
         if (window.solana && window.solana.isPhantom) {
             walletsDetected.push('Phantom');
             console.log('👻 Phantom wallet detected');
             
-            try {
-                console.log('📞 Requesting Phantom connection...');
-                const resp = await window.solana.connect();
-                const address = resp.publicKey.toBase58();
-                console.log('✅ Phantom connected:', address);
-                return { success: true, address, type: 'phantom', isMobile: isMobile };
-            } catch (error) {
-                console.warn('Phantom connection failed:', error);
-                
-                // Check if user rejected
-                if (error.code === 4001 || error.message.includes('User rejected')) {
-                    throw new Error('Connection request rejected. Please approve the connection in Phantom to continue.');
+            // Skip Phantom if we have MetaMask issues (likely wallet conflict)
+            if (lastError && lastError.message.includes('Unexpected')) {
+                console.warn('⏭️ Skipping Phantom due to wallet conflict - Please unlock one wallet and refresh');
+            } else {
+                try {
+                    console.log('📞 Requesting Phantom connection...');
+                    
+                    // Check if already connected
+                    if (window.solana.isConnected) {
+                        const address = window.solana.publicKey.toBase58();
+                        console.log('✅ Using existing Phantom connection');
+                        return { success: true, address, type: 'phantom', isMobile: isMobile };
+                    }
+                    
+                    const resp = await window.solana.connect();
+                    const address = resp.publicKey.toBase58();
+                    console.log('✅ Phantom connected:', address);
+                    return { success: true, address, type: 'phantom', isMobile: isMobile };
+                } catch (error) {
+                    console.warn('Phantom connection failed:', error);
+                    
+                    // Check if user rejected
+                    if (error.code === 4001 || error.message.includes('User rejected')) {
+                        throw new Error('Connection request rejected. Please approve the connection in Phantom to continue.');
+                    }
+                    
+                    lastError = error;
                 }
-                
-                lastError = error;
             }
         }
         
         // If we detected wallets but connection failed, provide helpful error
         if (walletsDetected.length > 0) {
             const walletList = walletsDetected.join(' and ');
+            
+            // Special message for "Unexpected error"
+            if (lastError?.message.includes('Unexpected')) {
+                throw new Error(`⚠️ Wallet connection failed - Common fixes:\n\n1. ✅ UNLOCK your ${walletList.includes('MetaMask') ? 'MetaMask' : 'wallet'}\n2. 🔄 REFRESH this page\n3. 🔌 Try disabling one wallet if you have multiple installed\n4. 🦊 If using Phantom, try with just MetaMask\n\nError: ${lastError?.message}`);
+            }
+            
             throw new Error(`${walletList} detected but connection failed. Please:\n1. Make sure your wallet is unlocked\n2. Approve the connection request\n3. Refresh the page and try again\n\nError: ${lastError?.message || 'Unknown error'}`);
         }
         
