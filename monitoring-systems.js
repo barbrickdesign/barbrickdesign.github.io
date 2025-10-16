@@ -166,3 +166,7 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 console.log('🔍 Monitoring Systems loaded');
+
+// Export functions globally for other modules to use
+window.setupEnhancedErrorMonitoring = setupEnhancedErrorMonitoring;
+window.monitorDOMIssues = monitorDOMIssues;
