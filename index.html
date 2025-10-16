@@ -847,14 +847,16 @@
                 await window.authIntegration.init({
                     showUI: false,
                     onAuthSuccess: (authInfo) => {
-                        },
+                        console.log('✅ Wallet authenticated:', authInfo.address);
+                    },
                     onAuthFail: () => {
-                        }
+                        console.log('⚠️ Wallet authentication failed');
+                    }
                 });
                 
                 // All systems are initialized through their respective modules
                 // (auth-integration, project-tokenomics, pumpfun-integration)
-                } catch (error) {
+            } catch (error) {
                 console.error('❌ System initialization failed:', error);
             }
         });
