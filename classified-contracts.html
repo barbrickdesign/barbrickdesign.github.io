@@ -6,12 +6,14 @@
     <title>Classified Contracts - Security Clearance Required</title>
     
     <!-- Wallet Dependencies -->
-    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iife.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iiffe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl.min.js"></script>
     <script src="contractor-registry.js"></script>
     <script src="crypto-bidding-system.js"></script>
     <script src="samgov-integration.js"></script>
-    <script src="system-architect-auth.js"></script>
+    <!-- Universal Auth System (Session + Time Tracking) -->
+    <script src="universal-wallet-auth.js"></script>
+    <script src="auth-integration.js"></script>
     <script src="security-clearance-auth.js"></script>
     <link rel="stylesheet" href="mobile-responsive.css">
     <style>
@@ -450,35 +452,34 @@
     </div>
 
     <script>
-        // Check for existing wallet connection on page load
+        // Initialize Universal Auth System
         window.addEventListener('DOMContentLoaded', async () => {
-            console.log('🔍 Checking for existing wallet connection...');
-            
-            // Only auto-authenticate if wallet is already connected AND authorized
-            // Don't prompt if user hasn't connected yet
-            const isAlreadyConnected = window.ethereum?.selectedAddress || window.solana?.isConnected;
-            
-            if (isAlreadyConnected) {
-                console.log('💼 Wallet already connected, attempting silent authentication...');
-                
-                // Show a subtle indicator that we're checking
-                const status = document.getElementById('authStatus');
-                status.textContent = '🔄 Checking wallet connection...';
-                status.style.color = '#66ff66';
-                
-                // Try silent authentication with a delay to let page load
-                setTimeout(async () => {
-                    try {
-                        await authenticateCard();
-                    } catch (error) {
-                        console.log('Silent auth failed, user can click button:', error.message);
-                        // Reset UI if silent auth fails
-                        status.textContent = '';
-                        document.getElementById('authBtn').disabled = false;
+            try {
+                // Initialize with custom handlers
+                await window.authIntegration.init({
+                    requireAuth: false,  // Don't force redirect yet
+                    showUI: false,  // We have custom UI
+                    onAuthSuccess: async (authInfo) => {
+                        console.log('✅ Universal auth successful:', authInfo.address);
+                        
+                        // Use security-clearance-auth for contract access logic
+                        const result = await window.securityClearanceAuth.autoAuthenticate();
+                        
+                        if (result && result.success) {
+                            document.getElementById('authSection').style.display = 'none';
+                            document.getElementById('authenticatedSection').style.display = 'block';
+                            displayUserInfo(result.user);
+                            loadClassifiedContracts();
+                        }
+                    },
+                    onAuthFail: () => {
+                        console.log('⚠️ Please connect your wallet');
+                        document.getElementById('authSection').style.display = 'block';
+                        document.getElementById('authenticatedSection').style.display = 'none';
                     }
-                }, 1000);
-            } else {
-                console.log('👋 No wallet connected yet. Waiting for user to click connect button.');
+                });
+            } catch (error) {
+                console.error('❌ Universal auth initialization failed:', error);
             }
         });
     
@@ -491,7 +492,14 @@
                 status.textContent = '⏳ Connecting wallet...';
                 status.style.color = '#ffff00';
                 
-                // Use wallet authentication (PRIMARY METHOD)
+                // Use universal auth to connect
+                const authInfo = await window.universalWalletAuth.connect();
+                
+                if (!authInfo) {
+                    throw new Error('Wallet connection failed');
+                }
+                
+                // Use security-clearance-auth for clearance verification
                 const result = await window.securityClearanceAuth.authenticateWithWallet();
                 
                 if (result.success) {

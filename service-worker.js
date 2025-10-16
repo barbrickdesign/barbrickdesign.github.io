@@ -3,7 +3,7 @@
  * Enables all projects to work offline and sync when back online
  */
 
-const CACHE_NAME = 'barbrickdesign-v1';
+const CACHE_NAME = 'barbrickdesign-v2';
 const OFFLINE_URL = 'offline.html';
 
 // Files to cache for offline access
@@ -11,18 +11,28 @@ const CACHE_URLS = [
     '/',
     '/index.html',
     '/universal-wallet-connect.js',
+    '/wallet-adapter.js',
+    '/universal-wallet-auth.js',
+    '/auth-integration.js',
+    '/contractor-registry.js',
+    '/security-clearance-auth.js',
     '/samgov-api-integration.js',
     '/coinbase-wallet-integration.js',
     '/pumpfun-integration.js',
     '/dev-compensation-calculator.js',
     '/project-tokenomics.js',
     '/samgov-integration.js',
+    '/crypto-bidding-system.js',
     '/mobile-responsive.css',
     '/dev-time-tracker.html',
     '/gembot-control-3d.html',
     '/investment-dashboard.html',
     '/server-health-monitor.html',
     '/test-all-projects.html',
+    '/classified-contracts.html',
+    '/contractor-registration.html',
+    '/contractor-portal.html',
+    '/admin-contractor-dashboard.html',
     '/mandem.os/workspace/index.html',
     '/mandem.os/index.html',
     '/ember-terminal/app.html',
