@@ -635,6 +635,217 @@
             document.getElementById('authBtn').disabled = false;
             document.getElementById('authStatus').textContent = '';
         }
+        
+        // Bidding functions
+        function openBidModal(contractId, contractTitle, contractValue) {
+            const user = window.securityClearanceAuth.currentUser;
+            
+            // Get performance score
+            const performance = window.cryptoBiddingSystem.calculatePerformanceScore(user.walletAddress);
+            
+            const modal = document.createElement('div');
+            modal.id = 'bidModal';
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; overflow-y: auto; padding: 20px;';
+            
+            modal.innerHTML = `
+                <div style="max-width: 800px; margin: 50px auto; background: linear-gradient(135deg, rgba(0,50,0,0.95), rgba(0,80,0,0.95)); border: 2px solid #00ff00; border-radius: 15px; padding: 40px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                        <h2 style="color: #00ff00; font-size: 2em;">💰 Place Your Bid</h2>
+                        <span onclick="closeBidModal()" style="font-size: 2em; color: #ff6666; cursor: pointer;">&times;</span>
+                    </div>
+                    
+                    <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 10px; margin-bottom: 25px;">
+                        <h3 style="color: #66ff66; margin-bottom: 10px;">Contract: ${contractTitle}</h3>
+                        <p style="color: #99ff99;">Estimated Value: $${(contractValue / 1000000).toFixed(1)}M</p>
+                    </div>
+                    
+                    <div style="background: rgba(0,100,255,0.1); padding: 20px; border-radius: 10px; margin-bottom: 25px; border: 2px solid rgba(0,150,255,0.3);">
+                        <h3 style="color: #66ccff; margin-bottom: 15px;">📊 Your Performance Score</h3>
+                        <div style="font-size: 2.5em; color: #00ff00; font-weight: 900; margin: 10px 0;">${performance.score}/100</div>
+                        <div style="color: #66ff66; margin-bottom: 10px;"><strong>Reputation:</strong> ${performance.reputation}</div>
+                        <div style="color: #99ff99; font-size: 0.9em;">
+                            ✅ Completed Projects: ${performance.totalProjects}<br>
+                            ⏱️ On-Time Rate: ${performance.onTimeRate}%<br>
+                            ⭐ Avg Quality: ${performance.avgQuality}/5.0
+                        </div>
+                    </div>
+                    
+                    <form id="bidForm" onsubmit="submitBid(event, '${contractId}', '${contractTitle}', ${contractValue})">
+                        <div style="margin-bottom: 20px;">
+                            <label style="color: #66ff66; display: block; margin-bottom: 8px; font-weight: 700;">Bid Amount (USD)</label>
+                            <input type="number" id="bidAmount" required step="0.01" placeholder="Enter your bid in USD" style="width: 100%; padding: 12px; background: rgba(0,0,0,0.5); border: 2px solid rgba(0,255,0,0.3); border-radius: 8px; color: #00ff00; font-family: 'Orbitron', sans-serif; font-size: 1.1em;">
+                        </div>
+                        
+                        <div style="margin-bottom: 20px;">
+                            <label style="color: #66ff66; display: block; margin-bottom: 8px; font-weight: 700;">Cryptocurrency</label>
+                            <select id="bidCrypto" required style="width: 100%; padding: 12px; background: rgba(0,0,0,0.5); border: 2px solid rgba(0,255,0,0.3); border-radius: 8px; color: #00ff00; font-family: 'Orbitron', sans-serif; font-size: 1.1em;">
+                                <option value="ETH">⟠ Ethereum (ETH)</option>
+                                <option value="SOL">◎ Solana (SOL)</option>
+                                <option value="USDC">$ USD Coin (USDC)</option>
+                                <option value="USDT">$ Tether (USDT)</option>
+                            </select>
+                        </div>
+                        
+                        <div style="margin-bottom: 20px;">
+                            <label style="color: #66ff66; display: block; margin-bottom: 8px; font-weight: 700;">Timeline (Days)</label>
+                            <input type="number" id="bidTimeline" required placeholder="Project duration in days" style="width: 100%; padding: 12px; background: rgba(0,0,0,0.5); border: 2px solid rgba(0,255,0,0.3); border-radius: 8px; color: #00ff00; font-family: 'Orbitron', sans-serif; font-size: 1.1em;">
+                        </div>
+                        
+                        <div style="margin-bottom: 20px;">
+                            <label style="color: #66ff66; display: block; margin-bottom: 8px; font-weight: 700;">Project Approach</label>
+                            <textarea id="bidApproach" required rows="4" placeholder="Describe your approach to this project..." style="width: 100%; padding: 12px; background: rgba(0,0,0,0.5); border: 2px solid rgba(0,255,0,0.3); border-radius: 8px; color: #00ff00; font-family: 'Orbitron', sans-serif; font-size: 1em; resize: vertical;"></textarea>
+                        </div>
+                        
+                        <button type="submit" style="width: 100%; padding: 15px; background: linear-gradient(90deg, #00ff00, #66ff66); border: none; border-radius: 10px; color: #000; font-family: 'Orbitron', sans-serif; font-size: 1.2em; font-weight: 700; cursor: pointer;">
+                            🚀 Submit Bid
+                        </button>
+                    </form>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+        
+        function closeBidModal() {
+            const modal = document.getElementById('bidModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+        
+        async function submitBid(event, contractId, contractTitle, contractValue) {
+            event.preventDefault();
+            
+            const user = window.securityClearanceAuth.currentUser;
+            
+            const bidData = {
+                contractId: contractId,
+                walletAddress: user.walletAddress,
+                contractorName: user.commonName,
+                organization: user.organization,
+                bidAmount: parseFloat(document.getElementById('bidAmount').value),
+                crypto: document.getElementById('bidCrypto').value,
+                timeline: document.getElementById('bidTimeline').value + ' days',
+                approach: document.getElementById('bidApproach').value,
+                teamMembers: user.profile?.teamSize || 'Not specified',
+                milestones: [
+                    { name: 'Project Start', amount: 0.1, percentage: 10 },
+                    { name: 'Mid-Point Delivery', amount: 0.4, percentage: 40 },
+                    { name: 'Final Delivery', amount: 0.5, percentage: 50 }
+                ]
+            };
+            
+            const result = await window.cryptoBiddingSystem.submitBid(bidData);
+            
+            if (result.success) {
+                alert('✅ Bid submitted successfully! Bid ID: ' + result.bidId);
+                closeBidModal();
+            } else {
+                alert('❌ Error submitting bid: ' + result.error);
+            }
+        }
+        
+        function viewBids(contractId) {
+            const bids = window.cryptoBiddingSystem.rankBids(contractId);
+            const user = window.securityClearanceAuth.currentUser;
+            
+            const modal = document.createElement('div');
+            modal.id = 'bidsModal';
+            modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 2000; overflow-y: auto; padding: 20px;';
+            
+            let bidsHtml = '';
+            
+            if (bids.length === 0) {
+                bidsHtml = '<p style="color: #99ff99; text-align: center; padding: 40px;">No bids submitted yet. Be the first to bid!</p>';
+            } else {
+                bidsHtml = bids.map((bid, index) => `
+                    <div style="background: linear-gradient(135deg, rgba(0,30,0,0.9), rgba(0,50,0,0.9)); border: 2px solid rgba(0,255,0,0.3); border-radius: 10px; padding: 25px; margin: 20px 0;">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 15px;">
+                            <div>
+                                <h3 style="color: #00ff00; font-size: 1.4em;">#${index + 1} ${bid.contractorName}</h3>
+                                <p style="color: #66ff66;">${bid.organization}</p>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="font-size: 2em; font-weight: 900; color: #00ff00;">${bid.cryptoSymbol} ${bid.bidAmount.toLocaleString()}</div>
+                                <div style="color: #99ff99;">${bid.cryptocurrency}</div>
+                            </div>
+                        </div>
+                        
+                        <div style="background: rgba(0,0,0,0.3); padding: 15px; border-radius: 8px; margin: 15px 0;">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+                                <div>
+                                    <div style="color: #66ff66; font-size: 0.9em;">Performance Score</div>
+                                    <div style="color: #00ff00; font-size: 1.8em; font-weight: 900;">${bid.performanceScore}/100</div>
+                                </div>
+                                <div>
+                                    <div style="color: #66ff66; font-size: 0.9em;">Ranking Score</div>
+                                    <div style="color: #00ff00; font-size: 1.8em; font-weight: 900;">${bid.rankingScore}/100</div>
+                                </div>
+                                <div>
+                                    <div style="color: #66ff66; font-size: 0.9em;">Completed Projects</div>
+                                    <div style="color: #00ff00; font-size: 1.8em; font-weight: 900;">${bid.totalCompletedProjects}</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div style="background: rgba(0,100,255,0.1); padding: 12px; border-radius: 8px; margin: 15px 0; border-left: 4px solid #00aaff;">
+                            <div style="color: #66ccff; font-weight: 700; margin-bottom: 5px;">${bid.recommendation}</div>
+                            <div style="color: #99ddff; font-size: 0.9em;">
+                                <strong>Reputation:</strong> ${bid.reputation} | <strong>Trust:</strong> ${bid.trustLevel}
+                            </div>
+                        </div>
+                        
+                        <div style="margin: 15px 0;">
+                            <div style="color: #66ff66; font-weight: 700; margin-bottom: 8px;">📅 Timeline: ${bid.timeline}</div>
+                            <div style="color: #99ff99; line-height: 1.6;">${bid.approach}</div>
+                        </div>
+                        
+                        ${user.systemArchitect ? `
+                            <button onclick="acceptBid('${bid.bidId}')" style="width: 100%; padding: 12px; margin-top: 15px; background: linear-gradient(90deg, #00ff00, #66ff66); border: none; border-radius: 8px; color: #000; font-family: 'Orbitron', sans-serif; font-weight: 700; cursor: pointer;">
+                                ✅ Accept Bid & Create Escrow
+                            </button>
+                        ` : ''}
+                    </div>
+                `).join('');
+            }
+            
+            modal.innerHTML = `
+                <div style="max-width: 1200px; margin: 50px auto; background: linear-gradient(135deg, rgba(20,20,20,0.95), rgba(40,40,40,0.95)); border: 2px solid #00ff00; border-radius: 15px; padding: 40px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
+                        <h2 style="color: #00ff00; font-size: 2em;">📋 Contract Bids</h2>
+                        <span onclick="closeBidsModal()" style="font-size: 2em; color: #ff6666; cursor: pointer;">&times;</span>
+                    </div>
+                    
+                    ${bidsHtml}
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+        
+        function closeBidsModal() {
+            const modal = document.getElementById('bidsModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+        
+        async function acceptBid(bidId) {
+            const user = window.securityClearanceAuth.currentUser;
+            
+            if (!confirm('Accept this bid and create escrow contract?')) {
+                return;
+            }
+            
+            const result = await window.cryptoBiddingSystem.acceptBid(bidId, user.walletAddress);
+            
+            if (result.success) {
+                alert('✅ Bid accepted! Escrow contract created: ' + result.escrowId);
+                closeBidsModal();
+            } else {
+                alert('❌ Error: ' + result.error);
+            }
+        }
     </script>
 </body>
 </html>
