@@ -172,6 +172,18 @@ class AgentSystem {
 
     // ... existing test functions remain the same ...
     async testWalletAuth() {
+        // Wait for dependencies to be available
+        let retries = 0;
+        const maxRetries = 50; // 5 seconds max wait
+
+        while (retries < maxRetries) {
+            if (typeof window.universalWalletAuth !== 'undefined') {
+                break;
+            }
+            await new Promise(resolve => setTimeout(resolve, 100));
+            retries++;
+        }
+
         if (typeof window.universalWalletAuth === 'undefined') {
             throw new Error('universal-wallet-auth.js not loaded');
         }
@@ -193,6 +205,18 @@ class AgentSystem {
     }
 
     async testAuthIntegration() {
+        // Wait for dependencies to be available
+        let retries = 0;
+        const maxRetries = 50; // 5 seconds max wait
+
+        while (retries < maxRetries) {
+            if (typeof window.authIntegration !== 'undefined') {
+                break;
+            }
+            await new Promise(resolve => setTimeout(resolve, 100));
+            retries++;
+        }
+
         if (typeof window.authIntegration === 'undefined') {
             throw new Error('auth-integration.js not loaded');
         }
