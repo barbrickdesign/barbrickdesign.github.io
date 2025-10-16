@@ -368,8 +368,10 @@
       ];
       const openPage = window.location.pathname.split('/').pop();
       if (protectedPages.includes(openPage) && !isUserAuthenticated()) {
-        localStorage.setItem('authRedirect', openPage);
-        window.location.href = 'login.html';
+        // login.html is broken, just show alert instead
+        alert('Please connect your wallet to access this page.');
+        // Optionally redirect back to index
+        window.location.href = 'index.html';
       }
       // Other pages are accessible without login but show login prompt
     }
