@@ -801,8 +801,10 @@
 
                         console.log('📱 Mobile tap on satellite:', sat.userData.name, '->', targetUrl);
 
-                        // Navigate to the page
-                        window.location.href = targetUrl;
+                        // Navigate directly to the correct page (no auth checks for main systems)
+                        if (targetUrl && targetUrl !== '#') {
+                            window.location.href = targetUrl;
+                        }
                     }
                 }
                 isDragging = false;
