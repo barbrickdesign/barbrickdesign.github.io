@@ -163,8 +163,25 @@ class WalletButton {
      * Disconnect wallet
      */
     async disconnect() {
-        await window.universalWalletAuth.disconnect();
-        this.render();
+        try {
+            // Try shared wallet system first
+            if (window.sharedWalletSystem) {
+                await window.sharedWalletSystem.disconnect();
+            }
+            // Fallback to global disconnectWallet function
+            else if (window.disconnectWallet) {
+                await window.disconnectWallet();
+            }
+            // Last resort: universal wallet auth
+            else if (window.universalWalletAuth) {
+                await window.universalWalletAuth.disconnect();
+            }
+
+            this.render();
+        } catch (error) {
+            console.error('Disconnect failed:', error);
+            this.render(); // Still re-render even if disconnect fails
+        }
     }
 
     /**
