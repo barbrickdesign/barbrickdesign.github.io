@@ -515,6 +515,16 @@
             });
         }
 
+        // Prevent loginBtn from navigating to broken login.html
+        const loginBtn = document.getElementById('loginBtn');
+        if (loginBtn) {
+            loginBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                alert('Please connect your wallet to access Gem Bot Universe features.');
+                return false;
+            });
+        }
+
         // Setup content toggle button
         const contentToggleBtn = document.getElementById('contentToggleBtn');
         if (contentToggleBtn) {
