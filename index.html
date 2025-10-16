@@ -1050,76 +1050,102 @@
 
         // Update agent logs display
         function updateAgentLogs() {
-            if (!window.agentSystem || !window.agentSystem.logs) return;
+            if (!window.agentSystem || !window.agentSystem.logs) {
+                console.log('⚠️ Agent logs not available');
+                return;
+            }
 
             const logsContainer = document.getElementById('agent-logs');
             if (!logsContainer) return;
 
-            const recentLogs = window.agentSystem.logs.slice(-8);
+            try {
+                const recentLogs = window.agentSystem.logs.slice(-8);
 
-            if (recentLogs.length === 0) {
-                logsContainer.innerHTML = '<div style="color: #8addff; font-size: 11px; text-align: center; padding: 20px;">No recent activity</div>';
-                return;
+                if (recentLogs.length === 0) {
+                    logsContainer.innerHTML = '<div style="color: #8addff; font-size: 11px; text-align: center; padding: 20px;">No recent activity</div>';
+                    return;
+                }
+
+                const logsHtml = recentLogs.map(log => {
+                    if (!log || typeof log !== 'object') return '';
+                    
+                    const time = log.timestamp ? new Date(log.timestamp).toLocaleTimeString() : 'Unknown';
+                    const iconClass = log.level === 'error' ? 'error' : 'success';
+                    const icon = log.level === 'error' ? '❌' : '✅';
+
+                    return `<div class="log-entry">
+                        <div class="log-timestamp">${time}</div>
+                        <div class="log-icon ${iconClass}">${icon}</div>
+                        <div class="log-message">${log.message || 'Unknown message'}</div>
+                    </div>`;
+                }).join('');
+
+                logsContainer.innerHTML = logsHtml;
+            } catch (error) {
+                console.warn('⚠️ Error updating agent logs:', error.message);
+                logsContainer.innerHTML = '<div style="color: #ff6b6b; font-size: 11px; text-align: center; padding: 20px;">Error loading logs</div>';
             }
-
-            const logsHtml = recentLogs.map(log => {
-                const time = new Date(log.timestamp).toLocaleTimeString();
-                const iconClass = log.level === 'error' ? 'error' : 'success';
-                const icon = log.level === 'error' ? '❌' : '✅';
-
-                return `<div class="log-entry">
-                    <div class="log-timestamp">${time}</div>
-                    <div class="log-icon ${iconClass}">${icon}</div>
-                    <div class="log-message">${log.message}</div>
-                </div>`;
-            }).join('');
-
-            logsContainer.innerHTML = logsHtml;
         }
 
         // Update agent errors display with enhanced formatting
         function updateAgentErrors() {
-            if (!window.agentSystem || !window.agentSystem.errors) return;
+            if (!window.agentSystem || !window.agentSystem.errors) {
+                console.log('⚠️ Agent errors not available');
+                return;
+            }
 
             const errorsContainer = document.getElementById('agent-errors-list');
             if (!errorsContainer) return;
 
-            const openErrors = window.agentSystem.errors
-                .filter(e => e.status === 'open')
-                .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp)) // Sort by newest first
-                .slice(0, 5); // Show only 5 most recent
+            try {
+                const openErrors = window.agentSystem.errors
+                    .filter(e => e && e.status === 'open')
+                    .sort((a, b) => {
+                        try {
+                            return new Date(b.timestamp || 0) - new Date(a.timestamp || 0);
+                        } catch {
+                            return 0;
+                        }
+                    })
+                    .slice(0, 5); // Show only 5 most recent
 
-            if (openErrors.length === 0) {
-                errorsContainer.innerHTML = '<div style="color: #00ff00; font-size: 11px; text-align: center; padding: 20px;">✅ No errors detected</div>';
-                return;
+                if (openErrors.length === 0) {
+                    errorsContainer.innerHTML = '<div style="color: #00ff00; font-size: 11px; text-align: center; padding: 20px;">✅ No errors detected</div>';
+                    return;
+                }
+
+                const errorsHtml = openErrors.map(error => {
+                    if (!error || typeof error !== 'object') return '';
+                    
+                    const time = error.timestamp ? new Date(error.timestamp).toLocaleString() : 'Unknown';
+                    const timeAgo = error.timestamp ? getTimeAgo(error.timestamp) : 'Unknown';
+                    const severityColor = getSeverityColor(error.severity || 'low');
+                    const categoryIcon = getCategoryIcon(error.category || 'unknown');
+
+                    return `<div class="error-item" data-error-id="${error.id || 'unknown'}">
+                        <div class="error-header">
+                            <div class="error-component">${categoryIcon} ${error.component || 'Unknown'}</div>
+                            <div class="error-severity" style="color: ${severityColor};">${(error.severity || 'low').toUpperCase()}</div>
+                        </div>
+                        <div class="error-message">${error.message || 'Unknown error'}</div>
+                        <div class="error-meta">
+                            <span class="error-time">${time}</span>
+                            <span class="error-time-ago">(${timeAgo})</span>
+                            <span class="error-category">📂 ${error.category || 'unknown'}</span>
+                        </div>
+                        ${(error.fixAttempts && error.fixAttempts.length > 0) ? `
+                        <div class="fix-attempts">
+                            <div class="fix-count">🔧 ${error.fixAttempts.length} fix attempt${error.fixAttempts.length !== 1 ? 's' : ''}</div>
+                        </div>
+                        ` : ''}
+                    </div>`;
+                }).join('');
+
+                errorsContainer.innerHTML = errorsHtml;
+            } catch (error) {
+                console.warn('⚠️ Error updating agent errors:', error.message);
+                errorsContainer.innerHTML = '<div style="color: #ff6b6b; font-size: 11px; text-align: center; padding: 20px;">Error loading errors</div>';
             }
-
-            const errorsHtml = openErrors.map(error => {
-                const time = new Date(error.timestamp).toLocaleString();
-                const timeAgo = getTimeAgo(error.timestamp);
-                const severityColor = getSeverityColor(error.severity);
-                const categoryIcon = getCategoryIcon(error.category);
-
-                return `<div class="error-item" data-error-id="${error.id}">
-                    <div class="error-header">
-                        <div class="error-component">${categoryIcon} ${error.component}</div>
-                        <div class="error-severity" style="color: ${severityColor};">${error.severity.toUpperCase()}</div>
-                    </div>
-                    <div class="error-message">${error.message}</div>
-                    <div class="error-meta">
-                        <span class="error-time">${time}</span>
-                        <span class="error-time-ago">(${timeAgo})</span>
-                        <span class="error-category">📂 ${error.category}</span>
-                    </div>
-                    ${error.fixAttempts.length > 0 ? `
-                    <div class="fix-attempts">
-                        <div class="fix-count">🔧 ${error.fixAttempts.length} fix attempt${error.fixAttempts.length !== 1 ? 's' : ''}</div>
-                    </div>
-                    ` : ''}
-                </div>`;
-            }).join('');
-
-            errorsContainer.innerHTML = errorsHtml;
         }
 
         function getTimeAgo(timestamp) {
