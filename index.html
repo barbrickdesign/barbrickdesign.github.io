@@ -1,6 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://barbrickdesign.github.io/">
+    <meta name="twitter:title" content="BARBRICKDESIGN - Elite Web3 Hub">
+    <meta name="twitter:description" content="Cutting-edge Web3 development and design solutions">
+    <meta name="twitter:image" content="https://barbrickdesign.github.io/header.jpg">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://barbrickdesign.github.io/">
+    <meta property="og:title" content="BARBRICKDESIGN - Elite Web3 Hub">
+    <meta property="og:description" content="Cutting-edge Web3 development and design solutions">
+    <meta property="og:image" content="https://barbrickdesign.github.io/header.jpg">
+    <meta name="description" content="BARBRICKDESIGN - Elite Web3 Development and Design Hub">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' https:; connect-src 'self' https:;">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BARBRICKDESIGN - Elite Web3 Hub</title>
@@ -790,21 +803,17 @@
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./service-worker.js')
                     .then((registration) => {
-                        console.log('✅ Service Worker registered:', registration.scope);
-                        
                         // Check for updates
                         registration.addEventListener('updatefound', () => {
                             const newWorker = registration.installing;
                             newWorker.addEventListener('statechange', () => {
                                 if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    console.log('🔄 New version available! Reload to update.');
-                                }
+                                    }
                             });
                         });
                     })
                     .catch((error) => {
-                        console.log('❌ Service Worker registration failed:', error);
-                    });
+                        });
             });
         }
 
@@ -834,19 +843,14 @@
                 await window.authIntegration.init({
                     showUI: false,
                     onAuthSuccess: (authInfo) => {
-                        console.log('✅ Wallet connected:', authInfo.address);
-                        console.log('⏱️ Work time:', authInfo.workTimeMinutes, 'minutes');
-                    },
+                        },
                     onAuthFail: () => {
-                        console.log('❌ Wallet not connected');
-                    }
+                        }
                 });
                 
                 // All systems are initialized through their respective modules
                 // (auth-integration, project-tokenomics, pumpfun-integration)
-                console.log('✅ All systems initialized successfully');
-                
-            } catch (error) {
+                } catch (error) {
                 console.error('❌ System initialization failed:', error);
             }
         });
@@ -859,16 +863,13 @@
                     await registration.sync.register('sync-data');
                     await registration.sync.register('sync-time-entries');
                     await registration.sync.register('sync-wallet-state');
-                    console.log('✅ Background sync registered');
-                } catch (error) {
-                    console.log('⚠️ Background sync not available:', error);
-                }
+                    } catch (error) {
+                    }
             }
         }
 
         // Online/offline detection
         window.addEventListener('online', () => {
-            console.log('✅ Back online! Syncing data...');
             registerBackgroundSync();
             
             // Show notification
@@ -894,8 +895,6 @@
         });
 
         window.addEventListener('offline', () => {
-            console.log('⚠️ Offline mode activated');
-            
             const notification = document.createElement('div');
             notification.style.cssText = `
                 position: fixed;
@@ -919,8 +918,6 @@
 
         // Check for existing connection on load
         window.addEventListener('DOMContentLoaded', async function() {
-            console.log('🚀 BARBRICKDESIGN Hub loaded');
-
             // Load and display portfolio ticker
             loadPortfolioTicker();
 
@@ -1233,15 +1230,13 @@
                         ticker.style.transform = 'translateY(0)';
                     }, 500);
                     
-                    console.log(`💰 Portfolio loaded: $${dashboard.overview.totalValue.toLocaleString()}`);
+                    }`);
                 }
 
                 // Load and display pump.fun portfolio data
                 if (window.pumpFun) {
                     try {
                         const pumpSummary = await window.pumpFun.getPortfolioSummary();
-                        console.log('🚀 Pump.fun portfolio loaded:', pumpSummary);
-                        
                         // Update pump.fun ticker
                         document.getElementById('pumpFunTotal').textContent = 
                             '$' + pumpSummary.totalValue.toLocaleString();

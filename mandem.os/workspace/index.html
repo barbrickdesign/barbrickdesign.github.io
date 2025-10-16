@@ -1,6 +1,19 @@
 <!DOCTYPE html> 
 <html lang="en"> 
-    <head> 
+    <head>
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://barbrickdesign.github.io/">
+    <meta name="twitter:title" content="BARBRICKDESIGN - Elite Web3 Hub">
+    <meta name="twitter:description" content="Cutting-edge Web3 development and design solutions">
+    <meta name="twitter:image" content="https://barbrickdesign.github.io/header.jpg">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://barbrickdesign.github.io/">
+    <meta property="og:title" content="BARBRICKDESIGN - Elite Web3 Hub">
+    <meta property="og:description" content="Cutting-edge Web3 development and design solutions">
+    <meta property="og:image" content="https://barbrickdesign.github.io/header.jpg">
+    <meta name="description" content="BARBRICKDESIGN - Elite Web3 Development and Design Hub">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' https:; connect-src 'self' https:;"> 
         <meta charset="UTF-8"> 
         <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"> 
         <title>Gem Bot Universe for this project by Ryan Barbrick. of BarbrickDesign.com</title>         
@@ -380,17 +393,13 @@
         // Initialize feature systems
         if (typeof window.dripProtocol !== 'undefined') {
             window.dripProtocol.initialize();
-            console.log('💧 Drip Protocol initialized');
-        } else {
-            console.log('⚠️ Drip Protocol not loaded, using simulation');
+            } else {
             // Fallback simulation code here if needed
         }
 
         if (typeof window.realAgentTradingManager !== 'undefined') {
             window.realAgentTradingManager.initialize();
-            console.log('🌍 Real Agent Trading initialized');
-        } else {
-            console.log('⚠️ Real Agent Trading not loaded, using simulation');
+            } else {
             // Fallback simulation code here if needed
         }
     });
@@ -445,12 +454,7 @@
             const monitoringLoaded = typeof window.setupEnhancedErrorMonitoring !== 'undefined';
             const scriptsLoaded = document.querySelectorAll('script[src*="agent-"]').length > 0;
 
-            console.log('🔍 Agent loading check:', {
-                agentSystem: agentSystemLoaded,
-                agentDisplay: agentDisplayLoaded,
-                baseAgent: baseAgentLoaded,
-                monitoring: monitoringLoaded,
-                scriptCount: document.querySelectorAll('script[src*="agent-"]').length,
+            .length,
                 timestamp: new Date().toISOString()
             });
 
@@ -458,20 +462,16 @@
                 console.warn('⚠️ Agent system not fully loaded, showing hard refresh option');
                 document.getElementById('hardRefreshBtn').style.display = 'block';
             } else {
-                console.log('✅ Agent system fully loaded');
-            }
+                }
         }
 
         // Hard refresh function that clears cache
         function hardRefresh() {
-            console.log('🔄 Performing hard refresh...');
-
             // Clear all localStorage and sessionStorage
             try {
                 localStorage.clear();
                 sessionStorage.clear();
-                console.log('✅ Cleared browser storage');
-            } catch (e) {
+                } catch (e) {
                 console.warn('⚠️ Could not clear storage:', e);
             }
 
@@ -480,8 +480,7 @@
                 navigator.serviceWorker.getRegistrations().then(registrations => {
                     registrations.forEach(registration => {
                         registration.unregister();
-                        console.log('✅ Unregistered service worker');
-                    });
+                        });
                 });
             }
 
@@ -490,8 +489,7 @@
                 caches.keys().then(names => {
                     names.forEach(name => {
                         caches.delete(name);
-                        console.log('✅ Cleared cache:', name);
-                    });
+                        });
                 });
             }
 
@@ -510,7 +508,6 @@
 
         // Store timeout reference for potential cancellation
         window.agentLoadCheckTimeout = setTimeout(() => {
-            console.log('⏰ Final agent loading check after 15 seconds');
             checkForLoadingIssues();
         }, 15000);
 
@@ -788,8 +785,6 @@
         }
         
         localStorage.setItem('mandemSessionLogs', JSON.stringify(sessionLogs));
-        console.log(`[${type}] ${message}`, data);
-        
         // Update UI log panel if visible
         updateSessionLogPanel();
     }
@@ -2083,12 +2078,10 @@
       if (postLoginContent.style.display === 'block') {
         postLoginContent.style.display = 'none';
         toggleBtn.textContent = 'Show Mission Control';
-        console.log('Mission Control hidden');
-      } else {
+        } else {
         postLoginContent.style.display = 'block';
         toggleBtn.textContent = 'Hide Mission Control';
-        console.log('Mission Control shown');
-      }
+        }
     }
     
     // Globe and environment configuration
@@ -2829,13 +2822,11 @@
                 renderAllAgentsTableFromUsers(players);
             } else {
                 // Use fallback data instead of showing error
-                console.log('⚠️ Leaderboard API not available, using fallback data');
                 const fallbackData = getFallbackLeaderboardData();
                 renderAllAgentsTableFromUsers(fallbackData);
             }
         } catch (e) {
             // Use fallback data instead of showing error
-            console.log('⚠️ Leaderboard API failed, using fallback data');
             const fallbackData = getFallbackLeaderboardData();
             renderAllAgentsTableFromUsers(fallbackData);
         }
@@ -2875,8 +2866,7 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(playerData)
         });
-        console.log('[Leaderboard] Player registered:', playerData.walletAddress);
-      } catch (e) {
+        } catch (e) {
         console.warn('[Leaderboard] Server not available');
       }
     }
@@ -2905,8 +2895,7 @@
       if (playerHeartbeatInterval) clearInterval(playerHeartbeatInterval);
       playerHeartbeatInterval = setInterval(sendPlayerHeartbeat, 60000);
       
-      console.log('[Leaderboard] Player tracking started');
-    }
+      }
 
     function stopPlayerTracking() {
       if (playerHeartbeatInterval) {
@@ -2923,8 +2912,7 @@
       if (leaderboardRefreshInterval) clearInterval(leaderboardRefreshInterval);
       leaderboardRefreshInterval = setInterval(fetchLeaderboardFromServer, 10000);
       
-      console.log('[Leaderboard] Auto-refresh started');
-    }
+      }
 
     function stopLeaderboardRefresh() {
       if (leaderboardRefreshInterval) {
@@ -3250,19 +3238,16 @@
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", function () {
         navigator.serviceWorker.register("service-worker.js").then(function (registration) {
-          console.log("Service Worker registered with scope:", registration.scope);
-        }, function (err) {
-          console.log("Service Worker registration failed:", err);
-        });
+          }, function (err) {
+          });
       });
     }
   </script>         
         <script>
-console.log('[DEBUG] index.html loaded');
-console.log('[DEBUG] currentUser:', localStorage.getItem('currentUser'));
-console.log('[DEBUG] userProfile:', localStorage.getItem('userProfile'));
-console.log('[DEBUG] userLoggedIn:', localStorage.getItem('userLoggedIn'));
-console.log('[DEBUG] lastWalletAuth:', localStorage.getItem('lastWalletAuth'));
+);
+);
+);
+);
 
 // Modal button handlers
 document.addEventListener('DOMContentLoaded', () => {
@@ -3292,7 +3277,6 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
       if (walletInfo && walletInfo.connected) {
-        console.log('✅ Wallet adapter connection successful');
         return true;
       }
     }
@@ -3494,7 +3478,6 @@ async function detectApiPortAndRoute() {
         if (res.ok) {
           detectedApiBaseUrl = `${window.location.protocol}//${window.location.hostname}:${port}`;
           detectedApiRoute = route;
-          console.log(`[Server Detection] API detected at: ${detectedApiBaseUrl}${detectedApiRoute}`);
           return { baseUrl: detectedApiBaseUrl, route: detectedApiRoute };
         }
       } catch (e) {
@@ -3565,12 +3548,10 @@ async function fetchModelMetadata() {
   try {
     const res = await fetch('/api/models');
     if (!res.ok) {
-      console.log('⚠️ Model API not available, using fallback data');
       return getFallbackModelData();
     }
     return await res.json();
   } catch (error) {
-    console.log('⚠️ Model API failed, using fallback data');
     return getFallbackModelData();
   }
 }
@@ -3711,19 +3692,15 @@ window.addEventListener('DOMContentLoaded', checkServerAndShowBrainCellBtn);
 <script>
 // Initialize wallet authentication for Mandem.OS
 window.addEventListener('DOMContentLoaded', async () => {
-    console.log('🌐 Mandem.OS - Initializing Universal Auth...');
-    
     try {
         // Initialize universal auth with custom integration
         await window.authIntegration.init({
             showUI: false,  // Use existing login UI
             onAuthSuccess: (authInfo) => {
-                console.log('✅ Mandem.OS - Wallet authenticated:', authInfo.address);
                 updateMandemAuthUI(authInfo);
             },
             onAuthFail: () => {
-                console.log('⚠️ Mandem.OS - Wallet not connected');
-            }
+                }
         });
     } catch (error) {
         console.error('❌ Mandem.OS - Auth init failed:', error);
@@ -3747,8 +3724,7 @@ function updateMandemAuthUI(authInfo) {
         if (authInfo.workTimeMinutes > 0) {
             const hours = Math.floor(authInfo.workTimeMinutes / 60);
             const mins = authInfo.workTimeMinutes % 60;
-            console.log(`⏱️ Work time: ${hours}h ${mins}m`);
-        }
+            }
     } else {
         // User is not authenticated
         if (loginBtn) loginBtn.style.display = 'inline-block';
@@ -3765,7 +3741,6 @@ if (originalLoginBtn) {
         try {
             const authInfo = await window.universalWalletAuth.connect();
             if (authInfo) {
-                console.log('✅ Mandem.OS wallet connected:', authInfo);
                 updateMandemAuthUI(authInfo);
             }
         } catch (error) {
@@ -3777,12 +3752,10 @@ if (originalLoginBtn) {
 
 // Listen for auth events
 window.addEventListener('authSuccess', (event) => {
-    console.log('🎉 Mandem.OS - Auth success event:', event.detail);
     updateMandemAuthUI(event.detail);
 });
 
 window.addEventListener('authLogout', () => {
-    console.log('👋 Mandem.OS - Auth logout event');
     updateMandemAuthUI(null);
     // Reset GBPT balance on logout
     const gbptSpan = document.getElementById('mndmBalance');
@@ -3811,8 +3784,7 @@ async function updateGBPTBalance() {
         const formattedBalance = window.formatTokenAmount(balance, 2);
         gbptSpan.textContent = formattedBalance;
         
-        console.log('🔥 Mandem.OS - GBPT Balance Updated:', formattedBalance);
-    } catch (error) {
+        } catch (error) {
         console.error('❌ Mandem.OS - Failed to update GBPT balance:', error);
         const gbptSpan = document.getElementById('mndmBalance');
         if (gbptSpan) gbptSpan.textContent = '0';
@@ -3821,14 +3793,10 @@ async function updateGBPTBalance() {
 
 // Update GBPT balance when wallet connects
 window.addEventListener('authSuccess', (event) => {
-    console.log('🎉 Mandem.OS - Auth success, updating GBPT balance...');
     updateGBPTBalance();
 setTimeout(() => {
     updateGBPTBalance();
 }, 1500); // Wait 1.5 seconds for auth to initialize
 
-console.log('✅ Mandem.OS - Wallet integration loaded');
-console.log('🔥 GBPT Token tracking enabled');
-console.log('💎 MGC Promotion System loaded');
 });
 </script>

@@ -1,6 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://barbrickdesign.github.io/">
+    <meta name="twitter:title" content="BARBRICKDESIGN - Elite Web3 Hub">
+    <meta name="twitter:description" content="Cutting-edge Web3 development and design solutions">
+    <meta name="twitter:image" content="https://barbrickdesign.github.io/header.jpg">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://barbrickdesign.github.io/">
+    <meta property="og:title" content="BARBRICKDESIGN - Elite Web3 Hub">
+    <meta property="og:description" content="Cutting-edge Web3 development and design solutions">
+    <meta property="og:image" content="https://barbrickdesign.github.io/header.jpg">
+    <meta name="description" content="BARBRICKDESIGN - Elite Web3 Development and Design Hub">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' https:; connect-src 'self' https:;">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Connect Wallet - Gem Bot Universe</title>
@@ -232,14 +245,11 @@
     
     <script>
         document.addEventListener('DOMContentLoaded', async () => {
-            console.log('🔌 Gem Bot Universe - Wallet Connect Page');
-            
             // Initialize universal auth
             try {
                 await window.authIntegration.init({
                     showUI: false,  // Custom UI
                     onAuthSuccess: (authInfo) => {
-                        console.log('✅ Already authenticated:', authInfo.address);
                         // Redirect to referring page or index
                         const redirectUrl = localStorage.getItem('authRedirect') || document.referrer || 'index.html';
                         localStorage.removeItem('authRedirect');
@@ -260,7 +270,6 @@
                     const authInfo = await window.universalWalletAuth.connect();
                     
                     if (authInfo) {
-                        console.log('✅ MetaMask connected:', authInfo.address);
                         // Redirect
                         const redirectUrl = localStorage.getItem('authRedirect') || document.referrer || 'index.html';
                         localStorage.removeItem('authRedirect');
@@ -286,7 +295,6 @@
                     const authInfo = await window.universalWalletAuth.connect();
                     
                     if (authInfo) {
-                        console.log('✅ Phantom connected:', authInfo.address);
                         // Redirect
                         const redirectUrl = localStorage.getItem('authRedirect') || document.referrer || 'index.html';
                         localStorage.removeItem('authRedirect');
@@ -303,8 +311,7 @@
             });
             
             // OLD email/password code removed - using wallet-only authentication now
-            console.log('✅ Wallet-only authentication active');
-        });
+            });
 
         function showTransactionSection() {
             const walletForm = document.getElementById('wallet-connect-form');
@@ -422,11 +429,10 @@
         document.getElementById('debug-refresh').addEventListener('click', fetchAndDisplayAllUsers);
     </script>
     <script>
-        console.log('[DEBUG] login.html loaded');
-        console.log('[DEBUG] currentUser:', localStorage.getItem('currentUser'));
-        console.log('[DEBUG] userProfile:', localStorage.getItem('userProfile'));
-        console.log('[DEBUG] userLoggedIn:', localStorage.getItem('userLoggedIn'));
-        console.log('[DEBUG] lastWalletAuth:', localStorage.getItem('lastWalletAuth'));
+        );
+        );
+        );
+        );
         
         // Server status indicator (graceful failure)
         async function updateServerStatus() {

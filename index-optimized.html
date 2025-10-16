@@ -272,8 +272,7 @@
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('/sw-enhanced.js')
                     .then(registration => {
-                        console.log('ServiceWorker registration successful');
-                    })
+                        })
                     .catch(err => {
                         console.error('ServiceWorker registration failed: ', err);
                     });
@@ -302,12 +301,10 @@
         window.authIntegration.init({
             showUI: true,
             onAuthSuccess: function(authInfo) {
-                console.log('Authenticated:', authInfo.address);
                 // Update UI based on auth status
             },
             onAuthFail: function() {
-                console.log('Authentication failed');
-            }
+                }
         });
         
         // Initialize agent monitoring
@@ -323,7 +320,6 @@
     
     // Handle offline/online events
     window.addEventListener('online', () => {
-        console.log('Back online! Syncing data...');
         if (window.registerBackgroundSync) {
             registerBackgroundSync();
         }

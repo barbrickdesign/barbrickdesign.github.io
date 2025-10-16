@@ -1,6 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:url" content="https://barbrickdesign.github.io/">
+    <meta name="twitter:title" content="BARBRICKDESIGN - Elite Web3 Hub">
+    <meta name="twitter:description" content="Cutting-edge Web3 development and design solutions">
+    <meta name="twitter:image" content="https://barbrickdesign.github.io/header.jpg">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://barbrickdesign.github.io/">
+    <meta property="og:title" content="BARBRICKDESIGN - Elite Web3 Hub">
+    <meta property="og:description" content="Cutting-edge Web3 development and design solutions">
+    <meta property="og:image" content="https://barbrickdesign.github.io/header.jpg">
+    <meta name="description" content="BARBRICKDESIGN - Elite Web3 Development and Design Hub">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' https:; connect-src 'self' https:;">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Classified Contracts - Security Clearance Required</title>
@@ -724,8 +737,6 @@
                     requireAuth: false,  // Don't force redirect yet
                     showUI: false,  // We have custom UI
                     onAuthSuccess: async (authInfo) => {
-                        console.log('✅ Universal auth successful:', authInfo.address);
-                        
                         // Use security-clearance-auth for contract access logic
                         const result = await window.securityClearanceAuth.autoAuthenticate();
                         
@@ -737,7 +748,6 @@
                         }
                     },
                     onAuthFail: () => {
-                        console.log('⚠️ Please connect your wallet');
                         document.getElementById('authSection').style.display = 'block';
                         document.getElementById('authenticatedSection').style.display = 'none';
                     }
@@ -1185,7 +1195,6 @@
                 // If contractor (not System Architect), show AI-matched contracts
                 let displayContracts = contracts;
                 if (user.profile && window.contractorRegistry) {
-                    console.log('🤖 Running AI contract matching...');
                     const matches = window.contractorRegistry.matchContractsToContractor(user.walletAddress, contracts);
                     displayContracts = matches;
                 }
@@ -1320,8 +1329,7 @@
                     mainGrid.parentNode.insertBefore(header, liveGrid);
                 }
             } catch (error) {
-                console.log('No live opportunities available or API key not set');
-            }
+                }
         }
         
         function getMatchColor(quality) {
