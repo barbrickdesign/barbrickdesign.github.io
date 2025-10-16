@@ -77,8 +77,3 @@ if (document.readyState === 'loading') {
 
 // Main initialization - now handled by modular loading
 console.log('🤖 Agent System modules loaded - using modular architecture');
-
-// Export for external use if needed
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = { AgentSystem, BaseAgent };
-}
