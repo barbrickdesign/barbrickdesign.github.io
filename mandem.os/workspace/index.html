@@ -2159,7 +2159,7 @@
       document.getElementById('profileBtn').addEventListener('click', function(e) {
         if (!isUserAuthenticated()) {
           e.preventDefault();
-          window.location.href = 'login.html';
+          showLoginModal();
         }
       });
 
@@ -3272,10 +3272,7 @@ document.addEventListener('DOMContentLoaded', () => {
   
   if (modalLoginBtn) {
     modalLoginBtn.addEventListener('click', async () => {
-      const success = await quickConnectWallet();
-      if (success && loginModal) {
-        loginModal.style.display = 'none';
-      }
+      showLoginModal();
     });
   }
   
