@@ -454,10 +454,31 @@
         window.addEventListener('DOMContentLoaded', async () => {
             console.log('🔍 Checking for existing wallet connection...');
             
-            // Try to detect connected wallet without prompting
-            if (window.ethereum && window.ethereum.selectedAddress) {
-                console.log('💼 Wallet already connected, attempting auto-authentication...');
-                await authenticateCard();
+            // Only auto-authenticate if wallet is already connected AND authorized
+            // Don't prompt if user hasn't connected yet
+            const isAlreadyConnected = window.ethereum?.selectedAddress || window.solana?.isConnected;
+            
+            if (isAlreadyConnected) {
+                console.log('💼 Wallet already connected, attempting silent authentication...');
+                
+                // Show a subtle indicator that we're checking
+                const status = document.getElementById('authStatus');
+                status.textContent = '🔄 Checking wallet connection...';
+                status.style.color = '#66ff66';
+                
+                // Try silent authentication with a delay to let page load
+                setTimeout(async () => {
+                    try {
+                        await authenticateCard();
+                    } catch (error) {
+                        console.log('Silent auth failed, user can click button:', error.message);
+                        // Reset UI if silent auth fails
+                        status.textContent = '';
+                        document.getElementById('authBtn').disabled = false;
+                    }
+                }, 1000);
+            } else {
+                console.log('👋 No wallet connected yet. Waiting for user to click connect button.');
             }
         });
     

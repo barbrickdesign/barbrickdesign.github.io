@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Getting Started Guide - Contractor Portal</title>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: #000;
+            color: #00ff00;
+            min-height: 100vh;
+            padding: 20px;
+            line-height: 1.8;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background: linear-gradient(180deg, rgba(0,255,0,0.1), transparent);
+            border: 2px solid rgba(0,255,0,0.5);
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            color: #00ff00;
+            text-shadow: 0 0 20px rgba(0,255,0,0.8);
+            margin-bottom: 10px;
+        }
+        
+        .content-section {
+            background: linear-gradient(135deg, rgba(0,30,0,0.9), rgba(0,50,0,0.9));
+            border: 2px solid rgba(0,255,0,0.3);
+            border-radius: 12px;
+            padding: 30px;
+            margin: 25px 0;
+        }
+        
+        h2 {
+            color: #00ff00;
+            font-size: 1.8em;
+            margin-bottom: 20px;
+            border-bottom: 2px solid rgba(0,255,0,0.3);
+            padding-bottom: 10px;
+        }
+        
+        h3 {
+            color: #66ff66;
+            font-size: 1.3em;
+            margin: 25px 0 15px 0;
+        }
+        
+        p, li {
+            color: #99ff99;
+            margin-bottom: 15px;
+        }
+        
+        ul, ol {
+            margin-left: 30px;
+            margin-bottom: 20px;
+        }
+        
+        .step-box {
+            background: rgba(0,100,255,0.1);
+            border-left: 4px solid #0099ff;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        
+        .step-number {
+            color: #00aaff;
+            font-size: 1.5em;
+            font-weight: 900;
+            margin-bottom: 10px;
+        }
+        
+        .tip-box {
+            background: rgba(255,215,0,0.1);
+            border-left: 4px solid #ffd700;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        
+        .warning-box {
+            background: rgba(255,100,0,0.1);
+            border-left: 4px solid #ff6600;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        
+        .nav-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin: 40px 0;
+        }
+        
+        .btn {
+            padding: 15px 30px;
+            background: linear-gradient(90deg, #00ff00, #66ff66);
+            border: none;
+            border-radius: 10px;
+            color: #000;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s;
+        }
+        
+        .btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px rgba(0,255,0,0.6);
+        }
+        
+        code {
+            background: rgba(0,0,0,0.5);
+            padding: 2px 8px;
+            border-radius: 4px;
+            color: #00ff00;
+            font-size: 0.9em;
+        }
+        
+        @media (max-width: 768px) {
+            h1 { font-size: 1.8em; }
+            .content-section { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🚀 Getting Started Guide</h1>
+            <p style="color: #66ff66; margin-top: 10px;">Your Complete Walkthrough to Government Contracting</p>
+        </header>
+
+        <div class="content-section">
+            <h2>Welcome to the Platform!</h2>
+            <p>
+                This guide will walk you through everything you need to start bidding on government contracts 
+                using our blockchain-powered platform. We've simplified the complex government contracting 
+                process so you can focus on what you do best - creating great solutions.
+            </p>
+            
+            <div class="tip-box">
+                <strong style="color: #ffd700;">💡 Pro Tip:</strong>
+                <p style="color: #ffdd66; margin: 10px 0 0 0;">
+                    Complete the entire registration process in one sitting. Having your white card (PIV/CAC) 
+                    information and wallet ready will make this much faster!
+                </p>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>📋 Step-by-Step Registration</h2>
+
+            <div class="step-box">
+                <div class="step-number">STEP 1: Install MetaMask</div>
+                <p style="color: #66ccff;">
+                    <strong>Desktop:</strong> Install the MetaMask browser extension from 
+                    <a href="https://metamask.io" target="_blank" style="color: #00aaff;">metamask.io</a>
+                </p>
+                <p style="color: #66ccff;">
+                    <strong>Mobile:</strong> Download the MetaMask app from your app store. 
+                    When accessing the platform, use the in-app browser or the app will prompt you to open the correct page.
+                </p>
+                <p style="color: #99ddff; margin-top: 10px;">
+                    ✅ Create your wallet<br>
+                    ✅ Securely backup your seed phrase<br>
+                    ✅ Set a strong password
+                </p>
+            </div>
+
+            <div class="step-box">
+                <div class="step-number">STEP 2: Obtain Security Clearance</div>
+                <p style="color: #66ccff;">
+                    If you don't already have one, you'll need a government security clearance (PIV/CAC card):
+                </p>
+                <ul style="color: #99ddff;">
+                    <li><strong>PIV Card:</strong> For federal employees and contractors (Common)</li>
+                    <li><strong>CAC Card:</strong> For military personnel and DoD contractors</li>
+                </ul>
+                <p style="color: #66ccff;">
+                    Clearance levels include: Confidential, Secret, Top Secret, and TS/SCI. 
+                    Your clearance level determines which contracts you can access.
+                </p>
+                
+                <div class="warning-box">
+                    <p style="color: #ff9966; margin: 0;">
+                        <strong>⚠️ Important:</strong> The clearance process can take 3-12 months. 
+                        Start early! Contact your employer or a government contracting officer for sponsorship.
+                    </p>
+                </div>
+            </div>
+
+            <div class="step-box">
+                <div class="step-number">STEP 3: Complete Registration</div>
+                <p style="color: #66ccff;">
+                    Visit <a href="contractor-registration.html" style="color: #00aaff;">contractor-registration.html</a> 
+                    and provide:
+                </p>
+                <ul style="color: #99ddff;">
+                    <li>Full name and organization</li>
+                    <li>Email and phone contact</li>
+                    <li>White card number and expiration date</li>
+                    <li>Security clearance level</li>
+                    <li>Special access programs (if any): NOFORN, NATO, FVEY, ORCON</li>
+                    <li>Technical capabilities (select all that apply)</li>
+                    <li>Team size and years of experience</li>
+                </ul>
+            </div>
+
+            <div class="step-box">
+                <div class="step-number">STEP 4: Wait for Approval</div>
+                <p style="color: #66ccff;">
+                    The System Architect will review your registration and verify your white card credentials. 
+                    This typically takes 1-3 business days.
+                </p>
+                <p style="color: #66ccff;">
+                    You'll receive an email notification when approved. You can then access classified contracts!
+                </p>
+            </div>
+
+            <div class="step-box">
+                <div class="step-number">STEP 5: Browse & Bid on Contracts</div>
+                <p style="color: #66ccff;">
+                    Once approved, visit <a href="classified-contracts.html" style="color: #00aaff;">classified-contracts.html</a>:
+                </p>
+                <ul style="color: #99ddff;">
+                    <li>View AI-matched contracts based on your skills</li>
+                    <li>See match scores (Excellent/Good/Fair/Poor)</li>
+                    <li>Click "Place Bid" to submit your proposal</li>
+                    <li>Choose cryptocurrency (ETH, SOL, USDC, USDT)</li>
+                    <li>Enter bid amount, timeline, and approach</li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <h2>🎯 Understanding Your Dashboard</h2>
+            
+            <h3>Performance Score (0-100)</h3>
+            <p>
+                Your performance score is calculated from:
+            </p>
+            <ul>
+                <li><strong>30%</strong> - On-time delivery rate</li>
+                <li><strong>25%</strong> - Quality of work (client ratings)</li>
+                <li><strong>20%</strong> - Budget adherence</li>
+                <li><strong>15%</strong> - Client satisfaction</li>
+                <li><strong>10%</strong> - Project complexity bonus</li>
+            </ul>
+            <p>
+                New contractors start at 50/100 (New Contractor status). Build your score by 
+                completing projects successfully!
+            </p>
+
+            <h3>Contract Match Quality</h3>
+            <ul>
+                <li><strong style="color: #00ff00;">Excellent (85-100):</strong> Highly recommended - great fit</li>
+                <li><strong style="color: #66ff66;">Good (70-84):</strong> Recommended - strong alignment</li>
+                <li><strong style="color: #ffaa00;">Fair (50-69):</strong> Consider - moderate match</li>
+                <li><strong style="color: #ff6666;">Poor (<50):</strong> Not recommended - limited alignment</li>
+            </ul>
+        </div>
+
+        <div class="content-section">
+            <h2>💰 Bidding & Payments</h2>
+            
+            <h3>Submitting a Bid</h3>
+            <ol>
+                <li>Review the contract requirements carefully</li>
+                <li>Check FPDS market data for pricing guidance</li>
+                <li>Click "Place Bid" on the contract card</li>
+                <li>Enter your bid amount in USD</li>
+                <li>Select cryptocurrency for payment</li>
+                <li>Provide timeline estimate (in days)</li>
+                <li>Describe your project approach</li>
+                <li>Submit bid</li>
+            </ol>
+
+            <h3>When Your Bid is Accepted</h3>
+            <p>
+                An escrow smart contract is automatically created with milestone-based payments:
+            </p>
+            <ul>
+                <li><strong>10%</strong> - Project start (initial funding)</li>
+                <li><strong>40%</strong> - Mid-point delivery</li>
+                <li><strong>50%</strong> - Final delivery and acceptance</li>
+            </ul>
+            <p>
+                Funds are released by the client as you complete each milestone. Secure and transparent!
+            </p>
+        </div>
+
+        <div class="content-section">
+            <h2>📊 Market Intelligence</h2>
+            <p>
+                Our platform provides access to FPDS (Federal Procurement Data System) historical data:
+            </p>
+            <ul>
+                <li>Average contract values by category</li>
+                <li>Competition levels (how many companies bid)</li>
+                <li>Top awarding agencies</li>
+                <li>Suggested bid ranges</li>
+                <li>Contract type trends (Fixed Price, Cost Plus, T&M)</li>
+            </ul>
+            <p>
+                Use this data to make informed bidding decisions and price competitively!
+            </p>
+        </div>
+
+        <div class="content-section">
+            <h2>❓ Common Questions</h2>
+            
+            <h3>Q: Do I need a clearance to register?</h3>
+            <p><strong>A:</strong> Yes, you need an active PIV or CAC card with appropriate security clearance. 
+            The platform verifies clearance levels and only shows contracts you're authorized to see.</p>
+
+            <h3>Q: Can I bid on contracts above my clearance level?</h3>
+            <p><strong>A:</strong> No, the system automatically filters contracts based on your clearance and 
+            special access programs. You'll only see contracts you qualify for.</p>
+
+            <h3>Q: What if I don't have a team?</h3>
+            <p><strong>A:</strong> Solo contractors are welcome! Indicate "1-5" for team size. You can also 
+            partner with other contractors for larger projects.</p>
+
+            <h3>Q: How long does approval take?</h3>
+            <p><strong>A:</strong> Typically 1-3 business days. The System Architect verifies your white card 
+            credentials and reviews your profile for completeness.</p>
+
+            <h3>Q: Is MetaMask safe?</h3>
+            <p><strong>A:</strong> Yes, MetaMask is one of the most trusted crypto wallets with millions of users. 
+            Always keep your seed phrase secure and never share it with anyone!</p>
+        </div>
+
+        <div class="tip-box">
+            <strong style="color: #ffd700;">🎉 Ready to Get Started?</strong>
+            <p style="color: #ffdd66; margin: 10px 0 0 0;">
+                Now that you understand the basics, head to the registration page and create your contractor profile!
+            </p>
+        </div>
+
+        <div class="nav-buttons">
+            <a href="contractor-portal.html" class="btn">← Back to Portal</a>
+            <a href="contractor-registration.html" class="btn">Register Now →</a>
+        </div>
+
+        <div style="text-align: center; margin-top: 40px; padding: 20px; border-top: 2px solid rgba(0,255,0,0.3);">
+            <p style="color: #99ff99; font-size: 0.9em;">
+                ✌️ Rooted in Peace, Love, and Understanding
+            </p>
+        </div>
+    </div>
+</body>
+</html>

@@ -210,7 +210,7 @@ class SecurityClearanceAuth {
 
     /**
      * Detect and connect available wallet (Phantom or MetaMask)
-     * Enhanced with mobile MetaMask support
+     * Enhanced with mobile MetaMask support and better error handling
      */
     async detectAndConnectWallet() {
         console.log('🔍 Detecting available wallets...');
@@ -219,22 +219,23 @@ class SecurityClearanceAuth {
         const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
         console.log(`📱 Mobile device: ${isMobile}`);
         
+        let lastError = null;
+        let walletsDetected = [];
+        
         // Try MetaMask (Ethereum) - Check multiple providers
-        // Mobile MetaMask injects ethereum differently
         const ethereumProvider = window.ethereum || window.web3?.currentProvider;
         
         if (ethereumProvider) {
+            walletsDetected.push('MetaMask/Ethereum');
             console.log('🦊 MetaMask/Web3 provider detected');
             
             // Handle mobile MetaMask deep linking
             if (isMobile && !window.ethereum) {
                 console.log('📱 Mobile detected - checking for MetaMask app...');
                 
-                // Check if we're already in MetaMask browser
                 if (ethereumProvider.isMetaMask) {
                     console.log('✅ Running in MetaMask mobile browser');
                 } else {
-                    // Redirect to MetaMask app if not in-app browser
                     const currentUrl = window.location.href;
                     const dappUrl = `https://metamask.app.link/dapp/${currentUrl.replace(/^https?:\/\//, '')}`;
                     console.log('🔗 Redirecting to MetaMask app:', dappUrl);
@@ -244,19 +245,17 @@ class SecurityClearanceAuth {
             }
             
             try {
-                // Request accounts with proper error handling
+                console.log('📞 Requesting MetaMask connection...');
+                
                 let accounts;
                 
                 if (ethereumProvider.request) {
-                    // Modern API (MetaMask, most providers)
                     accounts = await ethereumProvider.request({ 
                         method: 'eth_requestAccounts' 
                     });
                 } else if (ethereumProvider.enable) {
-                    // Legacy API (older providers)
                     accounts = await ethereumProvider.enable();
                 } else if (ethereumProvider.sendAsync) {
-                    // Very old API
                     accounts = await new Promise((resolve, reject) => {
                         ethereumProvider.sendAsync({
                             method: 'eth_requestAccounts'
@@ -270,25 +269,24 @@ class SecurityClearanceAuth {
                 const address = accounts[0];
                 
                 if (!address) {
-                    throw new Error('No account found. Please unlock MetaMask.');
+                    throw new Error('No account found. Please unlock MetaMask and try again.');
                 }
                 
-                // Normalize address to lowercase for consistency
                 const normalizedAddress = address.toLowerCase();
                 
                 console.log('✅ MetaMask connected:', normalizedAddress);
                 console.log('📱 Device type:', isMobile ? 'Mobile' : 'Desktop');
                 
-                // Listen for account changes
+                // Listen for account/chain changes
                 if (ethereumProvider.on) {
                     ethereumProvider.on('accountsChanged', (accounts) => {
                         console.log('👤 Account changed:', accounts[0]);
-                        window.location.reload(); // Refresh on account change
+                        window.location.reload();
                     });
                     
                     ethereumProvider.on('chainChanged', (chainId) => {
                         console.log('⛓️ Chain changed:', chainId);
-                        window.location.reload(); // Refresh on chain change
+                        window.location.reload();
                     });
                 }
                 
@@ -302,24 +300,47 @@ class SecurityClearanceAuth {
                 
             } catch (error) {
                 console.error('MetaMask connection error:', error);
-                throw error;
+                
+                // Check if user rejected the request
+                if (error.code === 4001 || error.message.includes('User rejected') || error.message.includes('User denied')) {
+                    throw new Error('Connection request rejected. Please approve the connection in MetaMask to continue.');
+                }
+                
+                // Store error but try Phantom next
+                lastError = error;
             }
         }
         
         // Try Phantom (Solana) - after MetaMask attempt
         if (window.solana && window.solana.isPhantom) {
+            walletsDetected.push('Phantom');
             console.log('👻 Phantom wallet detected');
+            
             try {
+                console.log('📞 Requesting Phantom connection...');
                 const resp = await window.solana.connect();
                 const address = resp.publicKey.toBase58();
                 console.log('✅ Phantom connected:', address);
                 return { success: true, address, type: 'phantom', isMobile: isMobile };
             } catch (error) {
                 console.warn('Phantom connection failed:', error);
+                
+                // Check if user rejected
+                if (error.code === 4001 || error.message.includes('User rejected')) {
+                    throw new Error('Connection request rejected. Please approve the connection in Phantom to continue.');
+                }
+                
+                lastError = error;
             }
         }
         
-        // No wallet found - provide helpful error
+        // If we detected wallets but connection failed, provide helpful error
+        if (walletsDetected.length > 0) {
+            const walletList = walletsDetected.join(' and ');
+            throw new Error(`${walletList} detected but connection failed. Please:\n1. Make sure your wallet is unlocked\n2. Approve the connection request\n3. Refresh the page and try again\n\nError: ${lastError?.message || 'Unknown error'}`);
+        }
+        
+        // No wallet found at all
         let errorMsg = 'No compatible wallet found. ';
         
         if (isMobile) {
