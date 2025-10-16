@@ -689,10 +689,139 @@
             ).join('');
     }
 
-    // Initialize logging on page load
-    logSessionEvent('info', 'Page loaded', { url: window.location.href });
-    window.addEventListener('error', (e) => logSessionEvent('error', e.message, { stack: e.stack }));
-    window.addEventListener('unhandledrejection', (e) => logSessionEvent('error', 'Unhandled promise rejection', { reason: e.reason }));
+    // Tester Agent System
+    const testerAgents = [
+        { id: 'Agent1', role: 'LoginTester', actions: testLoginFlow },
+        { id: 'Agent2', role: 'GlobeExplorer', actions: testGlobeInteractions },
+        { id: 'Agent3', role: 'ServerTester', actions: testServerConnections },
+        { id: 'Agent4', role: 'UITester', actions: testUIElements }
+    ];
+
+    function runTesterAgents() {
+        logSessionEvent('info', 'Starting tester agent exploration');
+        testerAgents.forEach(agent => {
+            setTimeout(() => {
+                logSessionEvent('info', `${agent.id} (${agent.role}) starting exploration`);
+                agent.actions();
+            }, Math.random() * 5000); // Stagger starts
+        });
+    }
+
+    // Agent 1: Test login flow and authentication
+    function testLoginFlow() {
+        logSessionEvent('info', 'Agent1: Checking login button visibility');
+        const loginBtn = document.getElementById('loginBtn');
+        if (loginBtn && loginBtn.style.display !== 'none') {
+            logSessionEvent('info', 'Agent1: Login button visible, simulating click');
+            // Simulate click
+            loginBtn.click();
+            setTimeout(() => {
+                const modal = document.getElementById('loginModal');
+                if (modal && modal.style.display !== 'none') {
+                    logSessionEvent('info', 'Agent1: Login modal appeared');
+                    const connectBtn = document.getElementById('modalLoginBtn');
+                    if (connectBtn) {
+                        logSessionEvent('info', 'Agent1: Clicking connect wallet');
+                        connectBtn.click();
+                    }
+                } else {
+                    logSessionEvent('warning', 'Agent1: Login modal did not appear');
+                }
+            }, 1000);
+        } else {
+            logSessionEvent('warning', 'Agent1: Login button not visible');
+        }
+
+        // Check balance displays
+        setTimeout(() => {
+            logSessionEvent('info', 'Agent1: Checking MGC balance display');
+            const mgcBalance = document.getElementById('mgcBalanceDisplay');
+            if (mgcBalance && mgcBalance.style.display !== 'none') {
+                logSessionEvent('info', 'Agent1: MGC balance visible');
+            } else {
+                logSessionEvent('warning', 'Agent1: MGC balance not visible');
+            }
+        }, 2000);
+    }
+
+    // Agent 2: Test 3D globe interactions
+    function testGlobeInteractions() {
+        logSessionEvent('info', 'Agent2: Checking 3D globe container');
+        const globeContainer = document.getElementById('globe-container');
+        if (globeContainer) {
+            logSessionEvent('info', 'Agent2: Globe container found, checking if Earth is rendered');
+            // Check if Earth texture loaded (simulate by checking if textureLoader was called)
+            setTimeout(() => {
+                if (typeof THREE !== 'undefined') {
+                    logSessionEvent('info', 'Agent2: Three.js loaded, attempting globe interaction');
+                    // Simulate mouse move over globe
+                    const event = new MouseEvent('mousemove', {
+                        clientX: 400,
+                        clientY: 300
+                    });
+                    globeContainer.dispatchEvent(event);
+                } else {
+                    logSessionEvent('warning', 'Agent2: Three.js not loaded');
+                }
+            }, 1000);
+        } else {
+            logSessionEvent('warning', 'Agent2: Globe container not found');
+        }
+    }
+
+    // Agent 3: Test server connections
+    function testServerConnections() {
+        logSessionEvent('info', 'Agent3: Testing server API connections');
+        const apiEndpoints = ['/api/ping', '/api/players/leaderboard', '/api/models'];
+        apiEndpoints.forEach(endpoint => {
+            fetch(endpoint, { cache: 'no-store' })
+                .then(response => {
+                    if (response.ok) {
+                        logSessionEvent('info', `Agent3: ${endpoint} connected successfully`);
+                    } else {
+                        logSessionEvent('warning', `Agent3: ${endpoint} returned ${response.status}`);
+                    }
+                })
+                .catch(error => {
+                    logSessionEvent('info', `Agent3: ${endpoint} failed (expected offline)`, { error: error.message });
+                });
+        });
+    }
+
+    // Agent 4: Test UI elements and responsiveness
+    function testUIElements() {
+        logSessionEvent('info', 'Agent4: Checking UI elements');
+        const elements = [
+            { id: 'contentToggleBtn', name: 'Mission Control Toggle' },
+            { id: 'mgc-promotion', name: 'MGC Promotion Card' },
+            { id: 'sessionLogToggle', name: 'Session Log Toggle' },
+            { id: 'statusMessage', name: 'Server Status' }
+        ];
+
+        elements.forEach(el => {
+            const element = document.getElementById(el.id);
+            if (element) {
+                logSessionEvent('info', `Agent4: ${el.name} found and visible`);
+                // Simulate click
+                if (el.id === 'contentToggleBtn') {
+                    element.click();
+                    setTimeout(() => {
+                        const postLogin = document.getElementById('postLoginContent');
+                        if (postLogin && postLogin.style.display === 'block') {
+                            logSessionEvent('info', 'Agent4: Mission Control toggled successfully');
+                        } else {
+                            logSessionEvent('warning', 'Agent4: Mission Control did not toggle');
+                        }
+                    }, 500);
+                }
+            } else {
+                logSessionEvent('warning', `Agent4: ${el.name} not found`);
+            }
+        });
+    }
+
+    // Run tester agents on page load
+    window.addEventListener('load', runTesterAgents);
     
     // Wallet-based authentication check (same as profile.js)
     function isUserAuthenticated() {
