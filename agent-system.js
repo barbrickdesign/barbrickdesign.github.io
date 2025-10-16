@@ -1,7 +1,7 @@
 // Agent Monitoring System - Main Entry Point
 // Modular agent monitoring system for better organization
 
-// Wait for dependencies to be available
+// Wait for dependencies to be available (simplified since loaded in correct order)
 async function waitForDependencies() {
     const dependencies = {
         'agentSystem': 'agent-core.js',
@@ -10,7 +10,7 @@ async function waitForDependencies() {
         'setupEnhancedErrorMonitoring': 'monitoring-systems.js'
     };
 
-    const maxRetries = 80; // 8 seconds max wait (increased from 5)
+    const maxRetries = 50; // 5 seconds max wait
     let retries = 0;
 
     while (retries < maxRetries) {
@@ -33,38 +33,8 @@ async function waitForDependencies() {
         retries++;
     }
 
-    console.error('❌ Agent dependencies failed to load after 8 seconds');
+    console.error('❌ Agent dependencies failed to load after 5 seconds');
     return false;
-}
-
-// Load core agent system
-// Note: agent-core.js must be loaded first
-async function checkAgentCore() {
-    if (typeof AgentSystem === 'undefined') {
-        console.error('❌ Agent Core not loaded. Make sure agent-core.js is included before agent-system.js');
-        return false;
-    }
-    return true;
-}
-
-// Load agent types
-// Note: agent-types.js must be loaded after agent-core.js
-async function checkAgentTypes() {
-    if (typeof BaseAgent === 'undefined') {
-        console.error('❌ Agent Types not loaded. Make sure agent-types.js is included after agent-core.js');
-        return false;
-    }
-    return true;
-}
-
-// Load monitoring systems
-// Note: monitoring-systems.js can be loaded independently
-async function checkMonitoringSystems() {
-    if (typeof setupEnhancedErrorMonitoring === 'undefined') {
-        console.error('❌ Monitoring Systems not loaded. Make sure monitoring-systems.js is included');
-        return false;
-    }
-    return true;
 }
 
 // Initialize agent system after dependencies are loaded
