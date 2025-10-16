@@ -19,25 +19,26 @@
     <title>BARBRICKDESIGN - Elite Web3 Hub</title>
     
     <!-- Core Authentication System -->
-    <script src="universal-wallet-auth.js"></script>
-    <script src="auth-integration.js"></script>
+    <script src="universal-wallet-auth.js" defer></script>
+    <script src="auth-integration.js" defer></script>
     
     <!-- Wallet UI Components -->
-    <script src="wallet-button.js"></script>
-    <script src="auth-bootstrap.js"></script>
-    <link rel="stylesheet" href="wallet-button.css">
+    <script src="wallet-button.js" defer></script>
+    <script src="auth-bootstrap.js" defer></script>
+    <link rel="preload" href="wallet-button.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="wallet-button.css"></noscript>
     
     <!-- Government Contract Integration -->
-    <script src="fpds-contract-schema.js"></script>
-    <script src="samgov-integration.js"></script>
-    <script src="samgov-api-integration.js"></script>
+    <script src="fpds-contract-schema.js" defer></script>
+    <script src="samgov-integration.js" defer></script>
+    <script src="samgov-api-integration.js" defer></script>
     
     <!-- Agent Monitoring System -->
-    <script src="agent-types.js"></script>
-    <script src="monitoring-systems.js"></script>
-    <script src="agent-core.js"></script>
-    <script src="agent-system.js"></script>
-    <script src="agent-display.js"></script>
+    <script src="agent-types.js" defer></script>
+    <script src="monitoring-systems.js" defer></script>
+    <script src="agent-core.js" defer></script>
+    <script src="agent-system.js" defer></script>
+    <script src="agent-display.js" defer></script>
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
