@@ -3291,7 +3291,9 @@
         <script src="drip_protocol.js"></script>
         <script src="mandemos_sync.js"></script>
         <script src="solana_agent_trading.js"></script>
-        <script src="pump_fun_integration.js"></script>         
+        <script src="pump_fun_integration.js"></script>
+        <script src="real_agent_trading.js"></script>
+        <script src="advanced_simulator.js"></script>         
         <!-- Add login simulation code -->         
         <script>
     // Simulate login functionality
@@ -3455,6 +3457,46 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     }, 10000); // Update every 10 seconds
+
+    // Real-world agent status indicator
+    const realAgentStatus = document.createElement('div');
+    realAgentStatus.id = 'realAgentStatus';
+    realAgentStatus.style.cssText = `
+        position: fixed;
+        top: 20px;
+        left: 450px;
+        background: rgba(138, 43, 226, 0.8);
+        color: #fff;
+        padding: 6px 10px;
+        border-radius: 6px;
+        font-family: 'Orbitron', monospace;
+        font-size: 10px;
+        z-index: 10001;
+        border: 1px solid rgba(138, 43, 226, 0.5);
+        cursor: pointer;
+        display: none;
+    `;
+    realAgentStatus.textContent = '🌍 Real Agents: Active';
+    realAgentStatus.onclick = () => {
+        if (window.realAgentManager) {
+            const stats = window.realAgentManager.getSystemStats();
+            alert(`Real Agent Stats:\nAgents: ${stats.totalAgents}\nActive: ${stats.activeAgents}\nAuthorized: ${stats.authorizedAgents}\nVolume: ${stats.totalTradingVolume.toFixed(2)} SOL`);
+        }
+    };
+    document.body.appendChild(realAgentStatus);
+
+    // Update real agent status periodically
+    setInterval(() => {
+        if (window.realAgentManager) {
+            const stats = window.realAgentManager.getSystemStats();
+            if (stats.totalAgents > 0) {
+                realAgentStatus.style.display = 'block';
+                realAgentStatus.innerHTML = `🌍 Real Agents: ${stats.authorizedAgents}/${stats.totalAgents} | Score: ${stats.averageSimulationScore.toFixed(1)}`;
+            } else {
+                realAgentStatus.style.display = 'none';
+            }
+        }
+    }, 15000); // Update every 15 seconds
 
 // Server start button - graceful failure
 const statusMsg = document.getElementById('statusMessage');

@@ -114,6 +114,27 @@ class DashboardManager {
         }
     }
 
+    // Load real-world agent data
+    loadRealAgentData() {
+        if (window.realAgentManager) {
+            this.data.realAgents = window.realAgentManager.getAllRegisteredAgents().map(agent => {
+                const performance = window.realAgentManager.getAgentPerformance(agent.id);
+                return {
+                    id: agent.id,
+                    name: agent.name,
+                    status: agent.status,
+                    simulationScore: agent.tradingStats.simulationScore,
+                    tradingVolume: performance ? performance.totalPnL : 0,
+                    pnl: performance ? performance.totalPnL : 0,
+                    strategy: agent.permissions.riskLevel,
+                    lastActivity: agent.lastActivity,
+                    isAuthorized: agent.permissions.canUseFunds
+                };
+            });
+            this.updateRealAgentTable(this.data.realAgents);
+        }
+    }
+
     // Update UI with current data
     updateUI() {
         this.updateStatsCards();
