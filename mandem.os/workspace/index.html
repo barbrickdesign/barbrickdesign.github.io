@@ -480,7 +480,27 @@
       localStorage.setItem('visited', 'true');
     }
     
-    // Quick Phantom wallet connect for modal
+    // Enhanced wallet connection using shared wallet system
+    async function connectWalletForMGC() {
+      try {
+        if (window.sharedWalletSystem) {
+          await window.sharedWalletSystem.connect();
+          console.log('✅ Wallet connected via shared system');
+          updateAuthButton();
+          updateMgcBalanceDisplay();
+          return true;
+        }
+
+        // Fallback to old system if shared system not available
+        return await quickConnectWallet();
+      } catch (error) {
+        console.error('❌ Wallet connection failed:', error);
+        alert('Wallet connection failed. Please try again.');
+        return false;
+      }
+    }
+    
+    // Fallback wallet connection for backward compatibility
     async function quickConnectWallet() {
       try {
         const provider = window.solana;
