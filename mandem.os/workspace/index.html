@@ -457,17 +457,24 @@
 
     // Globe and environment configuration
     document.addEventListener('DOMContentLoaded', function() {
+      // Hide welcome overlay function
+      function hideWelcomeOverlay() {
+        const welcomeOverlay = document.querySelector('.welcome-overlay');
+        if (welcomeOverlay) {
+          welcomeOverlay.style.opacity = '0';
+          setTimeout(function() {
+            welcomeOverlay.style.display = 'none';
+          }, 1000);
+        }
+      }
+
       // Setup welcome overlay hover disappear
       const welcomeOverlay = document.querySelector('.welcome-overlay');
       let hoverTimer;
       
       welcomeOverlay.addEventListener('mouseenter', function() {
         hoverTimer = setTimeout(function() {
-          welcomeOverlay.style.opacity = '0';
-          // Hide completely after fade animation completes
-          setTimeout(function() {
-            welcomeOverlay.style.display = 'none';
-          }, 1000);
+          hideWelcomeOverlay();
         }, 2000); // 2 seconds
       });
       
