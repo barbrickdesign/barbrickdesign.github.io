@@ -666,6 +666,29 @@
             
             <div class="stats-grid" id="statsGrid"></div>
             
+            <!-- Compensation Claims Section -->
+            <div id="compensationSection" style="background: linear-gradient(135deg, rgba(255,215,0,0.1), rgba(255,170,0,0.1)); border: 2px solid rgba(255,215,0,0.3); padding: 25px; border-radius: 15px; margin: 30px 0;">
+                <h3 style="color: #ffdd66; margin-bottom: 20px; text-align: center;">💰 Developer Compensation Claims</h3>
+                <p style="color: #ffcc99; text-align: center; margin-bottom: 20px;">
+                    Check if your GitHub projects may have been used in government contracts and claim compensation.
+                </p>
+
+                <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-bottom: 20px;">
+                    <button onclick="scanGitHubProjects()" style="padding: 10px 20px; background: rgba(255,215,0,0.2); border: 2px solid #ffd700; border-radius: 8px; color: #ffdd66; font-family: 'Orbitron', sans-serif; cursor: pointer; font-weight: 700;">
+                        🔍 Scan GitHub Projects
+                    </button>
+                    <button onclick="showCompensationClaims()" style="padding: 10px 20px; background: rgba(0,150,255,0.2); border: 2px solid #0099ff; border-radius: 8px; color: #66ccff; font-family: 'Orbitron', sans-serif; cursor: pointer; font-weight: 700;">
+                        📋 View Claims
+                    </button>
+                    <button onclick="submitCompensationClaim()" style="padding: 10px 20px; background: linear-gradient(90deg, #00ff00, #66ff66); border: none; border-radius: 8px; color: #000; font-family: 'Orbitron', sans-serif; cursor: pointer; font-weight: 700;">
+                        ➕ Submit Claim
+                    </button>
+                </div>
+
+                <div id="compensationStatus" style="text-align: center; color: #ffcc99; font-size: 0.9em;"></div>
+                <div id="compensationResults" style="margin-top: 20px;"></div>
+            </div>
+            
             <div class="contracts-grid" id="contractsGrid"></div>
         </div>
 
@@ -853,13 +876,6 @@
             document.getElementById('userCaveats').textContent = user.caveatCodes.join(', ') || 'None';
             document.getElementById('userExpiration').textContent = user.expirationDate;
 
-        function displayUserInfo(user) {
-            document.getElementById('userName').textContent = user.commonName;
-            document.getElementById('userOrg').textContent = user.organization;
-            document.getElementById('userClearance').textContent = user.clearanceLevel.replace('_', '/');
-            document.getElementById('userCaveats').textContent = user.caveatCodes.join(', ') || 'None';
-            document.getElementById('userExpiration').textContent = user.expirationDate;
-
             // Show authentication method
             if (user.samGovAuthenticated) {
                 document.getElementById('userAuthMethod').textContent = 'SAM.gov SSO';
@@ -957,12 +973,160 @@
             }
         }
 
-        function scrollToContracts() {
-            document.querySelector('h2').scrollIntoView({ behavior: 'smooth' });
+        function scanGitHubProjects() {
+            const status = document.getElementById('compensationStatus');
+
+            if (!window.githubIntegration?.githubToken) {
+                status.innerHTML = '<p style="color: #ff6666;">GitHub token required. Please connect your GitHub account first.</p>';
+                return;
+            }
+
+            status.innerHTML = '<p style="color: #66ccff;">🔍 Scanning your GitHub repositories...</p>';
+
+            window.githubIntegration.getUserRepositories().then(repos => {
+                if (repos.length === 0) {
+                    status.innerHTML = '<p style="color: #ff6666;">No public repositories found. Make sure your repositories are public or connect with a token that has access to private repos.</p>';
+                    return;
+                }
+
+                // Analyze repositories for potential government usage
+                return window.githubContractDetector.batchAnalyzeRepositories(repos);
+            }).then(analyses => {
+                if (analyses && analyses.length > 0) {
+                    displayCompensationMatches(analyses);
+                } else {
+                    status.innerHTML = '<p style="color: #ffaa00;">No potential government contract matches found in your repositories.</p>';
+                }
+            }).catch(error => {
+                console.error('Error scanning GitHub projects:', error);
+                status.innerHTML = '<p style="color: #ff6666;">Error scanning repositories. Please try again.</p>';
+            });
         }
 
-        function scrollToProfile() {
-            document.querySelector('.user-info').scrollIntoView({ behavior: 'smooth' });
+        function displayCompensationMatches(analyses) {
+            const resultsDiv = document.getElementById('compensationResults');
+            resultsDiv.innerHTML = '';
+
+            analyses.forEach(analysis => {
+                const repo = analysis.repository;
+                const matches = analysis.samGovMatches;
+
+                if (matches.length > 0) {
+                    const matchCard = document.createElement('div');
+                    matchCard.className = 'contract-card';
+                    matchCard.innerHTML = `
+                        <div class="contract-header">
+                            <div class="contract-title">🔗 ${repo.name} - Potential Government Usage</div>
+                        </div>
+                        <div class="contract-value">$${(matches[0].compensationEstimate.estimatedAmount / 1000000).toFixed(1)}M Potential</div>
+                        <div class="contract-details">
+                            <strong>Repository:</strong> ${repo.full_name}<br>
+                            <strong>Language:</strong> ${repo.language}<br>
+                            <strong>Stars:</strong> ${repo.stargazers_count}<br>
+                            <strong>Last Updated:</strong> ${new Date(repo.updated_at).toLocaleDateString()}
+                        </div>
+                        <p style="color: #ff9999; margin: 15px 0;">${matches[0].matchReasons.join('<br>')}</p>
+
+                        <div style="background: rgba(255, 215, 0, 0.1); border: 2px solid rgba(255, 215, 0, 0.3); padding: 15px; border-radius: 8px; margin: 15px 0;">
+                            <h4 style="color: #ffdd66; margin-bottom: 10px;">💰 Compensation Estimate</h4>
+                            <p><strong>Estimated Value:</strong> $${matches[0].compensationEstimate.estimatedAmount.toLocaleString()}</p>
+                            <p><strong>Confidence:</strong> ${matches[0].compensationEstimate.confidence}</p>
+                            <p><strong>Evidence Strength:</strong> ${matches[0].matchScore}/100</p>
+                        </div>
+
+                        <button onclick="claimCompensation('${repo.full_name}', '${matches[0].opportunity.id}')" style="width: 100%; padding: 12px; background: linear-gradient(90deg, #00ff00, #66ff66); border: none; border-radius: 8px; color: #000; font-family: 'Orbitron', sans-serif; cursor: pointer; font-weight: 700;">
+                            💰 Submit Compensation Claim
+                        </button>
+                    `;
+
+                    resultsDiv.appendChild(matchCard);
+                }
+            });
+
+            status.innerHTML = `<p style="color: #00ff00;">✅ Found ${analyses.length} potential matches! Review the results below.</p>`;
+        }
+
+        async function claimCompensation(repoFullName, contractId) {
+            const user = window.securityClearanceAuth.currentUser;
+
+            if (!user.samGovAuthenticated) {
+                alert('Please authenticate with SAM.gov first to submit compensation claims.');
+                return;
+            }
+
+            // Create compensation claim
+            const claimData = {
+                repositoryUrl: `https://github.com/${repoFullName}`,
+                repositoryOwner: repoFullName.split('/')[0],
+                repositoryName: repoFullName.split('/')[1],
+                contractId: contractId,
+                claimantAddress: user.walletAddress || user.samGovProfile?.ueiSAM,
+                claimantName: user.commonName,
+                description: `Compensation claim for GitHub repository ${repoFullName} potentially used in government contract ${contractId}`,
+                requestedAmount: 500000, // Default amount - would be calculated based on analysis
+                evidence: [{
+                    type: 'github_repository',
+                    strength: 'strong',
+                    description: `GitHub repository ${repoFullName} contains code potentially used in government contract`
+                }]
+            };
+
+            try {
+                const result = await window.compensationClaimSystem.submitCompensationClaim(claimData);
+
+                if (result.success) {
+                    alert(`✅ Compensation claim submitted successfully! Claim ID: ${result.claimId}`);
+                    showCompensationClaims(); // Refresh the claims view
+                } else {
+                    alert(`❌ Error submitting claim: ${result.error}`);
+                }
+            } catch (error) {
+                console.error('Error submitting compensation claim:', error);
+                alert('Error submitting claim. Please try again.');
+            }
+        }
+
+        function showCompensationClaims() {
+            const claims = window.compensationClaimSystem.getCompensationClaims();
+            const resultsDiv = document.getElementById('compensationResults');
+
+            if (claims.length === 0) {
+                resultsDiv.innerHTML = '<p style="color: #ffaa00; text-align: center; padding: 40px;">No compensation claims submitted yet.</p>';
+                return;
+            }
+
+            resultsDiv.innerHTML = '';
+
+            claims.forEach(claim => {
+                const claimCard = document.createElement('div');
+                claimCard.className = 'contract-card';
+                claimCard.innerHTML = `
+                    <div class="contract-header">
+                        <div class="contract-title">💰 Claim: ${claim.repository.name}</div>
+                    </div>
+                    <div class="contract-details">
+                        <strong>Status:</strong> ${claim.status.toUpperCase()}<br>
+                        <strong>Repository:</strong> ${claim.repository.url}<br>
+                        <strong>Contract:</strong> ${claim.samGovContract.title}<br>
+                        <strong>Requested:</strong> $${claim.claimDetails.requestedAmount.toLocaleString()}<br>
+                        <strong>Submitted:</strong> ${new Date(claim.submittedAt).toLocaleDateString()}
+                    </div>
+                    ${claim.status === 'approved' && claim.payoutAmount ?
+                        `<div style="background: rgba(0,255,0,0.1); border: 2px solid #00ff00; padding: 15px; border-radius: 8px; margin: 15px 0;">
+                            <h4 style="color: #00ff00;">✅ Claim Approved!</h4>
+                            <p><strong>Payout Amount:</strong> $${claim.payoutAmount.toLocaleString()}</p>
+                            <p><strong>Resolution Date:</strong> ${new Date(claim.resolvedAt).toLocaleDateString()}</p>
+                        </div>` : ''
+                    }
+                `;
+
+                resultsDiv.appendChild(claimCard);
+            });
+        }
+
+        async function submitCompensationClaim() {
+            // This would open a modal for manual claim submission
+            alert('Manual claim submission feature coming soon. Use the scan feature to auto-detect potential claims.');
         }
 
         async function syncSAMGovProfile() {

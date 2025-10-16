@@ -358,11 +358,12 @@ class SAMGovIntegration {
 
 class SAMGovIntegration {
     constructor() {
-        // SAM.gov endpoints for opportunities
+        // SAM.gov endpoints for opportunities and historical data
         this.samApiEndpoint = 'https://api.sam.gov/prod/opportunities/v2/search';
         this.samContractEndpoint = 'https://api.sam.gov/prod/federalcontractdata/v1/search';
         this.samEntityEndpoint = 'https://api.sam.gov/prod/entity-information/v1/entities';
         this.samExclusionsEndpoint = 'https://api.sam.gov/prod/sam-exclusions/v1/exclusions';
+        this.samHistoricalEndpoint = 'https://sam.gov/data-services/Contract%20Opportunities/daily/historical';
         
         // FPDS endpoints for historical contract data
         this.fpdsEndpoint = 'https://www.fpds.gov/ezsearch/FEEDS/ATOM';
@@ -968,6 +969,178 @@ class SAMGovIntegration {
             `Receive ${Math.round(marketValue.marketValue * 0.5).toLocaleString()} USD equivalent in tokens`,
             `Optional: Join collaborative team for future contracts`
         ];
+    }
+
+    /**
+     * Fetch historical contract opportunities for cross-referencing
+     */
+    async fetchHistoricalOpportunities(dateRange = 'last30days', category = null) {
+        try {
+            console.log(` Fetching historical contract opportunities for ${dateRange}`);
+
+            // For production, use the actual SAM.gov API
+            // For now, return enhanced mock data with realistic historical patterns
+            const historicalData = this.getHistoricalOpportunitiesMock(dateRange, category);
+
+            return historicalData;
+
+        } catch (error) {
+            console.error('Error fetching historical opportunities:', error);
+            return [];
+        }
+    }
+
+    /**
+     * Get mock historical opportunities data (would be real API in production)
+     */
+    getHistoricalOpportunitiesMock(dateRange, category) {
+        const opportunities = [
+            {
+                id: 'FA8650-23-C-5678',
+                title: 'AI-Powered Threat Detection Platform',
+                agency: 'Department of Defense - Air Force',
+                solicitationNumber: 'FA8650-23-R-5678',
+                awardDate: '2023-06-15',
+                awardAmount: 12500000,
+                description: 'Machine learning system for real-time threat detection and analysis',
+                naicsCode: '541715',
+                competitionType: 'Full and Open Competition',
+                numberOfOffers: 8,
+                contractor: 'AI Defense Systems LLC',
+                placeOfPerformance: 'Wright-Patterson AFB, OH',
+                requirements: ['AI/ML', 'Threat Detection', 'Real-time Analytics'],
+                technicalApproach: 'Neural networks for pattern recognition and anomaly detection',
+                githubKeywords: ['machine-learning', 'threat-detection', 'neural-networks', 'anomaly-detection'],
+                potentialMatches: [
+                    'tensorflow/tensorflow',
+                    'keras-team/keras',
+                    'scikit-learn/scikit-learn'
+                ]
+            },
+            {
+                id: 'W15P7T-23-D-0052',
+                title: 'Blockchain Supply Chain Management System',
+                agency: 'Department of Defense - Army',
+                solicitationNumber: 'W15P7T-23-R-0052',
+                awardDate: '2023-03-22',
+                awardAmount: 24500000,
+                description: 'Blockchain-based tracking system for military supply chain logistics',
+                naicsCode: '541519',
+                competitionType: 'Full and Open Competition',
+                numberOfOffers: 12,
+                contractor: 'Blockchain Logistics Corp',
+                placeOfPerformance: 'Fort Belvoir, VA',
+                requirements: ['Blockchain', 'Supply Chain', 'Military Logistics'],
+                technicalApproach: 'Distributed ledger technology for immutable tracking',
+                githubKeywords: ['blockchain', 'supply-chain', 'distributed-ledger', 'immutable-tracking'],
+                potentialMatches: [
+                    'hyperledger/fabric',
+                    'ethereum/go-ethereum',
+                    'bitcoin/bitcoin'
+                ]
+            },
+            {
+                id: 'GS35F-23-T-0156',
+                title: 'Cybersecurity Platform Enhancement',
+                agency: 'Department of Homeland Security',
+                solicitationNumber: 'GS35F-23-T-0156',
+                awardDate: '2023-01-15',
+                awardAmount: 15750000,
+                description: 'Enhanced cybersecurity platform for critical infrastructure protection',
+                naicsCode: '541512',
+                competitionType: 'Full and Open Competition',
+                numberOfOffers: 15,
+                contractor: 'CyberGuard Solutions Inc',
+                placeOfPerformance: 'Washington, DC',
+                requirements: ['Cybersecurity', 'Infrastructure Protection', 'Threat Detection'],
+                technicalApproach: 'Multi-layered security with AI-powered threat detection',
+                githubKeywords: ['cybersecurity', 'threat-detection', 'infrastructure-protection', 'ai-security'],
+                potentialMatches: [
+                    'OWASP/CheatSheetSeries',
+                    'mitre-attack/attack-navigator',
+                    'snort/snort'
+                ]
+            },
+            {
+                id: 'N00178-23-C-4321',
+                title: 'Cloud Infrastructure Management Platform',
+                agency: 'Department of Defense - Navy',
+                solicitationNumber: 'N00178-23-R-4321',
+                awardDate: '2023-02-28',
+                awardAmount: 31000000,
+                description: 'Enterprise cloud management and orchestration platform',
+                naicsCode: '518210',
+                competitionType: 'Full and Open Competition',
+                numberOfOffers: 18,
+                contractor: 'CloudOps Technologies',
+                placeOfPerformance: 'San Diego, CA',
+                requirements: ['Cloud Computing', 'Infrastructure Management', 'Orchestration'],
+                technicalApproach: 'Kubernetes-based container orchestration with multi-cloud support',
+                githubKeywords: ['kubernetes', 'cloud-computing', 'container-orchestration', 'multi-cloud'],
+                potentialMatches: [
+                    'kubernetes/kubernetes',
+                    'helm/helm',
+                    'istio/istio'
+                ]
+            },
+            {
+                id: 'HSHQDC-23-D-0089',
+                title: 'Web3 Identity Management System',
+                agency: 'Department of Homeland Security',
+                solicitationNumber: 'HSHQDC-23-R-0089',
+                awardDate: '2023-05-18',
+                awardAmount: 8900000,
+                description: 'Decentralized identity verification system for secure access control',
+                naicsCode: '541511',
+                competitionType: 'Full and Open Competition',
+                numberOfOffers: 10,
+                contractor: 'Decentralized Identity Systems',
+                placeOfPerformance: 'Arlington, VA',
+                requirements: ['Web3', 'Identity Management', 'Decentralized Systems'],
+                technicalApproach: 'Blockchain-based identity verification with zero-knowledge proofs',
+                githubKeywords: ['web3', 'identity-management', 'zero-knowledge-proofs', 'blockchain-identity'],
+                potentialMatches: [
+                    'iden3/circuits',
+                    '0xProject/0x-protocol',
+                    'uport-project/uport-identity'
+                ]
+            }
+        ];
+
+        // Filter by category if specified
+        if (category) {
+            return opportunities.filter(opp => {
+                const oppCategory = this.inferCategoryFromDescription(opp.description);
+                return oppCategory === category;
+            });
+        }
+
+        return opportunities;
+    }
+
+    /**
+     * Infer category from opportunity description
+     */
+    inferCategoryFromDescription(description) {
+        const desc = description.toLowerCase();
+
+        if (desc.includes('blockchain') || desc.includes('web3') || desc.includes('cryptocurrency')) {
+            return 'web3-blockchain';
+        }
+        if (desc.includes('cybersecurity') || desc.includes('security') || desc.includes('threat')) {
+            return 'cybersecurity';
+        }
+        if (desc.includes('cloud') || desc.includes('infrastructure')) {
+            return 'cloud-infrastructure';
+        }
+        if (desc.includes('ai') || desc.includes('machine learning') || desc.includes('ml')) {
+            return 'ai-ml';
+        }
+        if (desc.includes('data') || desc.includes('analytics')) {
+            return 'data-analytics';
+        }
+
+        return 'software-development';
     }
 }
 
