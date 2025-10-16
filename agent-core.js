@@ -364,43 +364,146 @@ class AgentSystem {
         };
     }
 
-    recordError(component, error) {
+    recordError(component, error, metadata = {}) {
+        const now = new Date();
         const errorEntry = {
-            id: Date.now() + Math.random(),
+            id: `error_${now.getTime()}_${Math.random().toString(36).substr(2, 9)}`,
             component,
             message: error.message || error.toString(),
             stack: error.stack,
-            timestamp: new Date().toISOString(),
-            status: 'open'
+            timestamp: now.toISOString(),
+            timestampMs: now.getTime(),
+            status: 'open',
+            category: this.categorizeError(error, component),
+            severity: this.determineSeverity(error, component),
+            source: metadata.source || 'unknown',
+            userAgent: navigator.userAgent,
+            url: window.location.href,
+            userId: metadata.userId || null,
+            sessionId: metadata.sessionId || null,
+            errorType: error.name || 'Unknown',
+            metadata: {
+                ...metadata,
+                lineNumber: error.lineNumber || metadata.lineNumber,
+                columnNumber: error.columnNumber || metadata.columnNumber,
+                fileName: error.fileName || metadata.fileName
+            },
+            fixAttempts: [],
+            resolved: false,
+            resolutionTime: null,
+            resolvedBy: null
         };
 
         this.errors.push(errorEntry);
-        this.log(`❌ ERROR: ${component} - ${errorEntry.message}`);
+        this.log(`❌ ERROR [${errorEntry.category.toUpperCase()}] ${component} - ${errorEntry.message}`, 'error');
 
+        // Attempt auto-recovery if error recovery agent is available
         const errorRecoveryAgent = this.agents.find(a => a.type === 'error-recovery');
         if (errorRecoveryAgent) {
             errorRecoveryAgent.attemptFix(errorEntry);
         }
 
         this.saveToStorage();
+        return errorEntry.id;
     }
 
-    recordFix(errorId, agentId = null) {
-        const error = this.errors.find(e => e.id === errorId);
-        if (error) {
-            error.status = 'fixed';
-            error.fixedAt = new Date().toISOString();
-            error.fixedBy = agentId;
-            this.fixes++;
+    categorizeError(error, component) {
+        const message = (error.message || error.toString()).toLowerCase();
 
-            if (agentId && this.agentStats[agentId]) {
-                this.agentStats[agentId].fixes++;
-                this.agentStats[agentId].repairs++;
-            }
-
-            this.log(`✅ FIXED: ${error.component} - ${error.message} (Agent: ${agentId || 'unknown'})`);
-            this.saveToStorage();
+        // Network errors
+        if (message.includes('network') || message.includes('fetch') || message.includes('connection')) {
+            return 'network';
         }
+
+        // Script loading errors
+        if (message.includes('script') || message.includes('module') || component.includes('script')) {
+            return 'script';
+        }
+
+        // DOM errors
+        if (message.includes('element') || message.includes('dom') || message.includes('missing')) {
+            return 'dom';
+        }
+
+        // Authentication errors
+        if (message.includes('auth') || message.includes('wallet') || message.includes('permission')) {
+            return 'auth';
+        }
+
+        // Performance errors
+        if (message.includes('performance') || message.includes('memory') || message.includes('timeout')) {
+            return 'performance';
+        }
+
+        // Security errors
+        if (message.includes('security') || message.includes('cors') || message.includes('blocked')) {
+            return 'security';
+        }
+
+        // Default categorization
+        return 'general';
+    }
+
+    determineSeverity(error, component) {
+        const message = (error.message || error.toString()).toLowerCase();
+
+        // Critical errors that break functionality
+        if (component === 'universal-wallet-auth' || component === 'main-hub' || component === 'service-worker') {
+            return 'critical';
+        }
+
+        // High severity errors
+        if (message.includes('failed') || message.includes('error') || message.includes('exception')) {
+            return 'high';
+        }
+
+        // Medium severity warnings
+        if (message.includes('warning') || message.includes('deprecated') || message.includes('missing')) {
+            return 'medium';
+        }
+
+        // Low severity informational
+        return 'low';
+    }
+
+    recordFix(errorId, agentId = null, fixDetails = {}) {
+        const error = this.errors.find(e => e.id === errorId);
+        if (!error) return false;
+
+        const now = new Date();
+        const fixEntry = {
+            id: `fix_${now.getTime()}_${Math.random().toString(36).substr(2, 9)}`,
+            errorId,
+            timestamp: now.toISOString(),
+            timestampMs: now.getTime(),
+            agentId,
+            fixType: fixDetails.type || 'automatic',
+            fixMethod: fixDetails.method || 'unknown',
+            success: fixDetails.success !== false,
+            description: fixDetails.description || 'Automated fix applied',
+            metadata: fixDetails.metadata || {},
+            duration: fixDetails.duration || 0
+        };
+
+        // Update error record
+        error.status = 'fixed';
+        error.fixedAt = now.toISOString();
+        error.fixedBy = agentId;
+        error.resolved = true;
+        error.resolutionTime = now.getTime() - new Date(error.timestamp).getTime();
+        error.fixAttempts.push(fixEntry);
+
+        // Update agent statistics
+        if (agentId && this.agentStats[agentId]) {
+            this.agentStats[agentId].fixes++;
+            this.agentStats[agentId].repairs++;
+        }
+
+        this.fixes++;
+        this.log(`✅ FIXED [${error.category.toUpperCase()}] ${error.component} - ${error.message} (Agent: ${agentId || 'unknown'})`, 'success');
+
+        this.saveToStorage();
+        return fixEntry.id;
     }
 
     recordAgentActivity(agentId, activityType) {
