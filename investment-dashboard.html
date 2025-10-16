@@ -468,21 +468,59 @@
             }
         }
 
-        // Fetch market data for Solana ecosystem
-        async function fetchSolanaMarketData() {
+        // Fetch real wallet balance from connected wallet
+        async function fetchWalletBalance() {
             try {
-                const response = await fetch(`${COINGECKO_API}/coins/solana`);
-                if (!response.ok) throw new Error('Failed to fetch Solana data');
-                
-                const data = await response.json();
-                return {
-                    marketCap: data.market_data?.market_cap?.usd || 0,
-                    volume24h: data.market_data?.total_volume?.usd || 0,
-                    priceChange24h: data.market_data?.price_change_percentage_24h || 0
-                };
+                if (!window.universalWalletAuth || !window.universalWalletAuth.isAuthenticated()) {
+                    document.getElementById('walletSection').style.display = 'none';
+                    return;
+                }
+
+                const authInfo = window.universalWalletAuth.getAuthInfo();
+                document.getElementById('connectedWallet').textContent = authInfo.shortAddress || 'Connected';
+
+                // For Solana wallets, fetch SOL balance
+                if (window.solana && window.solana.isPhantom) {
+                    try {
+                        const connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl('mainnet-beta'));
+                        const publicKey = new solanaWeb3.PublicKey(authInfo.address);
+                        const balance = await connection.getBalance(publicKey);
+                        const solBalance = balance / solanaWeb3.LAMPORTS_PER_SOL;
+                        document.getElementById('solBalance').textContent = solBalance.toFixed(4) + ' SOL';
+                    } catch (error) {
+                        console.warn('Failed to fetch SOL balance:', error);
+                        document.getElementById('solBalance').textContent = '0 SOL';
+                    }
+                }
+
+                document.getElementById('walletSection').style.display = 'block';
             } catch (error) {
-                console.warn('Failed to fetch Solana market data:', error);
-                return { marketCap: 0, volume24h: 0, priceChange24h: 0 };
+                console.warn('Failed to fetch wallet balance:', error);
+                document.getElementById('walletSection').style.display = 'none';
+            }
+        }
+
+        // Enhanced market data fetching with better error handling
+        async function fetchEnhancedMarketData() {
+            try {
+                // Fetch SOL data
+                const solData = await fetchSolanaMarketData();
+                document.getElementById('solPrice').textContent = '$' + solData.price.toFixed(2);
+                document.getElementById('marketCap').textContent = '$' + (solData.marketCap / 1000000000).toFixed(2) + 'B';
+                document.getElementById('volume24h').textContent = '$' + (solData.volume24h / 1000000).toFixed(1) + 'M';
+
+                // Update price change indicator
+                const solChangeEl = document.getElementById('solChange');
+                solChangeEl.textContent = (solData.priceChange24h >= 0 ? '+' : '') + solData.priceChange24h.toFixed(2) + '%';
+                solChangeEl.className = 'stat-change ' + (solData.priceChange24h >= 0 ? 'positive' : 'negative');
+
+                // Update portfolio change (simplified for now)
+                const portfolioChangeEl = document.getElementById('portfolioChange');
+                portfolioChangeEl.textContent = solChangeEl.textContent;
+                portfolioChangeEl.className = solChangeEl.className;
+
+            } catch (error) {
+                console.warn('Failed to fetch enhanced market data:', error);
             }
         }
 
