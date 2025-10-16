@@ -298,22 +298,46 @@
             <p style="margin-top: 15px; color: #8affff;">Crypto-Backed Investment Opportunities</p>
         </header>
 
+        <div class="wallet-section" id="walletSection" style="display: none;">
+            <h2 style="text-align: center; margin: 30px 0 20px 0;">💰 Your Wallet Holdings</h2>
+            <div class="wallet-grid" id="walletGrid">
+                <div class="wallet-card">
+                    <div class="wallet-label">Connected Wallet</div>
+                    <div class="wallet-value" id="connectedWallet">Not Connected</div>
+                </div>
+                <div class="wallet-card">
+                    <div class="wallet-label">SOL Balance</div>
+                    <div class="wallet-value" id="solBalance">0 SOL</div>
+                </div>
+                <div class="wallet-card">
+                    <div class="wallet-label">Portfolio Value</div>
+                    <div class="wallet-value" id="portfolioValue">$0</div>
+                </div>
+                <div class="wallet-card">
+                    <div class="wallet-label">24h Change</div>
+                    <div class="wallet-value" id="portfolioChange">+0%</div>
+                </div>
+            </div>
+        </div>
+
+        <h2 class="section-title" style="font-size: 2em; margin: 40px 0 20px 0;">📊 Market Data</h2>
         <div class="stats-grid" id="statsGrid">
             <div class="stat-card">
-                <div class="stat-label">Total Portfolio Value</div>
-                <div class="stat-value" id="totalValue">$0</div>
+                <div class="stat-label">SOL Price</div>
+                <div class="stat-value" id="solPrice">$0</div>
+                <div class="stat-change" id="solChange">+0%</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Market Cap</div>
+                <div class="stat-value" id="marketCap">$0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">24h Volume</div>
+                <div class="stat-value" id="volume24h">$0</div>
             </div>
             <div class="stat-card">
                 <div class="stat-label">Active Projects</div>
                 <div class="stat-value" id="projectCount">0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Total Market Cap</div>
-                <div class="stat-value" id="totalMarketCap">$0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Avg ROI Potential</div>
-                <div class="stat-value" id="avgROI">0x</div>
             </div>
         </div>
 
