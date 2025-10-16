@@ -685,3 +685,6 @@ class AgentSystem {
 window.agentSystem = new AgentSystem();
 
 console.log('🤖 Agent Core System loaded');
+
+// Export AgentSystem class globally for other modules to use
+window.AgentSystem = AgentSystem;
