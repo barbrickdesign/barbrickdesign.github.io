@@ -120,6 +120,14 @@
             margin-right: 5px;
             font-size: 20px;
         }
+    
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+        body { font-size: 16px; }
+        h1 { font-size: 2em; }
+        .container { padding: 10px; }
+        button, .btn { min-height: 44px; font-size: 16px; }
+    }
     </style>
     
     <!-- Universal Wallet Authentication -->
@@ -178,7 +186,7 @@
     <!-- Include auth.js for wallet and MGC logic -->
     <script src="./src/auth.js" defer></script>
     <script src="/WorkingProject/profile.js" defer></script>
-    <script src="public/phantomLogin.js" defer></script>
+    <script src="../../mandem.os/workspace/public/phantomLogin.js" defer></script>
     <script>
     function showDebugLog(msg) {
         var logDiv = document.getElementById('debug-log');

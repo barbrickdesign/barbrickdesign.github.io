@@ -40,7 +40,15 @@
     td{padding:8px 6px;border-top:1px dashed rgba(255,255,255,0.02);word-break:break-all}
     pre{white-space:pre-wrap}
     @media (max-width:1000px){ .wrap{flex-direction:column} .panel{width:100%;max-width:none;margin-left:0} canvas#flameCanvas{height:60vh} }
-  </style>
+  
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+        body { font-size: 16px; }
+        h1 { font-size: 2em; }
+        .container { padding: 10px; }
+        button, .btn { min-height: 44px; font-size: 16px; }
+    }
+    </style>
 </head>
 <body>
   <div class="wrap">
@@ -138,7 +146,7 @@
     </div>
   </div>
 
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js" crossorigin="anonymous" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@latest/build/three.min.js" crossorigin="anonymous" defer></script>
 
   <script>
   (function(){

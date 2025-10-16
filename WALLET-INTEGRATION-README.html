@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' https:; connect-src 'self' https:;">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <title>WALLET INTEGRATION README</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; }
+        h1, h2, h3 { color: #00ffff; }
+        code { background: #f4f4f4; padding: 2px 4px; border-radius: 4px; }
+        ul { margin-left: 20px; }
+        a { color: #00ff99; }
+    
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+        body { font-size: 16px; }
+        h1 { font-size: 2em; }
+        .container { padding: 10px; }
+        button, .btn { min-height: 44px; font-size: 16px; }
+    }
+    </style>
+</head>
+<body>
+    <h1>WALLET INTEGRATION README</h1>
+    <p><h1>Wallet Integration - Unified Solution</h1>
+
+<h2>Problem Solved</h2>
+
+The G3MPATH.html file mentioned doesn't exist (may have been deleted or renamed), but the core issue was that <strong>wallet connection wasn't working consistently across projects</strong>. This has been resolved by implementing a unified wallet connection system using the working <code>phantomLogin.js</code> script.
+
+<h2>What Was Fixed</h2>
+
+<h3>1. <strong>Unified Wallet Script</strong></h3>
+<ul><li>Located at: <code>mandem.os/workspace/public/phantomLogin.js</code></li></ul>
+<ul><li>This is the MASTER wallet connection script</li></ul>
+<ul><li>Handles Phantom wallet connection, signature verification, token/NFT fetching</li></ul>
+<ul><li>Works on both desktop and mobile (with deep linking)</li></ul>
+<ul><li>Auto-reconnects after mobile app returns</li></ul>
+
+<h3>2. <strong>Main Index Page Updated</strong></h3>
+<ul><li>File: <code>index.html</code> (root)</li></ul>
+<ul><li>Now includes wallet connection button</li></ul>
+<ul><li>Matches the style of <code>ember-terminal/app.html</code></li></ul>
+<ul><li>Links to Ember Terminal added</li></ul>
+<ul><li>Shows wallet status and address when connected</li></ul>
+
+<h3>3. <strong>Template Created</strong></h3>
+<ul><li>File: <code>wallet-base.html</code></li></ul>
+<ul><li>Copy-paste template for adding wallet connectivity to ANY HTML file</li></ul>
+<ul><li>Includes all required dependencies and usage instructions</li></ul>
+
+<h2>How to Use Wallet Connection</h2>
+
+<h3>For Existing Pages</h3>
+
+To add wallet connectivity to any HTML file, add these scripts in the <code><head></code> section <strong>BEFORE</strong> any custom scripts:
+
+<code>`</code>html
+<!-- Wallet Connection Dependencies -->
+<script src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iife.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@solana/spl-token@0.3.11/dist/browser/spl-token.min.js"></script>
+<script src="mandem.os/workspace/public/phantomLogin.js"></script>
+<code>`</code>
+
+<strong>Note:</strong> Adjust the path to <code>phantomLogin.js</code> based on your file's location relative to the root.
+
+<h3>Available Functions</h3>
+
+Once the scripts are loaded, you have access to:
+
+<code>`</code>javascript
+// Connect wallet (with optional signup redirect)
+await connectPhantomWallet(isSignup = false);
+
+// Disconnect wallet
+disconnectWallet();
+
+// Check if authenticated
+const isAuth = isUserAuthenticated();
+
+// Get current wallet state
+const state = getWalletState();
+// Returns: { connected, publicKey, balance, tokens, nfts }
+
+// Refresh wallet data
+await refreshWalletData();
+<code>`</code>
+
+<h3>Example Button Setup</h3>
+
+<code>`</code>html
+<button onclick="connectPhantomWallet()">Connect Wallet</button>
+
+<script>
+async function handleConnect() {
+    try {
+        await connectPhantomWallet();
+        const state = getWalletState();
+        if (state.connected) {
+            }
+    } catch (error) {
+        console.error('Connection failed:', error);
+    }
+}
+</script>
+<code>`</code>
+
+<h2>Files Modified</h2>
+
+1. <strong>index.html</strong> (root) - Added wallet connectivity and link to Ember Terminal
+2. <strong>wallet-base.html</strong> (NEW) - Template with all necessary includes
+3. <strong>WALLET-INTEGRATION-README.md</strong> (NEW) - This documentation
+
+<h2>Files Already Using Wallet Connection</h2>
+
+These files already have wallet connectivity implemented:
+
+<ul><li><code>mandem.os/workspace/login.html</code></li></ul>
+<ul><li><code>mandem.os/workspace/profile.html</code></li></ul>
+<ul><li><code>sol-recovery.html</code> (has its own implementation but can be unified)</li></ul>
+
+<h2>Key Features</h2>
+
+<h3>Desktop Support</h3>
+<ul><li>Automatic Phantom extension detection</li></ul>
+<ul><li>Signature verification for security</li></ul>
+<ul><li>Persistent connection across page reloads (24 hours)</li></ul>
+
+<h3>Mobile Support</h3>
+<ul><li>Deep linking to Phantom mobile app</li></ul>
+<ul><li>Auto-reconnect when returning from app</li></ul>
+<ul><li>Seamless mobile experience</li></ul>
+
+<h3>Data Fetching</h3>
+<ul><li>SOL balance</li></ul>
+<ul><li>All token holdings (SPL tokens)</li></ul>
+<ul><li>NFT detection (0 decimals, balance 1)</li></ul>
+<ul><li>Metadata fetching for NFTs</li></ul>
+
+<h3>Debug Features</h3>
+<ul><li>All actions logged to console</li></ul>
+<ul><li>Debug logs stored in localStorage</li></ul>
+<ul><li>Can view with: <code>JSON.parse(localStorage.getItem('wallet_debug_logs'))</code></li></ul>
+
+<h2>Testing the Connection</h2>
+
+<h3>On Desktop</h3>
+1. Open https://barbrickdesign.github.io/
+2. Click "Connect Wallet"
+3. Approve in Phantom extension
+4. Should show connected status with address
+
+<h3>On Mobile</h3>
+1. Open https://barbrickdesign.github.io/ in mobile browser
+2. Click "Connect Wallet"
+3. Opens Phantom app for approval
+4. Returns to site and auto-connects
+
+<h2>Troubleshooting</h2>
+
+<h3>"Wallet script not loaded" Error</h3>
+<ul><li>Check that all script tags are included in the correct order</li></ul>
+<ul><li>Verify the path to <code>phantomLogin.js</code> is correct</li></ul>
+<ul><li>Check browser console for loading errors</li></ul>
+
+<h3>Connection Fails on Mobile</h3>
+<ul><li>Ensure Phantom app is installed</li></ul>
+<ul><li>Clear browser cache and try again</li></ul>
+<ul><li>Check that you're returning to the same URL after approval</li></ul>
+
+<h3>Connection Not Persisting</h3>
+<ul><li>Check localStorage isn't being blocked</li></ul>
+<ul><li>Verify cookies/storage aren't being cleared</li></ul>
+<ul><li>Connection expires after 24 hours by default</li></ul>
+
+<h2>Next Steps</h2>
+
+<h3>To Add Wallet to Other Pages</h3>
+
+1. Copy the script includes from <code>wallet-base.html</code>
+2. Adjust the path to <code>phantomLogin.js</code> as needed
+3. Add a connect button with <code>onclick="connectPhantomWallet()"</code>
+4. Optionally check connection status on page load
+
+<h3>To Customize Behavior</h3>
+
+Edit <code>mandem.os/workspace/public/phantomLogin.js</code> to:
+<ul><li>Change connection timeout values</li></ul>
+<ul><li>Modify RPC endpoints</li></ul>
+<ul><li>Adjust authentication expiry time</li></ul>
+<ul><li>Add custom wallet state management</li></ul>
+
+<h2>Important Notes</h2>
+
+<ul><li><strong>DO NOT</strong> create duplicate wallet connection scripts</li></ul>
+<ul><li><strong>ALWAYS</strong> use the master script at <code>mandem.os/workspace/public/phantomLogin.js</code></li></ul>
+<ul><li>This ensures consistency across all projects</li></ul>
+<ul><li>All updates should be made to the master script only</li></ul>
+
+<h2>Support</h2>
+
+For issues or questions:
+1. Check browser console for detailed error logs
+2. View debug logs: <code>localStorage.getItem('wallet_debug_logs')</code>
+3. Verify Phantom wallet is installed and unlocked
+4. Test on https://barbrickdesign.github.
+</p>
+    <hr>
+    <p><a href="index.html">← Back to Home</a></p>
+</body>
+</html>

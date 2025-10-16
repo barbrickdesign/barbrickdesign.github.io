@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' https:; connect-src 'self' https:;">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <title>GEMBOT REAL HARDWARE REFERENCE</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; }
+        h1, h2, h3 { color: #00ffff; }
+        code { background: #f4f4f4; padding: 2px 4px; border-radius: 4px; }
+        ul { margin-left: 20px; }
+        a { color: #00ff99; }
+    
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+        body { font-size: 16px; }
+        h1 { font-size: 2em; }
+        .container { padding: 10px; }
+        button, .btn { min-height: 44px; font-size: 16px; }
+    }
+    </style>
+</head>
+<body>
+    <h1>GEMBOT REAL HARDWARE REFERENCE</h1>
+    <p><h1>💎 Gem Bot Mini - Real Hardware Reference</h1></p><p><h2>📸 Visual References</h2></p><p><h3>Instagram Post</h3>
+<strong>URL:</strong> https://www.instagram.com/p/C4gdJLYuQS8/  
+<strong>Date:</strong> March 14, 2024  
+<strong>Account:</strong> @barbricksjewelry</p><p><strong>Description:</strong>
+> "Index wheel is spot on. Wiring complete for motors and switches. Tested(working as should) Now time to get the drip system online, run some functionality tests and get these baby's packed up and shipped out! #gemBot the first 10 machines will come with this nice index gear ⚙️"</p><p><strong>Shows:</strong>
+<ul><li>Completed wiring for motors and switches</li></ul>
+<ul><li>96-tooth index gear installed</li></ul>
+<ul><li>Drip system ready for testing</li></ul>
+<ul><li>Production-ready machines</p><p><h3>Video Reference</h3></li></ul>
+<strong>File:</strong> <code>C:\Users\barbr\Videos\gemBot.mp4</code>  
+<strong>Shows:</strong> Real Gem Bot Mini in operation with physical Nextion HMI display</p><p>---</p><p><h2>🏭 Actual Hardware Components</h2></p><p><h3>Official 2024 Parts List</h3>
+Located: <code>D:\GemBotTouchScreen\2024 official parts list for the ge.txt</code></p><p><code>`</code>
+2024 official parts list for the gem bot</p><p>base-
+2020 frame rails-
+corner brackets-
+ball screw y axis-
+ball screw x axis-
+3x stepper motors- 
+2x arduino motor shields-
+index stepper motor-
+index stepper motor driver-
+planetary gear box-
+arduino-
+lcd-
+touch screen-
+faceting machine for parts-
+drip motor-
+drip containers-
+hardware-
+wires-
+filament-
+<code>`</code></p><p>---</p><p><h2>🔩 Detailed Component Breakdown</h2></p><p><h3>1. Frame Structure</h3>
+<strong>Material:</strong> 2020 Aluminum Extrusion (20mm x 20mm)
+<ul><li><strong>NOT</strong> a solid aluminum plate</li></ul>
+<ul><li><strong>NOT</strong> a simple rectangular frame</li></ul>
+<ul><li>Modular rail-based construction</li></ul>
+<ul><li>Corner brackets for connections</li></ul>
+<ul><li>Similar to CNC/3D printer frames</p><p><strong>STL Files:</strong></li></ul>
+<ul><li><code>2020endCap.stl</code> - End caps</li></ul>
+<ul><li><code>2020_v_Linear_rail_2.stl</code> - Linear rail mounts</li></ul>
+<ul><li><code>50mm 2020rail.stl</code> - Rail sections</li></ul>
+<ul><li><code>90 2020 connector.stl</code> - Corner brackets</li></ul>
+<ul><li><code>VslotTconnect.stl</code> - T-connectors</li></ul>
+<ul><li><code>OpenBeam_90_Degree_Corner_Coupler.stl</code> - Corner couplers</p><p><h3>2. Linear Motion System</h3></p><p>#### X-Axis (Horizontal)</li></ul>
+<ul><li><strong>Type:</strong> Ball screw driven</li></ul>
+<ul><li><strong>Motor:</strong> NEMA 17 stepper</li></ul>
+<ul><li><strong>Range:</strong> ~100mm travel</li></ul>
+<ul><li><strong>Rails:</strong> Linear guide rails</p><p><strong>STL Files:</strong></li></ul>
+<ul><li><code>Linear_Rail_Shaft_Guide_8mm.stl</code></li></ul>
+<ul><li><code>x axis limit switch bracket beefed up v2.stl</code></li></ul>
+<ul><li><code>X_Limit_Switch.STL</code></p><p>#### Y-Axis (Depth)</li></ul>
+<ul><li><strong>Type:</strong> Ball screw driven  </li></ul>
+<ul><li><strong>Motor:</strong> NEMA 17 stepper</li></ul>
+<ul><li><strong>Range:</strong> ~100mm travel</li></ul>
+<ul><li><strong>Rails:</strong> Linear guide rails</p><p><strong>STL Files:</strong></li></ul>
+<ul><li><code>y motor mount mod.stl</code></li></ul>
+<ul><li><code>longer y axis motor mount.stl</code></p><p><h3>3. Index System (96-Degree Wheel)</h3></p><p>#### Index Gear</li></ul>
+<ul><li><strong>Teeth:</strong> 96 (for 96 facet positions)</li></ul>
+<ul><li><strong>Material:</strong> 3D printed (likely PETG or ABS)</li></ul>
+<ul><li><strong>Precision:</strong> 3.75° per position (360° / 96)</p><p><strong>STL Files:</strong></li></ul>
+<ul><li><code>Atlas_96_Tooth_Gear.stl</code> ⭐ (Main index wheel)</li></ul>
+<ul><li><code>96 Tooth Pointer.stl</code> (Position indicator)</li></ul>
+<ul><li><code>96 Tooth PointerMount.stl</code> (Pointer mounting)</li></ul>
+<ul><li><code>indexGearMount.stl</code> (Gear mounting bracket)</p><p>#### Index Motor System</li></ul>
+<ul><li><strong>Motor:</strong> NEMA 17 stepper</li></ul>
+<ul><li><strong>Driver:</strong> Dedicated stepper driver</li></ul>
+<ul><li><strong>Control:</strong> Precise position stepping</p><p><strong>STL Files:</strong></li></ul>
+<ul><li><code>indexMotorBoxGood.stl</code> (Motor housing)</li></ul>
+<ul><li><code>Nema17_Mount.stl</code> (Motor mount)</p><p><h3>4. Angle Control (Planetary Gearbox)</h3></p><p>#### Gearbox</li></ul>
+<ul><li><strong>Type:</strong> Planetary reduction gearbox</li></ul>
+<ul><li><strong>Ratio:</strong> 5:1 (reduces speed, increases torque and precision)</li></ul>
+<ul><li><strong>Motor:</strong> NEMA 17 stepper</li></ul>
+<ul><li><strong>Precision:</strong> ±0.01° (thanks to gear reduction)</p><p><strong>STL Files:</strong></li></ul>
+<ul><li><code>Nema 17 5_1 Planetary Gearbox.stl</code> ⭐ (5:1 ratio)</li></ul>
+<ul><li><code>Nema 17 40mm 5_1 Planetary Gearbox.stl</code> (40mm version)</li></ul>
+<ul><li><code>Planet.stl</code> (Planetary gear component)</p><p><h3>5. Nextion HMI Display</h3></p><p>#### Touch Screen</li></ul>
+<ul><li><strong>Type:</strong> Nextion Enhanced/Intelligent series</li></ul>
+<ul><li><strong>Sizes:</strong> 3.5", 5.0", or 7.0" TFT LCD</li></ul>
+<ul><li><strong>Interface:</strong> Serial UART</li></ul>
+<ul><li><strong>Mounting:</strong> 3D printed stand</p><p><strong>STL Files:</strong></li></ul>
+<ul><li><code>touchScreenStandComplete.stl</code></li></ul>
+<ul><li><code>touchScreenHolder3.stl</code></li></ul>
+<ul><li><code>touchScreenHolderFancy2.stl</code></li></ul>
+<ul><li><code>touchScreenMount.stl</code></li></ul>
+<ul><li><code>touchScreenCase.stl</code></p><p><strong>HMI Files:</strong></li></ul>
+<ul><li><code>9172025WorkingMiniMod.HMI</code> ⭐ (Latest working version)</li></ul>
+<ul><li><code>8202424GemBotAutoCutComplete.HMI</code> (Auto-cut system)</li></ul>
+<ul><li><code>8162024GemBotTouchScreenCutSizer.HMI</code> (Cut sizing)</p><p><h3>6. Control Electronics</h3></p><p>#### Arduino System</li></ul>
+<ul><li><strong>Board:</strong> Arduino Mega 2560 (most likely)</li></ul>
+<ul><li><strong>Shields:</strong> 2x Arduino motor shields (for 3+ motors)</li></ul>
+<ul><li><strong>Housing:</strong> Custom 3D printed box</p><p><strong>STL Files:</strong></li></ul>
+<ul><li><code>arduinoBox.stl</code></li></ul>
+<ul><li><code>arduinoBoxLid.stl</code></li></ul>
+<ul><li><code>MEGA_R2_MOUNT.STL</code></li></ul>
+<ul><li><code>modular arduino BBox.stl</code></p><p>#### Motor Drivers</li></ul>
+<ul><li><strong>Type:</strong> TB6600 stepper drivers (common for NEMA 17)</li></ul>
+<ul><li><strong>Quantity:</strong> 3-4 drivers</li></ul>
+<ul><li><strong>Mounting:</strong> DIN rail or custom brackets</p><p><strong>STL Files:</strong></li></ul>
+<ul><li><code>TB6600_DIN_rail_mount.stl</code></li></ul>
+<ul><li><code>-Left-Step-Driver_Bracket-3.stl</code></li></ul>
+<ul><li><code>-Right-Step-Driver_Bracket-3.stl</code></p><p><h3>7. Drip System</h3></p><p>#### Water/Coolant Delivery</li></ul>
+<ul><li><strong>Motor:</strong> Small DC motor or servo</li></ul>
+<ul><li><strong>Containers:</strong> Reservoir and drip chamber</li></ul>
+<ul><li><strong>Control:</strong> Automated via Arduino</p><p><strong>STL Files:</strong></li></ul>
+<ul><li><code>Drip Switch Housing.stl</code></li></ul>
+<ul><li><code>dripLidv2.stl</code></li></ul>
+<ul><li><code>dripLidOpen.stl</code></li></ul>
+<ul><li><code>drip hole fix.stl</code></p><p><h3>8. Limit Switches</h3></p><p>#### Position Sensors</li></ul>
+<ul><li><strong>Type:</strong> Mechanical limit switches (microswitches)</li></ul>
+<ul><li><strong>Locations:</strong> X-axis, Y-axis, Z-axis endpoints</li></ul>
+<ul><li><strong>Purpose:</strong> Homing and safety limits</p><p><strong>STL Files:</strong></li></ul>
+<ul><li><code>x axis limit switch bracket beefed up v2.stl</code></li></ul>
+<ul><li><code>Top X axis limit bracket.stl</code></li></ul>
+<ul><li><code>Z axis limit bracket.stl</code></li></ul>
+<ul><li><code>limit_switch_cover.stl</code></p><p>---</p><p><h2>📐 Actual Dimensions</h2></p><p><h3>Frame Size (Estimated from STL)</h3></li></ul>
+<ul><li><strong>Width:</strong> ~300mm (X-axis)</li></ul>
+<ul><li><strong>Depth:</strong> ~250mm (Y-axis)  </li></ul>
+<ul><li><strong>Height:</strong> ~400mm (Z-axis)</li></ul>
+<ul><li><strong>Footprint:</strong> Compact desktop size</p><p><h3>Work Area</h3></li></ul>
+<ul><li><strong>X Travel:</strong> ~100mm</li></ul>
+<ul><li><strong>Y Travel:</strong> ~100mm</li></ul>
+<ul><li><strong>Index Rotation:</strong> 360° (96 positions)</li></ul>
+<ul><li><strong>Angle Range:</strong> 0-180° (via planetary gearbox)</p><p>---</p><p><h2>🎨 Actual Appearance</h2></p><p><h3>Colors & Materials</h3></li></ul>
+<ul><li><strong>Frame:</strong> Silver aluminum (2020 extrusions)</li></ul>
+<ul><li><strong>3D Printed Parts:</strong> Black or dark gray (PETG/ABS)</li></ul>
+<ul><li><strong>Index Gear:</strong> Brass/gold colored (special material for first 10 units)</li></ul>
+<ul><li><strong>Motors:</strong> Black stepper motors</li></ul>
+<ul><li><strong>Wiring:</strong> Colorful ribbon cables and wires</li></ul>
+<ul><li><strong>Display:</strong> Black Nextion touchscreen with blue header</p><p><h3>Assembly Style</h3></li></ul>
+<ul><li>Modular CNC/3D printer aesthetic</li></ul>
+<ul><li>Industrial functional design</li></ul>
+<ul><li>Exposed wiring and components (not fully enclosed)</li></ul>
+<ul><li>Easy access for maintenance</li></ul>
+<ul><li>Professional but DIY-friendly</p><p>---</p><p><h2>🔧 Key Differences from Current Simulator</h2></p><p><h3>Current Simulator</h3></li></ul>
+<ul><li>❌ Simple box-shaped aluminum frame</li></ul>
+<ul><li>❌ Cylindrical rails</li></ul>
+<ul><li>❌ Generic representation</li></ul>
+<ul><li>❌ Over-simplified structure</p><p><h3>Real Hardware</h3></li></ul>
+<ul><li>✅ 2020 aluminum extrusion frame</li></ul>
+<ul><li>✅ Ball screw linear motion</li></ul>
+<ul><li>✅ Actual 96-tooth index gear</li></ul>
+<ul><li>✅ 5:1 planetary gearbox</li></ul>
+<ul><li>✅ Modular construction</li></ul>
+<ul><li>✅ Visible motors and wiring</p><p>---</p><p><h2>📁 3D Model Files Available</h2></p><p><h3>Complete Assemblies</h3></li></ul>
+<ul><li><code>MiniGemBot.stl</code> - Complete mini assembly</li></ul>
+<ul><li><code>gemBotRobot.stl</code> - Full robot assembly</li></ul>
+<ul><li><code>AllParts.stl</code> - All parts combined</p><p><h3>Individual Components</h3></li></ul>
+<ul><li><strong>Motors:</strong> Planetary gearbox, motor mounts</li></ul>
+<ul><li><strong>Frame:</strong> Rails, connectors, brackets</li></ul>
+<ul><li><strong>Index:</strong> 96-tooth gear, pointer, mount</li></ul>
+<ul><li><strong>Linear Motion:</strong> Ball screws, rails, carriages</li></ul>
+<ul><li><strong>Electronics:</strong> Arduino housing, motor driver mounts</li></ul>
+<ul><li><strong>Display:</strong> Touch screen stands and cases</li></ul>
+<ul><li><strong>Miscellaneous:</strong> Limit switches, drip system, cable management</p><p><strong>Total STL Files:</strong> 73+ files in <code>C:\Users\barbr\Organized_STL_Files\</code></p><p>---</p><p><h2>💻 Software & Firmware</h2></p><p><h3>Arduino Code</h3></li></ul>
+<strong>Main Programs:</strong>
+<ul><li><code>officialGemBotMenuWithTouchScreenController.ino</code> - Main control system</li></ul>
+<ul><li><code>GemBotMini08272024.ino</code> - Latest mini version</li></ul>
+<ul><li><code>gemBotMenu672023forVideo.ino</code> - Demo version</p><p><strong>Location:</strong> <code>C:\Users\barbr\OneDrive\Documents\Arduino\</code></p><p><h3>Nextion HMI</h3></li></ul>
+<strong>Files:</strong> <code>D:\GemBotTouchScreen\</code>
+<ul><li>Multiple HMI versions (development history)</li></ul>
+<ul><li>Latest: <code>9172025WorkingMiniMod.HMI</code></li></ul>
+<ul><li>Includes auto-cut, cut-sizer, index control programs</p><p><h3>Wiring Diagram</h3></li></ul>
+<strong>File:</strong> <code>C:\Users\barbr\Documents\Fritzing\GemBotWiring Diagram.fzz</code>
+<ul><li>Fritzing format (can be opened in Fritzing software)</li></ul>
+<ul><li>Shows complete electrical connections</p><p>---</p><p><h2>🎯 Simulator Update Requirements</h2></p><p><h3>High Priority</h3></li></ul>
+1. ✅ Replace simple frame with 2020 extrusions
+2. ✅ Add actual 96-tooth index gear model
+3. ✅ Show planetary gearbox housing
+4. ✅ Display ball screw assemblies
+5. ✅ Add NEMA 17 stepper motors (visible)</p><p><h3>Medium Priority</h3>
+6. ✅ Add Nextion display on stand
+7. ✅ Show Arduino electronics housing
+8. ✅ Add limit switches at endpoints
+9. ✅ Display linear guide rails properly
+10. ✅ Add drip system components</p><p><h3>Low Priority</h3>
+11. ✅ Add wiring/cable routing
+12. ✅ Add corner brackets detail
+13. ✅ Add motor driver housings
+14. ✅ Add realistic textures/materials
+15. ✅ Add mounting hardware (bolts, nuts)</p><p>---</p><p><h2>🎨 Visual Style Guide</h2></p><p><h3>Material Appearance</h3>
+<code>`</code>
+Frame Rails:      Silver/gray aluminum (matte finish)
+3D Printed Parts: Black/dark gray (slightly glossy)
+Index Gear:       Brass/gold (metallic, special edition)
+Motors:           Black with silver shafts
+Electronics:      Black PCBs, colorful components
+Display:          Black screen with blue header
+Wiring:           Multi-colored ribbon cables
+<code>`</code></p><p><h3>Lighting Recommendations</h3>
+<code>`</code>
+Primary:   Bright overhead (workshop style) ✅ Already done
+Secondary: Side fill lights (reduce shadows) ✅ Already done
+Accent:    Highlight metallic components
+Ambient:   Soft overall illumination ✅ Already done
+<code>`</code></p><p>---</p><p><h2>📊 Technical Specifications</h2></p><p><h3>Motion System</h3>
+<ul><li><strong>X-Axis Resolution:</strong> 0.01mm (ball screw precision)</li></ul>
+<ul><li><strong>Y-Axis Resolution:</strong> 0.01mm (ball screw precision)</li></ul>
+<ul><li><strong>Index Resolution:</strong> 3.75° per step (96 positions)</li></ul>
+<ul><li><strong>Angle Resolution:</strong> 0.01° (with 5:1 gearbox reduction)</p><p><h3>Motors</h3></li></ul>
+<ul><li><strong>Type:</strong> NEMA 17 bipolar stepper motors</li></ul>
+<ul><li><strong>Torque:</strong> ~40-60 N·cm (typical)</li></ul>
+<ul><li><strong>Steps:</strong> 200 steps/revolution (1.8° per step)</li></ul>
+<ul><li><strong>Microstepping:</strong> 16x or 32x (for precision)</p><p><h3>Controller</h3></li></ul>
+<ul><li><strong>Processor:</strong> Arduino Mega 2560 (ATmega2560)</li></ul>
+<ul><li><strong>Clock Speed:</strong> 16 MHz</li></ul>
+<ul><li><strong>RAM:</strong> 8 KB</li></ul>
+<ul><li><strong>Flash:</strong> 256 KB</li></ul>
+<ul><li><strong>I/O Pins:</strong> 54 digital, 16 analog</p><p>---</p><p><h2>🔗 File Locations</h2></p><p><h3>3D Models</h3></li></ul>
+<code>`</code>
+C:\Users\barbr\Organized_STL_Files\
+├── Atlas_96_Tooth_Gear.stl (INDEX WHEEL!)
+├── MiniGemBot.stl (COMPLETE ASSEMBLY)
+├── Nema 17 5_1 Planetary Gearbox.stl (GEARBOX!)
+└── [73+ other component STL files]
+<code>`</code></p><p><h3>STL Previews</h3>
+<code>`</code>
+C:\Users\barbr\STL_Previews\
+├── MiniGemBot.png
+├── gemBotRobot.png
+└── [Other component previews]
+<code>`</code></p><p><h3>HMI Files</h3>
+<code>`</code>
+D:\GemBotTouchScreen\
+├── 9172025WorkingMiniMod.HMI (LATEST!)
+├── 8202424GemBotAutoCutComplete.HMI
+└── [Multiple historical versions]
+<code>`</code></p><p><h3>Arduino Code</h3>
+<code>`</code>
+C:\Users\barbr\OneDrive\Documents\Arduino\
+├── officialGemBotMenuWithTouchScreenController\
+├── GemBotMini08272024\
+└── [Other firmware versions]
+<code>`</code></p><p><h3>Documentation</h3>
+<code>`</code>
+D:\GemBotTouchScreen\
+├── 2024 official parts list for the ge.txt
+├── FacetronOwnersManual.pdf
+└── b1copy.txt (build notes)
+<code>`</code></p><p>---</p><p><h2>🎥 Media Resources</h2></p><p><h3>Video</h3>
+<strong>File:</strong> <code>C:\Users\barbr\Videos\gemBot.mp4</code>
+<ul><li>Real machine operation</li></ul>
+<ul><li>Physical Nextion display in use</li></ul>
+<ul><li>Actual control workflow</p><p><h3>Photos</h3></li></ul>
+<strong>Instagram:</strong> https://www.instagram.com/p/C4gdJLYuQS8/
+<ul><li>Production-ready machines</li></ul>
+<ul><li>Completed wiring</li></ul>
+<ul><li>96-tooth index gear installed</li></ul>
+<ul><li>Posted March 14, 2024</p><p>---</p><p><h2>🚀 Next Steps for Simulator</h2></p><p><h3>Phase 1: Frame Replacement</h3></li></ul>
+<ul><li>[ ] Replace box frame with 2020 extrusions</li></ul>
+<ul><li>[ ] Add corner brackets at joints</li></ul>
+<ul><li>[ ] Show modular rail construction</li></ul>
+<ul><li>[ ] Add end caps</p><p><h3>Phase 2: Motion Systems</h3></li></ul>
+<ul><li>[ ] Add ball screw assemblies (X and Y)</li></ul>
+<ul><li>[ ] Show linear guide rails</li></ul>
+<ul><li>[ ] Add stepper motors (visible)</li></ul>
+<ul><li>[ ] Add motor mounts</p><p><h3>Phase 3: Index & Angle</h3></li></ul>
+<ul><li>[ ] Replace generic wheel with 96-tooth gear</li></ul>
+<ul><li>[ ] Add planetary gearbox housing (5:1)</li></ul>
+<ul><li>[ ] Show index motor</li></ul>
+<ul><li>[ ] Add gear mounting bracket</p><p><h3>Phase 4: Electronics</h3></li></ul>
+<ul><li>[ ] Add Arduino housing</li></ul>
+<ul><li>[ ] Show Nextion display on stand</li></ul>
+<ul><li>[ ] Add motor driver boxes</li></ul>
+<ul><li>[ ] Add visible wiring (simplified)</p><p><h3>Phase 5: Details</h3></li></ul>
+<ul><li>[ ] Add limit switches</li></ul>
+<ul><li>[ ] Add drip system components</li></ul>
+<ul><li>[ ] Add position indicators</li></ul>
+<ul><li>[ ] Add hardware (bolts, brackets)</p><p>---</p><p><h2>📝 Notes</h2></p><p><h3>Design Philosophy</h3></li></ul>
+The Gem Bot Mini is designed to be:
+<ul><li><strong>Modular:</strong> Easy to assemble and modify</li></ul>
+<ul><li><strong>Accessible:</strong> Uses common CNC/3D printer parts</li></ul>
+<ul><li><strong>Precise:</strong> Ball screws and planetary gearbox</li></ul>
+<ul><li><strong>Compact:</strong> Desktop-sized footprint</li></ul>
+<ul><li><strong>Professional:</strong> Industrial-quality components</p><p><h3>Manufacturing</h3></li></ul>
+<ul><li><strong>3D Printing:</strong> Custom brackets and housings</li></ul>
+<ul><li><strong>Off-the-shelf:</strong> Standard 2020 extrusions, motors, electronics</li></ul>
+<ul><li><strong>DIY-Friendly:</strong> Can be built by makers</li></ul>
+<ul><li><strong>Professional Option:</strong> Pre-assembled units available</p><p><h3>Applications</h3></li></ul>
+<ul><li>Automated gem faceting</li></ul>
+<ul><li>Precision stone cutting</li></ul>
+<ul><li>Jewelry production</li></ul>
+<ul><li>Training/education</li></ul>
+<ul><li>Small-scale manufacturing</p><p>---</p><p><h2>✅ Validation Checklist</h2></p><p>Use this to verify simulator accuracy:</p><p><h3>Frame</h3></li></ul>
+<ul><li>[ ] 2020 aluminum extrusions (not solid plate)</li></ul>
+<ul><li>[ ] Corner brackets visible</li></ul>
+<ul><li>[ ] Modular construction shown</li></ul>
+<ul><li>[ ] Correct proportions (~300x250x400mm)</p><p><h3>Motion</h3></li></ul>
+<ul><li>[ ] Ball screw X-axis</li></ul>
+<ul><li>[ ] Ball screw Y-axis</li></ul>
+<ul><li>[ ] Linear guide rails</li></ul>
+<ul><li>[ ] Stepper motors visible</p><p><h3>Index System</h3></li></ul>
+<ul><li>[ ] 96-tooth gear (not generic wheel)</li></ul>
+<ul><li>[ ] Index motor</li></ul>
+<ul><li>[ ] Position indicator/pointer</li></ul>
+<ul><li>[ ] Proper mounting</p><p><h3>Angle Control</h3></li></ul>
+<ul><li>[ ] 5:1 planetary gearbox housing</li></ul>
+<ul><li>[ ] Gearbox motor</li></ul>
+<ul><li>[ ] Realistic proportions</p><p><h3>Electronics</h3></li></ul>
+<ul><li>[ ] Arduino housing</li></ul>
+<ul><li>[ ] Nextion display on stand</li></ul>
+<ul><li>[ ] Motor driver boxes (optional)</li></ul>
+<ul><li>[ ] Simplified wiring</p><p><h3>Details</h3></li></ul>
+<ul><li>[ ] Limit switches at axes</li></ul>
+<ul><li>[ ] Drip system (optional)</li></ul>
+<ul><li>[ ] Hardware visible</li></ul>
+<ul><li>[ ] Realistic materials/colors</p><p>---</p><p><strong>Status:</strong> ✅ Complete Hardware Documentation  </li></ul>
+<strong>Files Referenced:</strong> 73+ STL files, HMI files, Arduino code, parts list  
+<strong>Ready for:</strong> Accurate 3D simulator modeling</p><p>---</p><p><strong>This document provides everything needed to create an accurate 3D representation of the real Gem Bot Mini hardware!</strong> 💎🤖
+</p>
+    <hr>
+    <p><a href="index.html">← Back to Home</a></p>
+</body>
+</html>

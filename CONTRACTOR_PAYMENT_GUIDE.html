@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' https:; connect-src 'self' https:;">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <title>CONTRACTOR_PAYMENT_GUIDE</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; }
+        h1, h2, h3 { color: #00ffff; }
+        code { background: #f4f4f4; padding: 2px 4px; border-radius: 4px; }
+        ul { margin-left: 20px; }
+        a { color: #00ff99; }
+    
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+        body { font-size: 16px; }
+        h1 { font-size: 2em; }
+        .container { padding: 10px; }
+        button, .btn { min-height: 44px; font-size: 16px; }
+    }
+    </style>
+</head>
+<body>
+    <h1>CONTRACTOR_PAYMENT_GUIDE</h1>
+    <p><h1>💰 Contractor Payment System - Complete Guide</h1></p><p><h2>Overview</h2>
+Automated crypto drip payment system that calculates contractor compensation based on projects, contract matches, reputation, trust, and team collaboration.</p><p>---</p><p><h2>🎯 Key Features</h2></p><p><h3><strong>1. Auto-Calculated Payments</strong></h3>
+<ul><li>✅ Base drip rate per contractor</li></ul>
+<ul><li>✅ Project completion bonuses</li></ul>
+<ul><li>✅ Contract match rewards</li></ul>
+<ul><li>✅ Reputation point multipliers</li></ul>
+<ul><li>✅ Trust score influence</li></ul>
+<ul><li>✅ Team collaboration bonuses</p><p><h3><strong>2. Crypto Drip System</strong></h3></li></ul>
+<ul><li>✅ Daily automatic payments</li></ul>
+<ul><li>✅ Accumulated earnings tracking</li></ul>
+<ul><li>✅ Instant payout on demand</li></ul>
+<ul><li>✅ Payment history logging</li></ul>
+<ul><li>✅ SOL/MGC token support</p><p><h3><strong>3. Leaderboard Rankings</strong></h3></li></ul>
+<ul><li>✅ Multiple ranking categories</li></ul>
+<ul><li>✅ Real-time updates</li></ul>
+<ul><li>✅ Public contractor profiles</li></ul>
+<ul><li>✅ Trust score badges</li></ul>
+<ul><li>✅ Team member tracking</p><p><h3><strong>4. Project Bidding</strong></h3></li></ul>
+<ul><li>✅ View contractor profiles</li></ul>
+<ul><li>✅ Check availability</li></ul>
+<ul><li>✅ See past work</li></ul>
+<ul><li>✅ Review team members</li></ul>
+<ul><li>✅ Place bids</p><p>---</p><p><h2>💧 Drip Payment Calculation</h2></p><p><h3><strong>Base Formula</strong></h3></li></ul>
+<code>`</code>javascript
+dripRate = baseDripRate * 
+           (projectMultiplier ^ activeProjects) *
+           (contractMultiplier ^ matchedContracts) +
+           (reputationPoints <em> reputationBonus) </em>
+           (1 + trustScore/100 <em> trustScoreWeight) </em>
+           (1 + teamCollaborations * teamworkBonus)
+<code>`</code></p><p><h3><strong>Default Values</strong></h3>
+<ul><li><strong>Base Drip</strong>: 0.01 SOL/day</li></ul>
+<ul><li><strong>Project Multiplier</strong>: 1.5x per active project</li></ul>
+<ul><li><strong>Contract Multiplier</strong>: 2.0x per matched contract</li></ul>
+<ul><li><strong>Reputation Bonus</strong>: 0.1 SOL per reputation point</li></ul>
+<ul><li><strong>Trust Score Weight</strong>: 0.5x multiplier</li></ul>
+<ul><li><strong>Teamwork Bonus</strong>: 0.25x per collaboration</li></ul>
+<ul><li><strong>Minimum Drip</strong>: 0.005 SOL/day</li></ul>
+<ul><li><strong>Maximum Drip</strong>: 5.0 SOL/day</p><p><h3><strong>Example Calculation</strong></h3></li></ul>
+<code>`</code>
+Contractor with:
+<ul><li>2 active projects</li></ul>
+<ul><li>3 matched contracts</li></ul>
+<ul><li>100 reputation points</li></ul>
+<ul><li>85 trust score</li></ul>
+<ul><li>5 team collaborations</p><p>Drip Rate = 0.01 <em> (1.5^2) </em> (2.0^3) + (100 <em> 0.1) </em> </li></ul>
+            (1 + 85/100 <em> 0.5) </em> (1 + 5 * 0.25)
+          = 0.01 <em> 2.25 </em> 8 + 10 <em> 1.425 </em> 2.25
+          = 0.18 + 32.0625
+          = 32.24 SOL/day
+          
+Capped at maximum: 5.0 SOL/day
+<code>`</code></p><p>---</p><p><h2>📊 Project Tracking</h2></p><p><h3><strong>Adding Projects</strong></h3>
+<code>`</code>javascript
+const project = paymentSystem.addProject({
+    title: 'Blockchain Integration',
+    description: 'Build Solana smart contracts',
+    contractorWallet: 'YOUR_WALLET',
+    estimatedValue: 50000,
+    deadline: '2025-06-01',
+    team: ['WALLET1', 'WALLET2'],
+    tags: ['blockchain', 'solana', 'smart-contracts'],
+    category: 'development'
+});
+<code>`</code></p><p><h3><strong>Project Status</strong></h3>
+<ul><li><strong>Active</strong> - Currently in progress</li></ul>
+<ul><li><strong>Completed</strong> - Successfully finished</li></ul>
+<ul><li><strong>Cancelled</strong> - Terminated early</p><p><h3><strong>Completion Rewards</strong></h3></li></ul>
+<ul><li>5% base commission on project value</li></ul>
+<ul><li>2% bonus for matched contracts</li></ul>
+<ul><li>10% per additional team member</li></ul>
+<ul><li>Reputation points based on value</li></ul>
+<ul><li>Trust score increase</p><p>---</p><p><h2>🎯 Contract Matching</h2></p><p><h3><strong>Matching Process</strong></h3></li></ul>
+1. Project is added to system
+2. System searches government contracts
+3. Calculates match score (0-100)
+4. Automatically links high matches (>60)
+5. Notifies contractor of match
+6. Updates drip rate immediately</p><p><h3><strong>Match Score Calculation</strong></h3>
+<code>`</code>
+score = tagMatching * 10 +
+        categoryMatch * 20 +
+        valueAlignment * 20
+<code>`</code></p><p><h3><strong>Benefits of Matching</strong></h3>
+<ul><li>✅ 2x drip rate multiplier per match</li></ul>
+<ul><li>✅ +10 reputation points</li></ul>
+<ul><li>✅ 2% commission on contract value</li></ul>
+<ul><li>✅ Increased visibility</li></ul>
+<ul><li>✅ Higher leaderboard ranking</p><p>---</p><p><h2>⭐ Reputation System</h2></p><p><h3><strong>Earning Reputation</strong></h3></li></ul>
+<ul><li>Complete project: Points = projectValue / 100</li></ul>
+<ul><li>Match contract: +10 points</li></ul>
+<ul><li>Team collaboration: +5 points</li></ul>
+<ul><li>Positive review: +15 points</li></ul>
+<ul><li>Milestone completion: +3 points</p><p><h3><strong>Reputation Benefits</strong></h3></li></ul>
+<ul><li>Increases daily drip rate</li></ul>
+<ul><li>Improves leaderboard rank</li></ul>
+<ul><li>Attracts more bidders</li></ul>
+<ul><li>Higher trust score</li></ul>
+<ul><li>Better project matches</p><p><h3><strong>Reputation Decay</strong></h3></li></ul>
+<ul><li>No decay for active contractors</li></ul>
+<ul><li>-1 point per month if inactive</li></ul>
+<ul><li>Resets on return to active status</p><p>---</p><p><h2>🤝 Trust Score System</h2></p><p><h3><strong>Trust Score Actions</strong></h3></li></ul>
+| Action | Score Change |
+|--------|--------------|
+| Project Completed | +5 |
+| Contract Matched | +3 |
+| Team Collaboration | +2 |
+| Deadline Missed | -5 |
+| Project Cancelled | -3 |
+| Dispute | -10 |</p><p><h3><strong>Trust Ratings</strong></h3>
+<ul><li><strong>90-100</strong>: Excellent ⭐⭐⭐⭐⭐</li></ul>
+<ul><li><strong>75-89</strong>: Very Good ⭐⭐⭐⭐</li></ul>
+<ul><li><strong>60-74</strong>: Good ⭐⭐⭐</li></ul>
+<ul><li><strong>40-59</strong>: Fair ⭐⭐</li></ul>
+<ul><li><strong>0-39</strong>: Building ⭐</p><p><h3><strong>Trust Benefits</strong></h3></li></ul>
+<ul><li>Influences drip rate (0.5x weight)</li></ul>
+<ul><li>Visible on profile</li></ul>
+<ul><li>Affects bid acceptance</li></ul>
+<ul><li>Impacts team invites</p><p>---</p><p><h2>👥 Team Collaboration</h2></p><p><h3><strong>Adding Team Members</strong></h3></li></ul>
+<code>`</code>javascript
+paymentSystem.addCollaboration(
+    'YOUR_WALLET',
+    'TEAMMATE_WALLET',
+    'PROJECT_ID'
+);
+<code>`</code></p><p><h3><strong>Collaboration Benefits</strong></h3>
+<ul><li>✅ 0.25x drip multiplier per collaboration</li></ul>
+<ul><li>✅ +2 trust score per collaboration</li></ul>
+<ul><li>✅ Shared reputation on projects</li></ul>
+<ul><li>✅ Team bonus on project completion (10% per member)</li></ul>
+<ul><li>✅ Network effect in leaderboard</p><p><h3><strong>Team Tracking</strong></h3></li></ul>
+<ul><li>All collaborations logged</li></ul>
+<ul><li>Team member list on profile</li></ul>
+<ul><li>Collaboration history</li></ul>
+<ul><li>Joint project portfolio</p><p>---</p><p><h2>🏆 Leaderboard System</h2></p><p><h3><strong>Ranking Categories</strong></h3></li></ul>
+1. <strong>Total Earnings</strong> - Lifetime SOL earned
+2. <strong>Projects Completed</strong> - Number of finished projects
+3. <strong>Contract Matches</strong> - Government contracts linked
+4. <strong>Trust Score</strong> - Current trust rating
+5. <strong>Team Collaborations</strong> - Number of partnerships
+6. <strong>Reputation Points</strong> - Total reputation earned</p><p><h3><strong>Overall Score</strong></h3>
+<code>`</code>javascript
+score = projectsCompleted * 100 +
+        contractsMatched * 150 +
+        reputationPoints * 10 +
+        trustScore * 5 +
+        teamCollaborations * 25 +
+        totalEarnings
+<code>`</code></p><p><h3><strong>Rankings</strong></h3>
+<ul><li><strong>Top 3</strong> - Gold/Silver/Bronze badges</li></ul>
+<ul><li><strong>Top 10</strong> - Featured on homepage</li></ul>
+<ul><li><strong>Top 50</strong> - Public leaderboard</li></ul>
+<ul><li><strong>All</strong> - Searchable directory</p><p>---</p><p><h2>💸 Payment Processing</h2></p><p><h3><strong>Daily Drip</strong></h3></li></ul>
+<ul><li>Runs automatically every 24 hours</li></ul>
+<ul><li>Adds drip amount to accumulated balance</li></ul>
+<ul><li>Logs all drip payments</li></ul>
+<ul><li>Updates payment history</p><p><h3><strong>Manual Payout</strong></h3></li></ul>
+<code>`</code>javascript
+const result = await paymentSystem.executePayout('YOUR_WALLET');
+<code>`</code></p><p><strong>Requirements:</strong>
+<ul><li>Minimum balance: 0.01 SOL</li></ul>
+<ul><li>Verified contractor</li></ul>
+<ul><li>Valid wallet address</p><p><h3><strong>Payment History</strong></h3></li></ul>
+<ul><li>All drips logged with timestamps</li></ul>
+<ul><li>Payout transactions recorded</li></ul>
+<ul><li>Total earnings tracked</li></ul>
+<ul><li>Export available for accounting</p><p>---</p><p><h2>📝 Bidding System</h2></p><p><h3><strong>How to Bid</strong></h3></li></ul>
+1. Browse leaderboard
+2. Click on contractor profile
+3. Review stats and portfolio
+4. Check availability
+5. Click "Bid" button
+6. Submit project details</p><p><h3><strong>Bid Evaluation</strong></h3>
+Contractors can see:
+<ul><li>Bidder's wallet</li></ul>
+<ul><li>Project description</li></ul>
+<ul><li>Estimated value</li></ul>
+<ul><li>Timeline</li></ul>
+<ul><li>Required skills</li></ul>
+<ul><li>Team composition</p><p><h3><strong>Acceptance Process</strong></h3></li></ul>
+1. Contractor reviews bid
+2. Accepts or declines
+3. If accepted, project created
+4. Team members notified
+5. Drip rate updates automatically</p><p>---</p><p><h2>🎮 Usage Guide</h2></p><p><h3><strong>For Contractors</strong></h3></p><p><strong>Register:</strong>
+<code>`</code>javascript
+const contractor = paymentSystem.registerContractor(
+    'YOUR_WALLET',
+    {
+        displayName: 'Your Name',
+        bio: 'Your bio',
+        specialties: ['skill1', 'skill2'],
+        skills: ['tech1', 'tech2'],
+        availability: 'available'
+    }
+);
+<code>`</code></p><p><strong>Add Project:</strong>
+<code>`</code>javascript
+const project = paymentSystem.addProject({
+    title: 'Project Title',
+    description: 'Description',
+    contractorWallet: 'YOUR_WALLET',
+    estimatedValue: 10000,
+    deadline: '2025-12-31',
+    tags: ['tag1', 'tag2']
+});
+<code>`</code></p><p><strong>Complete Project:</strong>
+<code>`</code>javascript
+const result = paymentSystem.completeProject(
+    'PROJECT_ID',
+    { actualValue: 12000 }
+);
+<code>`</code></p><p><h3><strong>For Project Owners</strong></h3></p><p><strong>View Leaderboard:</strong>
+<code>`</code>
+Visit: contractor-leaderboard.html
+Browse: Filter by category
+Select: Click on contractor
+Review: Check profile and stats
+Bid: Submit project proposal
+<code>`</code></p><p><strong>Evaluate Contractors:</strong>
+<ul><li>Check completion rate</li></ul>
+<ul><li>Review trust score</li></ul>
+<ul><li>See team members</li></ul>
+<ul><li>Read past projects</li></ul>
+<ul><li>Compare drip rates</p><p>---</p><p><h2>📊 System Statistics</h2></p><p><strong>Global Stats:</strong></li></ul>
+<ul><li>Total contractors registered</li></ul>
+<ul><li>Active contractors (with projects)</li></ul>
+<ul><li>Total projects (active + completed)</li></ul>
+<ul><li>Combined contract value</li></ul>
+<ul><li>Total SOL distributed</li></ul>
+<ul><li>Daily drip rate (all contractors)</li></ul>
+<ul><li>Average trust score</p><p><strong>Contractor Stats:</strong></li></ul>
+<ul><li>Projects completed/active</li></ul>
+<ul><li>Contracts matched</li></ul>
+<ul><li>Total earnings</li></ul>
+<ul><li>Current drip rate</li></ul>
+<ul><li>Trust score</li></ul>
+<ul><li>Reputation points</li></ul>
+<ul><li>Team collaborations</li></ul>
+<ul><li>Rank position</p><p>---</p><p><h2>🔄 Automatic Updates</h2></p><p><h3><strong>Drip Rate Recalculation</strong></h3></li></ul>
+Triggered by:
+<ul><li>New project added</li></ul>
+<ul><li>Project completed</li></ul>
+<ul><li>Contract matched</li></ul>
+<ul><li>Reputation change</li></ul>
+<ul><li>Trust score update</li></ul>
+<ul><li>Team collaboration added</p><p><h3><strong>Leaderboard Refresh</strong></h3></li></ul>
+<ul><li>Updates every 30 seconds</li></ul>
+<ul><li>Category switching instant</li></ul>
+<ul><li>Profile changes immediate</li></ul>
+<ul><li>Stats refresh on demand</p><p>---</p><p><h2>🛡️ Security & Trust</h2></p><p><h3><strong>Verification</strong></h3></li></ul>
+<ul><li>Wallet signature required</li></ul>
+<ul><li>Project ownership verified</li></ul>
+<ul><li>Team member confirmation</li></ul>
+<ul><li>Payment wallet validated</p><p><h3><strong>Dispute Resolution</strong></h3></li></ul>
+<ul><li>Trust score impact</li></ul>
+<ul><li>Reputation adjustment</li></ul>
+<ul><li>Payment hold option</li></ul>
+<ul><li>Admin review process</p><p>---</p><p><h2>🚀 Integration</h2></p><p><h3><strong>Add to Your Page</strong></h3></li></ul>
+<code>`</code>html
+<script src="contractor-payment-system.js"></script>
+<script>
+    const paymentSystem = window.contractorPaymentSystem;
+    // Use the system
+</script>
+<code>`</code></p><p><h3><strong>Link Leaderboard</strong></h3>
+<code>`</code>html
+<a href="contractor-leaderboard.html">View Contractor Leaderboard</a>
+<code>`</code></p><p><h3><strong>Embed Stats</strong></h3>
+<code>`</code>javascript
+const stats = paymentSystem.getSystemStats();
+// Display stats on your page
+<code>`</code></p><p>---</p><p><h2>📈 Growth Strategy</h2></p><p><h3><strong>For Contractors</strong></h3>
+1. Complete projects consistently
+2. Match government contracts
+3. Build strong teams
+4. Maintain high trust score
+5. Accumulate reputation
+6. Stay active</p><p><h3><strong>Maximize Earnings</strong></h3>
+<ul><li>Take on multiple projects</li></ul>
+<ul><li>Match high-value contracts</li></ul>
+<ul><li>Collaborate with top contractors</li></ul>
+<ul><li>Deliver quality work</li></ul>
+<ul><li>Meet deadlines</li></ul>
+<ul><li>Build reputation</p><p>---</p><p><h2>✨ Summary</h2></p><p><strong>Automatic Features:</strong></li></ul>
+<ul><li>✅ Daily crypto drip payments</li></ul>
+<ul><li>✅ Project-based bonuses</li></ul>
+<ul><li>✅ Contract match rewards</li></ul>
+<ul><li>✅ Reputation multipliers</li></ul>
+<ul><li>✅ Trust score influence</li></ul>
+<ul><li>✅ Team collaboration bonuses</p><p><strong>Leaderboard System:</strong></li></ul>
+<ul><li>✅ Multiple ranking categories</li></ul>
+<ul><li>✅ Real-time updates</li></ul>
+<ul><li>✅ Public profiles</li></ul>
+<ul><li>✅ Bidding interface</li></ul>
+<ul><li>✅ Team tracking</p><p><strong>Payment Calculation:</strong></li></ul>
+<ul><li>✅ Based on active projects</li></ul>
+<ul><li>✅ Matched contracts</li></ul>
+<ul><li>✅ Reputation & trust</li></ul>
+<ul><li>✅ Team collaborations</li></ul>
+<ul><li>✅ Past & present work</p><p>---</p><p><strong>The contractor payment system is now live!</strong> Register your wallet, add projects, and start earning crypto drips! 💰🚀</li></ul>
+</p>
+    <hr>
+    <p><a href="index.html">← Back to Home</a></p>
+</body>
+</html>

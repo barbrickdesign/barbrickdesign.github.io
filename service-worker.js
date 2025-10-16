@@ -110,16 +110,19 @@ self.addEventListener('fetch', (event) => {
                     if (!response || response.status !== 200 || response.type === 'error') {
                         return response;
                     }
-                    
-                    // Clone the response
-                    const responseToCache = response.clone();
-                    
-                    // Cache the fetched response
-                    caches.open(CACHE_NAME)
-                        .then((cache) => {
-                            cache.put(event.request, responseToCache);
-                        });
-                    
+
+                    // Only cache GET requests - Cache API doesn't support HEAD requests
+                    if (event.request.method === 'GET') {
+                        // Clone the response
+                        const responseToCache = response.clone();
+
+                        // Cache the fetched response
+                        caches.open(CACHE_NAME)
+                            .then((cache) => {
+                                cache.put(event.request, responseToCache);
+                            });
+                    }
+
                     return response;
                 }).catch((error) => {
                     console.log('[Service Worker] Fetch failed, serving offline page:', error);

@@ -38,7 +38,15 @@
     td{padding:8px 6px;border-top:1px dashed rgba(255,255,255,0.02)}
     .addr{color:#cfe9ff}
     .score{color:var(--accent);font-weight:700}
-  </style>
+  
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+        body { font-size: 16px; }
+        h1 { font-size: 2em; }
+        .container { padding: 10px; }
+        button, .btn { min-height: 44px; font-size: 16px; }
+    }
+    </style>
 </head>
 <body>
   <div class="wrap">
@@ -107,7 +115,7 @@
   </div>
 
   <!-- Three.js -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js" crossorigin="anonymous" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@latest/build/three.min.js" crossorigin="anonymous" defer></script>
 
   <!-- Pump.fun Integration -->
   <script src="../pumpfun-integration.js" defer></script>

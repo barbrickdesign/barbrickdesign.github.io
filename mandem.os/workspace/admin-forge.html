@@ -19,8 +19,8 @@
   <title>GemBot Admin Forge Access</title>
   <link rel="preload" href="" as="style" onload="this.onload=null;this.rel='stylesheet'">
     <noscript><link rel="stylesheet" href="public/styles.css"></noscript>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@latest/build/three.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/three@latest/examples/js/controls/OrbitControls.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/loaders/GLTFLoader.js" defer></script>
   <style>
     body {
@@ -404,7 +404,15 @@
       0% { transform: rotate(0deg); }
       100% { transform: rotate(360deg); }
     }
-  </style>
+  
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+        body { font-size: 16px; }
+        h1 { font-size: 2em; }
+        .container { padding: 10px; }
+        button, .btn { min-height: 44px; font-size: 16px; }
+    }
+    </style>
   
   <!-- Universal Wallet Authentication -->
   <script src="../../fpds-contract-schema.js" defer></script>

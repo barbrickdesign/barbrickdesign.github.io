@@ -109,6 +109,14 @@
         .control-instructions:hover {
             opacity: 1;
         }
+    
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+        body { font-size: 16px; }
+        h1 { font-size: 2em; }
+        .container { padding: 10px; }
+        button, .btn { min-height: 44px; font-size: 16px; }
+    }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -171,7 +179,7 @@
     <script src="public/backgroundEffects.js" defer></script>
     
     <!-- Include Phantom wallet login script -->
-    <script src="public/phantomLogin.js" defer></script>
+    <script src="../../mandem.os/workspace/public/phantomLogin.js" defer></script>
     
     <!-- Script to ensure THREE.js is properly loaded -->
     <script>

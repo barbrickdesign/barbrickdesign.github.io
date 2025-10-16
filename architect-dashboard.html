@@ -18,7 +18,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>System Architect Dashboard | Agent R</title>
     
-    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iife.min.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@latest/lib/index.iife.min.js" defer></script>
     <script src="system-architect-auth.js" defer></script>
     
     <style>
@@ -143,6 +143,14 @@
             font-size: 11px;
             word-break: break-all;
         }
+    
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+        body { font-size: 16px; }
+        h1 { font-size: 2em; }
+        .container { padding: 10px; }
+        button, .btn { min-height: 44px; font-size: 16px; }
+    }
     </style>
 </head>
 <body>

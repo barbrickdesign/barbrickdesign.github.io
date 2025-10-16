@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' https:; connect-src 'self' https:;">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <title>GEMBOT MINI SIMULATOR</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; }
+        h1, h2, h3 { color: #00ffff; }
+        code { background: #f4f4f4; padding: 2px 4px; border-radius: 4px; }
+        ul { margin-left: 20px; }
+        a { color: #00ff99; }
+    
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+        body { font-size: 16px; }
+        h1 { font-size: 2em; }
+        .container { padding: 10px; }
+        button, .btn { min-height: 44px; font-size: 16px; }
+    }
+    </style>
+</head>
+<body>
+    <h1>GEMBOT MINI SIMULATOR</h1>
+    <p><h1>💎 Gem Bot Mini - Industrial Simulator & Training Platform</h1></p><p><h2>🎯 Overview</h2></p><p>A <strong>realistic 3D simulator</strong> of the physical Gem Bot Mini hardware, featuring accurate representations of:
+<ul><li><strong>Aluminum rectangular frame</strong> (400mm x 300mm)</li></ul>
+<ul><li><strong>X/Y axis rails</strong> with precision positioning</li></ul>
+<ul><li><strong>96-degree indexing wheel</strong> for facet control</li></ul>
+<ul><li><strong>Planetary gearbox</strong> (1:50 ratio) for angle adjustment</li></ul>
+<ul><li><strong>Nextion-style HMI interface</strong> matching physical controls</p><p><h2>🏭 Real Hardware Specifications</h2></p><p><h3>Frame</h3></li></ul>
+<ul><li>Material: <strong>Aluminum extrusion</strong></li></ul>
+<ul><li>Dimensions: <strong>400mm (L) x 300mm (W) x 400mm (H)</strong></li></ul>
+<ul><li>Design: <strong>Rectangular frame</strong> with 4 vertical posts</li></ul>
+<ul><li>Base plate: Precision-machined aluminum</p><p><h3>Axis System</h3></li></ul>
+<ul><li><strong>X-Axis:</strong> Linear rail, ±100mm travel</li></ul>
+<ul><li><strong>Y-Axis:</strong> Linear rail, ±100mm travel</li></ul>
+<ul><li><strong>Precision:</strong> ±0.01mm positioning accuracy</li></ul>
+<ul><li><strong>Drive:</strong> Stepper motors with ball screws</p><p><h3>Index Wheel</h3></li></ul>
+<ul><li><strong>Divisions:</strong> 96 degrees (96 positions)</li></ul>
+<ul><li><strong>Material:</strong> Hardened steel</li></ul>
+<ul><li><strong>Precision:</strong> ±0.01° angular accuracy</li></ul>
+<ul><li><strong>Purpose:</strong> Precise facet positioning for gem cutting</p><p><h3>Angle Control</h3></li></ul>
+<ul><li><strong>Gearbox:</strong> Planetary type, 1:50 reduction</li></ul>
+<ul><li><strong>Range:</strong> 0° to 180°</li></ul>
+<ul><li><strong>Precision:</strong> ±0.01° (thanks to gearbox)</li></ul>
+<ul><li><strong>Drive:</strong> Stepper motor with encoder feedback</p><p><h3>Laser System</h3></li></ul>
+<ul><li><strong>Power:</strong> Variable 0-100%</li></ul>
+<ul><li><strong>Type:</strong> Fiber laser (simulated)</li></ul>
+<ul><li><strong>Cooling:</strong> Water-cooled (physical machine)</p><p><h2>🎮 Simulator Features</h2></p><p><h3>1. Accurate 3D Visualization</h3></li></ul>
+<ul><li>✅ Aluminum frame with realistic materials</li></ul>
+<ul><li>✅ X/Y axis rail system</li></ul>
+<ul><li>✅ 96-position index wheel with markings</li></ul>
+<ul><li>✅ Planetary gearbox housing</li></ul>
+<ul><li>✅ Gem model with facets</li></ul>
+<ul><li>✅ Laser beam visualization</li></ul>
+<ul><li>✅ Real-time spark effects during cutting</p><p><h3>2. Nextion-Style HMI Panel</h3></li></ul>
+<strong>Mirrors the physical machine's touch screen interface:</strong>
+<ul><li>Industrial dark theme</li></ul>
+<ul><li>Real-time status indicators</li></ul>
+<ul><li>Smooth slider controls</li></ul>
+<ul><li>LED indicators for laser status</li></ul>
+<ul><li>Live position readouts</p><p><h3>3. Training Mode</h3></li></ul>
+<ul><li>🎓 <strong>Beginner:</strong> Learn basic controls</li></ul>
+<ul><li>🎓 <strong>Intermediate:</strong> Advanced techniques</li></ul>
+<ul><li>🎓 <strong>Expert:</strong> Master precision cutting</p><p><h3>4. MGC Rewards System</h3></li></ul>
+<ul><li>Earn MGC coins while training</li></ul>
+<ul><li>Rewards for completing facets</li></ul>
+<ul><li>Bonus for training sessions</li></ul>
+<ul><li>Session tracking and saving</p><p><h3>5. Sync with Physical Machine</h3></li></ul>
+<strong>Three modes:</strong>
+<ul><li>🤖 <strong>Physical:</strong> Control actual Gem Bot Mini</li></ul>
+<ul><li>🌐 <strong>Virtual:</strong> Pure simulator (training)</li></ul>
+<ul><li>🔄 <strong>Sync:</strong> Mirror physical machine movements</p><p><h2>🕹️ Controls</h2></p><p><h3>Machine Selection</h3></li></ul>
+<ul><li>Choose between physical and virtual machines</li></ul>
+<ul><li>Sync mode for real-time mirroring</p><p><h3>X/Y Axis Control</h3></li></ul>
+<ul><li><strong>Range:</strong> -100mm to +100mm</li></ul>
+<ul><li><strong>Precision:</strong> 0.1mm steps</li></ul>
+<ul><li><strong>Display:</strong> Real-time position in mm</p><p><h3>Index Wheel (96°)</h3></li></ul>
+<ul><li><strong>Positions:</strong> 0 to 96</li></ul>
+<ul><li><strong>Purpose:</strong> Rotate gem for faceting</li></ul>
+<ul><li><strong>Display:</strong> Current degree and facet number (1-96)</li></ul>
+<ul><li><strong>Visual:</strong> Index wheel rotates in 3D view</p><p><h3>Cutting Angle (Planetary Gearbox)</h3></li></ul>
+<ul><li><strong>Range:</strong> 0° to 180°</li></ul>
+<ul><li><strong>Precision:</strong> 0.5° steps</li></ul>
+<ul><li><strong>Gear Ratio:</strong> 1:50 (high precision)</li></ul>
+<ul><li><strong>Display:</strong> Current angle in degrees</p><p><h3>Laser & Speed</h3></li></ul>
+<ul><li><strong>Laser Power:</strong> 0-100%</li></ul>
+<ul><li><strong>Spindle RPM:</strong> 0-5000 RPM</li></ul>
+<ul><li><strong>Feed Rate:</strong> 1-100 mm/min</p><p><h3>Operation Controls</h3></li></ul>
+<ul><li>▶️ <strong>START CUTTING</strong> - Begin laser operation</li></ul>
+<ul><li>⏸️ <strong>PAUSE</strong> - Pause current operation</li></ul>
+<ul><li>⬛ <strong>EMERGENCY STOP</strong> - Immediate halt</li></ul>
+<ul><li>🏠 <strong>HOME ALL AXES</strong> - Return to origin</li></ul>
+<ul><li>🤖 <strong>AUTO SEQUENCE</strong> - Automated 96-facet cycle</p><p><h2>📊 Live Status Display</h2></p><p><h3>Machine Status</h3></li></ul>
+<ul><li><strong>Mode:</strong> Current operation state</li></ul>
+<ul><li><strong>Motor Temp:</strong> Thermal monitoring</li></ul>
+<ul><li><strong>Laser:</strong> ON/OFF status</li></ul>
+<ul><li><strong>Facets Cut:</strong> Progress counter</li></ul>
+<ul><li><strong>Precision:</strong> ±0.01mm accuracy</li></ul>
+<ul><li><strong>Training Time:</strong> Session duration</p><p><h3>Current Position</h3></li></ul>
+<ul><li><strong>X-Axis:</strong> Position in mm</li></ul>
+<ul><li><strong>Y-Axis:</strong> Position in mm</li></ul>
+<ul><li><strong>Index:</strong> Current degree (0-96°)</li></ul>
+<ul><li><strong>Angle:</strong> Cutting angle (0-180°)</p><p><h2>🎯 Training Workflows</h2></p><p><h3>Basic Training</h3></li></ul>
+1. <strong>Home all axes</strong> (🏠 button)
+2. <strong>Set laser power</strong> to 50%
+3. <strong>Set spindle RPM</strong> to 1000
+4. <strong>Move X/Y axes</strong> to position gem
+5. <strong>Set cutting angle</strong> (e.g., 45°)
+6. <strong>Press START</strong> to begin cutting
+7. <strong>Observe</strong> laser beam and spark effects
+8. <strong>Earn MGC</strong> for each facet!</p><p><h3>Advanced: 96-Facet Auto Sequence</h3>
+1. Click <strong>🤖 AUTO SEQUENCE</strong>
+2. System automatically:
+   - Homes all axes
+   - Sets optimal cutting angle
+   - Indexes through all 96 positions
+   - Cuts each facet
+   - Awards MGC for completion
+3. Takes ~3 minutes for full cycle
+4. Earn maximum MGC rewards!</p><p><h3>Expert Training</h3>
+1. <strong>Load training data</strong> (📚 button)
+2. Select <strong>Expert mode</strong>
+3. Practice precision positioning
+4. Optimize cutting parameters
+5. Master the 96-degree indexing
+6. Achieve perfect facets!</p><p><h2>💰 MGC Rewards</h2></p><p><h3>How to Earn</h3>
+<ul><li>✅ <strong>+1-5 MGC</strong> per facet cut</li></ul>
+<ul><li>✅ <strong>+10 MGC</strong> for starting training</li></ul>
+<ul><li>✅ <strong>Bonus MGC</strong> for completing auto sequences</li></ul>
+<ul><li>✅ <strong>Progressive rewards</strong> for longer sessions</p><p><h3>What MGC Does</h3></li></ul>
+<ul><li>🪙 <strong>Cryptocurrency</strong> on Solana blockchain</li></ul>
+<ul><li>🎮 <strong>Idle game mechanic</strong> - earn while training</li></ul>
+<ul><li>🏆 <strong>Leaderboards</strong> (coming soon)</li></ul>
+<ul><li>💎 <strong>Gem marketplace</strong> integration</p><p><h2>🖥️ Nextion HMI Integration</h2></p><p>The simulator mirrors the physical Nextion touch screen:</p><p><h3>Physical Machine Display</h3></li></ul>
+<ul><li>7" industrial touch screen</li></ul>
+<ul><li>Real-time machine status</li></ul>
+<ul><li>Touch controls for all parameters</li></ul>
+<ul><li>Visual feedback and alerts</p><p><h3>Virtual Emulator (Coming Soon)</h3></li></ul>
+<ul><li>Exact replica of physical interface</li></ul>
+<ul><li>Same touch controls</li></ul>
+<ul><li>Synchronized with 3D view</li></ul>
+<ul><li>Perfect for remote training</p><p><h2>📁 Session Management</h2></p><p><h3>Save Session</h3></li></ul>
+<ul><li>Click <strong>💾 SAVE SESSION</strong></li></ul>
+<ul><li>Saves to browser localStorage</li></ul>
+<ul><li>Includes:</li></ul>
+  - Facets cut
+  - MGC earned
+  - Machine positions
+  - Timestamp</p><p><h3>Auto-Restore</h3>
+<ul><li>Sessions automatically restore on page reload</li></ul>
+<ul><li>Continue where you left off</li></ul>
+<ul><li>All progress preserved</p><p><h2>🔄 Camera Views</h2></p><p>Toggle between views:</li></ul>
+<ul><li><strong>Front View</strong> - See machine from front</li></ul>
+<ul><li><strong>Side View</strong> - X-axis perspective</li></ul>
+<ul><li><strong>Top View</strong> - Overhead birds-eye</li></ul>
+<ul><li><strong>Isometric</strong> - 3D angled view</p><p><h2>🎓 Use Cases</h2></p><p><h3>1. Training & Education</h3></li></ul>
+<ul><li>Learn machine operation safely</li></ul>
+<ul><li>Practice before using physical equipment</li></ul>
+<ul><li>Master precision techniques</li></ul>
+<ul><li>No material waste</p><p><h3>2. Remote Demonstration</h3></li></ul>
+<ul><li>Show clients how machine works</li></ul>
+<ul><li>Sales demonstrations</li></ul>
+<ul><li>Online training sessions</p><p><h3>3. Process Development</h3></li></ul>
+<ul><li>Test cutting sequences</li></ul>
+<ul><li>Optimize parameters</li></ul>
+<ul><li>Plan complex faceting patterns</p><p><h3>4. Idle Gaming</h3></li></ul>
+<ul><li>Earn MGC while practicing</li></ul>
+<ul><li>Compete on leaderboards</li></ul>
+<ul><li>Unlock achievements</p><p><h3>5. Virtual + Physical Sync</h3></li></ul>
+<ul><li>Control physical machine remotely</li></ul>
+<ul><li>Mirror physical movements in 3D</li></ul>
+<ul><li>Real-time status monitoring</li></ul>
+<ul><li>Remote diagnostics</p><p><h2>🛠️ Technical Details</h2></p><p><h3>3D Rendering</h3></li></ul>
+<ul><li><strong>Engine:</strong> Three.js (WebGL)</li></ul>
+<ul><li><strong>Controls:</strong> OrbitControls for camera</li></ul>
+<ul><li><strong>Materials:</strong> PBR (Physically Based Rendering)</li></ul>
+<ul><li><strong>Effects:</strong> Real-time sparks, glow, shadows</p><p><h3>Physics Simulation</h3></li></ul>
+<ul><li>Accurate spindle RPM calculations</li></ul>
+<ul><li>Gearbox ratio modeling (1:50)</li></ul>
+<ul><li>Laser beam positioning</li></ul>
+<ul><li>Index wheel rotation</p><p><h3>Performance</h3></li></ul>
+<ul><li>60 FPS target</li></ul>
+<ul><li>Responsive controls</li></ul>
+<ul><li>Smooth animations</li></ul>
+<ul><li>Optimized for desktop & mobile</p><p><h2>📱 Wallet Integration</h2></p><p>- <strong>Connect wallet</strong> via button in HMI header</li></ul>
+<ul><li><strong>MGC rewards</strong> credited to your wallet</li></ul>
+<ul><li><strong>Session ownership</strong> tied to wallet address</li></ul>
+<ul><li><strong>Leaderboard</strong> based on wallet holdings</p><p><h2>🚀 Future Enhancements</h2></p><p><h3>Coming Soon</h3></li></ul>
+<ul><li>🖥️ <strong>Full Nextion HMI emulator</strong></li></ul>
+<ul><li>📡 <strong>WebSocket connection</strong> to physical machine</li></ul>
+<ul><li>🎥 <strong>Record & replay</strong> cutting sequences</li></ul>
+<ul><li>📊 <strong>Analytics dashboard</strong> for optimization</li></ul>
+<ul><li>🏆 <strong>Competitive leaderboards</strong></li></ul>
+<ul><li>💎 <strong>Gem marketplace</strong> integration</li></ul>
+<ul><li>🌐 <strong>Multi-machine fleet control</strong></li></ul>
+<ul><li>🤖 <strong>AI-optimized cutting paths</strong></p><p><h3>Planned Features</h3></li></ul>
+<ul><li>CAD import for custom gem designs</li></ul>
+<ul><li>Material selection (diamond, sapphire, etc.)</li></ul>
+<ul><li>Cost estimation per gem</li></ul>
+<ul><li>Quality scoring system</li></ul>
+<ul><li>Wear tracking for virtual tools</li></ul>
+<ul><li>Maintenance simulation</p><p><h2>🎯 Best Practices</h2></p><p><h3>For Training</h3></li></ul>
+1. Start with <strong>low laser power</strong> (25-50%)
+2. Use <strong>moderate RPM</strong> (1000-2000)
+3. <strong>Practice X/Y positioning</strong> first
+4. <strong>Master index wheel</strong> before auto sequences
+5. <strong>Save sessions</strong> frequently
+6. <strong>Watch temperature</strong> - don't overheat!</p><p><h3>For MGC Farming</h3>
+1. Run <strong>auto sequences</strong> for max rewards
+2. <strong>Longer sessions</strong> = more MGC
+3. <strong>Training mode</strong> gives bonus MGC
+4. <strong>Complete facets</strong> for rewards
+5. <strong>Save progress</strong> to preserve earnings</p><p><h3>For Precision</h3>
+1. Use <strong>0.5° angle steps</strong> for fine control
+2. <strong>Home axes</strong> before critical operations
+3. <strong>Low feed rate</strong> for better accuracy
+4. <strong>Monitor position display</strong> constantly
+5. <strong>Pause</strong> if anything seems off</p><p><h2>📞 Support</h2></p><p><h3>Troubleshooting</h3>
+<ul><li><strong>No 3D view?</strong> Check WebGL support</li></ul>
+<ul><li><strong>Laggy controls?</strong> Lower RPM, close other tabs</li></ul>
+<ul><li><strong>MGC not saving?</strong> Check wallet connection</li></ul>
+<ul><li><strong>Session lost?</strong> Sessions saved to localStorage</p><p><h3>Controls Help</h3></li></ul>
+<ul><li>Press <strong>❓ Help</strong> for guidance</li></ul>
+<ul><li>Click <strong>🖥️ NEXTION HMI</strong> for interface info</li></ul>
+<ul><li>Use <strong>📚 TRAINING MODE</strong> for tutorials</p><p><h2>🎉 Quick Start</h2></p><p>1. <strong>Open simulator:</strong> <code>gembot-control-3d.html</code></li></ul>
+2. <strong>Connect wallet</strong> (optional, for MGC)
+3. <strong>Click 🏠 HOME ALL AXES</strong>
+4. <strong>Move sliders</strong> to feel the controls
+5. <strong>Click ▶️ START CUTTING</strong>
+6. <strong>Watch the magic!</strong> ✨
+7. <strong>Earn MGC</strong> 💰</p><p>---</p><p><strong>Status:</strong> ✅ <strong>PRODUCTION READY</strong></p><p>This simulator accurately represents the real Gem Bot Mini hardware and provides a professional training platform that earns MGC rewards while users learn precision gem cutting!
+</p>
+    <hr>
+    <p><a href="index.html">← Back to Home</a></p>
+</body>
+</html>

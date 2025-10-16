@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' https:; connect-src 'self' https:;">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <title>CODEBASE OVERVIEW</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; }
+        h1, h2, h3 { color: #00ffff; }
+        code { background: #f4f4f4; padding: 2px 4px; border-radius: 4px; }
+        ul { margin-left: 20px; }
+        a { color: #00ff99; }
+    
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+        body { font-size: 16px; }
+        h1 { font-size: 2em; }
+        .container { padding: 10px; }
+        button, .btn { min-height: 44px; font-size: 16px; }
+    }
+    </style>
+</head>
+<body>
+    <h1>CODEBASE OVERVIEW</h1>
+    <p><h1>Codebase Overview - Quick Reference Guide</h1></p><p><h2>Platform Architecture</h2>
+This is a multi-system platform for government contracting, Web3 tools, and simulations. All systems integrate universal wallet authentication for single sign-on.</p><p><h2>Core Systems</h2></p><p><h3>1. Universal Wallet Authentication (<code>universal-wallet-auth.js</code>)</h3>
+<strong>Purpose:</strong> Single sign-on across all pages with session management and contractor time tracking.
+<strong>Files:</strong>
+<ul><li><code>universal-wallet-auth.js</code> - Main auth engine</li></ul>
+<ul><li><code>auth-integration.js</code> - Integration helper</li></ul>
+<ul><li><code>contractor-registry.js</code> - Contractor management</li></ul>
+<strong>Key Features:</strong>
+<ul><li>Session persistence (4hr, 30min inactivity timeout)</li></ul>
+<ul><li>Multi-wallet support (MetaMask, Phantom)</li></ul>
+<ul><li>Auto time tracking for contractors</li></ul>
+<ul><li>Role-based access (System Architect, Approved Contractor)</li></ul>
+<strong>System Architect Wallets:</strong> 0xEFc6910e7624F164dAe9d0F799954aa69c943c8d, 0x4ccbefd7d3554bcbbc489b11af73a84d7baef4cb, 0x45a328572b2a06484e02EB5D4e4cb6004136eB16
+<strong>Integration:</strong> Add to any page for auth.</p><p><h3>2. Classified Contracts & Bidding (<code>crypto-bidding-system.js</code>)</h3>
+<strong>Purpose:</strong> Full bidding engine for classified contracts with performance scoring.
+<strong>Files:</strong>
+<ul><li><code>crypto-bidding-system.js</code> - Bidding logic</li></ul>
+<ul><li><code>classified-contracts.html</code> - Main contracts page</li></ul>
+<ul><li><code>contractor-registration.html</code> - Registration</li></ul>
+<ul><li><code>admin-contractor-dashboard.html</code> - Approval dashboard</li></ul>
+<strong>Key Features:</strong>
+<ul><li>Multi-crypto bids (ETH, SOL, USDC, USDT)</li></ul>
+<ul><li>AI bid ranking (performance, price, timeline)</li></ul>
+<ul><li>Performance scoring (0-100 scale)</li></ul>
+<ul><li>Escrow contract management</li></ul>
+<ul><li>Clearance-based access</li></ul>
+<strong>Integration:</strong> Requires wallet auth for access.</p><p><h3>3. FPDS/SAM.gov Integration (<code>samgov-integration.js</code>, <code>fpds-contract-schema.js</code>)</h3>
+<strong>Purpose:</strong> Federal contract intelligence and market data.
+<strong>Files:</strong>
+<ul><li><code>samgov-integration.js</code> - SAM.gov API integration</li></ul>
+<ul><li><code>fpds-contract-schema.js</code> - Contract parsing and validation</li></ul>
+<strong>Key Features:</strong>
+<ul><li>Contract number parsing (30+ agencies)</li></ul>
+<ul><li>Market statistics and bidding recommendations</li></ul>
+<ul><li>NAICS code mapping</li></ul>
+<ul><li>Historical contract data</li></ul>
+<strong>Agencies Supported:</strong> DoD, NASA, DHS, GSA, etc.</p><p><h3>4. Grand Exchange (<code>grand-exchange.html</code>)</h3>
+<strong>Purpose:</strong> Web3 trading hub for digital assets.
+<strong>Files:</strong>
+<ul><li><code>grand-exchange.html</code> - Trading platform</li></ul>
+<strong>Key Features:</strong>
+<ul><li>Buy/sell order books</li></ul>
+<ul><li>Multi-crypto support</li></ul>
+<ul><li>Real-time matching</li></ul>
+<ul><li>Search and filtering</li></ul>
+<strong>Assets:</strong> Gem Bot NFT, GBU Token, etc.</p><p><h3>5. Gem Faceting Simulation (<code>facetProcessor.js</code>, <code>simulation.js</code>)</h3>
+<strong>Purpose:</strong> 3D simulation of CNC faceting machine.
+<strong>Files:</strong>
+<ul><li><code>facetProcessor.js</code> - G-code generation</li></ul>
+<ul><li><code>simulation.js</code> - 3D visualization</li></ul>
+<ul><li><code>facetingControls.js</code> - Controls</li></ul>
+<ul><li><code>facetingMachineInit.js</code> - Initialization</li></ul>
+<strong>Key Features:</strong>
+<ul><li>Automated cutting sequences</li></ul>
+<ul><li>Custom designs</li></ul>
+<ul><li>Keyboard controls (WASD, Q/E)</li></ul>
+<ul><li>Lap color system (80-3000 grit)</p><p><h3>6. Unified Crypto Recovery (<code>unified-crypto-recovery.html</code>, <code>walletTracker.js</code>)</h3></li></ul>
+<strong>Purpose:</strong> Multi-chain recovery tool with scammer detection.
+<strong>Files:</strong>
+<ul><li><code>unified-crypto-recovery.html</code> - Main interface</li></ul>
+<ul><li><code>walletTracker.js</code> - Tracking and detection</li></ul>
+<strong>Key Features:</strong>
+<ul><li>Solana rent refunds</li></ul>
+<ul><li>Wallet tracking and pattern analysis</li></ul>
+<ul><li>Scam scoring (0-100)</li></ul>
+<ul><li>Dead wallet finder</li></ul>
+<ul><li>Transaction graph building</p><p><h3>7. Mobile Responsiveness & UI Fixes</h3></li></ul>
+<strong>Files:</strong> Updated in <code>ember-terminal/app.html</code>, <code>mandem.os/workspace/index.html</code>
+<strong>Key Features:</strong>
+<ul><li>Horizontal scrollable navigation</li></ul>
+<ul><li>Touch-optimized buttons</li></ul>
+<ul><li>Responsive breakpoints</li></ul>
+<ul><li>Custom scrollbars</p><p><h2>Directory Structure</h2></li></ul>
+<ul><li><code>mandem.os/workspace/</code> - Main workspace</li></ul>
+<ul><li><code>ember-terminal/</code> - Terminal interface</li></ul>
+<ul><li><code>gembot-universe/</code> - Gem bot pages</li></ul>
+<ul><li>Root level: Core scripts, HTML files, service worker</p><p><h2>Integration Patterns</h2></li></ul>
+<strong>Standard Script Load Order:</strong>
+<code>`</code>html
+<script src="contractor-registry.js"></script>
+<script src="universal-wallet-auth.js"></script>
+<script src="auth-integration.js"></script>
+<script src="fpds-contract-schema.js"></script>
+<script src="samgov-integration.js"></script>
+<code>`</code></p><p><strong>Auth Initialization:</strong>
+<code>`</code>javascript
+await window.authIntegration.init({
+    showUI: true,
+    requireAuth: true,
+    onAuthSuccess: (authInfo) => { /<em> handle </em>/ }
+});
+<code>`</code></p><p><h2>Service Worker (<code>service-worker.js</code>)</h2>
+<ul><li>Cache version: v4</li></ul>
+<ul><li>Offline support for all systems</li></ul>
+<ul><li>Auto-update on changes</p><p><h2>Testing Checklist</h2></li></ul>
+<ul><li>Wallet connection on desktop/mobile</li></ul>
+<ul><li>Cross-page session persistence</li></ul>
+<ul><li>Contractor time tracking</li></ul>
+<ul><li>Bidding and contract matching</li></ul>
+<ul><li>Mobile responsiveness</li></ul>
+<ul><li>Offline functionality</p><p><h2>Quick Search Tags</h2></li></ul>
+Use these for quick navigation:
+<ul><li><code><!-- REF: WALLET-AUTH --></code></li></ul>
+<ul><li><code><!-- REF: BIDDING-SYSTEM --></code></li></ul>
+<ul><li><code><!-- REF: CONTRACTS --></code></li></ul>
+<ul><li><code><!-- REF: FPDS-INTEGRATION --></code></li></ul>
+<ul><li><code><!-- REF: GRAND-EXCHANGE --></code></li></ul>
+<ul><li><code><!-- REF: FACETING --></code></li></ul>
+<ul><li><code><!-- REF: CRYPTO-RECOVERY --></code></li></ul>
+<ul><li><code><!-- REF: MOBILE-FIXES --></code></p><p><h2>Status: PRODUCTION READY</h2></li></ul>
+All systems integrated and functional as of October 16, 2025.
+</p>
+    <hr>
+    <p><a href="index.html">← Back to Home</a></p>
+</body>
+</html>

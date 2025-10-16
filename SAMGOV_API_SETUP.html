@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' https:; connect-src 'self' https:;">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <title>SAMGOV_API_SETUP</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; }
+        h1, h2, h3 { color: #00ffff; }
+        code { background: #f4f4f4; padding: 2px 4px; border-radius: 4px; }
+        ul { margin-left: 20px; }
+        a { color: #00ff99; }
+    
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+        body { font-size: 16px; }
+        h1 { font-size: 2em; }
+        .container { padding: 10px; }
+        button, .btn { min-height: 44px; font-size: 16px; }
+    }
+    </style>
+</head>
+<body>
+    <h1>SAMGOV_API_SETUP</h1>
+    <p><h1>🔑 SAM.gov API Setup Guide</h1></p><p><h2>Quick Fix - Set Your API Key</h2></p><p><h3><strong>Option 1: Browser Console (Immediate)</strong></h3>
+<code>`</code>javascript
+// Open browser console (F12) and run:
+localStorage.setItem('samgov_api_key', 'YOUR_API_KEY_HERE');
+<code>`</code></p><p><h3><strong>Option 2: UI Config Panel</strong> (Recommended)</h3>
+Use the built-in configuration panel on any page that uses SAM.gov data.</p><p>---</p><p><h2>📋 Getting Your SAM.gov API Key</h2></p><p><h3><strong>Step 1: Visit SAM.gov</strong></h3>
+🔗 <strong>https://sam.gov/data-services</strong></p><p><h3><strong>Step 2: Create Account</strong></h3>
+1. Click "Request an API Key"
+2. Fill out the registration form:
+   - First Name
+   - Last Name
+   - Email Address
+   - Organization (optional)
+3. Agree to terms of service
+4. Submit</p><p><h3><strong>Step 3: Receive API Key</strong></h3>
+<ul><li>Check your email</li></ul>
+<ul><li>SAM.gov will send your API key</li></ul>
+<ul><li>Key format: <code>xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx</code></p><p><h3><strong>Step 4: Configure in Project</strong></h3></li></ul>
+Choose one of these methods:</p><p>---</p><p><h2>🛠️ Configuration Methods</h2></p><p><h3><strong>Method 1: localStorage (Quick)</strong></h3>
+<code>`</code>javascript
+// In browser console or JavaScript:
+localStorage.setItem('samgov_api_key', 'your-api-key-here');
+<code>`</code></p><p><h3><strong>Method 2: Environment Variable</strong></h3>
+Create <code>.env</code> file in project root:
+<code>`</code>env
+SAM_GOV_API_KEY=your-api-key-here
+<code>`</code></p><p><h3><strong>Method 3: Config UI</strong></h3>
+Use the SAM.gov Config Panel:
+<code>`</code>javascript
+// Will be created below
+const samApi = new SAMGovAPIIntegration();
+samApi.setApiKey('your-api-key-here');
+<code>`</code></p><p>---</p><p><h2>📝 API Key Requirements</h2></p><p><h3><strong>Free Tier Limits</strong></h3>
+<ul><li>✅ 1,000 requests per day</li></ul>
+<ul><li>✅ Access to all public data</li></ul>
+<ul><li>✅ Contract opportunities</li></ul>
+<ul><li>✅ Federal spending data</li></ul>
+<ul><li>✅ Entity information</p><p><h3><strong>Rate Limits</strong></h3></li></ul>
+<ul><li>5 requests per second</li></ul>
+<ul><li>1,000 requests per day</li></ul>
+<ul><li>Resets at midnight EST</p><p><h3><strong>No Credit Card Required</strong></h3></li></ul>
+<ul><li>Free for public data</li></ul>
+<ul><li>Premium tiers available for higher limits</p><p>---</p><p><h2>🚀 Using the API</h2></p><p><h3><strong>Basic Usage</strong></h3></li></ul>
+<code>`</code>javascript
+// Initialize with API key
+const samApi = new SAMGovAPIIntegration('your-api-key');</p><p>// Search opportunities
+const opportunities = await samApi.searchOpportunities({
+    limit: 10,
+    naicsCode: '541511' // Custom Computer Programming Services
+});</p><p>// Search contracts
+const contracts = await samApi.searchContracts({
+    limit: 10,
+    minAmount: 10000
+});
+<code>`</code></p><p><h3><strong>Pages Using SAM.gov API</strong></h3>
+1. <strong>contract-crowdfunding.html</strong> - Contract funding
+2. <strong>github-repo-valuation.html</strong> - Repo valuations
+3. <strong>integration-complete.html</strong> - System integration
+4. <strong>dev-compensation-calculator.js</strong> - Compensation
+5. <strong>project-tokenomics.js</strong> - Tokenomics</p><p>---</p><p><h2>🔧 Testing Your Setup</h2></p><p><h3><strong>Test API Key</strong></h3>
+<code>`</code>javascript
+async function testSAMGovAPI() {
+    const samApi = new SAMGovAPIIntegration();
+    
+    // Check if key is set
+    if (!samApi.apiKey) {
+        console.error('❌ No API key found');
+        return;
+    }
+    
+    try {
+        // Try a simple search
+        const results = await samApi.searchOpportunities({ limit: 1 });
+        } catch (error) {
+        console.error('❌ API Error:', error);
+    }
+}</p><p>// Run test
+testSAMGovAPI();
+<code>`</code></p><p><h3><strong>Expected Response</strong></h3>
+<code>`</code>json
+{
+    "opportunitiesData": [{
+        "noticeId": "abc123",
+        "title": "IT Services Contract",
+        "department": "Department of Defense",
+        "postedDate": "2025-01-15",
+        "responseDeadline": "2025-02-15"
+    }],
+    "totalRecords": 1234
+}
+<code>`</code></p><p>---</p><p><h2>🎯 Troubleshooting</h2></p><p><h3><strong>Error: "API key not found"</strong></h3>
+<strong>Solution</strong>: Set API key using localStorage or config
+<code>`</code>javascript
+localStorage.setItem('samgov_api_key', 'YOUR_KEY');
+<code>`</code></p><p><h3><strong>Error: "401 Unauthorized"</strong></h3>
+<strong>Causes</strong>:
+<ul><li>Invalid API key</li></ul>
+<ul><li>Expired API key</li></ul>
+<ul><li>Wrong format</p><p><strong>Solution</strong>: Double-check your key from SAM.gov email</p><p><h3><strong>Error: "429 Too Many Requests"</strong></h3></li></ul>
+<strong>Cause</strong>: Rate limit exceeded (1,000/day)</p><p><strong>Solutions</strong>:
+<ul><li>Wait 24 hours</li></ul>
+<ul><li>Implement caching</li></ul>
+<ul><li>Request higher tier</p><p><h3><strong>Error: "No results found"</strong></h3></li></ul>
+<strong>Cause</strong>: No matching data</p><p><strong>Solution</strong>: Adjust search parameters</p><p>---</p><p><h2>💾 Caching Strategy</h2></p><p>The integration includes automatic caching:</p><p><code>`</code>javascript
+// Results cached for 1 hour
+cache = {
+    opportunities: [],
+    contracts: [],
+    lastUpdate: timestamp
+}</p><p>// Check cache first
+if (cacheValid && cacheAge < 3600) {
+    return cachedResults;
+}
+<code>`</code></p><p><strong>Benefits</strong>:
+<ul><li>Reduces API calls</li></ul>
+<ul><li>Faster responses</li></ul>
+<ul><li>Avoids rate limits</p><p>---</p><p><h2>📊 Available Endpoints</h2></p><p><h3><strong>1. Opportunities API</strong></h3></li></ul>
+<code>`</code>
+GET https://api.sam.gov/prod/opportunities/v2/search
+<code>`</code>
+<strong>Use For</strong>: Contract opportunities, RFPs, solicitations</p><p><h3><strong>2. Contract Data API</strong></h3>
+<code>`</code>
+GET https://api.sam.gov/prod/federalcontractdata/v1/search
+<code>`</code>
+<strong>Use For</strong>: Awarded contracts, spending data</p><p><h3><strong>3. Entity Management API</strong></h3>
+<code>`</code>
+GET https://api.sam.gov/prod/entity-information/v2/entities
+<code>`</code>
+<strong>Use For</strong>: Vendor information, entity details</p><p>---</p><p><h2>🔐 Security Best Practices</h2></p><p><h3><strong>DO:</strong></h3>
+✅ Store API key in localStorage (client-side apps)  
+✅ Use environment variables (Node.js/server apps)  
+✅ Rotate keys periodically  
+✅ Monitor usage in SAM.gov dashboard  </p><p><h3><strong>DON'T:</strong></h3>
+❌ Commit API keys to GitHub  
+❌ Share keys publicly  
+❌ Use same key for multiple projects  
+❌ Hardcode keys in source files  </p><p>---</p><p><h2>📱 Quick Config Panel</h2></p><p>Add this to any page using SAM.gov:</p><p><code>`</code>html
+<!-- SAM.gov Config Panel -->
+<div id="samConfigPanel" style="position:fixed;top:10px;right:10px;background:#1a1a2e;padding:15px;border-radius:10px;z-index:10000;">
+    <h4 style="margin:0 0 10px 0;color:#fff;">SAM.gov API Config</h4>
+    <input id="samApiKeyInput" type="text" placeholder="Enter API Key" style="width:250px;padding:8px;border-radius:5px;border:1px solid #444;background:#0f131a;color:#fff;">
+    <button onclick="saveSAMKey()" style="padding:8px 12px;margin-top:8px;border-radius:5px;background:#00ff99;border:none;cursor:pointer;font-weight:bold;">Save Key</button>
+    <div id="samStatus" style="margin-top:8px;color:#aaa;font-size:12px;"></div>
+</div></p><p><script>
+function saveSAMKey() {
+    const key = document.getElementById('samApiKeyInput').value.trim();
+    if (key) {
+        localStorage.setItem('samgov_api_key', key);
+        document.getElementById('samStatus').textContent = '✅ API Key Saved!';
+        document.getElementById('samStatus').style.color = '#00ff99';
+        setTimeout(() => location.reload(), 1000);
+    } else {
+        document.getElementById('samStatus').textContent = '❌ Enter a valid key';
+        document.getElementById('samStatus').style.color = '#ff6b6b';
+    }
+}</p><p>// Show current status
+window.addEventListener('load', () => {
+    const hasKey = !!localStorage.getItem('samgov_api_key');
+    document.getElementById('samStatus').textContent = hasKey ? 
+        '✅ API Key Configured' : 
+        '⚠️ No API Key';
+    document.getElementById('samStatus').style.color = hasKey ? '#00ff99' : '#fbbf24';
+});
+</script>
+<code>`</code></p><p>---</p><p><h2>🎓 Resources</h2></p><p>- <strong>SAM.gov Data Services</strong>: https://sam.gov/data-services
+<ul><li><strong>API Documentation</strong>: https://open.gsa.gov/api/sam-api/</li></ul>
+<ul><li><strong>Developer Forum</strong>: https://github.com/GSA/sam_api</li></ul>
+<ul><li><strong>Status Page</strong>: https://status.sam.gov/</p><p>---</p><p><h2>✅ Checklist</h2></p><p>Before using SAM.gov features:</p><p>- [ ] Created SAM.gov account</li></ul>
+<ul><li>[ ] Received API key via email</li></ul>
+<ul><li>[ ] Saved API key to localStorage</li></ul>
+<ul><li>[ ] Tested API with sample request</li></ul>
+<ul><li>[ ] Verified data is loading</li></ul>
+<ul><li>[ ] Checked rate limit usage</p><p>---</p><p><h2>🚀 Quick Start</h2></p><p><strong>1-Minute Setup:</strong></li></ul>
+<code>`</code>bash
+<h1>1. Get API key from email</h1>
+<h1>2. Open browser console (F12)</h1>
+<h1>3. Run this command:</h1>
+localStorage.setItem('samgov_api_key', 'PASTE_YOUR_KEY_HERE');</p><p><h1>4. Refresh page</h1>
+<h1>5. Check console for: "✅ SAM.gov API key saved"</h1>
+<code>`</code></p><p><strong>Done!</strong> Your SAM.gov integration is now active.</p><p>---</p><p><strong>Need help?</strong> Check console for detailed error messages or visit https://sam.gov/data-services for support.
+</p>
+    <hr>
+    <p><a href="index.html">← Back to Home</a></p>
+</body>
+</html>

@@ -62,6 +62,14 @@
             font-size: 18px;
             z-index: 50;
         }
+    
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+        body { font-size: 16px; }
+        h1 { font-size: 2em; }
+        .container { padding: 10px; }
+        button, .btn { min-height: 44px; font-size: 16px; }
+    }
     </style>
     
     <!-- Universal Wallet Authentication -->
@@ -82,7 +90,7 @@
     <script src="public/tvDisplay.js" defer></script>
     
     <!-- Include Phantom wallet login script -->
-    <script src="public/phantomLogin.js" defer></script>
+    <script src="../../mandem.os/workspace/public/phantomLogin.js" defer></script>
     
     <!-- Import Three.js from CDN -->
     <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js" defer></script>

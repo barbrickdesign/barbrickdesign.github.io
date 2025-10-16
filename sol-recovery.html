@@ -56,12 +56,20 @@
     .muted{color:var(--muted);font-size:13px}
     .list{display:grid;gap:8px}
     .feed-row{display:flex;justify-content:space-between;gap:12px}
-  </style>
+  
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+        body { font-size: 16px; }
+        h1 { font-size: 2em; }
+        .container { padding: 10px; }
+        button, .btn { min-height: 44px; font-size: 16px; }
+    }
+    </style>
 
   <!-- libs (must be before the app script) -->
-  <script src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl.min.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iife.min.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/@solana/spl-token@0.3.11/dist/browser/spl-token.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl-fast.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@latest/lib/index.iife.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@solana/spl-token@latest/dist/index.umd.min.js" defer></script>
 </head>
 <body>
   <div class="wrap">

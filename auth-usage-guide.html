@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' https:; connect-src 'self' https:;">
+    <meta http-equiv="X-Frame-Options" content="DENY">
+    <title>Auth Usage Guide</title>
+    <style>
+        body { font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; line-height: 1.6; }
+        h1, h2, h3 { color: #00ffff; }
+        code { background: #f4f4f4; padding: 2px 4px; border-radius: 4px; }
+        ul { margin-left: 20px; }
+        a { color: #00ff99; }
+    
+    /* Mobile responsiveness */
+    @media (max-width: 768px) {
+        body { font-size: 16px; }
+        h1 { font-size: 2em; }
+        .container { padding: 10px; }
+        button, .btn { min-height: 44px; font-size: 16px; }
+    }
+    </style>
+</head>
+<body>
+    <h1>Auth Usage Guide</h1>
+    <p><h1>Universal Wallet Authentication - Usage Guide</h1></p><p><h2>🎯 Overview</h2></p><p>The Universal Wallet Authentication system provides <strong>single sign-on (SSO)</strong> across your entire platform. Users connect their wallet ONCE and stay authenticated across all pages.</p><p><h2>✨ Features</h2></p><p>- ✅ <strong>Single Sign-On</strong>: Connect once, authenticated everywhere
+<ul><li>✅ <strong>Session Management</strong>: 4-hour session with 30-min inactivity timeout</li></ul>
+<ul><li>✅ <strong>Signature Verification</strong>: Cryptographic proof of wallet ownership</li></ul>
+<ul><li>✅ <strong>Time Tracking</strong>: Auto-tracks contractor work time for performance scoring</li></ul>
+<ul><li>✅ <strong>Auto-Reconnect</strong>: Restores session on page reload</li></ul>
+<ul><li>✅ <strong>Multi-Wallet</strong>: Supports MetaMask and Phantom</p><p><h2>📦 Installation</h2></p><p>Add these scripts to your HTML:</p><p><code>`</code>html</li></ul>
+<!-- Load in this order -->
+<script src="contractor-registry.js"></script>
+<script src="universal-wallet-auth.js"></script>
+<script src="auth-integration.js"></script>
+<code>`</code></p><p><h2>🚀 Basic Usage</h2></p><p><h3>Simple Page (No auth required)</h3></p><p><code>`</code>html
+<script>
+// Initialize auth system
+window.addEventListener('DOMContentLoaded', async () => {
+    await window.authIntegration.init({
+        showUI: true  // Shows connect button
+    });
+});
+</script>
+<code>`</code></p><p><h3>Protected Page (Auth required)</h3></p><p><code>`</code>html
+<script>
+window.addEventListener('DOMContentLoaded', async () => {
+    await window.authIntegration.init({
+        requireAuth: true,  // Redirect if not authenticated
+        loginPage: 'index.html'
+    });
+});
+</script>
+<code>`</code></p><p><h3>System Architect Only Page</h3></p><p><code>`</code>html
+<script>
+window.addEventListener('DOMContentLoaded', async () => {
+    await window.authIntegration.init();
+    
+    // Check System Architect role
+    window.authIntegration.requireSystemArchitect();
+});
+</script>
+<code>`</code></p><p><h3>Contractor Only Page</h3></p><p><code>`</code>html
+<script>
+window.addEventListener('DOMContentLoaded', async () => {
+    await window.authIntegration.init();
+    
+    // Check approved contractor role
+    window.authIntegration.requireApprovedContractor();
+});
+</script>
+<code>`</code></p><p><h2>🎨 Custom Integration</h2></p><p><h3>With Callbacks</h3></p><p><code>`</code>javascript
+await window.authIntegration.init({
+    showUI: false,  // Don't show default UI
+    onAuthSuccess: (authInfo) => {
+        // Show custom UI
+        document.getElementById('userAddress').textContent = authInfo.shortAddress;
+        document.getElementById('workTime').textContent = authInfo.workTimeMinutes + ' mins';
+    },
+    onAuthFail: () => {
+        // Show login prompt
+    }
+});
+<code>`</code></p><p><h3>Manual Connection</h3></p><p><code>`</code>javascript
+// Connect wallet manually
+document.getElementById('myConnectBtn').addEventListener('click', async () => {
+    try {
+        const authInfo = await window.universalWalletAuth.connect();
+        } catch (error) {
+        console.error('Connection failed:', error);
+    }
+});
+<code>`</code></p><p><h3>Check Auth Status</h3></p><p><code>`</code>javascript
+// Check if authenticated
+if (window.authIntegration.isAuthenticated()) {
+    const authInfo = window.authIntegration.getAuthInfo();
+    }
+<code>`</code></p><p><h3>Disconnect</h3></p><p><code>`</code>javascript
+// Disconnect and clear session
+await window.authIntegration.disconnect();
+<code>`</code></p><p><h2>📊 Time Tracking</h2></p><p>Time tracking <strong>automatically starts</strong> for approved contractors:</p><p>- ✅ Tracks active time on platform
+<ul><li>✅ Logs every 5 minutes</li></ul>
+<ul><li>✅ Stops on disconnect or session expiry</li></ul>
+<ul><li>✅ Adds to contractor performance score</p><p><code>`</code>javascript</li></ul>
+// Get contractor work time
+const workMinutes = window.universalWalletAuth.getWorkTime();
+const hours = Math.floor(workMinutes / 60);
+const mins = workMinutes % 60;
+<code>`</code></p><p><h2>🔐 Session Management</h2></p><p><h3>Session Duration</h3>
+<ul><li><strong>Total Session</strong>: 4 hours from creation</li></ul>
+<ul><li><strong>Inactivity Timeout</strong>: 30 minutes of no activity</li></ul>
+<ul><li><strong>Auto-Check</strong>: Validates session every minute</p><p><h3>Session Storage</h3></li></ul>
+Sessions are stored in <code>localStorage</code>:
+<ul><li><code>barbrick_auth_session</code> - Full session data</li></ul>
+<ul><li><code>barbrick_wallet_address</code> - Current address</li></ul>
+<ul><li><code>barbrick_wallet_type</code> - 'ethereum' or 'solana'</p><p><h3>Activity Tracking</h3></li></ul>
+These actions reset the inactivity timer:
+<ul><li>Mouse clicks</li></ul>
+<ul><li>Keyboard input</li></ul>
+<ul><li>Scrolling</li></ul>
+<ul><li>Touch events</p><p><h2>🎭 Role-Based Access</h2></p><p><h3>Check User Role</h3></p><p><code>`</code>javascript</li></ul>
+// System Architect
+if (window.universalWalletAuth.isSystemArchitect()) {
+    }</p><p>// Approved Contractor
+if (window.universalWalletAuth.isApprovedContractor()) {
+    }
+<code>`</code></p><p><h3>Authorized Wallets</h3></p><p>System Architect wallets (case-insensitive):
+<ul><li><code>0xEFc6910e7624F164dAe9d0F799954aa69c943c8d</code></li></ul>
+<ul><li><code>0x4ccbefd7d3554bcbbc489b11af73a84d7baef4cb</code></p><p><h2>📱 Events</h2></p><p>Listen for auth events:</p><p><code>`</code>javascript</li></ul>
+// Authentication success
+window.addEventListener('authSuccess', (event) => {
+    // event.detail = { address, shortAddress, sessionToken, authenticated, workTimeMinutes }
+});</p><p>// Logout
+window.addEventListener('authLogout', () => {
+    // Redirect or show login
+});
+<code>`</code></p><p><h2>🛠️ Advanced Usage</h2></p><p><h3>Custom Session Timeout</h3></p><p><code>`</code>javascript
+// Set custom timeout (in milliseconds)
+window.universalWalletAuth.sessionTimeout = 2 <em> 60 </em> 60 * 1000; // 2 hours
+window.universalWalletAuth.inactivityTimeout = 15 <em> 60 </em> 1000; // 15 minutes
+<code>`</code></p><p><h3>Manual Session Validation</h3></p><p><code>`</code>javascript
+const session = window.universalWalletAuth.loadSession();
+if (window.universalWalletAuth.isSessionValid(session)) {
+    } else {
+    }
+<code>`</code></p><p><h2>🔍 Debugging</h2></p><p>Enable detailed logging:</p><p><code>`</code>javascript
+// Check auth status
+);
+);
+);
+, 'minutes');
+<code>`</code></p><p><h2>📋 Example: Complete Integration</h2></p><p><code>`</code>html
+<!DOCTYPE html>
+<html>
+<head>
+    <title>My Protected Page</title>
+</head>
+<body>
+    <div class="auth-container">
+        <!-- Auth UI will be inserted here -->
+    </div></p><p>    <div id="content" style="display:none;">
+        <h1>Welcome!</h1>
+        <p>Address: <span id="userAddress"></span></p>
+        <p>Work Time: <span id="workTime"></span></p>
+    </div></p><p>    <!-- Scripts -->
+    <script src="contractor-registry.js"></script>
+    <script src="universal-wallet-auth.js"></script>
+    <script src="auth-integration.js"></script></p><p>    <script>
+        window.addEventListener('DOMContentLoaded', async () => {
+            // Initialize with custom handlers
+            await window.authIntegration.init({
+                requireAuth: false,
+                showUI: true,
+                onAuthSuccess: (authInfo) => {
+                    // Show protected content
+                    document.getElementById('content').style.display = 'block';
+                    document.getElementById('userAddress').textContent = authInfo.shortAddress;
+                    
+                    const hours = Math.floor(authInfo.workTimeMinutes / 60);
+                    const mins = authInfo.workTimeMinutes % 60;
+                    document.getElementById('workTime').textContent = <code>${hours}h ${mins}m</code>;
+                },
+                onAuthFail: () => {
+                    // Hide protected content
+                    document.getElementById('content').style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
+<code>`</code></p><p><h2>🚨 Security Notes</h2></p><p>1. <strong>Signature Verification</strong>: Every session requires cryptographic signature
+2. <strong>No Transaction Risk</strong>: Signature does NOT authorize any blockchain transactions
+3. <strong>Session Tokens</strong>: Generated from wallet address + signature + timestamp
+4. <strong>Auto-Logout</strong>: Sessions expire after 4 hours or 30 minutes of inactivity
+5. <strong>Wallet Changes</strong>: Auto-logout if user switches wallet or network</p><p><h2>🎯 Best Practices</h2></p><p>1. ✅ Always include scripts in correct order
+2. ✅ Use <code>requireAuth</code> for protected pages
+3. ✅ Handle <code>authSuccess</code> and <code>authLogout</code> events
+4. ✅ Test session expiry flows
+5. ✅ Provide clear UX for expired sessions
+6. ✅ Show work time to contractors for transparency
+</p>
+    <hr>
+    <p><a href="index.html">← Back to Home</a></p>
+</body>
+</html>
