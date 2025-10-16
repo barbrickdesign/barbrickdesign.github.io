@@ -11,8 +11,35 @@ class WalletButton {
             return;
         }
         
-        this.render();
-        this.setupListeners();
+        // Initialize auth system first
+        this.initAuth().then(() => {
+            this.render();
+            this.setupListeners();
+        });
+    }
+
+    /**
+     * Initialize the authentication system
+     */
+    async initAuth() {
+        try {
+            // Initialize universal wallet auth if not already done
+            if (window.authIntegration && typeof window.authIntegration.init === 'function') {
+                await window.authIntegration.init({
+                    showUI: false, // We handle the UI
+                    onAuthSuccess: (authInfo) => {
+                        console.log('✅ Wallet authenticated:', authInfo.address);
+                        this.render();
+                    },
+                    onAuthFail: () => {
+                        console.log('⚠️ Wallet auth failed');
+                        this.render();
+                    }
+                });
+            }
+        } catch (error) {
+            console.error('❌ Auth initialization failed:', error);
+        }
     }
 
     /**
