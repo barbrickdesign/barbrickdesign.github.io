@@ -584,76 +584,108 @@ class CryptoBiddingSystem {
     }
 
     /**
-     * Accept bid and create escrow contract
+     * Accept bid with enhanced workflow
      */
-    async acceptBid(bidId, acceptorWallet) {
+    async acceptBid(bidId, approverAddress) {
         try {
-            // Find the bid
-            let foundBid = null;
+            // Find bid
+            let bid = null;
             let contractId = null;
-            
-            for (const cId in this.bids) {
-                const bid = this.bids[cId].find(b => b.bidId === bidId);
+
+            for (const [cid, bids] of Object.entries(this.bids)) {
+                bid = bids.find(b => b.id === bidId);
                 if (bid) {
-                    foundBid = bid;
-                    contractId = cId;
+                    contractId = cid;
                     break;
                 }
             }
-            
-            if (!foundBid) {
-                throw new Error('Bid not found');
+
+            if (!bid) {
+                return {
+                    success: false,
+                    error: 'Bid not found'
+                };
             }
-            
-            if (foundBid.status !== 'pending') {
-                throw new Error('Bid is no longer available');
+
+            // Verify approver authority (System Architect only)
+            if (!this.isSystemArchitect(approverAddress)) {
+                return {
+                    success: false,
+                    error: 'Only System Architect can accept bids'
+                };
             }
-            
+
             // Update bid status
-            foundBid.status = 'accepted';
-            foundBid.acceptedBy = acceptorWallet;
-            foundBid.acceptedAt = new Date().toISOString();
-            
+            bid.bid.status = 'accepted';
+            bid.bid.acceptedAt = new Date().toISOString();
+            bid.bid.acceptedBy = approverAddress;
+
             // Create escrow contract
-            const escrowId = `ESC-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-            
-            const escrow = {
-                escrowId: escrowId,
-                bidId: bidId,
-                contractId: contractId,
-                contractor: foundBid.contractorWallet,
-                client: acceptorWallet,
-                amount: foundBid.bidAmount,
-                cryptocurrency: foundBid.cryptocurrency,
-                milestones: foundBid.milestones.map(m => ({
-                    ...m,
-                    status: 'pending',
-                    fundsReleased: false
-                })),
-                status: 'active',
-                createdAt: new Date().toISOString(),
-                totalReleased: 0,
-                disputeOpen: false
-            };
-            
-            this.escrowContracts[escrowId] = escrow;
-            
+            const escrowId = this.createEscrowContract(bid);
+
+            // Update other bids for this contract
+            const contractBids = this.bids[contractId];
+            contractBids.forEach(b => {
+                if (b.id !== bidId) {
+                    b.bid.status = 'rejected';
+                    b.bid.rejectedAt = new Date().toISOString();
+                }
+            });
+
             this.saveBids();
             this.saveEscrow();
-            
+
+            // Sync acceptance with SAM.gov
+            if (bid.samGovSync.synced && window.samGovIntegration) {
+                try {
+                    await this.syncAcceptanceWithSAMGov(bid, escrowId);
+                } catch (syncError) {
+                    console.warn('SAM.gov acceptance sync failed:', syncError);
+                }
+            }
+
             return {
                 success: true,
                 escrowId: escrowId,
-                escrow: escrow,
-                message: 'Bid accepted and escrow contract created'
+                message: 'Bid accepted and escrow created successfully',
+                syncedWithSAMGov: bid.samGovSync.synced
             };
-            
+
         } catch (error) {
             console.error('Error accepting bid:', error);
             return {
                 success: false,
                 error: error.message
             };
+        }
+    }
+
+    /**
+     * Check if address is System Architect
+     */
+    isSystemArchitect(address) {
+        const systemArchitects = [
+            '0xefc6910e7624f164dae9d0f799954aa69c943c8d',
+            '0x4ccbefd7d3554bcbbc489b11af73a84d7baef4cb'
+        ];
+
+        return systemArchitects.includes(address.toLowerCase());
+    }
+
+    /**
+     * Sync bid acceptance with SAM.gov
+     */
+    async syncAcceptanceWithSAMGov(bid, escrowId) {
+        try {
+            // This would integrate with SAM.gov API to update opportunity status
+            console.log(`🏛️ Syncing bid acceptance for ${bid.id} with SAM.gov opportunity ${bid.samGovSync.opportunityId}`);
+
+            // In production, this would call SAM.gov API to update the opportunity
+            // For now, just log the action
+
+        } catch (error) {
+            console.error('Error syncing acceptance with SAM.gov:', error);
+            throw error;
         }
     }
 
