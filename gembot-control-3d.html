@@ -1,29 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="https://barbrickdesign.github.io/">
-    <meta name="twitter:title" content="BARBRICKDESIGN - Elite Web3 Hub">
-    <meta name="twitter:description" content="Cutting-edge Web3 development and design solutions">
-    <meta name="twitter:image" content="https://barbrickdesign.github.io/header.jpg">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://barbrickdesign.github.io/">
-    <meta property="og:title" content="BARBRICKDESIGN - Elite Web3 Hub">
-    <meta property="og:description" content="Cutting-edge Web3 development and design solutions">
-    <meta property="og:image" content="https://barbrickdesign.github.io/header.jpg">
-    <meta name="description" content="BARBRICKDESIGN - Elite Web3 Development and Design Hub">
-    <meta http-equiv="X-Frame-Options" content="DENY">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' https:; connect-src 'self' https:;">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gem Bot Mini - Industrial Simulator & Training Platform</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js" defer></script>
-    <script src="wallet-adapter.js" defer></script>
-    <link rel="preload" href="" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="wallet-button.css"></noscript>
-    <link rel="preload" href="" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="mobile-responsive.css"></noscript>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="wallet-adapter.js"></script>
+    <link rel="stylesheet" href="wallet-button.css">
+    <link rel="stylesheet" href="mobile-responsive.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&family=Orbitron:wght@400;700;900&display=swap');
         
@@ -380,21 +365,13 @@
             color: #8addff;
             margin-top: 5px;
         }
-    
-    /* Mobile responsiveness */
-    @media (max-width: 768px) {
-        body { font-size: 16px; }
-        h1 { font-size: 2em; }
-        .container { padding: 10px; }
-        button, .btn { min-height: 44px; font-size: 16px; }
-    }
     </style>
     
     <!-- Universal Wallet Authentication & FPDS Integration -->
-    <script src="fpds-contract-schema.js" defer></script>
-    <script src="contractor-registry.js" defer></script>
-    <script src="universal-wallet-auth.js" defer></script>
-    <script src="auth-integration.js" defer></script>
+    <script src="fpds-contract-schema.js"></script>
+    <script src="contractor-registry.js"></script>
+    <script src="universal-wallet-auth.js"></script>
+    <script src="auth-integration.js"></script>
 </head>
 <body>
     <!-- 3D Visualization Canvas -->
@@ -1149,7 +1126,8 @@
             document.getElementById('botStatus').textContent = 'READY';
             stopCutting();
             
-            }
+            console.log('✅ All axes homed');
+        }
         
         function runAutoSequence() {
             alert('🤖 AUTO SEQUENCE\n\nStarting automated faceting sequence:\n\n1. Home all axes\n2. Set cutting angle to 45°\n3. Cut facets 1-96 with index wheel\n4. Earn MGC rewards\n\nThis will take approximately 3 minutes.');
@@ -1209,7 +1187,8 @@
             const view = views[Math.floor(Math.random() * views.length)];
             camera.position.set(...view.pos);
             controls.target.set(0, 0, 0);
-            }
+            console.log('📷 Camera:', view.name);
+        }
         
         function showNextionEmulator() {
             alert('🖥️ NEXTION HMI EMULATOR\n\nThis feature mirrors the physical Nextion display interface.\n\n✅ Real-time machine status\n✅ Touch controls\n✅ Visual feedback\n✅ System diagnostics\n\nComing soon: Full HMI integration!');
@@ -1288,11 +1267,17 @@
             
             document.getElementById('cutsCount').textContent = cuts;
             document.getElementById('mgcEarned').textContent = mgcEarned;
-            .toLocaleString());
+            console.log('💾 Session restored from', new Date(session.timestamp).toLocaleString());
         }
 
-        : Active');
-        </script>
+        console.log('💎 Gem Bot Mini - Industrial Simulator initialized');
+        console.log('🏭 Aluminum frame: 400x300mm');
+        console.log('⚙️ X/Y axis control: ±100mm range');
+        console.log('🔄 96-degree indexing wheel: Ready');
+        console.log('⚡ Planetary gearbox (1:50): Active');
+        console.log('🎮 Training mode: Earn MGC rewards!');
+        console.log('🌐 Virtual + Physical sync: Available');
+    </script>
 </body>
 </html>
 

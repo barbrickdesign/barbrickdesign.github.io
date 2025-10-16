@@ -1,32 +1,15 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="https://barbrickdesign.github.io/">
-    <meta name="twitter:title" content="BARBRICKDESIGN - Elite Web3 Hub">
-    <meta name="twitter:description" content="Cutting-edge Web3 development and design solutions">
-    <meta name="twitter:image" content="https://barbrickdesign.github.io/header.jpg">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://barbrickdesign.github.io/">
-    <meta property="og:title" content="BARBRICKDESIGN - Elite Web3 Hub">
-    <meta property="og:description" content="Cutting-edge Web3 development and design solutions">
-    <meta property="og:image" content="https://barbrickdesign.github.io/header.jpg">
-    <meta name="description" content="BARBRICKDESIGN - Elite Web3 Development and Design Hub">
-    <meta http-equiv="X-Frame-Options" content="DENY">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' https:; connect-src 'self' https:;">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contractor Registration - Classified Contracts System</title>
     
-    <!-- Universal Wallet Authentication & Contract Systems -->
-    <script src="universal-wallet-auth.js" defer></script>
-    <script src="auth-integration.js" defer></script>
-    <script src="security-clearance-auth.js" defer></script>
-    <script src="fpds-contract-schema.js" defer></script>
-    <script src="contractor-registry.js" defer></script>
-    <script src="samgov-integration.js" defer></script>
-    <link rel="preload" href="" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="mobile-responsive.css"></noscript>
+    <!-- Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iife.min.js"></script>
+    <script src="contractor-registry.js"></script>
+    <script src="samgov-integration.js"></script>
+    <link rel="stylesheet" href="mobile-responsive.css">
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
@@ -510,6 +493,8 @@
             const samGovAuth = urlParams.get('samgov_auth');
 
             if (samGovAuth === 'success' && window.securityClearanceAuth.currentUser.samGovAuthenticated) {
+                console.log('🔄 SAM.gov authenticated user detected, syncing profile...');
+
                 // Pre-populate form with SAM.gov data
                 const samGovProfile = window.securityClearanceAuth.currentUser.samGovProfile;
                 const contractorProfile = window.securityClearanceAuth.currentUser.profile;
@@ -559,9 +544,11 @@
                 const existingAccounts = await window.ethereum.request({ method: 'eth_accounts' });
                 
                 if (existingAccounts && existingAccounts.length > 0) {
+                    console.log('✅ Using existing MetaMask connection');
                     accounts = existingAccounts;
                 } else {
                     // Request new connection
+                    console.log('📞 Requesting new MetaMask connection...');
                     accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                 }
                 
@@ -757,66 +744,6 @@
                     </div>
                 `;
             }
-        }
-    </script>
-
-    <script>
-        // Initialize contractor registration system
-        window.addEventListener('DOMContentLoaded', async function() {
-            try {
-                // Initialize wallet auth
-                await window.authIntegration.init({
-                    showUI: false,
-                    onAuthSuccess: (authInfo) => {
-                        console.log('🎉 Contractor Registration: Wallet connected', authInfo.address);
-                        updateWalletStatus(authInfo);
-                        showRegistrationForm();
-                    },
-                    onAuthFail: () => {
-                        console.log('⚠️ Contractor Registration: No wallet connected');
-                        updateWalletStatus(null);
-                        hideRegistrationForm();
-                    }
-                });
-
-                // Check for System Architect access
-                if (window.universalWalletAuth && window.universalWalletAuth.isSystemArchitect()) {
-                    console.log('👑 System Architect detected - auto-approving access');
-                    showRegistrationForm();
-                }
-
-            } catch (error) {
-                console.error('❌ Contractor registration initialization failed:', error);
-            }
-        });
-
-        function updateWalletStatus(authInfo) {
-            const walletStatus = document.getElementById('walletStatus');
-            if (!walletStatus) return;
-
-            if (authInfo) {
-                walletStatus.innerHTML = `
-                    <span style="color: #00ff00;">●</span> Connected: ${authInfo.shortAddress}
-                `;
-            } else {
-                walletStatus.innerHTML = `
-                    <span style="color: #ff4444;">●</span> Wallet Not Connected
-                `;
-            }
-        }
-
-        function showRegistrationForm() {
-            const form = document.getElementById('registrationForm');
-            const connectMsg = document.getElementById('connectMessage');
-            if (form) form.style.display = 'block';
-            if (connectMsg) connectMsg.style.display = 'none';
-        }
-
-        function hideRegistrationForm() {
-            const form = document.getElementById('registrationForm');
-            const connectMsg = document.getElementById('connectMessage');
-            if (form) form.style.display = 'none';
-            if (connectMsg) connectMsg.style.display = 'block';
         }
     </script>
 </body>

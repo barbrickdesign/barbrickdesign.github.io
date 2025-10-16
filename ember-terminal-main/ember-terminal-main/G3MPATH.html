@@ -7,19 +7,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="https://barbrickdesign.github.io/">
-    <meta name="twitter:title" content="BARBRICKDESIGN - Elite Web3 Hub">
-    <meta name="twitter:description" content="Cutting-edge Web3 development and design solutions">
-    <meta name="twitter:image" content="https://barbrickdesign.github.io/header.jpg">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://barbrickdesign.github.io/">
-    <meta property="og:title" content="BARBRICKDESIGN - Elite Web3 Hub">
-    <meta property="og:description" content="Cutting-edge Web3 development and design solutions">
-    <meta property="og:image" content="https://barbrickdesign.github.io/header.jpg">
-    <meta name="description" content="BARBRICKDESIGN - Elite Web3 Development and Design Hub">
-    <meta http-equiv="X-Frame-Options" content="DENY">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' https:; connect-src 'self' https:;">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>G3mPath Universe - Rock Relic Vault | Ember Terminal</title>
@@ -28,15 +15,15 @@
     <script src="https://cdn.tailwindcss.com"></script>
     
     <!-- React & ReactDOM -->
-    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js" defer></script>
-    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js" defer></script>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
     
     <!-- Babel Standalone for JSX -->
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js" defer></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
     
     <!-- Web3 Libraries for Wallet Integration -->
-    <script src="https://unpkg.com/@metamask/detect-provider@2.0.0/dist/detect-provider.min.js" defer></script>
-    <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js" defer></script>
+    <script src="https://unpkg.com/@metamask/detect-provider@2.0.0/dist/detect-provider.min.js"></script>
+    <script src="https://unpkg.com/@solana/web3.js@latest/lib/index.iife.min.js"></script>
     
     <!-- TensorFlow.js for AI Identification -->
     <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@latest"></script>
@@ -181,14 +168,6 @@
             border-color: rgba(255, 77, 0, 1);
             background: rgba(255, 77, 0, 0.1);
         }
-    
-    /* Mobile responsiveness */
-    @media (max-width: 768px) {
-        body { font-size: 16px; }
-        h1 { font-size: 2em; }
-        .container { padding: 10px; }
-        button, .btn { min-height: 44px; font-size: 16px; }
-    }
     </style>
 </head>
 <body>
@@ -596,7 +575,8 @@
 
             useEffect(() => {
                 storage.init().then(() => {
-                    });
+                    console.log('Vault storage initialized');
+                });
             }, []);
 
             useEffect(() => {
@@ -605,7 +585,8 @@
                     try {
                         modelRef.current = await mobilenet.load();
                         setModelLoaded(true);
-                        } catch (error) {
+                        console.log('AI Model loaded successfully');
+                    } catch (error) {
                         console.error('Error loading AI model:', error);
                     }
                 };

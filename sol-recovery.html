@@ -1,18 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="https://barbrickdesign.github.io/">
-    <meta name="twitter:title" content="BARBRICKDESIGN - Elite Web3 Hub">
-    <meta name="twitter:description" content="Cutting-edge Web3 development and design solutions">
-    <meta name="twitter:image" content="https://barbrickdesign.github.io/header.jpg">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://barbrickdesign.github.io/">
-    <meta property="og:title" content="BARBRICKDESIGN - Elite Web3 Hub">
-    <meta property="og:description" content="Cutting-edge Web3 development and design solutions">
-    <meta property="og:image" content="https://barbrickdesign.github.io/header.jpg">
-    <meta http-equiv="X-Frame-Options" content="DENY">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' https:; connect-src 'self' https:;">
   <meta charset="utf-8" />
   <title>BarbrickDesign — Claim Your SOL</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -56,20 +44,12 @@
     .muted{color:var(--muted);font-size:13px}
     .list{display:grid;gap:8px}
     .feed-row{display:flex;justify-content:space-between;gap:12px}
-  
-    /* Mobile responsiveness */
-    @media (max-width: 768px) {
-        body { font-size: 16px; }
-        h1 { font-size: 2em; }
-        .container { padding: 10px; }
-        button, .btn { min-height: 44px; font-size: 16px; }
-    }
-    </style>
+  </style>
 
   <!-- libs (must be before the app script) -->
-  <script src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl-fast.min.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@latest/lib/index.iife.min.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/@solana/spl-token@latest/dist/index.umd.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iife.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@solana/spl-token@0.3.11/dist/browser/spl-token.min.js"></script>
 </head>
 <body>
   <div class="wrap">
@@ -234,9 +214,11 @@
     /* Utilities + Debug */
     function logDebug(...args){
       const el = document.getElementById('debugLog');
-      if(!el) return const line = document.createElement('div');
+      if(!el) return console.log(...args);
+      const line = document.createElement('div');
       line.textContent = '[' + new Date().toLocaleTimeString() + '] ' + args.map(a => (typeof a === 'object' ? JSON.stringify(a) : String(a))).join(' ');
-      el.appendChild(line); el.scrollTop = el.scrollHeight; }
+      el.appendChild(line); el.scrollTop = el.scrollHeight; console.log(...args);
+    }
     document.getElementById('dbgClear').addEventListener('click', ()=> document.getElementById('debugLog').innerHTML = '');
     document.getElementById('dbgHide').addEventListener('click', (e)=> {
       const d = document.getElementById('debugLog'); const hidden = d.style.display === 'none';

@@ -1,6 +1,5 @@
 /**
  * CRYPTO BIDDING SYSTEM FOR CLASSIFIED CONTRACTS
- * <!-- REF: BIDDING-SYSTEM -->
  * Integrates with SAM.gov data and contractor performance metrics
  * Supports multi-crypto bidding and smart contract escrow
  */

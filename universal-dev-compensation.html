@@ -1,24 +1,10 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="https://barbrickdesign.github.io/">
-    <meta name="twitter:title" content="BARBRICKDESIGN - Elite Web3 Hub">
-    <meta name="twitter:description" content="Cutting-edge Web3 development and design solutions">
-    <meta name="twitter:image" content="https://barbrickdesign.github.io/header.jpg">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://barbrickdesign.github.io/">
-    <meta property="og:title" content="BARBRICKDESIGN - Elite Web3 Hub">
-    <meta property="og:description" content="Cutting-edge Web3 development and design solutions">
-    <meta property="og:image" content="https://barbrickdesign.github.io/header.jpg">
-    <meta name="description" content="BARBRICKDESIGN - Elite Web3 Development and Design Hub">
-    <meta http-equiv="X-Frame-Options" content="DENY">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' https:; connect-src 'self' https:;">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Universal Dev Compensation | Fair Pay for ALL Developers</title>
-    <link rel="preload" href="" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="mobile-responsive.css"></noscript>
+    <link rel="stylesheet" href="mobile-responsive.css">
     <style>
         * {
             margin: 0;
@@ -314,9 +300,9 @@
 </head>
 <body>
     <div class="container">
-        <script src="universal-auth.js" defer></script>
-        <script src="universal-wallet-connect.js" defer></script>
-        <script src="universal-dev-tracker-complete.js" defer></script>
+        <script src="universal-auth.js"></script>
+        <script src="universal-wallet-connect.js"></script>
+        <script src="universal-dev-tracker-complete.js"></script>
         <div class="terminal-header">
             <div class="terminal-dot dot-yellow"></div>
             <div class="terminal-dot dot-green"></div>
@@ -737,7 +723,13 @@
                   `Payment will be processed within 24-48 hours.\n\n` +
                   `You'll receive an NFT certificate proving your contributions!`);
             
-            }
+            console.log('Claiming compensation:', {
+                wallet: connectedWallet,
+                amount: totalStats.compensation,
+                repos: totalStats.repos,
+                hours: totalStats.hours
+            });
+        }
 
         function viewDetails() {
             // Generate detailed report with sources
@@ -752,6 +744,7 @@
                     'Pioneer multiplier (1x-10x based on years in crypto)'
                 ]
             };
+            console.log('📊 Detailed Report:', report);
             window.open('universal-dev-tracker.html', '_blank');
         }
 
@@ -774,6 +767,9 @@
         }
 
         // Initialize
-        </script>
+        console.log('💰 Universal Developer Compensation System loaded');
+        console.log('🔗 Connect your wallet and scan your repos to get paid!');
+        console.log('✌️ Peace, ❤️ Love, 🛡️ Protection');
+    </script>
 </body>
 </html>

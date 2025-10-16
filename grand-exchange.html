@@ -1,34 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="https://barbrickdesign.github.io/">
-    <meta name="twitter:title" content="BARBRICKDESIGN - Elite Web3 Hub">
-    <meta name="twitter:description" content="Cutting-edge Web3 development and design solutions">
-    <meta name="twitter:image" content="https://barbrickdesign.github.io/header.jpg">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://barbrickdesign.github.io/">
-    <meta property="og:title" content="BARBRICKDESIGN - Elite Web3 Hub">
-    <meta property="og:description" content="Cutting-edge Web3 development and design solutions">
-    <meta property="og:image" content="https://barbrickdesign.github.io/header.jpg">
-    <meta name="description" content="BARBRICKDESIGN - Elite Web3 Development and Design Hub">
-    <meta http-equiv="X-Frame-Options" content="DENY">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' https:; connect-src 'self' https:;">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Grand Exchange - Web3 Trading Hub</title>
     
     <!-- Universal Wallet Authentication & Contract Systems -->
-    <script src="fpds-contract-schema.js" defer></script>
-    <script src="contractor-registry.js" defer></script>
-    <script src="universal-wallet-auth.js" defer></script>
-    <script src="auth-integration.js" defer></script>
-    <script src="wallet-button.js" defer></script>
-    <script src="auth-bootstrap.js" defer></script>
-    <script src="samgov-integration.js" defer></script>
-    <script src="pumpfun-integration.js" defer></script>
-    <link rel="preload" href="" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="mobile-responsive.css"></noscript>
+    <script src="fpds-contract-schema.js"></script>
+    <script src="contractor-registry.js"></script>
+    <script src="universal-wallet-auth.js"></script>
+    <script src="auth-integration.js"></script>
+    <script src="samgov-integration.js"></script>
+    <link rel="stylesheet" href="mobile-responsive.css">
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=MedievalSharp&display=swap');
@@ -338,14 +321,6 @@
         .back-link:hover {
             background: rgba(255,215,0,0.2);
         }
-    
-    /* Mobile responsiveness */
-    @media (max-width: 768px) {
-        body { font-size: 16px; }
-        h1 { font-size: 2em; }
-        .container { padding: 10px; }
-        button, .btn { min-height: 44px; font-size: 16px; }
-    }
     </style>
 </head>
 <body>
@@ -457,123 +432,43 @@
         </div>
     </div>
     
-    <!-- Minting Section -->
-    <div class="trading-panel" style="margin-top: 30px;">
-        <div class="panel-title">🏭 Token Minting Hub</div>
-        
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-            <!-- Project Token Minting -->
-            <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 10px; border: 2px solid #7c5cff;">
-                <h3 style="color: #7c5cff; margin-bottom: 15px; font-size: 1.2em;">🚀 Mint Project Token</h3>
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; color: #ffd700;">Project Name:</label>
-                    <input type="text" id="projectName" placeholder="Enter project name" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.6); border: 1px solid #666; border-radius: 5px; color: #fff;">
-                </div>
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; color: #ffd700;">Project Category:</label>
-                    <select id="projectCategory" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.6); border: 1px solid #666; border-radius: 5px; color: #fff;">
-                        <option value="web3-blockchain">Web3/Blockchain</option>
-                        <option value="cybersecurity">Cybersecurity</option>
-                        <option value="software-development">Software Development</option>
-                        <option value="ai-ml">AI/ML</option>
-                        <option value="data-analytics">Data Analytics</option>
-                        <option value="cloud-infrastructure">Cloud Infrastructure</option>
-                    </select>
-                </div>
-                <button id="mintProjectBtn" onclick="mintProjectToken()" style="width: 100%; padding: 12px; background: linear-gradient(90deg, #7c5cff, #00d4ff); color: #000; border: 0; border-radius: 8px; font-weight: bold; cursor: pointer;">Mint Project Token</button>
-                <div id="projectMintStatus" style="margin-top: 10px; font-size: 0.9em; text-align: center;"></div>
-            </div>
-            
-            <!-- SAM.gov Contract Minting -->
-            <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 10px; border: 2px solid #00ff00;">
-                <h3 style="color: #00ff00; margin-bottom: 15px; font-size: 1.2em;">🏛️ Mint SAM.gov Contract Token</h3>
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; color: #ffd700;">Contract Number:</label>
-                    <input type="text" id="contractNumber" placeholder="e.g., FA8750-23-C-0001" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.6); border: 1px solid #666; border-radius: 5px; color: #fff;">
-                </div>
-                <div style="margin-bottom: 15px;">
-                    <label style="display: block; margin-bottom: 5px; color: #ffd700;">Agency:</label>
-                    <select id="contractAgency" style="width: 100%; padding: 10px; background: rgba(0,0,0,0.6); border: 1px solid #666; border-radius: 5px; color: #fff;">
-                        <option value="dod">Department of Defense</option>
-                        <option value="dhs">Department of Homeland Security</option>
-                        <option value="gsa">General Services Administration</option>
-                        <option value="nasa">NASA</option>
-                        <option value="doe">Department of Energy</option>
-                        <option value="va">Veterans Affairs</option>
-                    </select>
-                </div>
-                <button id="mintContractBtn" onclick="mintContractToken()" style="width: 100%; padding: 12px; background: linear-gradient(90deg, #00ff00, #00cc00); color: #000; border: 0; border-radius: 8px; font-weight: bold; cursor: pointer;">Mint Contract Token</button>
-                <div id="contractMintStatus" style="margin-top: 10px; font-size: 0.9em; text-align: center;"></div>
-            </div>
-        </div>
-        
-        <!-- Minted Tokens Display -->
-        <div style="background: rgba(0,0,0,0.3); padding: 20px; border-radius: 10px; border: 2px solid #ffd700;">
-            <h3 style="color: #ffd700; margin-bottom: 15px; font-size: 1.2em;">🪙 Your Minted Tokens</h3>
-            <div id="mintedTokensList" style="max-height: 200px; overflow-y: auto;">
-                <!-- Minted tokens will be displayed here -->
-            </div>
-        </div>
-    </div>
-    
     <script>
         // Initialize Universal Wallet Auth
         window.addEventListener('DOMContentLoaded', async () => {
+            console.log('⚔️ Grand Exchange - Initializing...');
+            
             try {
                 await window.authIntegration.init({
                     showUI: false,
                     onAuthSuccess: (authInfo) => {
+                        console.log('✅ Wallet connected:', authInfo.address);
                         document.getElementById('walletDisplay').textContent = `Connected: ${authInfo.shortAddress}`;
                         loadMarketData();
                     },
                     onAuthFail: () => {
-                        }
+                        console.log('⚠️ No wallet connected');
+                    }
                 });
             } catch (error) {
                 console.error('❌ Auth init failed:', error);
             }
             
             loadItems();
-            loadPumpFunCoins();
         });
         
-        // Sample market items (including pump.fun coins)
+        // Sample market items
         const marketItems = [
-            { id: 1, name: 'Gem Bot NFT', icon: '⚔️', price: 0.5, category: 'nft', type: 'traditional' },
-            { id: 2, name: 'GBU Token', icon: '💎', price: 4.48, category: 'token', type: 'traditional' },
-            { id: 3, name: 'Game Asset', icon: '🎮', price: 0.3, category: 'asset', type: 'traditional' },
-            { id: 4, name: 'Achievement NFT', icon: '🏆', price: 0.1, category: 'nft', type: 'traditional' },
-            { id: 5, name: 'Ember Token', icon: '🔥', price: 0.324, category: 'token', type: 'traditional' },
-            { id: 6, name: 'Mandem Coin', icon: '🌐', price: 2.35, category: 'token', type: 'traditional' },
-            { id: 7, name: 'Rare Artifact', icon: '📿', price: 1.25, category: 'nft', type: 'traditional' },
-            { id: 8, name: 'Power Crystal', icon: '💠', price: 0.75, category: 'asset', type: 'traditional' },
-            { id: 9, name: 'Golden Sword', icon: '⚜️', price: 2.0, category: 'nft', type: 'traditional' },
-            { id: 10, name: 'Magic Scroll', icon: '📜', price: 0.45, category: 'asset', type: 'traditional' }
+            { id: 1, name: 'Gem Bot NFT', icon: '⚔️', price: 0.5, category: 'nft' },
+            { id: 2, name: 'GBU Token', icon: '💎', price: 4.48, category: 'token' },
+            { id: 3, name: 'Game Asset', icon: '🎮', price: 0.3, category: 'asset' },
+            { id: 4, name: 'Achievement NFT', icon: '🏆', price: 0.1, category: 'nft' },
+            { id: 5, name: 'Ember Token', icon: '🔥', price: 0.324, category: 'token' },
+            { id: 6, name: 'Mandem Coin', icon: '🌐', price: 2.35, category: 'token' },
+            { id: 7, name: 'Rare Artifact', icon: '📿', price: 1.25, category: 'nft' },
+            { id: 8, name: 'Power Crystal', icon: '💠', price: 0.75, category: 'asset' },
+            { id: 9, name: 'Golden Sword', icon: '⚜️', price: 2.0, category: 'nft' },
+            { id: 10, name: 'Magic Scroll', icon: '📜', price: 0.45, category: 'asset' }
         ];
-
-        // Add pump.fun coins to market items
-        async function loadPumpFunCoins() {
-            if (typeof window.pumpFun !== 'undefined') {
-                try {
-                    const pumpCoins = await window.pumpFun.getCoinsForDashboard();
-                    pumpCoins.forEach((coin, index) => {
-                        marketItems.push({
-                            id: 100 + index,
-                            name: coin.symbol,
-                            icon: '🚀',
-                            price: coin.currentPrice || coin.marketCap,
-                            category: 'pumpfun',
-                            type: 'pumpfun',
-                            coinData: coin,
-                            pumpFunUrl: coin.pumpFunUrl
-                        });
-                    });
-                    loadItems();
-                } catch (error) {
-                    console.error('Error loading pump.fun coins:', error);
-                }
-            }
-        }
         
         let selectedCrypto = 'ETH';
         let currentMode = 'buy';
@@ -658,6 +553,8 @@
                 timestamp: new Date().toISOString()
             };
             
+            console.log('📋 Order placed:', orderData);
+            
             // Save to localStorage
             const orders = JSON.parse(localStorage.getItem('grand_exchange_orders') || '[]');
             orders.push(orderData);
@@ -697,136 +594,25 @@
             }
         }
         
-        function mintProjectToken() {
-            const projectName = document.getElementById('projectName').value;
-            const projectCategory = document.getElementById('projectCategory').value;
-            const statusDiv = document.getElementById('projectMintStatus');
-            
-            if (!projectName.trim()) {
-                statusDiv.textContent = '❌ Please enter a project name';
-                statusDiv.style.color = '#ff4444';
-                return;
-            }
-            
-            if (!window.universalWalletAuth.isAuthenticated()) {
-                statusDiv.textContent = '❌ Please connect your wallet first';
-                statusDiv.style.color = '#ff4444';
-                return;
-            }
-            
-            // Mint project token
-            window.pumpFun.mintProjectCoin({
-                name: projectName,
-                category: projectCategory
-            }, {
-                projectType: 'developer-project',
-                initialSupply: 1000000000,
-                description: `Token for ${projectName} project`
-            }).then(result => {
-                statusDiv.textContent = `✅ Project token minted! ${result.assignedCoin.symbol}`;
-                statusDiv.style.color = '#00ff00';
-                document.getElementById('projectName').value = '';
-                loadMintedTokens();
-            }).catch(error => {
-                console.error('Mint error:', error);
-                statusDiv.textContent = '❌ Minting failed - try again';
-                statusDiv.style.color = '#ff4444';
-            });
-        }
-        
-        function mintContractToken() {
-            const contractNumber = document.getElementById('contractNumber').value;
-            const contractAgency = document.getElementById('contractAgency').value;
-            const statusDiv = document.getElementById('contractMintStatus');
-            
-            if (!contractNumber.trim()) {
-                statusDiv.textContent = '❌ Please enter a contract number';
-                statusDiv.style.color = '#ff4444';
-                return;
-            }
-            
-            if (!window.universalWalletAuth.isAuthenticated()) {
-                statusDiv.textContent = '❌ Please connect your wallet first';
-                statusDiv.style.color = '#ff4444';
-                return;
-            }
-            
-            // Mint contract token
-            window.pumpFun.mintProjectCoin({
-                name: `SAM.gov Contract ${contractNumber}`,
-                category: 'government-contract',
-                contractId: contractNumber,
-                agency: contractAgency
-            }, {
-                projectType: 'samgov-contract',
-                initialSupply: 1000000000,
-                description: `Token for SAM.gov contract ${contractNumber}`,
-                linkedContract: contractNumber
-            }).then(result => {
-                statusDiv.textContent = `✅ Contract token minted! ${result.assignedCoin.symbol}`;
-                statusDiv.style.color = '#00ff00';
-                document.getElementById('contractNumber').value = '';
-                loadMintedTokens();
-            }).catch(error => {
-                console.error('Mint error:', error);
-                statusDiv.textContent = '❌ Minting failed - try again';
-                statusDiv.style.color = '#ff4444';
-            });
-        }
-        
-        function loadMintedTokens() {
-            if (typeof window.pumpFun === 'undefined') return;
-            
-            const mintedTokens = window.pumpFun.getMintedProjectCoins();
-            const container = document.getElementById('mintedTokensList');
-            
-            if (mintedTokens.length === 0) {
-                container.innerHTML = '<div style="text-align: center; color: #999; font-style: italic;">No tokens minted yet</div>';
-                return;
-            }
-            
-            container.innerHTML = mintedTokens.map(token => `
-                <div style="background: rgba(255,255,255,0.05); padding: 10px; margin-bottom: 8px; border-radius: 5px; border-left: 3px solid #ffd700;">
-                    <div style="font-weight: bold; color: #ffd700;">${token.assignedCoin.symbol}</div>
-                    <div style="font-size: 0.85em; color: #ccc;">${token.projectName}</div>
-                    <div style="font-size: 0.75em; color: #999;">${new Date(token.timestamp).toLocaleDateString()}</div>
-                    <div style="font-size: 0.75em; color: #7c5cff;">${token.mintType.replace('-', ' ').toUpperCase()}</div>
-                </div>
-            `).join('');
-        }
-        
-        // Load minted tokens on page load
-        window.addEventListener('DOMContentLoaded', () => {
-            setTimeout(loadMintedTokens, 1000);
-            
-            // Initialize wallet auth
-            window.authIntegration.init({
-                showUI: false,
-                onAuthSuccess: (authInfo) => {
-                    console.log('🎉 Grand Exchange: Wallet connected', authInfo.address);
-                    updateWalletStatus(authInfo);
-                },
-                onAuthFail: () => {
-                    console.log('⚠️ Grand Exchange: No wallet connected');
-                    updateWalletStatus(null);
-                }
+        // Search functionality
+        document.addEventListener('DOMContentLoaded', () => {
+            document.getElementById('searchInput').addEventListener('input', (e) => {
+                const query = e.target.value.toLowerCase();
+                const filtered = marketItems.filter(item => 
+                    item.name.toLowerCase().includes(query) ||
+                    item.category.toLowerCase().includes(query)
+                );
+                
+                const grid = document.getElementById('itemGrid');
+                grid.innerHTML = filtered.map(item => `
+                    <div class="item-card" onclick="selectItem(${item.id})">
+                        <div class="item-icon">${item.icon}</div>
+                        <div class="item-name">${item.name}</div>
+                        <div class="item-price">~${item.price} ETH</div>
+                    </div>
+                `).join('');
             });
         });
-        
-        function updateWalletStatus(authInfo) {
-            const walletStatus = document.getElementById('walletStatus');
-            if (!walletStatus) return;
-            
-            if (authInfo) {
-                walletStatus.innerHTML = `
-                    <span style="color: #00ff00;">●</span> Connected: ${authInfo.shortAddress}
-                `;
-            } else {
-                walletStatus.innerHTML = `
-                    <span style="color: #ff4444;">●</span> Wallet Not Connected
-                `;
-            }
-        }
     </script>
 </body>
 </html>

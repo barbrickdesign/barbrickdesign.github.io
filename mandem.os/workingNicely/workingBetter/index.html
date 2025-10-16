@@ -1,18 +1,6 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="https://barbrickdesign.github.io/">
-    <meta name="twitter:title" content="BARBRICKDESIGN - Elite Web3 Hub">
-    <meta name="twitter:description" content="Cutting-edge Web3 development and design solutions">
-    <meta name="twitter:image" content="https://barbrickdesign.github.io/header.jpg">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://barbrickdesign.github.io/">
-    <meta property="og:title" content="BARBRICKDESIGN - Elite Web3 Hub">
-    <meta property="og:description" content="Cutting-edge Web3 development and design solutions">
-    <meta property="og:image" content="https://barbrickdesign.github.io/header.jpg">
-    <meta http-equiv="X-Frame-Options" content="DENY">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' https:; connect-src 'self' https:;">
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width,initial-scale=1"/>
   <title>Mandem.OS Ember Terminal</title>
@@ -40,15 +28,7 @@
     td{padding:8px 6px;border-top:1px dashed rgba(255,255,255,0.02);word-break:break-all}
     pre{white-space:pre-wrap}
     @media (max-width:1000px){ .wrap{flex-direction:column} .panel{width:100%;max-width:none;margin-left:0} canvas#flameCanvas{height:60vh} }
-  
-    /* Mobile responsiveness */
-    @media (max-width: 768px) {
-        body { font-size: 16px; }
-        h1 { font-size: 2em; }
-        .container { padding: 10px; }
-        button, .btn { min-height: 44px; font-size: 16px; }
-    }
-    </style>
+  </style>
 </head>
 <body>
   <div class="wrap">
@@ -146,7 +126,7 @@
     </div>
   </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/three@latest/build/three.min.js" crossorigin="anonymous" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js" crossorigin="anonymous"></script>
 
   <script>
   (function(){
@@ -412,7 +392,7 @@
     }
 
     // Debug helper exposed to console
-    window.mandemDebugFlame = function(){ try{ const c=document.getElementById('flameCanvas'); ); if(typeof THREE==='undefined') return console.warn('Three.js missing'); const rr=new THREE.WebGLRenderer({ canvas:c, alpha:true }); rr.setSize(300,160); const s=new THREE.Scene(); const cam=new THREE.PerspectiveCamera(50,300/160,0.1,100); cam.position.set(0,0,5); const g=new THREE.BoxGeometry(1,1,1); const m=new THREE.MeshBasicMaterial({ color:0x66d4ff }); const mesh=new THREE.Mesh(g,m); s.add(mesh); rr.render(s, cam); }catch(e){ console.error(e); } };
+    window.mandemDebugFlame = function(){ try{ const c=document.getElementById('flameCanvas'); console.log('canvas rect', c && c.getBoundingClientRect()); if(typeof THREE==='undefined') return console.warn('Three.js missing'); const rr=new THREE.WebGLRenderer({ canvas:c, alpha:true }); rr.setSize(300,160); const s=new THREE.Scene(); const cam=new THREE.PerspectiveCamera(50,300/160,0.1,100); cam.position.set(0,0,5); const g=new THREE.BoxGeometry(1,1,1); const m=new THREE.MeshBasicMaterial({ color:0x66d4ff }); const mesh=new THREE.Mesh(g,m); s.add(mesh); rr.render(s, cam); console.log('test render done'); }catch(e){ console.error(e); } };
 
     // Wire UI
     connectBtn.addEventListener('click', connectWallet);

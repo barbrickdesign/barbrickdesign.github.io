@@ -1,18 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="https://barbrickdesign.github.io/">
-    <meta name="twitter:title" content="BARBRICKDESIGN - Elite Web3 Hub">
-    <meta name="twitter:description" content="Cutting-edge Web3 development and design solutions">
-    <meta name="twitter:image" content="https://barbrickdesign.github.io/header.jpg">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://barbrickdesign.github.io/">
-    <meta property="og:title" content="BARBRICKDESIGN - Elite Web3 Hub">
-    <meta property="og:description" content="Cutting-edge Web3 development and design solutions">
-    <meta property="og:image" content="https://barbrickdesign.github.io/header.jpg">
-    <meta name="description" content="BARBRICKDESIGN - Elite Web3 Development and Design Hub">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' https:; connect-src 'self' https:;">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>BARBRICKDESIGN - Elite Web3 Hub</title>
@@ -22,23 +10,19 @@
     <script src="auth-integration.js"></script>
     
     <!-- Wallet UI Components -->
-    <link rel="stylesheet" href="wallet-button.css">
     <script src="wallet-button.js"></script>
+    <link rel="stylesheet" href="wallet-button.css">
     
     <!-- Government Contract Integration -->
-    <!-- <script src="drip_protocol.js"></script> -->
-    <!-- <script src="real_agent_trading.js"></script> -->
     <script src="fpds-contract-schema.js"></script>
     <script src="samgov-integration.js"></script>
     <script src="samgov-api-integration.js"></script>
     
-    <!-- Agent Monitoring System -->
-    <!-- <script src="agent-types.js"></script> -->
-    <!-- <script src="monitoring-systems.js"></script> -->
-    <!-- <script src="agent-core.js"></script> -->
-    <!-- <script src="agent-system.js"></script> -->
-    <!-- <script src="agent-display.js"></script> -->
-    <!-- <script src="wallet-auto-repair.js"></script> --> <!-- Temporarily disabled to reduce errors -->
+    <!-- Other Systems -->
+    <script src="coinbase-wallet-integration.js"></script>
+    <script src="pumpfun-integration.js"></script>
+    <script src="project-tokenomics.js"></script>
+    <link rel="stylesheet" href="mobile-responsive.css">
     
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -287,126 +271,12 @@
         }
         
         .ticker-value {
-            color: #00ff00;
-            font-size: 1.1em;
-            font-weight: bold;
-        }
-
-        /* Wallet Button Styles */
-        .wallet-button-group {
-            position: relative;
-            display: inline-block;
-        }
-
-        .wallet-btn-connect, .wallet-btn-connected {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            border-radius: 25px;
-            padding: 12px 24px;
-            color: white;
-            font-family: 'Orbitron', sans-serif;
-            font-size: 14px;
+            font-size: 1.2em;
             font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            color: #00ff00;
+            text-shadow: 0 0 10px rgba(0,255,0,0.6);
         }
-
-        .wallet-btn-connect:hover, .wallet-btn-connected:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
-        }
-
-        .wallet-btn-connect:active, .wallet-btn-connected:active {
-            transform: translateY(0);
-        }
-
-        .wallet-btn-connect:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .wallet-icon {
-            font-size: 16px;
-        }
-
-        .wallet-text, .wallet-address {
-            font-size: 14px;
-            white-space: nowrap;
-        }
-
-        .wallet-address {
-            max-width: 120px;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        /* Wallet Dropdown */
-        .wallet-dropdown {
-            position: absolute;
-            top: 100%;
-            right: 0;
-            background: linear-gradient(135deg, rgba(0,0,0,0.95), rgba(20,20,20,0.95));
-            border: 1px solid rgba(102, 126, 234, 0.3);
-            border-radius: 12px;
-            padding: 12px;
-            min-width: 200px;
-            z-index: 1000;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
-        }
-
-        .wallet-dropdown-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .wallet-address-full {
-            font-family: 'Courier New', monospace;
-            font-size: 12px;
-            color: #8affff;
-            word-break: break-all;
-        }
-
-        .wallet-copy-btn {
-            background: rgba(102, 126, 234, 0.2);
-            border: 1px solid rgba(102, 126, 234, 0.4);
-            border-radius: 6px;
-            padding: 4px 8px;
-            color: #667eea;
-            font-size: 11px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .wallet-copy-btn:hover {
-            background: rgba(102, 126, 234, 0.4);
-        }
-
-        .wallet-disconnect-btn {
-            width: 100%;
-            background: rgba(255, 59, 48, 0.2);
-            border: 1px solid rgba(255, 59, 48, 0.4);
-            border-radius: 6px;
-            padding: 8px;
-            color: #ff3b30;
-            font-size: 13px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .wallet-disconnect-btn:hover {
-            background: rgba(255, 59, 48, 0.4);
-        }
+    </style>
 </head>
 <body>
     <div class="tron-grid"></div>
@@ -524,7 +394,10 @@
                 <span class="status-active" style="background: rgba(76,175,80,0.3); border-color: #4CAF50; color: #4CAF50;">● LIVE!</span>
             </div>
         </div>
-        <p style="color: #8addff;">All systems operational | <a href="ALL-REPOS-HUB.md" style="color: #ff00ff;">View All 31+ Repositories</a></p>
+
+        <footer>
+            <p style="color: #00ffff; font-size: 1.2em; margin-bottom: 10px;">BARBRICKDESIGN - Elite Web3 Hub</p>
+            <p style="color: #8addff;">All systems operational | <a href="ALL-REPOS-HUB.md" style="color: #ff00ff;">View All 31+ Repositories</a></p>
         </footer>
     </div>
 
@@ -550,47 +423,26 @@
         </div>
     </div>
 
-    <!-- Pump.fun Portfolio Ticker -->
-    <div class="portfolio-ticker" id="pumpFunTicker" style="display: none; background: linear-gradient(90deg, rgba(124,92,255,0.1), rgba(0,212,255,0.1)); border-top: 2px solid #7c5cff;">
-        <div class="ticker-content">
-            <div class="ticker-item">
-                <span class="ticker-label">🚀 Pump.fun Portfolio:</span>
-                <span class="ticker-value" id="pumpFunTotal">$0</span>
-            </div>
-            <div class="ticker-item">
-                <span class="ticker-label">🪙 Coins:</span>
-                <span class="ticker-value" id="pumpFunCoins">0</span>
-            </div>
-            <div class="ticker-item">
-                <span class="ticker-label">⭐ Top Coin:</span>
-                <span class="ticker-value" id="pumpFunTop">$MNDM</span>
-            </div>
-            <div class="ticker-item">
-                <span class="ticker-label">⏰ Last Update:</span>
-                <span class="ticker-value" id="pumpFunUpdate">Loading...</span>
-            </div>
-        </div>
-    </div>
-
     <script>
         // Register Service Worker for offline support
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('service-worker.js')
+                navigator.serviceWorker.register('./service-worker.js')
                     .then((registration) => {
-                        console.log('[Service Worker] Registered successfully');
+                        console.log('✅ Service Worker registered:', registration.scope);
+                        
                         // Check for updates
                         registration.addEventListener('updatefound', () => {
                             const newWorker = registration.installing;
                             newWorker.addEventListener('statechange', () => {
                                 if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-                                    console.log('[Service Worker] Update available');
+                                    console.log('🔄 New version available! Reload to update.');
                                 }
                             });
                         });
                     })
                     .catch((error) => {
-                        console.error('[Service Worker] Registration failed:', error);
+                        console.log('❌ Service Worker registration failed:', error);
                     });
             });
         }
@@ -607,8 +459,7 @@
                     hour: '2-digit',
                     minute: '2-digit',
                     second: '2-digit',
-                    hour12: true,
-                    timeZone: 'America/New_York'
+                    hour12: true
                 });
                 timestampElement.textContent = formatted;
             }
@@ -620,27 +471,35 @@
 
                 // Initialize universal wallet auth
                 await window.authIntegration.init({
-                    showUI: false,  // We handle UI ourselves
+                    showUI: true,
                     onAuthSuccess: (authInfo) => {
-                        console.log('✅ Wallet authenticated:', authInfo.address);
-                        // Re-render wallet button when authenticated
-                        if (window.walletButton) {
-                            window.walletButton.render();
+                        console.log('✅ Wallet connected:', authInfo.address);
+                        console.log('⏱️ Work time:', authInfo.workTimeMinutes, 'minutes');
+                        
+                        // Update wallet button UI
+                        const btn = document.getElementById('walletBtn');
+                        const btnText = document.getElementById('btnText');
+                        if (btn && btnText) {
+                            btn.classList.add('connected');
+                            btnText.textContent = '✅ CONNECTED';
                         }
                     },
                     onAuthFail: () => {
-                        console.log('⚠️ Wallet authentication failed');
-                        // Re-render wallet button when disconnected
-                        if (window.walletButton) {
-                            window.walletButton.render();
+                        console.log('❌ Wallet not connected');
+                        
+                        // Update wallet button UI
+                        const btn = document.getElementById('walletBtn');
+                        const btnText = document.getElementById('btnText');
+                        if (btn && btnText) {
+                            btn.classList.remove('connected');
+                            btnText.textContent = '🔗 CONNECT WALLET';
                         }
                     }
                 });
                 
-                // Wallet button will be auto-initialized by wallet-button.js
+                // Initialize other systems
+                window.systemInit.initializeAll();
                 
-                // All systems are initialized through their respective modules
-                // (auth-integration, project-tokenomics, pumpfun-integration)
             } catch (error) {
                 console.error('❌ System initialization failed:', error);
             }
@@ -712,12 +571,53 @@
             }, 3000);
         });
 
+        // Universal wallet connection using the consolidated auth system
+        async function connectWallet() {
+            try {
+                if (window.universalWalletAuth && window.universalWalletAuth.isAuthenticated()) {
+                    console.log('✅ Already authenticated');
+                    return window.universalWalletAuth.getAuthInfo();
+                }
+
+                // Use the universal wallet auth system
+                return await window.universalWalletAuth.connect();
+            } catch (error) {
+                console.error('❌ Wallet connection failed:', error);
+                throw error;
+            }
+        }
+
+        // Disconnect wallet
+        async function disconnectWallet() {
+            try {
+                if (window.universalWalletAuth) {
+                    await window.universalWalletAuth.disconnect();
+                    console.log('👋 Wallet disconnected');
+
+                    // Clear UI
+                    const btn = document.getElementById('walletBtn');
+                    const btnText = document.getElementById('btnText');
+                    const walletInfo = document.getElementById('walletInfo');
+
+                    if (btn) btn.classList.remove('connected');
+                    if (btnText) btnText.textContent = '🔗 CONNECT WALLET';
+                    if (walletInfo) walletInfo.style.display = 'none';
+
+                    console.log('✅ Wallet disconnected');
+                }
+            } catch (error) {
+                console.error('❌ Disconnect error:', error);
+            }
+        }
+
         // Check for existing connection on load
         window.addEventListener('DOMContentLoaded', async function() {
+            console.log('🚀 BARBRICKDESIGN Hub loaded');
+
             // Load and display portfolio ticker
             loadPortfolioTicker();
         });
-
+        
         // Load portfolio data and display ticker
         async function loadPortfolioTicker() {
             try {
@@ -816,38 +716,6 @@
                     }, 500);
                     
                     console.log(`💰 Portfolio loaded: $${dashboard.overview.totalValue.toLocaleString()}`);
-                }
-
-                // Load and display pump.fun portfolio data
-                if (window.pumpFun) {
-                    try {
-                        const pumpSummary = await window.pumpFun.getPortfolioSummary();
-                        // Update pump.fun ticker
-                        document.getElementById('pumpFunTotal').textContent = 
-                            '$' + pumpSummary.totalValue.toLocaleString();
-                        document.getElementById('pumpFunCoins').textContent = 
-                            pumpSummary.coinCount;
-                        document.getElementById('pumpFunTop').textContent = 
-                            pumpSummary.primaryProjectCoin.symbol;
-                        document.getElementById('pumpFunUpdate').textContent = 
-                            pumpSummary.lastUpdate ? new Date(pumpSummary.lastUpdate).toLocaleTimeString() : 'Live';
-                        
-                        // Show pump.fun ticker
-                        const pumpFunTicker = document.getElementById('pumpFunTicker');
-                        if (pumpFunTicker) {
-                            pumpFunTicker.style.display = 'block';
-                            pumpFunTicker.style.opacity = '0';
-                            pumpFunTicker.style.transform = 'translateY(100%)';
-                            
-                            setTimeout(() => {
-                                pumpFunTicker.style.transition = 'all 0.5s ease';
-                                pumpFunTicker.style.opacity = '1';
-                                pumpFunTicker.style.transform = 'translateY(0)';
-                            }, 1000); // Show after main ticker
-                        }
-                    } catch (pumpError) {
-                        console.error('Pump.fun portfolio error:', pumpError);
-                    }
                 }
             } catch (error) {
                 console.error('Portfolio ticker error:', error);

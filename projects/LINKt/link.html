@@ -1,26 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="https://barbrickdesign.github.io/">
-    <meta name="twitter:title" content="BARBRICKDESIGN - Elite Web3 Hub">
-    <meta name="twitter:description" content="Cutting-edge Web3 development and design solutions">
-    <meta name="twitter:image" content="https://barbrickdesign.github.io/header.jpg">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://barbrickdesign.github.io/">
-    <meta property="og:title" content="BARBRICKDESIGN - Elite Web3 Hub">
-    <meta property="og:description" content="Cutting-edge Web3 development and design solutions">
-    <meta property="og:image" content="https://barbrickdesign.github.io/header.jpg">
-    <meta name="description" content="BARBRICKDESIGN - Elite Web3 Development and Design Hub">
-    <meta http-equiv="X-Frame-Options" content="DENY">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' https:; connect-src 'self' https:;">
 <meta charset="utf-8" />
 <title>SanctumLink ✝️ — Sovereign Atlas + $LINK Hub (Deployable + Auto-Populate + Watchdogs)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <script>
 // Define logStep early to avoid ReferenceError
 function logStep(message) {
-  }
+  console.log(`[STEP] ${message}`);
+}
 
 // Ensure buffer shim is applied early
 (function applyEarlyBufferShim() {
@@ -29,7 +17,8 @@ function logStep(message) {
       from: (s) => new TextEncoder().encode(String(s)),
       alloc: (n) => new Uint8Array(n),
     };
-    }
+    console.log('Early buffer shim applied');
+  }
 })();
 
 // Fix syntax errors by ensuring script blocks are balanced
@@ -1269,7 +1258,7 @@ function logStep(message) {
   }
       window.addEventListener('DOMContentLoaded', boot);
   // MARKER: end of main script block
-  try{ const el = document.getElementById('bootLog'); const ts=new Date().toISOString().slice(11,23); if(el) el.textContent=(el.textContent||'')+`\n[${ts}] MARKER: end of main script block`; }catch(e){}
+  try{ const el = document.getElementById('bootLog'); const ts=new Date().toISOString().slice(11,23); if(el) el.textContent=(el.textContent||'')+`\n[${ts}] MARKER: end of main script block`; console.log('MARKER: end of main script block'); }catch(e){}
   </script>
   <div id="debugFooter" class="diag-hidden">
     <div class="debug-header">
@@ -1415,6 +1404,7 @@ function logStep(message) {
                 from: function(s){ try{ if(typeof s === 'string') return new TextEncoder().encode(s); if(s instanceof ArrayBuffer) return new Uint8Array(s); return new TextEncoder().encode(String(s)); }catch(e){ return new Uint8Array(0); } },
                 alloc: function(n){ return new Uint8Array(n); }
               };
+              console.log('SelfHeal: buffer shim applied');
               return 'applied-buffer-shim';
             }catch(e){ console.warn('buffer shim failed', e); return 'buffer-shim-failed'; }
           }
@@ -1434,12 +1424,12 @@ function logStep(message) {
                   if(p.endsWith('.esm.js') || p.indexOf('.esm')>=0){
                     const mod = await import(p);
                     const umd = { Connection: mod.Connection, PublicKey: mod.PublicKey, clusterApiUrl: mod.clusterApiUrl };
-                    window.solanaWeb3 = window.solanaWeb3 || umd; return {ok:true, path:p};
+                    window.solanaWeb3 = window.solanaWeb3 || umd; console.log('Loaded local ESM web3 from', p); return {ok:true, path:p};
                   } else {
                     // For UMD, inject script tag and wait for onload to wire globals
                     await new Promise((res, rej)=>{
                       const s = document.createElement('script'); s.src = p; s.crossOrigin='anonymous';
-                      s.onload = ()=>{ res(); };
+                      s.onload = ()=>{ console.log('Injected UMD script', p); res(); };
                       s.onerror = (e)=>{ console.warn('UMD script load failed', p, e); rej(e); };
                       document.head.appendChild(s);
                     });
@@ -1480,7 +1470,7 @@ function logStep(message) {
                 try{
                   // attempt buffer shim and local vendor load
                   const r1 = applyBufferShim();
-                  tryLoadLocalEsm().then(res=>{ if(res.ok) else });
+                  tryLoadLocalEsm().then(res=>{ if(res.ok) console.log('Local vendor loaded', res.path); else console.log('Local vendor not found'); });
                   alert('SelfHeal run: '+r1+' — check console for details.');
                 }catch(e){ console.warn('Run SelfHeal failed', e); }
               });
@@ -1497,9 +1487,10 @@ function logStep(message) {
                     const entry = hist[i]; lastSeen = i+1;
                     if(!entry) continue;
                     const applied = fixNodeSpecifiers(entry.msg);
-                    if(applied) // attempt to dynamically load local vendor when web3 missing
+                    if(applied) console.log('AutoHeal applied:', applied);
+                    // attempt to dynamically load local vendor when web3 missing
                     if(/web3|solana/i.test(entry.msg) || /Failed to resolve module specifier/i.test(entry.msg)){
-                      tryLoadLocalEsm().then(res=>{ if(res.ok) });
+                      tryLoadLocalEsm().then(res=>{ if(res.ok) console.log('AutoHeal loaded local vendor', res.path); });
                     }
                   }
                 }catch(e){/* ignore */}

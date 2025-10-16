@@ -86,13 +86,6 @@ class WalletButton {
         const btn = document.getElementById('walletConnectBtn');
         if (!btn) return;
 
-        // Check if universalWalletAuth is available
-        if (!window.universalWalletAuth) {
-            console.error('Universal Wallet Auth not loaded yet');
-            btn.innerHTML = '<span class="wallet-icon">❌</span><span class="wallet-text">Auth System Error</span>';
-            return;
-        }
-
         const originalText = btn.innerHTML;
         btn.innerHTML = '<span class="wallet-icon">⏳</span><span class="wallet-text">Connecting...</span>';
         btn.disabled = true;
@@ -105,14 +98,9 @@ class WalletButton {
                 this.render();
             }
         } catch (error) {
-            console.error('Wallet connection failed:', error);
-            btn.innerHTML = '<span class="wallet-icon">❌</span><span class="wallet-text">Connection Failed</span>';
+            console.error('Connection failed:', error);
+            btn.innerHTML = originalText;
             btn.disabled = false;
-
-            // Reset after 3 seconds
-            setTimeout(() => {
-                this.render();
-            }, 3000);
         }
     }
 
@@ -120,9 +108,7 @@ class WalletButton {
      * Disconnect wallet
      */
     async disconnect() {
-        if (window.universalWalletAuth) {
-            await window.universalWalletAuth.disconnect();
-        }
+        await window.universalWalletAuth.disconnect();
         this.render();
     }
 
@@ -181,50 +167,10 @@ class WalletButton {
 // Auto-initialize when DOM is ready
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
-        // Small delay to ensure all scripts are loaded
-        setTimeout(() => {
-            initializeWalletButton();
-        }, 200); // Increased delay to 200ms
+        window.walletButton = new WalletButton();
     });
 } else {
-    // Small delay to ensure all scripts are loaded
-    setTimeout(() => {
-        initializeWalletButton();
-    }, 200); // Increased delay to 200ms
-}
-
-function initializeWalletButton() {
-    // Double-check that DOM is ready
-    if (document.body && document.getElementById('walletButtonContainer')) {
-        window.walletButton = new WalletButton();
-    } else {
-        console.warn('⚠️ Wallet button container not found, creating fallback...');
-        // Create fallback container if it doesn't exist
-        if (document.body && !document.getElementById('walletButtonContainer')) {
-            const container = document.createElement('div');
-            container.id = 'walletButtonContainer';
-            container.style.cssText = 'display: flex; justify-content: center; margin-top: 30px;';
-            // Try to insert near the header
-            const header = document.querySelector('header');
-            if (header) {
-                header.appendChild(container);
-                console.log('✅ Created wallet button container in header');
-            } else {
-                // Fallback to body
-                document.body.insertBefore(container, document.body.firstChild);
-                console.log('✅ Created wallet button container in body');
-            }
-        }
-        // Retry after container creation
-        setTimeout(() => {
-            if (document.body && document.getElementById('walletButtonContainer')) {
-                window.walletButton = new WalletButton();
-                console.log('✅ Wallet button initialized with fallback container');
-            } else {
-                console.error('❌ Failed to create wallet button container');
-            }
-        }, 100);
-    }
+    window.walletButton = new WalletButton();
 }
 
 // Export

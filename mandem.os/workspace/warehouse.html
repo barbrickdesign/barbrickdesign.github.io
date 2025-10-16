@@ -1,19 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="https://barbrickdesign.github.io/">
-    <meta name="twitter:title" content="BARBRICKDESIGN - Elite Web3 Hub">
-    <meta name="twitter:description" content="Cutting-edge Web3 development and design solutions">
-    <meta name="twitter:image" content="https://barbrickdesign.github.io/header.jpg">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://barbrickdesign.github.io/">
-    <meta property="og:title" content="BARBRICKDESIGN - Elite Web3 Hub">
-    <meta property="og:description" content="Cutting-edge Web3 development and design solutions">
-    <meta property="og:image" content="https://barbrickdesign.github.io/header.jpg">
-    <meta name="description" content="BARBRICKDESIGN - Elite Web3 Development and Design Hub">
-    <meta http-equiv="X-Frame-Options" content="DENY">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' https:; connect-src 'self' https:;">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Gem Warehouse</title>
@@ -109,24 +96,16 @@
         .control-instructions:hover {
             opacity: 1;
         }
-    
-    /* Mobile responsiveness */
-    @media (max-width: 768px) {
-        body { font-size: 16px; }
-        h1 { font-size: 2em; }
-        .container { padding: 10px; }
-        button, .btn { min-height: 44px; font-size: 16px; }
-    }
     </style>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     
     <!-- Universal Wallet Authentication -->
-    <script src="../../fpds-contract-schema.js" defer></script>
-    <script src="../../contractor-registry.js" defer></script>
-    <script src="../../universal-wallet-auth.js" defer></script>
-    <script src="../../auth-integration.js" defer></script>
+    <script src="../../fpds-contract-schema.js"></script>
+    <script src="../../contractor-registry.js"></script>
+    <script src="../../universal-wallet-auth.js"></script>
+    <script src="../../auth-integration.js"></script>
 </head>
 <body>
     <div id="error"></div>
@@ -147,39 +126,39 @@
     </div>
     
     <!-- Load THREE.js first to ensure it's available globally -->
-    <script src="https://unpkg.com/three@0.153.0/build/three.min.js" defer></script>
+    <script src="https://unpkg.com/three@0.153.0/build/three.min.js"></script>
     
     <!-- Load THREE.js addons that are needed -->
-    <script src="https://unpkg.com/three@0.153.0/examples/js/controls/OrbitControls.js" defer></script>
-    <script src="https://unpkg.com/three@0.153.0/examples/js/loaders/STLLoader.js" defer></script>
+    <script src="https://unpkg.com/three@0.153.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://unpkg.com/three@0.153.0/examples/js/loaders/STLLoader.js"></script>
 
 
-    <script src="https://unpkg.com/three@0.153.0/examples/js/loaders/GLTFLoader.js" defer></script>
+    <script src="https://unpkg.com/three@0.153.0/examples/js/loaders/GLTFLoader.js"></script>
     
 
-    <script src="https://unpkg.com/three@0.153.0/examples/js/loaders/OBJLoader.js" defer></script>
-    <script src="https://unpkg.com/three@0.153.0/examples/js/loaders/MTLLoader.js" defer></script>                            
-    <script src="https://unpkg.com/three@0.153.0/examples/js/loaders/FBXLoader.js" defer></script>
-    <script src="https://unpkg.com/three@0.153.0/examples/js/loaders/GLTF2Loader.js" defer></script>          
+    <script src="https://unpkg.com/three@0.153.0/examples/js/loaders/OBJLoader.js"></script>
+    <script src="https://unpkg.com/three@0.153.0/examples/js/loaders/MTLLoader.js"></script>                            
+    <script src="https://unpkg.com/three@0.153.0/examples/js/loaders/FBXLoader.js"></script>
+    <script src="https://unpkg.com/three@0.153.0/examples/js/loaders/GLTF2Loader.js"></script>          
 
     
     <!-- Include helper scripts next -->
-    <script src="public/sceneHelper.js" defer></script>
+    <script src="public/sceneHelper.js"></script>
     
     
     <!-- Include authentication scripts -->
-    <script src="src/auth.js" defer></script>
-    <script src="public/environment.js" defer></script>
-    <script src="public/uptimeRewards.js" defer></script>
+    <script src="src/auth.js"></script>
+    <script src="public/environment.js"></script>
+    <script src="public/uptimeRewards.js"></script>
     
     <!-- Add TVDisplay script before loading warehouse.js -->
-    <script src="public/tvDisplay.js" defer></script>
+    <script src="public/tvDisplay.js"></script>
     
     <!-- Include the background effects -->
-    <script src="public/backgroundEffects.js" defer></script>
+    <script src="public/backgroundEffects.js"></script>
     
     <!-- Include Phantom wallet login script -->
-    <script src="../../mandem.os/workspace/public/phantomLogin.js" defer></script>
+    <script src="public/phantomLogin.js"></script>
     
     <!-- Script to ensure THREE.js is properly loaded -->
     <script>
@@ -194,6 +173,7 @@
                 if (typeof THREE !== 'undefined' && THREE.Scene && THREE.PerspectiveCamera) {
                     resolve();
                 } else {
+                    console.log("Waiting for THREE.js to load...");
                     setTimeout(() => ensureThreeJsLoaded().then(resolve), 100);
                 }
             });
@@ -333,10 +313,11 @@
         });
     </script>
     <script>
-        );
-        );
-        );
-        );
+        console.log('[DEBUG] warehouse.html loaded');
+        console.log('[DEBUG] currentUser:', localStorage.getItem('currentUser'));
+        console.log('[DEBUG] userProfile:', localStorage.getItem('userProfile'));
+        console.log('[DEBUG] userLoggedIn:', localStorage.getItem('userLoggedIn'));
+        console.log('[DEBUG] lastWalletAuth:', localStorage.getItem('lastWalletAuth'));
     </script>
 </body>
 </html>

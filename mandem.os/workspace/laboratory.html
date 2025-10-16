@@ -1,26 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="https://barbrickdesign.github.io/">
-    <meta name="twitter:title" content="BARBRICKDESIGN - Elite Web3 Hub">
-    <meta name="twitter:description" content="Cutting-edge Web3 development and design solutions">
-    <meta name="twitter:image" content="https://barbrickdesign.github.io/header.jpg">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://barbrickdesign.github.io/">
-    <meta property="og:title" content="BARBRICKDESIGN - Elite Web3 Hub">
-    <meta property="og:description" content="Cutting-edge Web3 development and design solutions">
-    <meta property="og:image" content="https://barbrickdesign.github.io/header.jpg">
-    <meta name="description" content="BARBRICKDESIGN - Elite Web3 Development and Design Hub">
-    <meta http-equiv="X-Frame-Options" content="DENY">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' https:; connect-src 'self' https:;">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Laboratory</title>
-    <link rel="preload" href="" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link rel="stylesheet" href="public/styles.css"></noscript>
-    <link rel="preload" href="" as="style" onload="this.onload=null;this.rel='stylesheet'">
-    <noscript><link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet"></noscript>
+    <link rel="stylesheet" href="public/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet">
     <style>
         body {
             margin: 0;
@@ -146,21 +131,13 @@
             z-index: 50;
             max-width: 300px;
         }
-    
-    /* Mobile responsiveness */
-    @media (max-width: 768px) {
-        body { font-size: 16px; }
-        h1 { font-size: 2em; }
-        .container { padding: 10px; }
-        button, .btn { min-height: 44px; font-size: 16px; }
-    }
     </style>
     
     <!-- Universal Wallet Authentication -->
-    <script src="../../fpds-contract-schema.js" defer></script>
-    <script src="../../contractor-registry.js" defer></script>
-    <script src="../../universal-wallet-auth.js" defer></script>
-    <script src="../../auth-integration.js" defer></script>
+    <script src="../../fpds-contract-schema.js"></script>
+    <script src="../../contractor-registry.js"></script>
+    <script src="../../universal-wallet-auth.js"></script>
+    <script src="../../auth-integration.js"></script>
 </head>
 <body>
     <header>
@@ -192,7 +169,7 @@
     <div id="loading">Loading Laboratory scene... Please wait.</div>
     <div class="location-label">Laboratory</div>
     <div class="interactive-hint">Click on colored portals to navigate between environments.</div>
-    <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js" defer></script>
+    <script async src="https://unpkg.com/es-module-shims@1.6.3/dist/es-module-shims.js"></script>
     <script type="importmap">
         {
             "imports": {
@@ -201,16 +178,16 @@
             }
         }
     </script>
-    <script src="public/uptimeRewards.js" defer></script>
-    <script src="public/sceneHelper.js" defer></script>
-    <script src="../../mandem.os/workspace/public/phantomLogin.js" defer></script>
+    <script src="public/uptimeRewards.js"></script>
+    <script src="public/sceneHelper.js"></script>
+    <script src="public/phantomLogin.js"></script>
     <!-- Faceting Machine System -->
-    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js" defer></script>
-    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/controls/OrbitControls.js" defer></script>
-    <script src="public/facetProcessor.js" defer></script>
-    <script src="public/simulation.js" defer></script>
-    <script src="public/facetingControls.js" defer></script>
-    <script src="public/facetingMachineInit.js" defer></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.160.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="public/facetProcessor.js"></script>
+    <script src="public/simulation.js"></script>
+    <script src="public/facetingControls.js"></script>
+    <script src="public/facetingMachineInit.js"></script>
     <script type="module">
         // Unified authentication check
         function checkAuthentication() {
@@ -231,7 +208,8 @@
         import('./laboratory.js')
             .then(() => {
                 if (loadingElement) loadingElement.style.display = 'none';
-                })
+                console.log("Laboratory script loaded successfully");
+            })
             .catch(error => {
                 console.error("Error loading laboratory script:", error);
                 const errorDiv = document.getElementById('error');
@@ -307,10 +285,11 @@
         });
     </script>
     <script>
-        );
-        );
-        );
-        );
+        console.log('[DEBUG] laboratory.html loaded');
+        console.log('[DEBUG] currentUser:', localStorage.getItem('currentUser'));
+        console.log('[DEBUG] userProfile:', localStorage.getItem('userProfile'));
+        console.log('[DEBUG] userLoggedIn:', localStorage.getItem('userLoggedIn'));
+        console.log('[DEBUG] lastWalletAuth:', localStorage.getItem('lastWalletAuth'));
     </script>
 </body>
 </html>

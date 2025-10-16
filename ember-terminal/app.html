@@ -2,19 +2,6 @@
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="https://barbrickdesign.github.io/">
-    <meta name="twitter:title" content="BARBRICKDESIGN - Elite Web3 Hub">
-    <meta name="twitter:description" content="Cutting-edge Web3 development and design solutions">
-    <meta name="twitter:image" content="https://barbrickdesign.github.io/header.jpg">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://barbrickdesign.github.io/">
-    <meta property="og:title" content="BARBRICKDESIGN - Elite Web3 Hub">
-    <meta property="og:description" content="Cutting-edge Web3 development and design solutions">
-    <meta property="og:image" content="https://barbrickdesign.github.io/header.jpg">
-    <meta name="description" content="BARBRICKDESIGN - Elite Web3 Development and Design Hub">
-    <meta http-equiv="X-Frame-Options" content="DENY">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' https:; connect-src 'self' https:;">
     <!-- Paste into <head> or merged stylesheet -->
 <style>
   /* Root sizing helpers */
@@ -103,7 +90,7 @@ a:visited { color: #1e9b55; }
   @media (min-width:1600px){ :root{ --term-max-width:1400px; } }
 </style>
 
-<!-- Paste before   <!-- Pump.fun Integration for Ember Terminal --> to ensure layout recalculates on orientation/resize -->
+<!-- Paste before </body> to ensure layout recalculates on orientation/resize -->
 <script>
 (function(){
   var root = document.getElementById('ember-terminal-root');
@@ -149,11 +136,7 @@ a:visited { color: #1e9b55; }
 })();
 </script>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Ember Terminal</title>
-
-    <!-- Pump.fun Integration -->
-    <script src="../pumpfun-integration.js" defer></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <a href="https://barbrickdesign.github.io/ember-terminal/index.html"><title>MandemOS 2049 - Soul Server With Ember.Terminal</title></a>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <style>
@@ -4967,12 +4950,12 @@ a:visited { color: #1e9b55; }
     </style>
     
     <!-- Universal Wallet Authentication System -->
-    <script src="../contractor-registry.js" defer></script>
-    <script src="../universal-wallet-auth.js" defer></script>
-    <script src="../auth-integration.js" defer></script>
+    <script src="../contractor-registry.js"></script>
+    <script src="../universal-wallet-auth.js"></script>
+    <script src="../auth-integration.js"></script>
     
     <!-- Pump.fun Token Integration -->
-    <script src="../pumpfun-token-config.js" defer></script>
+    <script src="../pumpfun-token-config.js"></script>
     
     <!-- Ember Terminal specific wallet integration -->
     <style>
@@ -5949,6 +5932,7 @@ a:visited { color: #1e9b55; }
         // Navigation functions (moved to universe system section)
 
         function openQuestBot() {
+            console.log('Opening quest bot...');
             document.getElementById('mainHub').classList.remove('active');
             document.getElementById('questBotSystem').classList.add('active');
             initializeQuestBot();
@@ -5956,6 +5940,7 @@ a:visited { color: #1e9b55; }
 
 
         function closeScrollbotOverlay() {
+            console.log('Closing scrollbot overlay...');
             document.getElementById('scrollbotOverlay').classList.remove('active');
         }
 
@@ -5983,6 +5968,7 @@ a:visited { color: #1e9b55; }
         }
 
         function openRelicTracker() {
+            console.log('Opening relic tracker...');
             document.getElementById('mainHub').classList.remove('active');
             document.getElementById('relicTracker').classList.add('active');
         }
@@ -6014,10 +6000,12 @@ a:visited { color: #1e9b55; }
         }
 
         function openKeys() {
+            console.log('Opening keys...');
             alert('Keys system coming soon!');
         }
 
         function openProfile() {
+            console.log('Opening profile...');
             document.getElementById('mainHub').classList.remove('active');
             document.getElementById('profileSystem').classList.add('active');
             initializeXPData();
@@ -6025,6 +6013,7 @@ a:visited { color: #1e9b55; }
         }
 
         function openRelicRadar() {
+            console.log('Opening relic radar...');
             document.getElementById('mainHub').classList.remove('active');
             document.getElementById('relicRadar').classList.add('active');
         }
@@ -6035,12 +6024,14 @@ a:visited { color: #1e9b55; }
         }
 
         function openXPLog() {
+            console.log('Opening XP log...');
             document.getElementById('mainHub').classList.remove('active');
             document.getElementById('xpLogSystem').classList.add('active');
             generateXPLogContent();
         }
 
         function goHome() {
+            console.log('Going home...');
             // Hide all other screens
             document.getElementById('questSystem').classList.remove('active');
             document.getElementById('questBotSystem').classList.remove('active');
@@ -6079,6 +6070,8 @@ a:visited { color: #1e9b55; }
             const totalSwag = xpLogData.totalSwag || 0;
             const currentStreak = xpLogData.currentStreak || 0;
             
+            console.log(`Updating profile from XP log: XP=${totalXP}, Swag=${totalSwag}, Streak=${currentStreak}, Player=${playerName}, Bot=${botName}`);
+            
             // Check if elements exist
             const playerNameEl = document.getElementById('playerName');
             const shardNameEl = document.getElementById('shardName');
@@ -6086,19 +6079,27 @@ a:visited { color: #1e9b55; }
             const profileSwagEl = document.getElementById('profileSwag');
             const profileStreakEl = document.getElementById('profileStreak');
             
+            console.log('Profile elements found:', {
+                playerName: !!playerNameEl,
+                shardName: !!shardNameEl,
+                profileXP: !!profileXPEl,
+                profileSwag: !!profileSwagEl,
+                profileStreak: !!profileStreakEl
+            });
+            
             if (playerNameEl) playerNameEl.textContent = playerName;
             if (shardNameEl) shardNameEl.textContent = `${botName}.exe`;
             if (profileXPEl) {
                 profileXPEl.textContent = totalXP.toLocaleString();
-                }`);
+                console.log(`Set profileXP to: ${totalXP.toLocaleString()}`);
             }
             if (profileSwagEl) {
                 profileSwagEl.textContent = totalSwag.toLocaleString();
-                }`);
+                console.log(`Set profileSwag to: ${totalSwag.toLocaleString()}`);
             }
             if (profileStreakEl) {
                 profileStreakEl.textContent = currentStreak.toLocaleString();
-                }`);
+                console.log(`Set profileStreak to: ${currentStreak.toLocaleString()}`);
             }
             
             // Update completed scrolls and badges
@@ -6239,8 +6240,11 @@ a:visited { color: #1e9b55; }
         }
 
         function resetProgress() {
+            console.log('resetProgress function called!');
+            
             if (confirm('Are you sure you want to reset all progress? This will clear all quest completions, XP, and scrolls.')) {
-                );
+                console.log('User confirmed reset. Starting...');
+                console.log('Before reset - localStorage keys:', Object.keys(localStorage));
                 
                 // Clear ALL localStorage keys that start with quest, scroll, or xp
                 const keysToRemove = [];
@@ -6259,7 +6263,9 @@ a:visited { color: #1e9b55; }
                     }
                 }
                 
+                console.log('Keys to remove:', keysToRemove);
                 keysToRemove.forEach(key => {
+                    console.log(`Removing key: ${key}`);
                     localStorage.removeItem(key);
                 });
                 
@@ -6278,8 +6284,10 @@ a:visited { color: #1e9b55; }
                 };
                 saveXPLogData();
                 
-                );
-                );
+                console.log('XP log data reset to defaults');
+                
+                console.log('After reset - localStorage keys:', Object.keys(localStorage));
+                console.log('totalXP after reset:', localStorage.getItem('totalXP'));
                 
                 // Update UI immediately
                 updateProfileData();
@@ -6288,24 +6296,29 @@ a:visited { color: #1e9b55; }
                 
                 // Force refresh the page to ensure everything resets
                 setTimeout(() => {
+                    console.log('Refreshing page...');
                     window.location.reload();
                 }, 1000);
                 
                 alert('Progress reset! Page will refresh in 1 second.');
             } else {
-                }
+                console.log('User cancelled reset');
+            }
         }
 
         // Manual reset function for console testing
         function manualReset() {
+            console.log('Manual reset called - clearing everything...');
             localStorage.clear();
             window.location.reload();
         }
 
         // NUCLEAR RESET - Just clear everything and reload
         function nuclearReset() {
+            console.log('NUCLEAR RESET INITIATED');
             localStorage.clear();
             sessionStorage.clear();
+            console.log('All storage cleared');
             alert('NUCLEAR RESET: All data cleared. Page reloading...');
             window.location.reload();
         }
@@ -6363,6 +6376,7 @@ a:visited { color: #1e9b55; }
             const currentXP = xpLogData.totalXP || 0;
             const currentSwag = xpLogData.totalSwag || 0;
             
+            console.log(`updateXPBar called: XP=${currentXP}, Swag=${currentSwag}`);
             const level = Math.floor(currentXP / 1000) + 1; // 1000 XP per level
             const levelXP = currentXP % 1000;
             const nextLevelXP = 1000;
@@ -6481,6 +6495,8 @@ a:visited { color: #1e9b55; }
         }
 
         function startMandemLoadingRitual() {
+            console.log('Starting Mandem loading ritual...');
+            
             // Show loading screen
             const loadingScreen = document.getElementById('loadingScreen');
             if (loadingScreen) {
@@ -6542,7 +6558,8 @@ a:visited { color: #1e9b55; }
             updateSwagDisplay();
             generateQuestContent();
             
-            }
+            console.log('Mandem loading ritual complete');
+        }
 
         // Universe System Functions
         let currentUniverse = 'mandem';
@@ -6557,7 +6574,8 @@ a:visited { color: #1e9b55; }
             // Highlight current universe in selector
             highlightCurrentUniverse();
             
-            }
+            console.log('Universe selector opened');
+        }
 
         function highlightCurrentUniverse() {
             // Remove active class from all tiles
@@ -6578,12 +6596,15 @@ a:visited { color: #1e9b55; }
         function closeUniverses() {
             const selector = document.getElementById('universeSelector');
             selector.classList.remove('active');
-            }
+            console.log('Universe selector closed');
+        }
 
         function enterNullUniverse() {
             if (universeTransitionInProgress) return;
             
             universeTransitionInProgress = true;
+            console.log('Entering Null universe...');
+            
             // Close selector
             closeUniverses();
             
@@ -6593,10 +6614,13 @@ a:visited { color: #1e9b55; }
 
 
         function startNullLoadingRitual() {
+            console.log('Starting Null loading ritual...');
+            
             const loadingRitual = document.getElementById('nullLoadingRitual');
             if (loadingRitual) {
                 loadingRitual.classList.add('active');
-                } else {
+                console.log('Loading ritual activated');
+            } else {
                 console.error('Loading ritual not found!');
             }
             
@@ -6605,26 +6629,32 @@ a:visited { color: #1e9b55; }
             
             // Start the ritual sequence
             setTimeout(() => {
+                console.log('Starting ritual sequence...');
+                
                 // Show degradation
                 const degradation = document.querySelector('.null-degradation');
                 if (degradation) {
                     degradation.style.opacity = '1';
-                    }
+                    console.log('Degradation shown');
+                }
                 
                 // Animate null bar
                 const nullBar = document.getElementById('nullBarFill');
                 if (nullBar) {
                     nullBar.style.width = '100%';
-                    }
+                    console.log('Null bar animated');
+                }
                 
                 // Show telemetry
                 const telemetry = document.querySelector('.null-telemetry');
                 if (telemetry) {
                     telemetry.style.opacity = '1';
-                    }
+                    console.log('Telemetry shown');
+                }
                 
                 // Complete transition after ritual
                 setTimeout(() => {
+                    console.log('Ritual complete, transitioning to Null hub...');
                     completeNullTransition();
                 }, 3000);
                 
@@ -6648,32 +6678,41 @@ a:visited { color: #1e9b55; }
         }
 
         function completeNullTransition() {
+            console.log('Starting Null transition...');
+            
             // Hide loading ritual
             const loadingRitual = document.getElementById('nullLoadingRitual');
             loadingRitual.classList.remove('active');
+            console.log('Loading ritual hidden');
+            
             // Hide Mandem hub completely
             const mandemHub = document.querySelector('.mandem-hub');
             if (mandemHub) {
                 mandemHub.style.display = 'none';
-                }
+                console.log('Mandem hub hidden');
+            }
             
             // Show Null hub as separate page
             const nullHub = document.getElementById('nullHub');
             if (nullHub) {
                 nullHub.classList.add('active');
-                } else {
+                console.log('Null hub activated');
+            } else {
                 console.error('Null hub not found!');
             }
             
             // Update current universe
             currentUniverse = 'null';
+            console.log('Current universe set to:', currentUniverse);
+            
             // Update Null UI with current data
             updateNullUI();
             
             // Reset transition flag
             universeTransitionInProgress = false;
             
-            }
+            console.log('Null universe transition complete - separate hub loaded');
+        }
 
         function updateNullUI() {
             // Update XP display
@@ -6699,6 +6738,8 @@ a:visited { color: #1e9b55; }
             if (universeTransitionInProgress) return;
             
             universeTransitionInProgress = true;
+            console.log('Returning to Mandem universe...');
+            
             // Hide Null hub completely
             const nullHub = document.getElementById('nullHub');
             nullHub.classList.remove('active');
@@ -6717,10 +6758,13 @@ a:visited { color: #1e9b55; }
             // Reset transition flag
             universeTransitionInProgress = false;
             
-            }
+            console.log('Returned to Mandem universe - separate hub loaded');
+        }
 
         function reloadCurrentUniverse() {
             if (universeTransitionInProgress) return;
+            
+            console.log(`Reloading ${currentUniverse} universe...`);
             
             if (currentUniverse === 'mandem') {
                 // Ensure Mandem hub is visible and Null is hidden
@@ -6746,7 +6790,8 @@ a:visited { color: #1e9b55; }
                 updateNullUI();
             }
             
-            }
+            console.log(`${currentUniverse} universe reloaded - separate hub active`);
+        }
 
         // Override existing functions to work with universe system
         function openQuests() {
@@ -6754,10 +6799,12 @@ a:visited { color: #1e9b55; }
             
             if (currentUniverse === 'null') {
                 // In Null universe, show a different quest interface
+                console.log('Opening Null quests...');
                 // TODO: Implement Null quest interface
                 return;
             }
             // Original quest opening logic
+            console.log('Opening quests...');
             document.getElementById('mainHub').classList.remove('active');
             document.getElementById('questSystem').classList.add('active');
             generateQuestContent();
@@ -6765,40 +6812,48 @@ a:visited { color: #1e9b55; }
 
         function openRelicMenu() {
             if (currentUniverse === 'null') {
+                console.log('Opening Null relic menu...');
                 // TODO: Implement Null relic interface
                 return;
             }
             // Original relic menu logic
+            console.log('Opening relic menu...');
             document.getElementById('mainHub').classList.remove('active');
             document.getElementById('relicMenu').classList.add('active');
         }
 
         function openScrollbot() {
             if (currentUniverse === 'null') {
+                console.log('Opening Null Scrollbot...');
                 // TODO: Implement Null Scrollbot interface
                 return;
             }
             // Original scrollbot logic - just open overlay, don't hide mainHub
+            console.log('Opening scrollbot...');
             document.getElementById('scrollbotOverlay').classList.add('active');
             updateScrollbotIdentity();
         }
 
         function openXPLog() {
             if (currentUniverse === 'null') {
+                console.log('Opening Null XP Log...');
                 // TODO: Implement Null XP Log interface
                 return;
             }
             // Original XP log logic
+            console.log('Opening XP log...');
             document.getElementById('mainHub').classList.remove('active');
             document.getElementById('xpLogSystem').classList.add('active');
         }
 
         function openProfile() {
             if (currentUniverse === 'null') {
+                console.log('Opening Null profile...');
                 // TODO: Implement Null profile interface
                 return;
             }
             // Original profile logic
+            console.log('Opening profile...');
             document.getElementById('mainHub').classList.remove('active');
             document.getElementById('profileSystem').classList.add('active');
         }
@@ -6806,17 +6861,22 @@ a:visited { color: #1e9b55; }
         // Vault System Functions
         function openVault() {
             if (currentUniverse === 'null') {
+                console.log('Opening Null vault...');
                 // TODO: Implement Null vault interface
                 return;
             }
+            console.log('Opening vault...');
             startVaultLoadingRitual();
         }
 
         function startVaultLoadingRitual() {
+            console.log('Starting vault loading ritual...');
+            
             const loadingRitual = document.getElementById('vaultLoadingRitual');
             if (loadingRitual) {
                 loadingRitual.classList.add('active');
-                }
+                console.log('Vault loading ritual activated');
+            }
             
             // Complete loading after ritual
             setTimeout(() => {
@@ -6846,7 +6906,8 @@ a:visited { color: #1e9b55; }
             // Update Vault UI
             updateVaultUI();
             
-            }
+            console.log('Vault loading ritual complete');
+        }
 
         function updateVaultUI() {
             // Update XP display
@@ -6869,6 +6930,8 @@ a:visited { color: #1e9b55; }
         }
 
         function returnToMandemFromVault() {
+            console.log('Returning to Mandem from Vault...');
+            
             // Hide Vault page
             const vaultPage = document.getElementById('vaultPage');
             if (vaultPage) {
@@ -7183,11 +7246,17 @@ a:visited { color: #1e9b55; }
             const xpAmount = quest.xp;
             const swagAmount = Math.floor(quest.xp / 2); // Swag is half of XP
             
+            console.log(`Quest ${questId} completed! Awarding ${xpAmount} XP and ${swagAmount} Swag`);
+
             // Mark quest as completed
             localStorage.setItem(questKey, 'true');
+            console.log(`Quest ${questId} marked as completed in localStorage`);
+
             // Store the scroll (GPT response) in localStorage
             const scrollKey = `scroll_quest_${questId}`;
             localStorage.setItem(scrollKey, response.value);
+            console.log(`Scroll stored for quest ${questId}`);
+
             // Unlock next quest (if not the last quest)
             if (questId < 10) {
                 const nextQuestKey = `quest${questId + 1}Unlocked`;
@@ -7233,6 +7302,9 @@ a:visited { color: #1e9b55; }
 
         function validateGptResponse(responseText, trigger) {
             // More lenient validation - accept most reasonable responses
+            console.log(`Validating response for trigger: ${trigger}`);
+            console.log(`Response text: "${responseText}"`);
+            
             // For joke quest, accept any response that seems like a joke or response
             if (trigger === 'joke') {
                 // Accept if it contains joke-related words OR if it's a reasonable length response
@@ -7240,6 +7312,7 @@ a:visited { color: #1e9b55; }
                 const hasJokeKeyword = jokeKeywords.some(keyword => responseText.includes(keyword));
                 const isReasonableLength = responseText.length > 10; // More than 10 characters
                 
+                console.log(`Joke validation: hasKeyword=${hasJokeKeyword}, reasonableLength=${isReasonableLength}`);
                 return hasJokeKeyword || isReasonableLength;
             }
             
@@ -7260,6 +7333,7 @@ a:visited { color: #1e9b55; }
             const hasKeyword = keywords.some(keyword => responseText.includes(keyword));
             const isReasonableLength = responseText.length > 5; // More than 5 characters
             
+            console.log(`Validation result: hasKeyword=${hasKeyword}, reasonableLength=${isReasonableLength}`);
             return hasKeyword || isReasonableLength;
         }
 
@@ -7274,6 +7348,7 @@ a:visited { color: #1e9b55; }
 
 
         function addScrollbotMessage(message) {
+            console.log('addScrollbotMessage called with:', message);
             const scrollbotMessages = document.getElementById('scrollbotMessages');
             if (scrollbotMessages) {
                 const messageDiv = document.createElement('div');
@@ -7443,12 +7518,14 @@ a:visited { color: #1e9b55; }
                 
                 if (response.ok) {
                     const data = await response.json();
+                    console.log('API response received:', data);
                     return data.response;
                 } else {
                     console.error('API error:', response.status, response.statusText);
                     throw new Error('API request failed');
                 }
             } catch (error) {
+                console.log('API not available, using local fallback system');
                 // Fallback to rule-based system
                 const context = buildScrollbotContext();
                 const intent = analyzeScrollbotIntent(userMessage);
@@ -8046,13 +8123,16 @@ a:visited { color: #1e9b55; }
         }
 
         function handleScrollbotInput(event) {
+            console.log('handleScrollbotInput called, key:', event.key);
             if (event.key === 'Enter') {
+                console.log('Enter key pressed, calling sendScrollbotMessage');
                 sendScrollbotMessage();
             }
         }
 
 
         function sendScrollbotMessage() {
+            console.log('sendScrollbotMessage called');
             const input = document.getElementById('scrollbotInput');
             const messages = document.getElementById('scrollbotMessages');
             
@@ -8062,6 +8142,8 @@ a:visited { color: #1e9b55; }
             }
             
             const userMessage = input.value.trim();
+            
+            console.log('User message:', userMessage);
             
             if (userMessage) {
                 // Track conversation
@@ -8447,7 +8529,8 @@ a:visited { color: #1e9b55; }
                     const isLocked = !isUnlocked && !isCompleted;
                     
                     if (questNumber <= 3) {
-                        }
+                        console.log(`Quest ${questNumber}: completed=${isCompleted}, unlocked=${isUnlocked}, locked=${isLocked}`);
+                    }
                     
                     // Add click handler for Quest 1 (Launch Quest Bot)
                     const clickHandler = questNumber === 1 ? 'onclick="launchQuest01Ritual()"' : '';
@@ -8542,7 +8625,9 @@ a:visited { color: #1e9b55; }
             const savedData = localStorage.getItem('xpLogData');
             if (savedData) {
                 xpLogData = JSON.parse(savedData);
-                } else {
+                console.log('Loaded XP log data:', xpLogData);
+            } else {
+                console.log('No XP log data found, using defaults');
                 saveXPLogData();
             }
         }
@@ -9245,14 +9330,18 @@ a:visited { color: #1e9b55; }
 <script>
 // Initialize wallet authentication for Ember Terminal
 window.addEventListener('DOMContentLoaded', async () => {
+    console.log('🔥 Ember Terminal - Initializing Universal Auth...');
+    
     try {
         // Initialize universal auth
         await window.authIntegration.init({
             showUI: false,  // Custom UI
             onAuthSuccess: (authInfo) => {
+                console.log('✅ Ember Terminal - Wallet authenticated:', authInfo.address);
                 updateEmberWalletUI(authInfo);
             },
             onAuthFail: () => {
+                console.log('⚠️ Ember Terminal - Wallet not connected');
                 updateEmberWalletUI(null);
             }
         });
@@ -9271,6 +9360,7 @@ async function connectEmberWallet() {
         const authInfo = await window.universalWalletAuth.connect();
         
         if (authInfo) {
+            console.log('✅ Ember Wallet connected:', authInfo);
             updateEmberWalletUI(authInfo);
         } else {
             throw new Error('Connection failed');
@@ -9332,10 +9422,12 @@ function updateEmberWalletUI(authInfo) {
 
 // Listen for auth events
 window.addEventListener('authSuccess', (event) => {
+    console.log('🎉 Ember Terminal - Auth success event:', event.detail);
     updateEmberWalletUI(event.detail);
 });
 
 window.addEventListener('authLogout', () => {
+    console.log('👋 Ember Terminal - Auth logout event');
     updateEmberWalletUI(null);
 });
 
@@ -9363,7 +9455,8 @@ async function updateGBPTTokenBalance() {
         const fillPercentage = Math.min((balance / 10000) * 100, 100);
         document.getElementById('swagStatusFill').style.width = `${fillPercentage}%`;
         
-        } catch (error) {
+        console.log('🔥 Ember Terminal - GBPT Balance Updated:', formattedBalance, 'GBPT');
+    } catch (error) {
         console.error('❌ Failed to update GBPT balance:', error);
         // Show 0 on error
         document.getElementById('swagStatusValue').textContent = '0';
@@ -9373,6 +9466,7 @@ async function updateGBPTTokenBalance() {
 
 // Update GBPT balance when wallet connects
 window.addEventListener('authSuccess', (event) => {
+    console.log('🎉 Ember Terminal - Auth success, updating GBPT balance...');
     updateGBPTTokenBalance();
 });
 
@@ -9383,46 +9477,9 @@ window.addEventListener('DOMContentLoaded', () => {
     }, 1000); // Wait 1 second for wallet auth to initialize
 });
 
-tracking enabled');
-
-// Pump.fun Integration for Ember Terminal
-(function initEmberPumpFun(){
-  if (typeof window.pumpFun === 'undefined') {
-    setTimeout(initEmberPumpFun, 100);
-    return;
-  }
-
-  const mandemCoin = window.pumpFun.mandemCoin;
-
-  // Add prominent coin display to terminal
-  const root = document.getElementById('ember-terminal-root');
-  if (root) {
-    const coinDisplay = document.createElement('div');
-    coinDisplay.innerHTML = `
-      <div style="background: linear-gradient(135deg, rgba(124,92,255,0.1), rgba(0,212,255,0.1)); border: 1px solid rgba(124,92,255,0.3); border-radius: 8px; padding: 15px; margin: 10px 0; font-family: monospace;">
-        <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-          <img src="${mandemCoin.image}" alt="$MNDM" style="width: 32px; height: 32px; border-radius: 50%; border: 2px solid #7c5cff;" / loading="lazy">
-          <div>
-            <div style="font-weight: bold; color: #7c5cff; font-size: 14px;">$MNDM - MANDEM.OS Token</div>
-            <div style="font-size: 12px; color: #6ee7b7;">Market Cap: $${mandemCoin.marketCap.toLocaleString()}</div>
-          </div>
-        </div>
-        <div style="display: flex; gap: 8px; flex-wrap: wrap;">
-          <a href="https://pump.fun/coin/${mandemCoin.address}" target="_blank" style="display: inline-block; padding: 6px 12px; background: #7c5cff; color: white; text-decoration: none; border-radius: 6px; font-size: 12px; font-weight: bold;">View on Pump.fun</a>
-          <a href="https://raydium.io/swap/?inputCurrency=sol&outputCurrency=${mandemCoin.address}" target="_blank" style="display: inline-block; padding: 6px 12px; background: rgba(255,255,255,0.1); color: #6ee7b7; text-decoration: none; border-radius: 6px; font-size: 12px;">Trade on Raydium</a>
-        </div>
-      </div>
-    `;
-
-    // Insert after the term-card
-    const termCard = root.querySelector('.term-card');
-    if (termCard) {
-      termCard.insertAdjacentElement('afterend', coinDisplay);
-    }
-  }
-
-  })();
+console.log('✅ Ember Terminal - Wallet integration loaded');
+console.log('🔥 GBPT Token (GBPT) tracking enabled');
 </script>
 
-  <!-- Pump.fun Integration for Ember Terminal -->
+</body>
 </html>

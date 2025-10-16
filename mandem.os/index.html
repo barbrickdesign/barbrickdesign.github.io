@@ -1,18 +1,6 @@
 <!doctype html>
 <html lang="en">
 <head>
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="https://barbrickdesign.github.io/">
-    <meta name="twitter:title" content="BARBRICKDESIGN - Elite Web3 Hub">
-    <meta name="twitter:description" content="Cutting-edge Web3 development and design solutions">
-    <meta name="twitter:image" content="https://barbrickdesign.github.io/header.jpg">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://barbrickdesign.github.io/">
-    <meta property="og:title" content="BARBRICKDESIGN - Elite Web3 Hub">
-    <meta property="og:description" content="Cutting-edge Web3 development and design solutions">
-    <meta property="og:image" content="https://barbrickdesign.github.io/header.jpg">
-    <meta http-equiv="X-Frame-Options" content="DENY">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' https:; connect-src 'self' https:;">
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Mandem.OS Terminal — Ember Terminal</title>
@@ -38,15 +26,7 @@
     td{padding:8px 6px;border-top:1px dashed rgba(255,255,255,0.02)}
     .addr{color:#cfe9ff}
     .score{color:var(--accent);font-weight:700}
-  
-    /* Mobile responsiveness */
-    @media (max-width: 768px) {
-        body { font-size: 16px; }
-        h1 { font-size: 2em; }
-        .container { padding: 10px; }
-        button, .btn { min-height: 44px; font-size: 16px; }
-    }
-    </style>
+  </style>
 </head>
 <body>
   <div class="wrap">
@@ -91,34 +71,11 @@
       </div>
 
       <div style="margin-top:12px" class="small">Token page (holders reference): <a href="https://etherscan.io/token/0x45a328572b2a06484e02EB5D4e4cb6004136eB16" target="_blank" rel="noopener noreferrer" style="color:var(--muted)">etherscan</a></div>
-
-      <!-- Pump.fun Integration Section -->
-      <div style="margin-top:20px; padding:15px; background:linear-gradient(135deg, rgba(124,92,255,0.1), rgba(0,212,255,0.1)); border:1px solid rgba(124,92,255,0.3); border-radius:8px;">
-        <h3 style="margin:0 0 10px 0; color:var(--accent); font-size:14px;">🚀 MANDEM.OS Ecosystem Token</h3>
-        <div id="mandemCoinInfo" style="display:flex; align-items:center; gap:15px; margin-bottom:10px;">
-          <img id="mandemCoinImage" src="" alt="MANDEM.OS" style="width:40px; height:40px; border-radius:50%; border:2px solid var(--accent);" / loading="lazy">
-          <div>
-            <div style="font-weight:700; color:var(--text); font-size:14px;">$MNDM - Official Token</div>
-            <div id="mandemCoinPrice" style="font-size:12px; color:var(--muted);">Loading price...</div>
-          </div>
-        </div>
-        <div style="display:flex; gap:8px; flex-wrap:wrap;">
-          <a id="mandemPumpFunLink" href="" target="_blank" style="display:inline-block; padding:6px 12px; background:var(--accent); color:#021024; text-decoration:none; border-radius:6px; font-size:12px; font-weight:700;">View on Pump.fun</a>
-          <a id="mandemTradingLinks" href="" target="_blank" style="display:inline-block; padding:6px 12px; background:rgba(255,255,255,0.1); color:var(--text); text-decoration:none; border-radius:6px; font-size:12px;">Trade Links</a>
-        </div>
-        <div id="mandemMintSection" style="margin-top:10px; padding:8px; background:rgba(0,0,0,0.2); border-radius:6px;">
-          <button id="mintMandemCoinBtn" style="width:100%; padding:8px; background:linear-gradient(90deg,var(--accent),#00d4ff); color:#021024; border:0; border-radius:6px; font-weight:700; cursor:pointer; font-size:12px;">Mint Project Token</button>
-          <div id="mintStatus" style="margin-top:5px; font-size:11px; color:var(--muted); text-align:center;">Connect wallet to mint</div>
-        </div>
-      </div>
     </aside>
   </div>
 
   <!-- Three.js -->
-  <script src="https://cdn.jsdelivr.net/npm/three@latest/build/three.min.js" crossorigin="anonymous" defer></script>
-
-  <!-- Pump.fun Integration -->
-  <script src="../pumpfun-integration.js" defer></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js" crossorigin="anonymous"></script>
 
   <script>
   (function () {
@@ -436,121 +393,6 @@
     appendLog("Standalone Mandem.OS terminal ready (index.html bootstrapped). To seed canonical holders place a public/holders.json file (array of addresses) or call MandemBridge.buildLeaderboard([...addresses]) from console.");
     // expose minimal API on window for console use
     window.MandemBridge = window.MandemBridge || MandemBridge;
-
-    // Pump.fun Integration
-    (function initPumpFunIntegration(){
-      // Wait for pump.fun library to load
-      if (typeof window.pumpFun === 'undefined') {
-        setTimeout(initPumpFunIntegration, 100);
-        return;
-      }
-
-      const mandemCoin = window.pumpFun.mandemCoin;
-      const coinImage = document.getElementById('mandemCoinImage');
-      const coinPrice = document.getElementById('mandemCoinPrice');
-      const pumpFunLink = document.getElementById('mandemPumpFunLink');
-      const tradingLinks = document.getElementById('mandemTradingLinks');
-      const mintBtn = document.getElementById('mintMandemCoinBtn');
-      const mintStatus = document.getElementById('mintStatus');
-
-      // Set coin image and links
-      if (coinImage) coinImage.src = mandemCoin.image;
-      if (pumpFunLink) pumpFunLink.href = `https://pump.fun/coin/${mandemCoin.address}`;
-
-      // Get trading links
-      const links = window.pumpFun.getTradingLinks(mandemCoin.address);
-      if (tradingLinks) {
-        tradingLinks.href = links.raydium; // Default to Raydium
-        tradingLinks.onclick = function(e) {
-          e.preventDefault();
-          window.open(links.pumpFun, '_blank');
-          window.open(links.raydium, '_blank');
-          window.open(links.jupiter, '_blank');
-        };
-      }
-
-      // Update price display
-      async function updatePriceDisplay() {
-        try {
-          const summary = await window.pumpFun.getPortfolioSummary();
-          if (coinPrice) {
-            coinPrice.textContent = `Market Cap: $${summary.primaryProjectCoin.marketCap.toLocaleString()}`;
-          }
-        } catch (error) {
-          console.error('Error updating price:', error);
-          if (coinPrice) {
-            coinPrice.textContent = 'Price unavailable';
-          }
-        }
-      }
-
-      // Initial price update
-      updatePriceDisplay();
-
-      // Listen for price updates
-      window.addEventListener('pumpfun-prices-updated', (event) => {
-        updatePriceDisplay();
-      });
-
-      // Mint button functionality
-      if (mintBtn) {
-        mintBtn.addEventListener('click', async () => {
-          try {
-            if (!window.ethereum) {
-              mintStatus.textContent = 'Please connect MetaMask first';
-              return;
-            }
-
-            const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-            const walletAddress = accounts[0];
-
-            // Mint project token for Mandem.OS
-            const mintResult = await window.pumpFun.mintProjectCoin({
-              name: 'Mandem.OS',
-              slug: 'mandem-os',
-              category: 'web3-blockchain'
-            }, {
-              projectType: 'platform',
-              initialSupply: 1000000000,
-              description: 'Official MANDEM.OS ecosystem token'
-            });
-
-            mintStatus.textContent = `✅ Minted! Tx: ${mintResult.txHash.slice(0, 10)}...`;
-            mintBtn.textContent = 'Token Minted!';
-            mintBtn.disabled = true;
-
-            appendLog(`Token minted for Mandem.OS: ${mintResult.assignedCoin.symbol}`);
-
-          } catch (error) {
-            console.error('Mint error:', error);
-            mintStatus.textContent = 'Mint failed - try again';
-          }
-        });
-      }
-
-      // Update UI based on wallet connection
-      function updateMintUI() {
-        const isConnected = window.ethereum && addrEl.textContent !== 'Not connected';
-        if (mintStatus) {
-          mintStatus.textContent = isConnected ? 'Ready to mint' : 'Connect wallet to mint';
-        }
-        if (mintBtn) {
-          mintBtn.disabled = !isConnected;
-        }
-      }
-
-      // Check initial connection
-      updateMintUI();
-
-      // Listen for wallet connection changes
-      if (window.ethereum) {
-        window.ethereum.on('accountsChanged', () => {
-          updateMintUI();
-        });
-      }
-
-      appendLog("Pump.fun integration loaded for MANDEM.OS");
-    })();
   })();
   </script>
 </body>

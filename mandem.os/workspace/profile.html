@@ -1,19 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="https://barbrickdesign.github.io/">
-    <meta name="twitter:title" content="BARBRICKDESIGN - Elite Web3 Hub">
-    <meta name="twitter:description" content="Cutting-edge Web3 development and design solutions">
-    <meta name="twitter:image" content="https://barbrickdesign.github.io/header.jpg">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://barbrickdesign.github.io/">
-    <meta property="og:title" content="BARBRICKDESIGN - Elite Web3 Hub">
-    <meta property="og:description" content="Cutting-edge Web3 development and design solutions">
-    <meta property="og:image" content="https://barbrickdesign.github.io/header.jpg">
-    <meta name="description" content="BARBRICKDESIGN - Elite Web3 Development and Design Hub">
-    <meta http-equiv="X-Frame-Options" content="DENY">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' https:; connect-src 'self' https:;">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>User Profile - Gem Bot Portal</title>
@@ -120,21 +107,13 @@
             margin-right: 5px;
             font-size: 20px;
         }
-    
-    /* Mobile responsiveness */
-    @media (max-width: 768px) {
-        body { font-size: 16px; }
-        h1 { font-size: 2em; }
-        .container { padding: 10px; }
-        button, .btn { min-height: 44px; font-size: 16px; }
-    }
     </style>
     
     <!-- Universal Wallet Authentication -->
-    <script src="../../fpds-contract-schema.js" defer></script>
-    <script src="../../contractor-registry.js" defer></script>
-    <script src="../../universal-wallet-auth.js" defer></script>
-    <script src="../../auth-integration.js" defer></script>
+    <script src="../../fpds-contract-schema.js"></script>
+    <script src="../../contractor-registry.js"></script>
+    <script src="../../universal-wallet-auth.js"></script>
+    <script src="../../auth-integration.js"></script>
 </head>
 <body>
     <a href="index.html" class="back-home">Back to Home</a>
@@ -181,22 +160,23 @@
     </section>
     <div id="debug-log" style="background:rgba(0,0,0,0.8);color:#fff;padding:10px;margin:10px 0 20px 0;border-radius:6px;font-size:13px;max-width:600px;word-break:break-all;display:block;min-height:40px;">Debug log area loaded. Waiting for script...</div>
     <!-- Solana web3.js and SPL Token for blockchain functionality -->
-    <script src="https://unpkg.com/@solana/web3.js@1.95.2/lib/index.iife.js" defer></script>
-    <script src="https://unpkg.com/@solana/spl-token@0.3.10/lib/index.iife.js" defer></script>
+    <script src="https://unpkg.com/@solana/web3.js@1.95.2/lib/index.iife.js"></script>
+    <script src="https://unpkg.com/@solana/spl-token@0.3.10/lib/index.iife.js"></script>
     <!-- Include auth.js for wallet and MGC logic -->
-    <script src="./src/auth.js" defer></script>
-    <script src="/WorkingProject/profile.js" defer></script>
-    <script src="../../mandem.os/workspace/public/phantomLogin.js" defer></script>
+    <script src="./src/auth.js"></script>
+    <script src="/WorkingProject/profile.js"></script>
+    <script src="public/phantomLogin.js"></script>
     <script>
     function showDebugLog(msg) {
         var logDiv = document.getElementById('debug-log');
         logDiv.style.display = 'block';
         logDiv.textContent += (msg + '\n');
     }
-    );
-    );
-    );
-    );
+    console.log('[DEBUG] profile.html loaded');
+    console.log('[DEBUG] currentUser:', localStorage.getItem('currentUser'));
+    console.log('[DEBUG] userProfile:', localStorage.getItem('userProfile'));
+    console.log('[DEBUG] userLoggedIn:', localStorage.getItem('userLoggedIn'));
+    console.log('[DEBUG] lastWalletAuth:', localStorage.getItem('lastWalletAuth'));
 
     // Utility: Clear session/localStorage for debugging
     function clearSessionAndReload() {

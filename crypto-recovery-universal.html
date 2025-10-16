@@ -1,29 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta name="twitter:card" content="summary_large_image">
-    <meta name="twitter:url" content="https://barbrickdesign.github.io/">
-    <meta name="twitter:title" content="BARBRICKDESIGN - Elite Web3 Hub">
-    <meta name="twitter:description" content="Cutting-edge Web3 development and design solutions">
-    <meta name="twitter:image" content="https://barbrickdesign.github.io/header.jpg">
-    <meta property="og:type" content="website">
-    <meta property="og:url" content="https://barbrickdesign.github.io/">
-    <meta property="og:title" content="BARBRICKDESIGN - Elite Web3 Hub">
-    <meta property="og:description" content="Cutting-edge Web3 development and design solutions">
-    <meta property="og:image" content="https://barbrickdesign.github.io/header.jpg">
-    <meta http-equiv="X-Frame-Options" content="DENY">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https:; style-src 'self' 'unsafe-inline' https:; img-src 'self' data: https:; font-src 'self' https:; connect-src 'self' https:;">
   <meta charset="utf-8" />
   <title>Crypto Recovery — BarbrickDesign</title>
   <meta name="viewport" content="width=device-width,initial-scale=1" />
   <meta name="description" content="Complete crypto recovery solution: Solana rent recovery, dead wallet scanner, scam tracking, exit wallet detection. Recover lost/stolen funds across all chains." />
   
   <!-- Solana -->
-  <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@latest/lib/index.iife.min.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/@solana/spl-token@latest/dist/index.umd.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iife.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@solana/spl-token@0.3.11/dist/browser/spl-token.min.js"></script>
   
   <!-- Ethereum -->
-  <script src="https://cdn.jsdelivr.net/npm/ethers@latest/dist/ethers.umd.min.js" defer></script>
+  <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.umd.min.js"></script>
   
   <style>
     :root{
@@ -233,7 +221,7 @@
   </div>
 
   <!-- Wallet Tracker Module -->
-  <script src="mandem.os/workspace/public/walletTracker.js" defer></script>
+  <script src="mandem.os/workspace/public/walletTracker.js"></script>
   <script>
     // ==================== CORE STATE ====================
     const state = {
@@ -268,7 +256,8 @@
 
     // ==================== UTILITIES ====================
     function log(...args) {
-      }
+      console.log('[Recovery]', ...args);
+    }
 
     function setStatus(msg, type = 'info') {
       log(msg);

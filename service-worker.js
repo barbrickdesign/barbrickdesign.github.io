@@ -10,7 +10,6 @@ const OFFLINE_URL = 'offline.html';
 const CACHE_URLS = [
     '/',
     '/index.html',
-    '/CODEBASE-OVERVIEW.md',
     '/universal-wallet-auth.js',
     '/auth-integration.js',
     '/contractor-registry.js',
@@ -25,11 +24,6 @@ const CACHE_URLS = [
     '/samgov-integration.js',
     '/crypto-bidding-system.js',
     '/mobile-responsive.css',
-    '/agent-core.js',
-    '/agent-types.js',
-    '/agent-system.js',
-    '/agent-display.js',
-    '/monitoring-systems.js',
     '/dev-time-tracker.html',
     '/gembot-control-3d.html',
     '/investment-dashboard.html',
@@ -110,19 +104,16 @@ self.addEventListener('fetch', (event) => {
                     if (!response || response.status !== 200 || response.type === 'error') {
                         return response;
                     }
-
-                    // Only cache GET requests - Cache API doesn't support HEAD requests
-                    if (event.request.method === 'GET') {
-                        // Clone the response
-                        const responseToCache = response.clone();
-
-                        // Cache the fetched response
-                        caches.open(CACHE_NAME)
-                            .then((cache) => {
-                                cache.put(event.request, responseToCache);
-                            });
-                    }
-
+                    
+                    // Clone the response
+                    const responseToCache = response.clone();
+                    
+                    // Cache the fetched response
+                    caches.open(CACHE_NAME)
+                        .then((cache) => {
+                            cache.put(event.request, responseToCache);
+                        });
+                    
                     return response;
                 }).catch((error) => {
                     console.log('[Service Worker] Fetch failed, serving offline page:', error);

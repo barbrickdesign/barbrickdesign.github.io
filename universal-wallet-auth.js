@@ -1,6 +1,5 @@
 /**
  * UNIVERSAL WALLET AUTHENTICATION SYSTEM
- * <!-- REF: WALLET-AUTH -->
  * Single Sign-On (SSO) for entire platform
  * - Connect wallet ONCE, stay authenticated across all pages
  * - Session-based auth with automatic expiry
@@ -193,7 +192,7 @@ class UniversalWalletAuth {
     async requestSignature() {
         try {
             const message = this.generateSignatureMessage();
-
+            
             // Sign with MetaMask
             if (window.ethereum && this.wallet === window.ethereum) {
                 console.log('📝 Requesting Ethereum signature...');
@@ -203,7 +202,7 @@ class UniversalWalletAuth {
                 });
                 return signature;
             }
-
+            
             // Sign with Phantom
             if (window.solana && this.wallet === window.solana) {
                 console.log('📝 Requesting Solana signature...');
@@ -322,7 +321,7 @@ class UniversalWalletAuth {
             this.startTimeTracking();
 
             console.log('✅ Session restored for:', this.address);
-
+            
             // Notify app
             this.notifyAuthSuccess();
 
@@ -441,26 +440,6 @@ class UniversalWalletAuth {
             });
 
             window.solana.on('accountChanged', (publicKey) => {
-                if (!publicKey) {
-                    this.clearSession();
-                } else if (publicKey.toString() !== this.address) {
-                    console.log('🔔 Account changed, re-authenticating...');
-                    this.clearSession();
-                    window.location.reload();
-                }
-            });
-        }
-
-        // Phantom events (more specific)
-        if (window.phantom && window.phantom.solana) {
-            const phantomProvider = window.phantom.solana;
-
-            phantomProvider.on('disconnect', () => {
-                console.log('🔔 Phantom disconnected');
-                this.clearSession();
-            });
-
-            phantomProvider.on('accountChanged', (publicKey) => {
                 if (!publicKey) {
                     this.clearSession();
                 } else if (publicKey.toString() !== this.address) {
@@ -607,29 +586,13 @@ class UniversalWalletAuth {
     }
 
     /**
-     * Check if Solana wallet is connected and ready
+     * Check if user is approved contractor
      */
-    isSolanaConnected() {
-        if (window.phantom?.solana) {
-            return window.phantom.solana.isConnected && window.phantom.solana.publicKey;
-        }
-        if (window.solana) {
-            return window.solana.isConnected && window.solana.publicKey;
-        }
-        return false;
-    }
+    isApprovedContractor() {
+        if (!this.address || !window.contractorRegistry) return false;
 
-    /**
-     * Get current Solana wallet provider
-     */
-    getSolanaProvider() {
-        if (window.phantom?.solana) {
-            return window.phantom.solana;
-        }
-        if (window.solana) {
-            return window.solana;
-        }
-        return null;
+        const contractor = window.contractorRegistry.getContractor(this.address);
+        return contractor && contractor.status === 'approved';
     }
 }
 
