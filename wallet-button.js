@@ -86,6 +86,13 @@ class WalletButton {
         const btn = document.getElementById('walletConnectBtn');
         if (!btn) return;
 
+        // Check if universalWalletAuth is available
+        if (!window.universalWalletAuth) {
+            console.error('Universal Wallet Auth not loaded yet');
+            btn.innerHTML = '<span class="wallet-icon">❌</span><span class="wallet-text">Auth System Error</span>';
+            return;
+        }
+
         const originalText = btn.innerHTML;
         btn.innerHTML = '<span class="wallet-icon">⏳</span><span class="wallet-text">Connecting...</span>';
         btn.disabled = true;
@@ -98,9 +105,14 @@ class WalletButton {
                 this.render();
             }
         } catch (error) {
-            console.error('Connection failed:', error);
-            btn.innerHTML = originalText;
+            console.error('Wallet connection failed:', error);
+            btn.innerHTML = '<span class="wallet-icon">❌</span><span class="wallet-text">Connection Failed</span>';
             btn.disabled = false;
+
+            // Reset after 3 seconds
+            setTimeout(() => {
+                this.render();
+            }, 3000);
         }
     }
 
