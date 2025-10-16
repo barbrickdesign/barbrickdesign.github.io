@@ -746,10 +746,28 @@
                         const pumpSummary = await window.pumpFun.getPortfolioSummary();
                         console.log('🚀 Pump.fun portfolio loaded:', pumpSummary);
                         
-                        // Add pump.fun data to portfolio ticker if not already present
+                        // Update pump.fun ticker
+                        document.getElementById('pumpFunTotal').textContent = 
+                            '$' + pumpSummary.totalValue.toLocaleString();
+                        document.getElementById('pumpFunCoins').textContent = 
+                            pumpSummary.coinCount;
+                        document.getElementById('pumpFunTop').textContent = 
+                            pumpSummary.primaryProjectCoin.symbol;
+                        document.getElementById('pumpFunUpdate').textContent = 
+                            pumpSummary.lastUpdate ? new Date(pumpSummary.lastUpdate).toLocaleTimeString() : 'Live';
+                        
+                        // Show pump.fun ticker
                         const pumpFunTicker = document.getElementById('pumpFunTicker');
                         if (pumpFunTicker) {
                             pumpFunTicker.style.display = 'block';
+                            pumpFunTicker.style.opacity = '0';
+                            pumpFunTicker.style.transform = 'translateY(100%)';
+                            
+                            setTimeout(() => {
+                                pumpFunTicker.style.transition = 'all 0.5s ease';
+                                pumpFunTicker.style.opacity = '1';
+                                pumpFunTicker.style.transform = 'translateY(0)';
+                            }, 1000); // Show after main ticker
                         }
                     } catch (pumpError) {
                         console.error('Pump.fun portfolio error:', pumpError);
