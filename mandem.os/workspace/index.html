@@ -702,7 +702,7 @@
 
                 sprite.position.x = Math.cos(angle) * (radius + 1.5);
                 sprite.position.z = Math.sin(angle) * (radius + 1.5);
-                sprite.position.y = Math.sin(angle) * 2 + 1.8; // Lowered from +2.5 to +1.8
+                sprite.position.y = Math.sin(angle) * 2 + 1.2; // Lowered from +1.8 to +1.2 - directly above sphere
                 sprite.scale.set(4, 1, 1);
 
                 sprite.userData = { satellite: satellite };
@@ -807,8 +807,24 @@
                 }
                 isDragging = false;
             });
+            container.addEventListener('click', function(event) {
+                const rect = container.getBoundingClientRect();
+                mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+                mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
-            // Make satellites larger on mobile for easier touch
+                raycaster.setFromCamera(mouse, camera);
+                const intersects = raycaster.intersectObjects(satellites);
+
+                if (intersects.length > 0) {
+                    const sat = intersects[0].object;
+                    const targetUrl = sat.userData.url;
+
+                    console.log('🖱️ Desktop click on satellite:', sat.userData.name, '->', targetUrl);
+
+                    // Navigate to the page
+                    window.location.href = targetUrl;
+                }
+            });
             const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
             if (isMobile) {
                 console.log('📱 Mobile device detected - adjusting for touch interaction');
