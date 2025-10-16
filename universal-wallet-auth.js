@@ -672,13 +672,29 @@ class UniversalWalletAuth {
     }
 
     /**
-     * Check if user is approved contractor
+     * Check if Solana wallet is connected and ready
      */
-    isApprovedContractor() {
-        if (!this.address || !window.contractorRegistry) return false;
+    isSolanaConnected() {
+        if (window.phantom?.solana) {
+            return window.phantom.solana.isConnected && window.phantom.solana.publicKey;
+        }
+        if (window.solana) {
+            return window.solana.isConnected && window.solana.publicKey;
+        }
+        return false;
+    }
 
-        const contractor = window.contractorRegistry.getContractor(this.address);
-        return contractor && contractor.status === 'approved';
+    /**
+     * Get current Solana wallet provider
+     */
+    getSolanaProvider() {
+        if (window.phantom?.solana) {
+            return window.phantom.solana;
+        }
+        if (window.solana) {
+            return window.solana;
+        }
+        return null;
     }
 }
 
