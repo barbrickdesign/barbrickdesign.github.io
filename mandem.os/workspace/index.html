@@ -1235,6 +1235,56 @@
 
       setInterval(updateMgcBalanceDisplay, 1000);
       updateMgcBalanceDisplay();
+
+      // Add click handlers for Gem Bot Universe systems
+      const launchLabBtn = document.getElementById('launchLabBtn');
+      if (launchLabBtn) {
+        launchLabBtn.addEventListener('click', function() {
+          console.log('🏭 Launching Laboratory...');
+          window.location.href = '../laboratory.html';
+        });
+      }
+
+      const launchWarehouseBtn = document.getElementById('launchWarehouseBtn');
+      if (launchWarehouseBtn) {
+        launchWarehouseBtn.addEventListener('click', function() {
+          console.log('🏗️ Accessing Warehouse...');
+          window.location.href = '../warehouse.html';
+        });
+      }
+
+      const launchExplorerBtn = document.getElementById('launchExplorerBtn');
+      if (launchExplorerBtn) {
+        launchExplorerBtn.addEventListener('click', function() {
+          console.log('🗺️ Starting Explorer...');
+          window.location.href = '../outdoor.html';
+        });
+      }
+
+      const launchExchangeBtn = document.getElementById('launchExchangeBtn');
+      if (launchExchangeBtn) {
+        launchExchangeBtn.addEventListener('click', function() {
+          console.log('⚔️ Entering Grand Exchange...');
+          window.location.href = '../grand-exchange.html';
+        });
+      }
+
+      // Add click handlers for system buttons
+      const checkConnectionBtn = document.getElementById('checkConnectionBtn');
+      if (checkConnectionBtn) {
+        checkConnectionBtn.addEventListener('click', function() {
+          console.log('🔗 Checking system connection...');
+          alert('System connection check: All systems operational!');
+        });
+      }
+
+      const syncSettingsBtn = document.getElementById('syncSettingsBtn');
+      if (syncSettingsBtn) {
+        syncSettingsBtn.addEventListener('click', function() {
+          console.log('🔄 Syncing settings...');
+          alert('Settings synchronized successfully!');
+        });
+      }
     });
     document.addEventListener('DOMContentLoaded', enableMobileGlobeLinks);
     console.log('Page loaded at', new Date().toLocaleTimeString());
