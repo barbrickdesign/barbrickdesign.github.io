@@ -558,6 +558,9 @@
         updateMgcBalanceDisplay();
     }); 
 
+    // Global satellites array
+    let satellites = [];
+
     // Clean, working 3D globe initialization
     function initGlobe() {
         console.log('🚀 initGlobe() CALLED - Starting 3D initialization');
@@ -573,7 +576,7 @@
         // Get container
         const container = document.getElementById('globe-container');
         if (!container) {
-            console.error('❌ Globe container not found!');
+            console.error('❌ Globe container not found');
             return;
         }
 
@@ -646,13 +649,41 @@
 
             console.log('✅ Controls added, starting animation...');
 
+            // Add orbiting satellites
+            const environments = [
+                { name: 'Grand Exchange', color: 0x3399ff, url: '../grand-exchange.html' },
+                { name: 'Laboratory', color: 0x00cc66, url: '../laboratory.html' },
+                { name: 'Warehouse', color: 0xffcc00, url: '../warehouse.html' },
+                { name: 'Explorer', color: 0x66ff99, url: '../outdoor.html' },
+            ];
+
+            satellites = []; // Clear and repopulate global array
+
+            environments.forEach((env, index) => {
+                const angle = (index / environments.length) * Math.PI * 2;
+                const radius = 11;
+
+                const satelliteGeometry = new THREE.SphereGeometry(1, 16, 16);
+                const satelliteMaterial = new THREE.MeshPhongMaterial({ color: env.color });
+                const satellite = new THREE.Mesh(satelliteGeometry, satelliteMaterial);
+
+                satellite.position.x = Math.cos(angle) * radius;
+                satellite.position.z = Math.sin(angle) * radius;
+                satellite.position.y = Math.sin(angle) * 2;
+
+                satellite.userData = { name: env.name, url: env.url };
+                scene.add(satellite);
+                satellites.push(satellite);
+            });
+
             // Animation loop
             function animate() {
                 requestAnimationFrame(animate);
+
                 // Rotate earth
                 earth.rotation.y += 0.005;
 
-                // Rotate satellites
+                // Rotate satellites (now satellites is in global scope)
                 satellites.forEach((satellite, index) => {
                     const speed = 0.0001 * (1 + index * 0.1);
                     const angle = (Date.now() * speed) % (Math.PI * 2);
@@ -673,6 +704,8 @@
             // Mark as initialized
             window.globeInitialized = true;
 
+            console.log('✅ Globe initialized, making visible...');
+
             // Make container visible
             container.style.display = 'block';
             container.style.position = 'fixed';
@@ -682,20 +715,24 @@
             container.style.height = '100vh';
             container.style.zIndex = '1';
 
-            console.log('🎉 3D Globe initialized successfully!');
+            console.log('🎉 3D Globe fully initialized and visible!');
 
             // Hide welcome overlay
             setTimeout(function() {
                 const overlay = document.querySelector('.welcome-overlay');
+                console.log('👋 Looking for welcome overlay:', overlay);
                 if (overlay) {
+                    console.log('✅ Found overlay, hiding...');
                     overlay.style.display = 'none';
-                    console.log('✅ Welcome overlay hidden');
+                    console.log('✅ Welcome overlay hidden!');
+                } else {
+                    console.log('❌ Welcome overlay not found!');
                 }
-            }, 2000);
+            }, 500);
 
         } catch (error) {
             console.error('❌ Globe initialization failed:', error);
-            container.innerHTML = '<div style="color: red; text-align: center; padding: 50px;">3D Scene Failed to Load</div>';
+            container.innerHTML = '<div style="color: red; text-align: center; padding: 50px; font-family: monospace; background: rgba(0,0,0,0.9); color: white;">❌ 3D Scene Failed to Load<br>Error: ' + error.message + '<br><button onclick="location.reload()" style="padding: 10px 20px; background: #ff4444; color: white; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px;">🔄 Refresh Page</button></div>';
         }
     }
 
