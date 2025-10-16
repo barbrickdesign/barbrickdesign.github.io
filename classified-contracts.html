@@ -171,6 +171,48 @@
             box-shadow: 0 0 30px rgba(0, 153, 255, 0.6);
         }
         
+        .setup-step {
+            padding: 15px;
+            background: rgba(0, 255, 0, 0.1);
+            border: 2px solid rgba(0, 255, 0, 0.3);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+            min-width: 120px;
+        }
+        
+        .setup-step:hover {
+            background: rgba(0, 255, 0, 0.2);
+            border-color: #00ff00;
+            transform: translateY(-2px);
+        }
+        
+        .setup-step.active {
+            background: rgba(0, 255, 0, 0.3);
+            border-color: #00ff00;
+            box-shadow: 0 0 15px rgba(0, 255, 0, 0.5);
+        }
+        
+        .step-number {
+            font-size: 1.5em;
+            font-weight: 900;
+            color: #00ff00;
+            margin-bottom: 8px;
+        }
+        
+        .step-title {
+            font-size: 1em;
+            font-weight: 700;
+            color: #66ff66;
+            margin-bottom: 5px;
+        }
+        
+        .step-desc {
+            font-size: 0.8em;
+            color: #99ff99;
+        }
+        
         .clearance-badge {
             display: inline-block;
             padding: 10px 20px;
@@ -444,7 +486,89 @@
                 </div>
             </div>
 
+            <!-- Quick Setup Wizard for New Users -->
+            <div id="quickSetupWizard" style="display: none; background: linear-gradient(135deg, rgba(0,255,0,0.1), rgba(0,150,0,0.1)); border: 2px solid rgba(0,255,0,0.3); padding: 25px; border-radius: 15px; margin-bottom: 30px;">
+                <h2 style="color: #66ff66; margin-bottom: 15px;">🚀 Quick Setup Wizard</h2>
+                <p style="color: #99ff99; margin-bottom: 20px;">Let's get you started with government contracting in just a few steps:</p>
+
+                <div id="setupSteps" style="display: flex; justify-content: space-around; margin: 20px 0;">
+                    <div class="setup-step" data-step="1" onclick="goToSetupStep(1)">
+                        <div class="step-number">1</div>
+                        <div class="step-title">Profile Setup</div>
+                        <div class="step-desc">Complete your contractor profile</div>
+                    </div>
+                    <div class="setup-step" data-step="2" onclick="goToSetupStep(2)">
+                        <div class="step-number">2</div>
+                        <div class="step-title">GitHub Sync</div>
+                        <div class="step-desc">Connect your projects</div>
+                    </div>
+                    <div class="setup-step" data-step="3" onclick="goToSetupStep(3)">
+                        <div class="step-number">3</div>
+                        <div class="step-title">Contract Match</div>
+                        <div class="step-desc">Find matching opportunities</div>
+                    </div>
+                    <div class="setup-step" data-step="4" onclick="goToSetupStep(4)">
+                        <div class="step-number">4</div>
+                        <div class="step-title">Ready to Bid</div>
+                        <div class="step-desc">Start bidding on contracts</div>
+                    </div>
+                </div>
+
+                <div id="setupProgress" style="margin-top: 20px;">
+                    <div style="background: rgba(0,255,0,0.2); height: 8px; border-radius: 4px; overflow: hidden;">
+                        <div id="progressBar" style="background: #00ff00; height: 100%; width: 25%; transition: width 0.3s;"></div>
+                    </div>
+                    <p id="setupStatus" style="color: #66ff66; margin-top: 10px; font-size: 0.9em;">Step 1 of 4: Setting up your profile</p>
+                </div>
+            </div>
+
             <div class="user-info">
+                <h3>✅ AUTHENTICATED USER</h3>
+                <div class="info-row">
+                    <span class="info-label">Name:</span>
+                    <span class="info-value" id="userName">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Organization:</span>
+                    <span class="info-value" id="userOrg">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Clearance Level:</span>
+                    <span class="info-value" id="userClearance">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Special Access:</span>
+                    <span class="info-value" id="userCaveats">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Card Expiration:</span>
+                    <span class="info-value" id="userExpiration">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Authentication Method:</span>
+                    <span class="info-value" id="userAuthMethod">-</span>
+                </div>
+
+                <!-- SAM.gov Sync Section -->
+                <div id="samgovSyncSection" style="margin-top: 20px; padding: 15px; background: rgba(0,100,255,0.1); border: 2px solid rgba(0,150,255,0.3); border-radius: 8px; display: none;">
+                    <div class="info-row">
+                        <span class="info-label">SAM.gov Entity:</span>
+                        <span class="info-value" id="userSAMGovEntity">-</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Last Sync:</span>
+                        <span class="info-value" id="userLastSync">-</span>
+                    </div>
+                    <button onclick="syncSAMGovProfile()" style="margin-top: 10px; padding: 8px 15px; background: rgba(0,150,255,0.2); border: 2px solid #0099ff; border-radius: 8px; color: #66ccff; font-family: 'Orbitron', sans-serif; cursor: pointer; font-weight: 700;">
+                        🔄 Sync SAM.gov Profile
+                    </button>
+                    <div id="syncStatus" style="margin-top: 10px; font-size: 0.9em;"></div>
+                </div>
+
+                <button onclick="logout()" style="margin-top: 15px; padding: 10px 20px; background: #8b0000; color: #fff; border: none; border-radius: 5px; cursor: pointer; font-family: 'Orbitron', sans-serif;">
+                    🔓 LOGOUT
+                </button>
+            </div>
                 <h3>✅ AUTHENTICATED USER</h3>
                 <div class="info-row">
                     <span class="info-label">Name:</span>
@@ -729,6 +853,13 @@
             document.getElementById('userCaveats').textContent = user.caveatCodes.join(', ') || 'None';
             document.getElementById('userExpiration').textContent = user.expirationDate;
 
+        function displayUserInfo(user) {
+            document.getElementById('userName').textContent = user.commonName;
+            document.getElementById('userOrg').textContent = user.organization;
+            document.getElementById('userClearance').textContent = user.clearanceLevel.replace('_', '/');
+            document.getElementById('userCaveats').textContent = user.caveatCodes.join(', ') || 'None';
+            document.getElementById('userExpiration').textContent = user.expirationDate;
+
             // Show authentication method
             if (user.samGovAuthenticated) {
                 document.getElementById('userAuthMethod').textContent = 'SAM.gov SSO';
@@ -742,10 +873,87 @@
                 // Show sync status
                 document.getElementById('syncStatus').textContent = '✅ Profile synced with SAM.gov';
                 document.getElementById('syncStatus').style.color = '#00ff00';
+
+                // Show setup wizard for new SAM.gov users
+                if (!user.profile?.setupComplete) {
+                    document.getElementById('quickSetupWizard').style.display = 'block';
+                    initializeSetupWizard();
+                }
             } else {
                 document.getElementById('userAuthMethod').textContent = 'Crypto Wallet + PIV/CAC';
                 document.getElementById('samgovSyncSection').style.display = 'none';
                 document.getElementById('samgovWelcome').style.display = 'none';
+                document.getElementById('quickSetupWizard').style.display = 'none';
+            }
+        }
+
+        function initializeSetupWizard() {
+            const steps = document.querySelectorAll('.setup-step');
+            steps.forEach((step, index) => {
+                step.classList.toggle('active', index === 0);
+            });
+
+            // Update progress
+            updateSetupProgress(1);
+        }
+
+        function goToSetupStep(stepNumber) {
+            // Update active step
+            document.querySelectorAll('.setup-step').forEach((step, index) => {
+                step.classList.toggle('active', index + 1 === stepNumber);
+            });
+
+            // Update progress
+            updateSetupProgress(stepNumber);
+
+            // Handle step actions
+            handleSetupStep(stepNumber);
+        }
+
+        function updateSetupProgress(stepNumber) {
+            const progressBar = document.getElementById('progressBar');
+            const setupStatus = document.getElementById('setupStatus');
+
+            const progress = (stepNumber / 4) * 100;
+            progressBar.style.width = `${progress}%`;
+
+            const stepTexts = [
+                'Setting up your profile',
+                'Connecting your projects',
+                'Finding matching opportunities',
+                'Ready to start bidding'
+            ];
+
+            setupStatus.textContent = `Step ${stepNumber} of 4: ${stepTexts[stepNumber - 1]}`;
+        }
+
+        function handleSetupStep(stepNumber) {
+            switch (stepNumber) {
+                case 1:
+                    // Profile setup - scroll to profile section
+                    scrollToProfile();
+                    break;
+                case 2:
+                    // GitHub sync - would trigger GitHub integration
+                    if (window.githubIntegration) {
+                        window.githubIntegration.getUserRepositories().then(repos => {
+                            if (repos.length > 0) {
+                                alert(`✅ Found ${repos.length} GitHub repositories! Your projects are now synced.`);
+                            } else {
+                                alert('No public repositories found. You can connect private repositories later.');
+                            }
+                        });
+                    }
+                    break;
+                case 3:
+                    // Contract matching - would trigger SAM.gov integration
+                    loadClassifiedContracts();
+                    break;
+                case 4:
+                    // Ready to bid - hide wizard and show contracts
+                    document.getElementById('quickSetupWizard').style.display = 'none';
+                    scrollToContracts();
+                    break;
             }
         }
 
