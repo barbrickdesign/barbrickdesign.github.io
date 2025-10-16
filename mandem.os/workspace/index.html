@@ -3364,6 +3364,55 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
+// Quick wallet connection function for modal
+async function quickConnectWallet() {
+  try {
+    console.log('🔌 Quick wallet connection initiated...');
+
+    // Use universal wallet auth system
+    if (window.universalWalletAuth) {
+      const authInfo = await window.universalWalletAuth.connect();
+
+      if (authInfo && authInfo.authenticated) {
+        console.log('✅ Quick wallet connection successful:', authInfo.address);
+
+        // Trigger auth success event for UI updates
+        window.dispatchEvent(new CustomEvent('authSuccess', {
+          detail: authInfo
+        }));
+
+        return true;
+      }
+    }
+
+    // Fallback: try wallet adapter
+    if (window.walletAdapter) {
+      const walletInfo = await window.walletAdapter.connect();
+      if (walletInfo && walletInfo.connected) {
+        console.log('✅ Wallet adapter connection successful');
+        return true;
+      }
+    }
+
+    console.error('❌ Quick wallet connection failed');
+    return false;
+
+  } catch (error) {
+    console.error('❌ Quick wallet connection error:', error);
+
+    // Provide helpful error message
+    if (error.message && error.message.includes('No wallet detected')) {
+      alert('Please install MetaMask or Phantom wallet and try again.');
+    } else if (error.message && error.message.includes('User rejected')) {
+      alert('Wallet connection cancelled. Please try again.');
+    } else {
+      alert('Wallet connection failed: ' + (error.message || 'Unknown error'));
+    }
+
+    return false;
+  }
+}
+
     async function updateStatusMessage() {
         const statusMessage = document.getElementById('statusMessage');
         if (!statusMessage) {
