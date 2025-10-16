@@ -25,7 +25,8 @@ class AgentDisplay {
             position: fixed;
             top: 20px;
             right: 20px;
-            width: 400px;
+            width: min(400px, calc(100vw - 40px));
+            max-width: 400px;
             max-height: 80vh;
             background: linear-gradient(135deg, rgba(0,20,40,0.95), rgba(0,40,60,0.95));
             border: 2px solid rgba(0,255,255,0.5);
@@ -41,6 +42,7 @@ class AgentDisplay {
             overflow: hidden;
             transform: translateX(100%);
             transition: transform 0.3s ease;
+            box-sizing: border-box;
         `;
 
         // Create header
