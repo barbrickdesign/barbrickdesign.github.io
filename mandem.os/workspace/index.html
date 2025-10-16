@@ -132,66 +132,35 @@
             <!-- 3D Globe will be rendered here by Three.js -->             
         </div>         
         <div class="tooltip" id="globeTooltip"></div>         
-        <!-- Welcome overlay -->         
-        <div class="welcome-overlay"> 
-            <h2>Gem Bot Universe</h2> 
-            <p>Explore our interactive 3D environments by navigating the Globe Interface. Log in to access additional features and control your Gem Bot deployment.</p>
-            
-            <!-- MGC Promotion Section -->
-            <div class="mgc-promotion" style="
-                background: linear-gradient(135deg, #ffd700, #ffaa00);
-                padding: 20px;
-                border-radius: 15px;
-                margin: 20px 0;
-                text-align: center;
-                color: #333;
-                box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
-            ">
-                <h3 style="margin: 0 0 15px 0; color: #222;">💎 Welcome to Gem Bot Universe!</h3>
-                <p style="margin: 0 0 15px 0; font-size: 16px; font-weight: bold;">
-                    Earn <span style="color: #ff6b35; text-shadow: 0 0 5px #ff6b35;">MGC</span> (Mandem Game Currency) 
-                    by exploring, completing quests, and trading in our virtual worlds!
-                </p>
-                <div style="display: flex; justify-content: center; gap: 15px; margin: 15px 0;">
-                    <div style="text-align: center;">
-                        <div style="font-size: 24px; margin-bottom: 5px;">🔍</div>
-                        <div style="font-size: 14px; font-weight: bold;">Explore</div>
-                        <div style="font-size: 12px; opacity: 0.8;">Discover hidden gems</div>
-                    </div>
-                    <div style="text-align: center;">
-                        <div style="font-size: 24px; margin-bottom: 5px;">⚔️</div>
-                        <div style="font-size: 14px; font-weight: bold;">Quest</div>
-                        <div style="font-size: 12px; opacity: 0.8;">Complete challenges</div>
-                    </div>
-                    <div style="text-align: center;">
-                        <div style="font-size: 24px; margin-bottom: 5px;">💰</div>
-                        <div style="font-size: 14px; font-weight: bold;">Trade</div>
-                        <div style="font-size: 12px; opacity: 0.8;">Exchange treasures</div>
-                    </div>
+        <!-- Welcome overlay -->
+        <div class="welcome-overlay">
+            <h2>Gem Bot Universe</h2>
+            <p>Explore our interactive 3D environments and trading systems by navigating the Globe Interface. Access the Laboratory for research, Warehouse for storage, Explorer for real-world navigation, and Grand Exchange for trading.</p>
+
+            <!-- Feature overview -->
+            <div style="display: flex; justify-content: center; gap: 20px; margin: 20px 0; flex-wrap: wrap;">
+                <div style="text-align: center; min-width: 140px;">
+                    <div style="font-size: 32px; margin-bottom: 8px;">🏭</div>
+                    <div style="font-weight: bold; margin-bottom: 5px; font-size: 14px;">Laboratory</div>
+                    <div style="font-size: 12px; opacity: 0.8;">Research & development</div>
                 </div>
-                <p style="margin: 15px 0 0 0; font-size: 14px;">
-                    <strong>🔥 Plus:</strong> Connect your wallet to earn <span style="color: #ff6b35;">MANDEM tokens</span> 
-                    and access exclusive features!
-                </p>
-                <div style="margin-top: 15px;">
-                    <button onclick="connectWalletForMGC()" style="
-                        background: #ff6b35;
-                        color: white;
-                        border: none;
-                        padding: 12px 24px;
-                        border-radius: 8px;
-                        font-size: 16px;
-                        font-weight: bold;
-                        cursor: pointer;
-                        box-shadow: 0 2px 8px rgba(255, 107, 53, 0.3);
-                        transition: all 0.3s;
-                    " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(255, 107, 53, 0.4)'" 
-                       onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 2px 8px rgba(255, 107, 53, 0.3)'">
-                        🚀 Start Earning MGC Now!
-                    </button>
+                <div style="text-align: center; min-width: 140px;">
+                    <div style="font-size: 32px; margin-bottom: 8px;">🏗️</div>
+                    <div style="font-weight: bold; margin-bottom: 5px; font-size: 14px;">Warehouse</div>
+                    <div style="font-size: 12px; opacity: 0.8;">Storage & inventory</div>
+                </div>
+                <div style="text-align: center; min-width: 140px;">
+                    <div style="font-size: 32px; margin-bottom: 8px;">🗺️</div>
+                    <div style="font-weight: bold; margin-bottom: 5px; font-size: 14px;">Explorer</div>
+                    <div style="font-size: 12px; opacity: 0.8;">Real-world navigation</div>
+                </div>
+                <div style="text-align: center; min-width: 140px;">
+                    <div style="font-size: 32px; margin-bottom: 8px;">⚔️</div>
+                    <div style="font-weight: bold; margin-bottom: 5px; font-size: 14px;">Grand Exchange</div>
+                    <div style="font-size: 12px; opacity: 0.8;">Trading & marketplace</div>
                 </div>
             </div>
-            
+
             <div style="text-align: center; margin-top: 20px;">
                 <button onclick="hideWelcomeOverlay()" style="
                     background: rgba(255, 255, 255, 0.2);
