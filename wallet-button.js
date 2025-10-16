@@ -183,14 +183,31 @@ if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         // Small delay to ensure all scripts are loaded
         setTimeout(() => {
-            window.walletButton = new WalletButton();
-        }, 100);
+            initializeWalletButton();
+        }, 200); // Increased delay to 200ms
     });
 } else {
     // Small delay to ensure all scripts are loaded
     setTimeout(() => {
+        initializeWalletButton();
+    }, 200); // Increased delay to 200ms
+}
+
+function initializeWalletButton() {
+    // Double-check that DOM is ready
+    if (document.body && document.getElementById('walletButtonContainer')) {
         window.walletButton = new WalletButton();
-    }, 100);
+    } else {
+        console.warn('⚠️ Wallet button container still not ready, retrying...');
+        // Retry after another delay
+        setTimeout(() => {
+            if (document.body && document.getElementById('walletButtonContainer')) {
+                window.walletButton = new WalletButton();
+            } else {
+                console.error('❌ Wallet button container not found after retry');
+            }
+        }, 500);
+    }
 }
 
 // Export
