@@ -469,36 +469,8 @@
                 // Set page timestamp
                 updatePageTimestamp();
 
-                // Initialize universal wallet auth
-                await window.authIntegration.init({
-                    showUI: true,
-                    onAuthSuccess: (authInfo) => {
-                        console.log('✅ Wallet connected:', authInfo.address);
-                        console.log('⏱️ Work time:', authInfo.workTimeMinutes, 'minutes');
-                        
-                        // Update wallet button UI
-                        const btn = document.getElementById('walletBtn');
-                        const btnText = document.getElementById('btnText');
-                        if (btn && btnText) {
-                            btn.classList.add('connected');
-                            btnText.textContent = '✅ CONNECTED';
-                        }
-                    },
-                    onAuthFail: () => {
-                        console.log('❌ Wallet not connected');
-                        
-                        // Update wallet button UI
-                        const btn = document.getElementById('walletBtn');
-                        const btnText = document.getElementById('btnText');
-                        if (btn && btnText) {
-                            btn.classList.remove('connected');
-                            btnText.textContent = '🔗 CONNECT WALLET';
-                        }
-                    }
-                });
-                
-                // Initialize other systems
-                window.systemInit.initializeAll();
+                // Load and display portfolio ticker
+                loadPortfolioTicker();
                 
             } catch (error) {
                 console.error('❌ System initialization failed:', error);
@@ -593,30 +565,11 @@
                 if (window.universalWalletAuth) {
                     await window.universalWalletAuth.disconnect();
                     console.log('👋 Wallet disconnected');
-
-                    // Clear UI
-                    const btn = document.getElementById('walletBtn');
-                    const btnText = document.getElementById('btnText');
-                    const walletInfo = document.getElementById('walletInfo');
-
-                    if (btn) btn.classList.remove('connected');
-                    if (btnText) btnText.textContent = '🔗 CONNECT WALLET';
-                    if (walletInfo) walletInfo.style.display = 'none';
-
-                    console.log('✅ Wallet disconnected');
                 }
             } catch (error) {
                 console.error('❌ Disconnect error:', error);
             }
         }
-
-        // Check for existing connection on load
-        window.addEventListener('DOMContentLoaded', async function() {
-            console.log('🚀 BARBRICKDESIGN Hub loaded');
-
-            // Load and display portfolio ticker
-            loadPortfolioTicker();
-        });
         
         // Load portfolio data and display ticker
         async function loadPortfolioTicker() {
