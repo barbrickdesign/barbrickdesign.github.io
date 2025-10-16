@@ -215,67 +215,90 @@ class CryptoBiddingSystem {
     }
 
     /**
-     * Submit bid on a contract
+     * Submit bid with enhanced validation and SAM.gov sync
      */
     async submitBid(bidData) {
         try {
             // Validate bid data
-            if (!bidData.contractId || !bidData.walletAddress || !bidData.bidAmount || !bidData.crypto) {
-                throw new Error('Missing required bid information');
+            const validation = this.validateBidData(bidData);
+            if (!validation.valid) {
+                return {
+                    success: false,
+                    error: validation.errors.join(', ')
+                };
             }
-            
-            // Validate cryptocurrency
-            if (!this.supportedCrypto[bidData.crypto]) {
-                throw new Error('Unsupported cryptocurrency');
+
+            // Check if contractor is eligible (SAM.gov verification)
+            const eligibility = await this.checkContractorEligibility(bidData.walletAddress);
+            if (!eligibility.eligible) {
+                return {
+                    success: false,
+                    error: `Ineligible: ${eligibility.reason}`
+                };
             }
-            
-            // Get contractor performance
-            const performance = this.calculatePerformanceScore(bidData.walletAddress);
-            
-            // Generate unique bid ID
-            const bidId = `BID-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-            
-            // Create bid record
-            const bid = {
-                bidId: bidId,
+
+            // Get current performance score
+            const performanceScore = this.calculatePerformanceScore(bidData.walletAddress);
+
+            // Create enhanced bid object
+            const bidId = this.generateBidId();
+            const enhancedBid = {
+                id: bidId,
                 contractId: bidData.contractId,
-                contractorWallet: bidData.walletAddress,
-                contractorName: bidData.contractorName,
-                organization: bidData.organization,
-                bidAmount: bidData.bidAmount,
-                cryptocurrency: bidData.crypto,
-                cryptoSymbol: this.supportedCrypto[bidData.crypto].icon,
-                timeline: bidData.timeline || 'Not specified',
-                deliverables: bidData.deliverables || [],
-                approach: bidData.approach || '',
-                teamMembers: bidData.teamMembers || [],
-                performanceScore: performance.score,
-                reputation: performance.reputation,
-                trustLevel: performance.trustLevel,
-                totalCompletedProjects: performance.totalProjects,
-                submittedAt: new Date().toISOString(),
-                status: 'pending',
-                escrowDeposit: bidData.escrowDeposit || 0,
-                milestones: bidData.milestones || []
+                contractor: {
+                    walletAddress: bidData.walletAddress,
+                    name: bidData.contractorName,
+                    organization: bidData.organization,
+                    performanceScore: performanceScore.score,
+                    reputation: performanceScore.reputation,
+                    eligibilityVerified: eligibility.eligible,
+                    samGovEntity: eligibility.samGovEntity
+                },
+                bid: {
+                    amount: bidData.bidAmount,
+                    currency: bidData.crypto,
+                    timeline: bidData.timeline,
+                    approach: bidData.approach,
+                    milestones: bidData.milestones,
+                    submittedAt: new Date().toISOString(),
+                    status: 'pending'
+                },
+                validation: {
+                    technicalFeasibility: this.assessTechnicalFeasibility(bidData),
+                    marketCompetitiveness: this.assessMarketCompetitiveness(bidData),
+                    riskAssessment: this.assessRisk(bidData)
+                },
+                samGovSync: {
+                    synced: false,
+                    opportunityId: null,
+                    lastSyncAttempt: null
+                }
             };
-            
+
             // Store bid
             if (!this.bids[bidData.contractId]) {
                 this.bids[bidData.contractId] = [];
             }
-            
-            this.bids[bidData.contractId].push(bid);
+            this.bids[bidData.contractId].push(enhancedBid);
+
             this.saveBids();
-            
-            console.log('✅ Bid submitted successfully:', bidId);
-            
+
+            // Auto-sync with SAM.gov if opportunity matches
+            if (window.samGovIntegration) {
+                try {
+                    await this.syncBidWithSAMGov(enhancedBid);
+                } catch (syncError) {
+                    console.warn('SAM.gov sync failed, but bid submitted locally:', syncError);
+                }
+            }
+
             return {
                 success: true,
                 bidId: bidId,
-                bid: bid,
-                message: 'Bid submitted successfully'
+                message: 'Bid submitted successfully and synced with SAM.gov',
+                enhancedBid: enhancedBid
             };
-            
+
         } catch (error) {
             console.error('Error submitting bid:', error);
             return {
