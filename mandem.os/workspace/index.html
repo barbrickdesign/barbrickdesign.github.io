@@ -546,33 +546,74 @@
             checkForLoadingIssues();
         }, 15000);
 
-        // Add event listeners for buttons (replacing inline onclick handlers)
-        document.addEventListener('DOMContentLoaded', function() {
-            // Hard refresh button
-            const hardRefreshBtn = document.getElementById('hardRefreshBtn');
-            if (hardRefreshBtn) {
-                hardRefreshBtn.addEventListener('click', hardRefresh);
-            }
+    // Add missing function definitions
+    function connectWalletForMGC() {
+        console.log('🔗 Connecting wallet for MGC...');
+        if (window.universalWalletAuth) {
+            window.universalWalletAuth.connect().then(() => {
+                console.log('✅ Wallet connected for MGC');
+                updateMgcBalanceDisplay();
+            }).catch(error => {
+                console.error('❌ Wallet connection failed:', error);
+                alert('Wallet connection failed: ' + error.message);
+            });
+        } else {
+            console.error('❌ Universal wallet auth not available');
+        }
+    }
 
-            // Connect wallet for MGC button
-            const connectWalletForMGCBtn = document.getElementById('connectWalletForMGC');
-            if (connectWalletForMGCBtn) {
-                connectWalletForMGCBtn.addEventListener('click', connectWalletForMGC);
-            }
+    function hideWelcomeOverlay() {
+        const overlay = document.getElementById('welcomeOverlay');
+        const content = document.getElementById('postLoginContent');
+        
+        if (overlay) {
+            overlay.style.display = 'none';
+        }
+        if (content) {
+            content.style.display = 'block';
+        }
+        
+        console.log('✨ Welcome overlay hidden, showing main content');
+    }
 
-            // Hide welcome overlay button
-            const hideWelcomeOverlayBtn = document.getElementById('hideWelcomeOverlay');
-            if (hideWelcomeOverlayBtn) {
-                hideWelcomeOverlayBtn.addEventListener('click', hideWelcomeOverlay);
+    function updateMgcBalanceDisplay() {
+        // Update MGC balance display
+        const mgcElement = document.getElementById('mgcBalance');
+        if (mgcElement && window.universalWalletAuth) {
+            const workTime = window.universalWalletAuth.getWorkTime();
+            const mgcBalance = Math.floor(workTime / 60); // 1 MGC per hour worked
+            mgcElement.textContent = mgcBalance;
+            
+            // Update GBPT balance too
+            const gbptElement = document.getElementById('mndmBalance');
+            if (gbptElement) {
+                gbptElement.textContent = mgcBalance * 1000; // 1000 GBPT per MGC
             }
+        }
+    }
 
-            // Session log toggle button
-            const sessionLogToggleBtn = document.getElementById('sessionLogToggle');
-            if (sessionLogToggleBtn) {
-                sessionLogToggleBtn.addEventListener('click', toggleSessionLog);
-            }
-        });
-        </script>         
+    // Initialize MGC balance updates
+    window.addEventListener('load', function() {
+        updateMgcBalanceDisplay();
+        
+        // Update balance every 30 seconds
+        setInterval(updateMgcBalanceDisplay, 30000);
+    });
+
+    // Wallet connection success handler
+    window.addEventListener('authSuccess', function(event) {
+        console.log('🎉 Wallet connected in Mandem.OS:', event.detail.address);
+        updateMgcBalanceDisplay();
+    });
+
+    // Wallet disconnect handler
+    window.addEventListener('authLogout', function() {
+        console.log('👋 Wallet disconnected from Mandem.OS');
+        const mgcElement = document.getElementById('mgcBalance');
+        const gbptElement = document.getElementById('mndmBalance');
+        if (mgcElement) mgcElement.textContent = '0';
+        if (gbptElement) gbptElement.textContent = '0';
+    });         
         <!-- Welcome overlay (initially shown, fades out) -->
         <div class="welcome-overlay" id="welcomeOverlay">
             <h2>Gem Bot Universe</h2>
