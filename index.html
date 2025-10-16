@@ -353,12 +353,30 @@
     </div>
 
     <script>
-        // Register Service Worker for offline support
+        // Register Service Worker for offline support - force fresh version
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./service-worker.js')
                     .then((registration) => {
                         console.log('✅ Service Worker registered:', registration.scope);
+
+                        // Force immediate activation of new version
+                        if (registration.waiting) {
+                            registration.waiting.postMessage({ type: 'SKIP_WAITING' });
+                        }
+
+                        // Check for updates and force activation
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            if (newWorker) {
+                                newWorker.addEventListener('statechange', () => {
+                                    if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                        console.log('🔄 New version available, activating immediately');
+                                        newWorker.postMessage({ type: 'SKIP_WAITING' });
+                                    }
+                                });
+                            }
+                        });
                     })
                     .catch((error) => {
                         console.log('❌ Service Worker registration failed:', error);
@@ -387,7 +405,7 @@
         // Simple initialization
         window.addEventListener('DOMContentLoaded', () => {
             updatePageTimestamp();
-            console.log('🏠 BARBRICKDESIGN Hub loaded successfully');
+            console.log('🏠 BARBRICKDESIGN Hub loaded successfully - fresh version v8');
         });
     </script>
 </body>
