@@ -375,17 +375,71 @@
             '../../agent-display.js'
         ];
 
+        let loadedScripts = 0;
+        let failedScripts = [];
+
         agentScripts.forEach(script => {
             const scriptElement = document.createElement('script');
             scriptElement.src = script;
+
             scriptElement.onload = function() {
-                console.log('Agent script loaded:', script);
+                console.log('✅ Agent script loaded:', script);
+                loadedScripts++;
+                checkAgentSystemReady();
             };
+
             scriptElement.onerror = function() {
-                console.error('Failed to load agent script:', script);
+                console.error('❌ Failed to load agent script:', script);
+                failedScripts.push(script);
+                retryScriptLoad(script);
             };
+
             document.head.appendChild(scriptElement);
         });
+
+        // Function to check if agent system is ready
+        function checkAgentSystemReady() {
+            if (typeof window.agentSystem !== 'undefined' &&
+                typeof window.agentDisplay !== 'undefined' &&
+                typeof window.agentTypes !== 'undefined') {
+                console.log('✅ Agent system fully loaded and ready');
+                // Cancel any pending timeout checks
+                if (window.agentLoadCheckTimeout) {
+                    clearTimeout(window.agentLoadCheckTimeout);
+                }
+            }
+        }
+
+        // Retry failed script loads
+        function retryScriptLoad(scriptUrl, attempt = 1) {
+            const maxRetries = 3;
+            const retryDelay = 2000; // 2 seconds
+
+            if (attempt <= maxRetries) {
+                console.log(`🔄 Retrying script load (${attempt}/${maxRetries}):`, scriptUrl);
+                setTimeout(() => {
+                    const retryScript = document.createElement('script');
+                    retryScript.src = scriptUrl + '?retry=' + attempt;
+
+                    retryScript.onload = function() {
+                        console.log('✅ Script retry successful:', scriptUrl);
+                        loadedScripts++;
+                        checkAgentSystemReady();
+                    };
+
+                    retryScript.onerror = function() {
+                        console.error(`❌ Script retry failed (${attempt}/${maxRetries}):`, scriptUrl);
+                        if (attempt < maxRetries) {
+                            retryScriptLoad(scriptUrl, attempt + 1);
+                        }
+                    };
+
+                    document.head.appendChild(retryScript);
+                }, retryDelay * attempt);
+            } else {
+                console.error('❌ Max retries exceeded for script:', scriptUrl);
+            }
+        }
     });
     </script>
     </head>     
