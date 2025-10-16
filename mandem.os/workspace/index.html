@@ -365,130 +365,33 @@
     <!-- Pump.fun Token Integration -->
     <script src="../../pumpfun-token-config.js"></script>
 
+    <!-- Agent Monitoring System -->
+    <script src="../../agent-types.js"></script>
+    <script src="../../monitoring-systems.js"></script>
+    <script src="../../agent-core.js"></script>
+    <script src="../../agent-system.js"></script>
+    <script src="../../agent-display.js"></script>
+    <script src="../../drip_protocol.js"></script>
+    <script src="../../real_agent_trading.js"></script>
+    
     <!-- Load Agent System after DOM is ready -->
     <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Load core agent scripts after DOM is ready
-        const agentScripts = [
-            '../../agent-display.js',
-            '../../agent-types.js',
-            '../../monitoring-systems.js',
-            '../../agent-core.js',
-            '../../drip_protocol.js',
-            '../../real_agent_trading.js'
-        ];
-
-        let loadedScripts = 0;
-        let failedScripts = [];
-
-        agentScripts.forEach(script => {
-            const scriptElement = document.createElement('script');
-            scriptElement.src = script;
-
-            scriptElement.onload = function() {
-                console.log('✅ Agent script loaded:', script);
-                loadedScripts++;
-                checkAllCoreScriptsLoaded();
-            };
-
-            scriptElement.onerror = function() {
-                console.error('❌ Failed to load agent script:', script);
-                failedScripts.push(script);
-                retryScriptLoad(script);
-            };
-
-            document.head.appendChild(scriptElement);
-        });
-
-        // Function to check if all core scripts are loaded
-        function checkAllCoreScriptsLoaded() {
-            if (loadedScripts >= agentScripts.length) {
-                console.log('✅ All core agent scripts loaded, initializing agent system...');
-                loadAgentSystemModule();
-            } else if (loadedScripts >= 4) { // Load agent system if most scripts are loaded
-                console.log('⚠️ Some agent scripts failed, but proceeding with available modules...');
-                loadAgentSystemModule();
-            }
+        // Initialize feature systems
+        if (typeof window.dripProtocol !== 'undefined') {
+            window.dripProtocol.initialize();
+            console.log('💧 Drip Protocol initialized');
+        } else {
+            console.log('⚠️ Drip Protocol not loaded, using simulation');
+            // Fallback simulation code here if needed
         }
 
-        // Load agent-system.js after core dependencies are ready
-        function loadAgentSystemModule() {
-            const agentSystemScript = document.createElement('script');
-            agentSystemScript.src = '../../agent-system.js';
-
-            agentSystemScript.onload = function() {
-                console.log('✅ Agent system module loaded');
-                checkAgentSystemReady();
-            };
-
-            agentSystemScript.onerror = function() {
-                console.error('❌ Failed to load agent-system.js');
-            };
-
-            document.head.appendChild(agentSystemScript);
-        }
-
-        // Function to check if agent system is ready
-        function checkAgentSystemReady() {
-            if (typeof window.agentSystem !== 'undefined' &&
-                typeof window.agentDisplay !== 'undefined' &&
-                typeof window.BaseAgent !== 'undefined' &&
-                typeof window.setupEnhancedErrorMonitoring !== 'undefined') {
-                console.log('✅ Agent system fully loaded and ready');
-
-                // Initialize feature systems
-                if (typeof window.dripProtocol !== 'undefined') {
-                    window.dripProtocol.initialize();
-                    console.log('💧 Drip Protocol initialized');
-                } else {
-                    console.log('⚠️ Drip Protocol not loaded, using simulation');
-                    // Fallback simulation code here if needed
-                }
-
-                if (typeof window.realAgentTradingManager !== 'undefined') {
-                    window.realAgentTradingManager.initialize();
-                    console.log('🌍 Real Agent Trading initialized');
-                } else {
-                    console.log('⚠️ Real Agent Trading not loaded, using simulation');
-                    // Fallback simulation code here if needed
-                }
-
-                // Cancel any pending timeout checks
-                if (window.agentLoadCheckTimeout) {
-                    clearTimeout(window.agentLoadCheckTimeout);
-                }
-            }
-        }
-
-        // Retry failed script loads
-        function retryScriptLoad(scriptUrl, attempt = 1) {
-            const maxRetries = 3;
-            const retryDelay = 2000; // 2 seconds
-
-            if (attempt <= maxRetries) {
-                console.log(`🔄 Retrying script load (${attempt}/${maxRetries}):`, scriptUrl);
-                setTimeout(() => {
-                    const retryScript = document.createElement('script');
-                    retryScript.src = scriptUrl + '?retry=' + attempt;
-
-                    retryScript.onload = function() {
-                        console.log('✅ Script retry successful:', scriptUrl);
-                        loadedScripts++;
-                        checkAllCoreScriptsLoaded();
-                    };
-
-                    retryScript.onerror = function() {
-                        console.error(`❌ Script retry failed (${attempt}/${maxRetries}):`, scriptUrl);
-                        if (attempt < maxRetries) {
-                            retryScriptLoad(scriptUrl, attempt + 1);
-                        }
-                    };
-
-                    document.head.appendChild(retryScript);
-                }, retryDelay * attempt);
-            } else {
-                console.error('❌ Max retries exceeded for script:', scriptUrl);
-            }
+        if (typeof window.realAgentTradingManager !== 'undefined') {
+            window.realAgentTradingManager.initialize();
+            console.log('🌍 Real Agent Trading initialized');
+        } else {
+            console.log('⚠️ Real Agent Trading not loaded, using simulation');
+            // Fallback simulation code here if needed
         }
     });
     </script>
