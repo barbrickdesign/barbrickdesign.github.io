@@ -334,3 +334,6 @@ window.addEventListener('DOMContentLoaded', () => {
 });
 
 console.log('📺 Agent Display loaded and ready');
+
+// Export AgentDisplay class globally for other modules to use
+window.AgentDisplay = AgentDisplay;
