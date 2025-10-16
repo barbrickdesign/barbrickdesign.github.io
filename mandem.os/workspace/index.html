@@ -738,37 +738,72 @@
                 }
             });
 
-            // Click navigation
-            container.addEventListener('click', function(event) {
-                const rect = container.getBoundingClientRect();
-                mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-                mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+            // Add touch controls for mobile
+            let touchStartX = 0;
+            let touchStartY = 0;
+            let isDragging = false;
 
-                raycaster.setFromCamera(mouse, camera);
-                const intersects = raycaster.intersectObjects(satellites);
+            container.addEventListener('touchstart', function(event) {
+                if (event.touches.length === 1) {
+                    touchStartX = event.touches[0].clientX;
+                    touchStartY = event.touches[0].clientY;
+                    isDragging = false;
+                }
+            });
 
-                if (intersects.length > 0) {
-                    const sat = intersects[0].object;
-                    const targetUrl = sat.userData.url;
+            container.addEventListener('touchmove', function(event) {
+                if (event.touches.length === 1) {
+                    const deltaX = Math.abs(event.touches[0].clientX - touchStartX);
+                    const deltaY = Math.abs(event.touches[0].clientY - touchStartY);
 
-                    console.log('🖱️ Satellite clicked:', sat.userData.name, '->', targetUrl);
-
-                    // Always allow navigation to these pages (no login required)
-                    const publicPages = [
-                        'laboratory.html',
-                        'warehouse.html',
-                        'outdoor.html',
-                        'grand_exchange.html'
-                    ];
-
-                    if (publicPages.includes(targetUrl)) {
-                        window.location.href = targetUrl;
-                    } else {
-                        // For any other pages, still allow navigation
-                        window.location.href = targetUrl;
+                    // If moved more than 10px, consider it a drag
+                    if (deltaX > 10 || deltaY > 10) {
+                        isDragging = true;
                     }
                 }
             });
+
+            container.addEventListener('touchend', function(event) {
+                if (!isDragging && event.changedTouches.length === 1) {
+                    // This was a tap/click, not a drag
+                    const rect = container.getBoundingClientRect();
+                    mouse.x = ((event.changedTouches[0].clientX - rect.left) / rect.width) * 2 - 1;
+                    mouse.y = -((event.changedTouches[0].clientY - rect.top) / rect.height) * 2 + 1;
+
+                    raycaster.setFromCamera(mouse, camera);
+                    const intersects = raycaster.intersectObjects(satellites);
+
+                    if (intersects.length > 0) {
+                        const sat = intersects[0].object;
+                        const targetUrl = sat.userData.url;
+
+                        console.log('📱 Mobile tap on satellite:', sat.userData.name, '->', targetUrl);
+
+                        // Navigate to the page
+                        window.location.href = targetUrl;
+                    }
+                }
+                isDragging = false;
+            });
+
+            // Make satellites larger on mobile for easier touch
+            const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+            if (isMobile) {
+                console.log('📱 Mobile device detected - adjusting for touch interaction');
+
+                // Make satellites larger for touch
+                satellites.forEach(satellite => {
+                    satellite.scale.setScalar(2.0); // 100% larger for touch
+                });
+
+                // Adjust camera for mobile view
+                camera.position.z = 20; // Pull back slightly for mobile
+
+                // Make labels larger on mobile
+                labels.forEach(label => {
+                    label.scale.set(5, 1.2, 1); // Larger text on mobile
+                });
+            }
 
             // Animation loop
             function animate() {
