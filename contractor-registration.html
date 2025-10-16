@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contractor Registration - Classified Contracts System</title>
+    
+    <!-- Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iife.min.js"></script>
+    <script src="contractor-registry.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: #000;
+            color: #00ff00;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        header {
+            text-align: center;
+            padding: 40px 20px;
+            background: linear-gradient(180deg, rgba(0,255,0,0.1), transparent);
+            border: 2px solid rgba(0,255,0,0.5);
+            border-radius: 15px;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            color: #00ff00;
+            text-shadow: 0 0 20px rgba(0,255,0,0.8);
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            color: #66ff66;
+            font-size: 1.1em;
+        }
+        
+        .info-banner {
+            background: rgba(0,100,255,0.1);
+            border: 2px solid rgba(0,150,255,0.5);
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            line-height: 1.8;
+        }
+        
+        .info-banner h3 {
+            color: #00aaff;
+            margin-bottom: 10px;
+        }
+        
+        .info-banner p {
+            color: #66ccff;
+        }
+        
+        .form-section {
+            background: linear-gradient(135deg, rgba(0,50,0,0.9), rgba(0,80,0,0.9));
+            border: 2px solid rgba(0,255,0,0.3);
+            border-radius: 15px;
+            padding: 40px;
+            margin: 30px 0;
+        }
+        
+        .form-section h2 {
+            color: #00ff00;
+            margin-bottom: 25px;
+            font-size: 1.8em;
+            text-align: center;
+        }
+        
+        .form-group {
+            margin-bottom: 25px;
+        }
+        
+        .form-group label {
+            display: block;
+            color: #66ff66;
+            margin-bottom: 8px;
+            font-weight: 700;
+        }
+        
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            background: rgba(0,0,0,0.5);
+            border: 2px solid rgba(0,255,0,0.3);
+            border-radius: 8px;
+            color: #00ff00;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1em;
+        }
+        
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #00ff00;
+            box-shadow: 0 0 15px rgba(0,255,0,0.3);
+        }
+        
+        .form-group textarea {
+            min-height: 100px;
+            resize: vertical;
+        }
+        
+        .form-group small {
+            display: block;
+            color: #99ff99;
+            margin-top: 5px;
+            font-size: 0.85em;
+        }
+        
+        .required {
+            color: #ff6666;
+        }
+        
+        .multi-select {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .checkbox-group {
+            display: flex;
+            align-items: center;
+            background: rgba(0,0,0,0.3);
+            padding: 10px;
+            border-radius: 5px;
+            border: 1px solid rgba(0,255,0,0.2);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .checkbox-group:hover {
+            background: rgba(0,255,0,0.1);
+            border-color: #00ff00;
+        }
+        
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+            margin-right: 10px;
+        }
+        
+        .checkbox-group label {
+            margin: 0;
+            cursor: pointer;
+            font-size: 0.9em;
+        }
+        
+        .section-divider {
+            height: 2px;
+            background: linear-gradient(90deg, transparent, rgba(0,255,0,0.5), transparent);
+            margin: 40px 0;
+        }
+        
+        .btn {
+            padding: 15px 40px;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 1.1em;
+            font-weight: 700;
+            background: linear-gradient(90deg, #00ff00, #66ff66);
+            color: #000;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            width: 100%;
+        }
+        
+        .btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 30px rgba(0,255,0,0.6);
+        }
+        
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .btn-secondary {
+            background: linear-gradient(90deg, #0066ff, #0099ff);
+            color: #fff;
+            margin-bottom: 15px;
+        }
+        
+        .status-message {
+            padding: 20px;
+            border-radius: 10px;
+            margin: 20px 0;
+            text-align: center;
+            font-weight: 700;
+            display: none;
+        }
+        
+        .status-success {
+            background: rgba(0,255,0,0.2);
+            border: 2px solid #00ff00;
+            color: #00ff00;
+        }
+        
+        .status-error {
+            background: rgba(255,0,0,0.2);
+            border: 2px solid #ff0000;
+            color: #ff6666;
+        }
+        
+        .status-info {
+            background: rgba(255,215,0,0.2);
+            border: 2px solid #ffd700;
+            color: #ffdd66;
+        }
+        
+        .wallet-display {
+            background: rgba(0,255,0,0.1);
+            border: 2px solid rgba(0,255,0,0.3);
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            text-align: center;
+        }
+        
+        .wallet-display strong {
+            color: #00ff00;
+        }
+        
+        .wallet-display code {
+            background: rgba(0,0,0,0.5);
+            padding: 5px 10px;
+            border-radius: 5px;
+            color: #66ff66;
+            display: inline-block;
+            margin-top: 5px;
+        }
+        
+        @media (max-width: 768px) {
+            h1 { font-size: 1.8em; }
+            .form-section { padding: 20px; }
+            .multi-select { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🔐 CONTRACTOR REGISTRATION</h1>
+            <p class="subtitle">Classified Contracts Access System</p>
+        </header>
+
+        <div class="info-banner">
+            <h3>✌️ Registration Process - Rooted in Peace, Love, and Understanding</h3>
+            <p>
+                <strong>Step 1:</strong> Connect your MetaMask wallet<br>
+                <strong>Step 2:</strong> Enter your White Card (PIV/CAC) credentials<br>
+                <strong>Step 3:</strong> Complete your contractor profile<br>
+                <strong>Step 4:</strong> Submit for System Architect approval<br>
+                <strong>Step 5:</strong> Once approved, access classified contracts
+            </p>
+        </div>
+
+        <div id="statusMessage" class="status-message"></div>
+
+        <div id="walletSection" class="form-section">
+            <h2>🦊 Step 1: Connect Wallet</h2>
+            <p style="text-align: center; color: #66ff66; margin-bottom: 20px;">
+                Connect your MetaMask wallet to begin registration
+            </p>
+            <button id="connectWalletBtn" class="btn btn-secondary" onclick="connectWallet()">
+                Connect MetaMask Wallet
+            </button>
+            <div id="walletDisplay" class="wallet-display" style="display: none;">
+                <strong>✅ Wallet Connected:</strong><br>
+                <code id="walletAddress"></code>
+            </div>
+        </div>
+
+        <div id="registrationForm" class="form-section" style="display: none;">
+            <h2>📋 Contractor Registration Form</h2>
+            
+            <form id="contractorForm" onsubmit="submitRegistration(event)">
+                <!-- Personal Information -->
+                <div class="form-group">
+                    <label>Full Name <span class="required">*</span></label>
+                    <input type="text" id="fullName" required placeholder="John Doe">
+                </div>
+
+                <div class="form-group">
+                    <label>Organization/Company <span class="required">*</span></label>
+                    <input type="text" id="organization" required placeholder="Your Company Name">
+                </div>
+
+                <div class="form-group">
+                    <label>Email Address <span class="required">*</span></label>
+                    <input type="email" id="email" required placeholder="john.doe@company.com">
+                </div>
+
+                <div class="form-group">
+                    <label>Phone Number <span class="required">*</span></label>
+                    <input type="tel" id="phone" required placeholder="+1 (555) 123-4567">
+                </div>
+
+                <div class="section-divider"></div>
+
+                <!-- White Card Information -->
+                <h3 style="color: #00ff00; margin-bottom: 20px;">🎫 White Card (PIV/CAC) Credentials</h3>
+
+                <div class="form-group">
+                    <label>White Card Number <span class="required">*</span></label>
+                    <input type="text" id="whiteCardNumber" required placeholder="1234567890123456">
+                    <small>Enter your PIV/CAC card number</small>
+                </div>
+
+                <div class="form-group">
+                    <label>Card Type <span class="required">*</span></label>
+                    <select id="whiteCardType" required>
+                        <option value="">Select Card Type</option>
+                        <option value="PIV">PIV (Personal Identity Verification)</option>
+                        <option value="CAC">CAC (Common Access Card)</option>
+                        <option value="PIV-I">PIV-I (PIV Interoperable)</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Card Expiration Date <span class="required">*</span></label>
+                    <input type="date" id="whiteCardExpiry" required>
+                    <small>Your card must not be expired</small>
+                </div>
+
+                <div class="form-group">
+                    <label>Security Clearance Level <span class="required">*</span></label>
+                    <select id="clearanceLevel" required>
+                        <option value="">Select Clearance Level</option>
+                        <option value="CONFIDENTIAL">Confidential</option>
+                        <option value="SECRET">Secret</option>
+                        <option value="TOP_SECRET">Top Secret</option>
+                        <option value="TS_SCI">TS/SCI</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Special Access Programs (Caveats)</label>
+                    <div class="multi-select" id="caveatsList">
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="caveat_noforn" value="NOFORN">
+                            <label for="caveat_noforn">NOFORN</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="caveat_nato" value="NATO">
+                            <label for="caveat_nato">NATO</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="caveat_fvey" value="FVEY">
+                            <label for="caveat_fvey">Five Eyes</label>
+                        </div>
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="caveat_orcon" value="ORCON">
+                            <label for="caveat_orcon">ORCON</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-divider"></div>
+
+                <!-- Professional Profile -->
+                <h3 style="color: #00ff00; margin-bottom: 20px;">💼 Professional Profile</h3>
+
+                <div class="form-group">
+                    <label>Technical Capabilities <span class="required">*</span></label>
+                    <div class="multi-select" id="capabilitiesList"></div>
+                    <small>Select all that apply to your team's expertise</small>
+                </div>
+
+                <div class="form-group">
+                    <label>Team Size <span class="required">*</span></label>
+                    <select id="teamSize" required>
+                        <option value="">Select Team Size</option>
+                        <option value="1-5">1-5 people</option>
+                        <option value="6-20">6-20 people</option>
+                        <option value="21-50">21-50 people</option>
+                        <option value="51-100">51-100 people</option>
+                        <option value="100+">100+ people</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Years of Experience <span class="required">*</span></label>
+                    <select id="experience" required>
+                        <option value="">Select Experience Range</option>
+                        <option value="0-2">0-2 years</option>
+                        <option value="3-5">3-5 years</option>
+                        <option value="6-10">6-10 years</option>
+                        <option value="11-15">11-15 years</option>
+                        <option value="16-20">16-20 years</option>
+                        <option value="20+">20+ years</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Professional Certifications</label>
+                    <textarea id="certifications" placeholder="List relevant certifications (e.g., CISSP, PMP, Security+, AWS)"></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>LinkedIn Profile (Optional)</label>
+                    <input type="url" id="linkedIn" placeholder="https://linkedin.com/in/yourprofile">
+                </div>
+
+                <div class="form-group">
+                    <label>Company Website (Optional)</label>
+                    <input type="url" id="website" placeholder="https://yourcompany.com">
+                </div>
+
+                <div class="section-divider"></div>
+
+                <button type="submit" class="btn" id="submitBtn">
+                    🚀 Submit Registration
+                </button>
+            </form>
+        </div>
+
+        <div style="text-align: center; margin-top: 40px; padding: 20px;">
+            <p style="color: #66ff66;">
+                <a href="classified-contracts.html" style="color: #00ff00;">← Back to Classified Contracts</a>
+            </p>
+            <p style="color: #66ff66; margin-top: 10px;">
+                <a href="index.html" style="color: #00aaff;">🏠 Return to Main Hub</a>
+            </p>
+        </div>
+    </div>
+
+    <script>
+        let connectedWallet = null;
+
+        // Initialize capabilities checkboxes
+        window.addEventListener('DOMContentLoaded', () => {
+            const capabilitiesList = document.getElementById('capabilitiesList');
+            const capabilities = window.contractorRegistry.capabilities;
+            
+            capabilities.forEach((capability, index) => {
+                const div = document.createElement('div');
+                div.className = 'checkbox-group';
+                div.innerHTML = `
+                    <input type="checkbox" id="cap_${index}" value="${capability}">
+                    <label for="cap_${index}">${capability}</label>
+                `;
+                capabilitiesList.appendChild(div);
+            });
+        });
+
+        async function connectWallet() {
+            const btn = document.getElementById('connectWalletBtn');
+            const statusMsg = document.getElementById('statusMessage');
+            
+            try {
+                btn.disabled = true;
+                btn.textContent = '⏳ Connecting...';
+                
+                // Check for MetaMask
+                if (!window.ethereum) {
+                    throw new Error('MetaMask not found. Please install MetaMask extension.');
+                }
+                
+                // Request account access
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                connectedWallet = accounts[0];
+                
+                // Check if already registered
+                const existing = window.contractorRegistry.getContractor(connectedWallet);
+                if (existing && existing.status === 'approved') {
+                    throw new Error('This wallet is already registered and approved. You can access classified contracts directly.');
+                } else if (existing && existing.status === 'pending') {
+                    throw new Error('This wallet already has a pending registration. Please wait for approval.');
+                }
+                
+                // Display wallet address
+                document.getElementById('walletAddress').textContent = connectedWallet;
+                document.getElementById('walletDisplay').style.display = 'block';
+                
+                // Show registration form
+                document.getElementById('registrationForm').style.display = 'block';
+                
+                // Show success message
+                showStatus('✅ Wallet connected successfully! Please complete the registration form below.', 'success');
+                
+                btn.textContent = '✅ Wallet Connected';
+                
+            } catch (error) {
+                console.error('Wallet connection error:', error);
+                showStatus('❌ ' + error.message, 'error');
+                btn.disabled = false;
+                btn.textContent = 'Connect MetaMask Wallet';
+            }
+        }
+
+        async function submitRegistration(event) {
+            event.preventDefault();
+            
+            const submitBtn = document.getElementById('submitBtn');
+            const statusMsg = document.getElementById('statusMessage');
+            
+            try {
+                submitBtn.disabled = true;
+                submitBtn.textContent = '⏳ Submitting...';
+                
+                if (!connectedWallet) {
+                    throw new Error('Please connect your wallet first.');
+                }
+                
+                // Collect form data
+                const registrationData = {
+                    walletAddress: connectedWallet,
+                    fullName: document.getElementById('fullName').value,
+                    organization: document.getElementById('organization').value,
+                    email: document.getElementById('email').value,
+                    phone: document.getElementById('phone').value,
+                    whiteCardNumber: document.getElementById('whiteCardNumber').value,
+                    whiteCardType: document.getElementById('whiteCardType').value,
+                    whiteCardExpiry: document.getElementById('whiteCardExpiry').value,
+                    clearanceLevel: document.getElementById('clearanceLevel').value,
+                    caveatCodes: getSelectedCheckboxes('caveatsList'),
+                    capabilities: getSelectedCheckboxes('capabilitiesList'),
+                    teamSize: document.getElementById('teamSize').value,
+                    experience: document.getElementById('experience').value,
+                    certifications: document.getElementById('certifications').value.split('\n').filter(c => c.trim()),
+                    linkedIn: document.getElementById('linkedIn').value,
+                    website: document.getElementById('website').value
+                };
+                
+                // Validate capabilities
+                if (registrationData.capabilities.length === 0) {
+                    throw new Error('Please select at least one technical capability.');
+                }
+                
+                // Submit registration
+                const result = await window.contractorRegistry.registerContractor(registrationData);
+                
+                if (result.success) {
+                    showStatus('✅ ' + result.message + ' You will receive an email notification once approved.', 'success');
+                    
+                    // Reset form after 3 seconds
+                    setTimeout(() => {
+                        document.getElementById('contractorForm').reset();
+                        document.getElementById('registrationForm').style.display = 'none';
+                        document.getElementById('walletDisplay').style.display = 'none';
+                        connectedWallet = null;
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = '🚀 Submit Registration';
+                        document.getElementById('connectWalletBtn').textContent = 'Connect MetaMask Wallet';
+                        document.getElementById('connectWalletBtn').disabled = false;
+                    }, 5000);
+                } else {
+                    throw new Error(result.error);
+                }
+                
+            } catch (error) {
+                console.error('Registration error:', error);
+                showStatus('❌ ' + error.message, 'error');
+                submitBtn.disabled = false;
+                submitBtn.textContent = '🚀 Submit Registration';
+            }
+        }
+
+        function getSelectedCheckboxes(containerId) {
+            const container = document.getElementById(containerId);
+            const checkboxes = container.querySelectorAll('input[type="checkbox"]:checked');
+            return Array.from(checkboxes).map(cb => cb.value);
+        }
+
+        function showStatus(message, type) {
+            const statusMsg = document.getElementById('statusMessage');
+            statusMsg.textContent = message;
+            statusMsg.className = 'status-message status-' + type;
+            statusMsg.style.display = 'block';
+            
+            // Scroll to message
+            statusMsg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    </script>
+</body>
+</html>

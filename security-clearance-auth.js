@@ -36,6 +36,9 @@ class SecurityClearanceAuth {
             systems: ['Mandem.OS', 'Null.OS', 'Gem Bot Universe']
         };
         
+        // Reference to contractor registry (loaded separately)
+        this.contractorRegistry = window.contractorRegistry;
+        
         // WALLET-BASED CLEARANCE REGISTRY
         this.clearanceRegistry = {
             // SYSTEM ARCHITECT - SUPREME AUTHORITY (Supersedes all clearances)
@@ -297,92 +300,62 @@ class SecurityClearanceAuth {
                 };
             }
             
-            // Check if wallet is in registry (non-Architect users)
-            const clearance = this.clearanceRegistry[walletAddress];
-            if (!clearance) {
-                throw new Error('No security clearance registered for this wallet address. Contact admin to register your clearance.');
+            // Check if contractor is registered and approved
+            if (this.contractorRegistry) {
+                const contractor = this.contractorRegistry.getContractor(walletAddress);
+                
+                if (contractor && contractor.status === 'approved' && contractor.verified) {
+                    console.log('✅ Approved contractor detected');
+                    console.log(`👤 ${contractor.fullName}`);
+                    console.log(`🏢 ${contractor.organization}`);
+                    console.log(`🔐 Clearance: ${contractor.clearanceLevel}`);
+                    
+                    // Verify ownership with signature
+                    const message = `I verify my identity and request classified access with Peace, Love, and Understanding at ${new Date().toISOString()}`;
+                    const sigResult = await this.requestWalletSignature(message, walletType);
+                    
+                    if (!sigResult.success) {
+                        throw new Error('Signature verification failed. Please sign the authorization message.');
+                    }
+                    
+                    console.log('✅ Wallet signature verified');
+                    
+                    // Set current user from contractor profile
+                    this.currentUser = {
+                        authenticated: true,
+                        walletAddress: walletAddress,
+                        clearanceLevel: contractor.clearanceLevel,
+                        commonName: contractor.fullName,
+                        organization: contractor.organization,
+                        expirationDate: contractor.whiteCard.expiry,
+                        caveatCodes: contractor.caveatCodes,
+                        profile: contractor.profile,
+                        verified: true,
+                        registrationDate: contractor.registrationDate,
+                        lastActive: new Date().toISOString()
+                    };
+                    
+                    // Update last active time
+                    contractor.lastActive = new Date().toISOString();
+                    this.contractorRegistry.saveContractors();
+                    
+                    console.log('✅ Authentication complete');
+                    console.log('✌️ Access granted with Peace, Love, and Understanding');
+                    
+                    return {
+                        success: true,
+                        user: this.currentUser,
+                        contractor: contractor,
+                        message: 'Contractor authentication successful. Access granted.'
+                    };
+                } else if (contractor && contractor.status === 'pending') {
+                    throw new Error('⏳ Your registration is pending approval by the System Architect. Please check back later.');
+                }
             }
             
-            console.log(`🔍 Step 2/3: Clearance found in registry: ${clearance.level}`);
+            // No registration found
+            throw new Error('⛔ ACCESS DENIED: Wallet not registered. Please complete contractor registration first.');
             
-            // Verify ownership with signature
-            const message = `I verify my identity and request classified access with Peace, Love, and Understanding at ${new Date().toISOString()}`;
-            const sigResult = await this.requestWalletSignature(message, walletType);
-            
-            if (!sigResult.success) {
-                throw new Error('Signature verification failed. Please sign the authorization message.');
-            }
-            
-            console.log('✅ Wallet signature verified');
-            
-            // STEP 2: Verify PIV/CAC White Card
-            console.log('🎫 Step 3/3: Please insert your PIV/CAC White Card for verification...');
-            
-            // Initialize card reader if needed
-            if (!this.pivCardReader) {
-                await this.initializeCardReader();
-            }
-            
-            // Read white card
-            const cardData = await this.readPIVCard();
-            
-            // Validate certificate
-            if (!cardData.certificateValid) {
-                throw new Error('White Card certificate validation failed. Card may be expired or revoked.');
-            }
-            
-            console.log(`🎫 White Card read successfully: ${cardData.commonName}`);
-            
-            // STEP 3: Cross-validate wallet and card
-            // Both must match for full access
-            const cardClearance = this.clearanceLevels[cardData.clearanceLevel];
-            const walletClearance = this.clearanceLevels[clearance.level];
-            
-            if (cardClearance < walletClearance) {
-                console.warn('⚠️ Card clearance lower than wallet clearance - granting card level access only');
-                clearance.level = cardData.clearanceLevel;
-                clearance.caveats = cardData.caveatCodes;
-            }
-            
-            // Verify card expiration
-            const cardExpiration = new Date(cardData.expirationDate);
-            const walletExpiration = new Date(clearance.expires);
-            const effectiveExpiration = cardExpiration < walletExpiration ? cardData.expirationDate : clearance.expires;
-            
-            if (cardExpiration < new Date()) {
-                throw new Error('White Card has expired. Please renew your credentials.');
-            }
-            
-            // Update current user with BOTH verifications
-            this.currentUser = {
-                authenticated: true,
-                dualVerified: true,
-                walletAddress: walletAddress,
-                clearanceLevel: clearance.level,
-                commonName: cardData.commonName,  // Use card name as primary
-                organization: cardData.organization,  // Use card org as primary
-                expirationDate: effectiveExpiration,
-                caveatCodes: clearance.caveats,
-                cardType: cardData.cardType,
-                verified: true,
-                signature: signature,
-                walletName: clearance.name,
-                verificationTime: new Date().toISOString()
-            };
-            
-            console.log('✅ DUAL VERIFICATION COMPLETE');
-            console.log(`✅ Wallet: ${clearance.name} (${walletAddress.substring(0, 8)}...)`);
-            console.log(`✅ White Card: ${cardData.commonName} (${cardData.cardType})`);
-            console.log(`✅ Clearance Level: ${clearance.level}`);
-            console.log(`✅ Special Access: ${clearance.caveats.join(', ')}`);
-            console.log('✌️ Access granted with Peace, Love, and Understanding');
-            
-            return {
-                success: true,
-                user: this.currentUser,
-                verificationMethod: 'dual',
-                message: 'Dual verification complete. Access granted with Peace, Love, and Understanding.'
-            };
         } catch (error) {
             console.error('Authentication error:', error);
             return {
