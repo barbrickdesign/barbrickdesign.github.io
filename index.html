@@ -353,7 +353,9 @@
     </div>
 
     <script>
-        // Register Service Worker for offline support - force fresh version
+        // Service Worker temporarily disabled to prevent caching issues
+        // Will re-enable when service worker is properly configured
+        /*
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
                 navigator.serviceWorker.register('./service-worker.js')
@@ -383,6 +385,7 @@
                     });
             });
         }
+        */
 
         // Update page timestamp
         function updatePageTimestamp() {
@@ -405,7 +408,7 @@
         // Simple initialization
         window.addEventListener('DOMContentLoaded', () => {
             updatePageTimestamp();
-            console.log('🏠 BARBRICKDESIGN Hub loaded successfully - fresh version v8');
+            console.log('🏠 BARBRICKDESIGN Hub loaded successfully - no service worker');
         });
     </script>
 </body>
