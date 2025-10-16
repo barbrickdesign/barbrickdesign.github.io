@@ -453,6 +453,14 @@
     // This ensures the 3D scene renders before welcome overlay logic
     window.addEventListener('load', function() {
         console.log('🚀 Initializing Gem Bot Universe 3D Scene...');
+
+        // Hide welcome overlay immediately
+        const welcomeOverlay = document.querySelector('.welcome-overlay');
+        if (welcomeOverlay) {
+            welcomeOverlay.style.display = 'none';
+            console.log('✅ Welcome overlay hidden immediately');
+        }
+
         initGlobe();
     });
 
@@ -542,15 +550,15 @@
     
     // Globe initialization
     function initGlobe() {
-      // Prevent duplicate initialization
-      if (window.globeInitialized) {
-        console.log('✅ Globe already initialized');
-        return;
-      }
-
-      console.log('🌍 Starting 3D globe initialization...');
-
       try {
+        // Prevent duplicate initialization
+        if (window.globeInitialized) {
+          console.log('✅ Globe already initialized');
+          return;
+        }
+
+        console.log('🌍 Starting 3D globe initialization...');
+
         // Get the container
         const container = document.getElementById('globe-container');
 
@@ -582,18 +590,7 @@
         // Mark as initialized and hide welcome overlay
         window.globeInitialized = true;
 
-        // Hide welcome overlay after 3D scene loads
-        setTimeout(function() {
-          const welcomeOverlay = document.querySelector('.welcome-overlay');
-          if (welcomeOverlay) {
-            console.log('👋 Hiding welcome overlay...');
-            welcomeOverlay.style.opacity = '0';
-            setTimeout(function() {
-              welcomeOverlay.style.display = 'none';
-              console.log('✅ Welcome overlay hidden, 3D scene visible!');
-            }, 1000);
-          }
-        }, 2000); // Give 3D scene 2 seconds to render before hiding overlay
+        // Note: Welcome overlay is already hidden on page load
       
       // Add ambient light
       const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
