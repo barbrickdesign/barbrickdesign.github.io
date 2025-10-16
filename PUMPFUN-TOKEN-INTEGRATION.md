@@ -1,17 +1,16 @@
 # 🔥 Pump.fun Token Integration - Complete Guide
 
-**Token Address:** `GK24fQQQKNF6JMsCd3rLfSr1n2tvr3bCJ7zAgNqxbA7r`  
+**Token Address:** `3yw1L5c8FwAzfdUeZQXEUd9sL3DP7HtXP19anp2Hpump`  
 **Platform:** pump.fun  
 **Chain:** Solana  
-**Symbol:** MANDEM  
-**Name:** Mandem OS Token  
+**Symbol:** GBPT  
+**Name:** Gem Bot Pump Token  
 
-**Integration Date:** October 15, 2025  
+**Integration Date:** October 16, 2025  
 **Version:** 1.0.0
 
 ---
 
-## 🎯 **Purpose**
 
 The pump.fun token is the **official native currency** for:
 1. **Mandem.OS** - Virtual environment system
@@ -22,16 +21,16 @@ The pump.fun token is the **official native currency** for:
 ## 📍 **Token Details**
 
 ### **Official Links:**
-- **Pump.fun:** https://pump.fun/coin/GK24fQQQKNF6JMsCd3rLfSr1n2tvr3bCJ7zAgNqxbA7r
-- **Solscan:** https://solscan.io/token/GK24fQQQKNF6JMsCd3rLfSr1n2tvr3bCJ7zAgNqxbA7r
-- **Solana Explorer:** https://explorer.solana.com/address/GK24fQQQKNF6JMsCd3rLfSr1n2tvr3bCJ7zAgNqxbA7r
+- **Pump.fun:** https://pump.fun/coin/3yw1L5c8FwAzfdUeZQXEUd9sL3DP7HtXP19anp2Hpump
+- **Solscan:** https://solscan.io/token/3yw1L5c8FwAzfdUeZQXEUd9sL3DP7HtXP19anp2Hpump
+- **Solana Explorer:** https://explorer.solana.com/address/3yw1L5c8FwAzfdUeZQXEUd9sL3DP7HtXP19anp2Hpump
 
 ### **Token Specifications:**
 ```javascript
 {
-    address: 'GK24fQQQKNF6JMsCd3rLfSr1n2tvr3bCJ7zAgNqxbA7r',
-    name: 'Mandem OS Token',
-    symbol: 'MANDEM',
+    address: '3yw1L5c8FwAzfdUeZQXEUd9sL3DP7HtXP19anp2Hpump',
+    name: 'Gem Bot Pump Token',
+    symbol: 'GBPT',
     decimals: 9,
     chain: 'solana',
     platform: 'pump.fun'
@@ -77,10 +76,10 @@ The pump.fun token is the **official native currency** for:
 <div id="pumpfun-token-container" style="max-width: 400px; margin: 0 auto 10px;"></div>
 ```
 
-**Location 2:** MNDM Status Bar (Real-time balance display)
+**Location 2:** GBPT Status Bar (Real-time balance display)
 ```html
 <div class="swag-status-bar">
-    <div class="status-label">MNDM 🔥</div>
+    <div class="status-label">GBPT 🔥</div>
     <div class="status-bar-container">
         <div class="status-bar-fill swag-fill" id="swagStatusFill"></div>
     </div>
@@ -90,9 +89,9 @@ The pump.fun token is the **official native currency** for:
 
 **Features:**
 - Full token widget with trade button
-- **MNDM Status Bar** - Real-time balance in status HUD
+- **GBPT Status Bar** - Real-time balance in status HUD
 - Auto-updates when wallet connects
-- Progress bar shows balance (max 10,000 MNDM = 100%)
+- Progress bar shows balance (max 10,000 GBPT = 100%)
 - Pump.fun orange/gold gradient colors
 - Integrated with Ember's cyberpunk theme
 - Responsive mobile design

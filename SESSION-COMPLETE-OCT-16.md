@@ -9,14 +9,14 @@
 
 ## 🚀 **What Was Accomplished**
 
-### **1. ✅ Pump.fun Token Integration (MANDEM/MNDM)**
+### **1. ✅ Pump.fun Token Integration (GBPT)**
 
-#### **Token Details:**
-- **Address:** `GK24fQQQKNF6JMsCd3rLfSr1n2tvr3bCJ7zAgNqxbA7r`
-- **Symbol:** MNDM
-- **Name:** MANDEM (Mandem OS Token)
-- **Platform:** pump.fun (Solana)
-- **URL:** https://pump.fun/coin/GK24fQQQKNF6JMsCd3rLfSr1n2tvr3bCJ7zAgNqxbA7r
+#### **1. 🔥 GBPT Token Fully Integrated**
+
+**Token:** `3yw1L5c8FwAzfdUeZQXEUd9sL3DP7HtXP19anp2Hpump`  
+**Name:** GBPT  
+**Platform:** pump.fun (Solana)  
+**URL:** https://pump.fun/coin/3yw1L5c8FwAzfdUeZQXEUd9sL3DP7HtXP19anp2Hpump
 
 #### **Files Created:**
 - `pumpfun-token-config.js` - Token configuration and integration system
@@ -26,18 +26,18 @@
 
 **A. Mandem.OS** (`/mandem.os/workspace/index.html`)
 - ✅ Token widget in header (below MGC balance)
-- ✅ MNDM balance display next to MGC balance
-  - Format: `MGC Balance: 0 | 🔥 MNDM: 1,234.56`
+- ✅ GBPT balance display next to MGC balance
+  - Format: `MGC Balance: 0 | 🔥 GBPT: 1,234.56`
 - ✅ Real-time balance updates
 - ✅ Auto-updates on wallet connection
 
 **B. Ember Terminal** (`/ember-terminal/app.html`)
 - ✅ Token widget above navigation footer
-- ✅ **MNDM Status Bar** (replaced SWAG)
-  - Label changed: "SWAG" → "MNDM 🔥"
+- ✅ **GBPT Status Bar** (replaced SWAG)
+  - Label changed: "SWAG" → "GBPT 🔥"
   - Shows real-time token balance
   - Progress bar with pump.fun gradient colors
-  - Max scale: 10,000 MNDM = 100% full
+  - Max scale: 10,000 GBPT = 100% full
 - ✅ Auto-updates on wallet connection
 - ✅ Pump.fun orange/gold theme
 
@@ -211,28 +211,28 @@ const formatted = window.formatTokenAmount(balance, 2);
 - ✅ Real-time balance updates
 
 ### **In Ember Terminal:**
-- ✅ MNDM as in-game currency display
+- ✅ GBPT as in-game currency display
 - ✅ Status bar integration (like game stats)
 - ✅ Progress bar visualization
 - ✅ Quick balance check while gaming
 
 ---
 
-## 📈 **Progress Bar Scale**
+## **Progress Bar Scale**
 
 **Ember Terminal Status Bar:**
 
-| Balance | Fill | Visual |
-|---------|------|--------|
-| 0 MNDM | 0% | `[░░░░░░░░░░]` |
-| 2,500 MNDM | 25% | `[██░░░░░░░░]` |
-| 5,000 MNDM | 50% | `[█████░░░░░]` |
-| 7,500 MNDM | 75% | `[███████░░░]` |
-| 10,000+ MNDM | 100% | `[██████████]` |
+| Balance | Bar Fill | Visual |
+|---------|----------|--------|
+| 0 GBPT | 0% | `[░░░░░░░░░░]` |
+| 2,500 GBPT | 25% | `[██░░░░░░░░]` |
+| 5,000 GBPT | 50% | `[█████░░░░░]` |
+| 7,500 GBPT | 75% | `[███████░░░]` |
+| 10,000+ GBPT | 100% | `[██████████]` |
 
 ---
 
-## 🔄 **Update Frequency**
+## **Update Frequency**
 
 **Mock Data (Current):**
 - Updates on wallet connection

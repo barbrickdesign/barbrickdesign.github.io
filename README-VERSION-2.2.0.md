@@ -436,12 +436,14 @@ Built with 💎 by Ryan Barbrick
 
 Powered by:
 - Web3 (Ethereum & Solana)
-- Pump.fun (MANDEM token)
+- Pump.fun (GBPT token)
 - Federal Intelligence (FPDS)
 - Universal Wallet Auth
 
 **Platform:** https://barbrickdesign.github.io/  
-**Token:** https://pump.fun/coin/GK24fQQQKNF6JMsCd3rLfSr1n2tvr3bCJ7zAgNqxbA7r
+**Token:** https://pump.fun/coin/3yw1L5c8FwAzfdUeZQXEUd9sL3DP7HtXP19anp2Hpump  
+**Symbol:** GBPT  
+**Name:** Gem Bot Pump Token
 
 ---
 

@@ -151,10 +151,10 @@ const provider = new ethers.providers.Web3Provider(window.ethereum);
 
 ---
 
-### **7. ✅ Pump.fun Token Integration** 🔥 **NEW!**
-**Token:** `GK24fQQQKNF6JMsCd3rLfSr1n2tvr3bCJ7zAgNqxbA7r`  
+### **7. ✅ Pump.fun Token Integration** 🔥 **UPDATED!**
+**Token:** `3yw1L5c8FwAzfdUeZQXEUd9sL3DP7HtXP19anp2Hpump`  
 **Platform:** pump.fun (Solana)  
-**Symbol:** MANDEM  
+**Symbol:** GBPT  
 
 **File Created:** `pumpfun-token-config.js`
 
@@ -175,10 +175,11 @@ const provider = new ethers.providers.Web3Provider(window.ethereum);
    
 2. ✅ **Ember Terminal** (`/ember-terminal/app.html`)
    - Widget above navigation footer
+   - **GBPT Status Bar** - Real-time balance display
    - Cyberpunk theme integration
    - Responsive layout
 
-**Widget Features:**
+**Status Bar Features:**
 - 🔥 Token logo and symbol
 - 💰 User balance display
 - 💵 Current price in USD

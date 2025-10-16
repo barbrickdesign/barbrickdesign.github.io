@@ -5161,7 +5161,7 @@ a:visited { color: #1e9b55; }
                 <div class="glyph-divider">∴</div>
                 
                 <div class="swag-status-bar">
-                    <div class="status-label">MNDM 🔥</div>
+                    <div class="status-label">GBPT 🔥</div>
                     <div class="status-bar-container">
                         <div class="status-bar-fill swag-fill" id="swagStatusFill"></div>
                     </div>
@@ -9431,8 +9431,8 @@ window.addEventListener('authLogout', () => {
     updateEmberWalletUI(null);
 });
 
-// Update MANDEM Token Balance (MNDM)
-async function updateMandemTokenBalance() {
+// Update GBPT Token Balance (GBPT)
+async function updateGBPTTokenBalance() {
     try {
         // Get connected wallet address
         const walletAddress = window.universalWalletAuth && window.universalWalletAuth.getAddress();
@@ -9444,41 +9444,41 @@ async function updateMandemTokenBalance() {
             return;
         }
         
-        // Fetch MANDEM token balance
+        // Fetch GBPT token balance
         const balance = await window.getTokenBalance(walletAddress);
         
         // Update display
         const formattedBalance = window.formatTokenAmount(balance, 2);
         document.getElementById('swagStatusValue').textContent = formattedBalance;
         
-        // Update progress bar (max 10,000 MNDM for full bar)
+        // Update progress bar (max 10,000 GBPT for full bar)
         const fillPercentage = Math.min((balance / 10000) * 100, 100);
         document.getElementById('swagStatusFill').style.width = `${fillPercentage}%`;
         
-        console.log('🔥 MANDEM Balance Updated:', formattedBalance, 'MNDM');
+        console.log('🔥 Ember Terminal - GBPT Balance Updated:', formattedBalance, 'GBPT');
     } catch (error) {
-        console.error('❌ Failed to update MANDEM balance:', error);
+        console.error('❌ Failed to update GBPT balance:', error);
         // Show 0 on error
         document.getElementById('swagStatusValue').textContent = '0';
         document.getElementById('swagStatusFill').style.width = '0%';
     }
 }
 
-// Update MANDEM balance when wallet connects
+// Update GBPT balance when wallet connects
 window.addEventListener('authSuccess', (event) => {
-    console.log('🎉 Ember Terminal - Auth success, updating MANDEM balance...');
-    updateMandemTokenBalance();
+    console.log('🎉 Ember Terminal - Auth success, updating GBPT balance...');
+    updateGBPTTokenBalance();
 });
 
-// Initial MANDEM balance update on page load
+// Initial GBPT balance update on page load
 window.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
-        updateMandemTokenBalance();
+        updateGBPTTokenBalance();
     }, 1000); // Wait 1 second for wallet auth to initialize
 });
 
 console.log('✅ Ember Terminal - Wallet integration loaded');
-console.log('🔥 MANDEM Token (MNDM) tracking enabled');
+console.log('🔥 GBPT Token (GBPT) tracking enabled');
 </script>
 
 </body>

@@ -5,13 +5,13 @@
 
 const PUMPFUN_TOKEN_CONFIG = {
     // Token Identity
-    address: 'GK24fQQQKNF6JMsCd3rLfSr1n2tvr3bCJ7zAgNqxbA7r',
-    name: 'Mandem OS Token',
-    symbol: 'MANDEM',
+    address: '3yw1L5c8FwAzfdUeZQXEUd9sL3DP7HtXP19anp2Hpump',
+    name: 'Gem Bot Pump Token',
+    symbol: 'GBPT',
     decimals: 9,
     
     // Pump.fun Platform
-    pumpfunUrl: 'https://pump.fun/coin/GK24fQQQKNF6JMsCd3rLfSr1n2tvr3bCJ7zAgNqxbA7r',
+    pumpfunUrl: 'https://pump.fun/coin/3yw1L5c8FwAzfdUeZQXEUd9sL3DP7HtXP19anp2Hpump',
     chain: 'solana',
     platform: 'pump.fun',
     
@@ -31,16 +31,16 @@ const PUMPFUN_TOKEN_CONFIG = {
     
     // API Endpoints
     apis: {
-        price: `https://api.pump.fun/token/GK24fQQQKNF6JMsCd3rLfSr1n2tvr3bCJ7zAgNqxbA7r/price`,
-        stats: `https://api.pump.fun/token/GK24fQQQKNF6JMsCd3rLfSr1n2tvr3bCJ7zAgNqxbA7r/stats`,
-        holders: `https://api.pump.fun/token/GK24fQQQKNF6JMsCd3rLfSr1n2tvr3bCJ7zAgNqxbA7r/holders`
+        price: `https://api.pump.fun/token/3yw1L5c8FwAzfdUeZQXEUd9sL3DP7HtXP19anp2Hpump/price`,
+        stats: `https://api.pump.fun/token/3yw1L5c8FwAzfdUeZQXEUd9sL3DP7HtXP19anp2Hpump/stats`,
+        holders: `https://api.pump.fun/token/3yw1L5c8FwAzfdUeZQXEUd9sL3DP7HtXP19anp2Hpump/holders`
     },
     
     // Solana Explorer Links
     explorers: {
-        solscan: `https://solscan.io/token/${this.address}`,
-        solana: `https://explorer.solana.com/address/${this.address}`,
-        birdeye: `https://birdeye.so/token/${this.address}`
+        solscan: `https://solscan.io/token/3yw1L5c8FwAzfdUeZQXEUd9sL3DP7HtXP19anp2Hpump`,
+        solana: `https://explorer.solana.com/address/3yw1L5c8FwAzfdUeZQXEUd9sL3DP7HtXP19anp2Hpump`,
+        birdeye: `https://birdeye.so/token/3yw1L5c8FwAzfdUeZQXEUd9sL3DP7HtXP19anp2Hpump`
     }
 };
 
