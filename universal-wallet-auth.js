@@ -163,9 +163,8 @@ class UniversalWalletAuth {
             try {
                 console.log('👻 Connecting to Phantom...');
                 const provider = window.phantom?.solana || window.solana;
-
-                if (provider && provider.isConnected && provider.publicKey) {
-                    console.log('✅ Using existing Phantom connection');
+                
+                if (provider.isConnected && provider.publicKey) {
                     return {
                         provider: provider,
                         address: provider.publicKey.toString(),
@@ -173,45 +172,14 @@ class UniversalWalletAuth {
                     };
                 }
 
-                if (provider && provider.connect) {
-                    console.log('🔌 Requesting Phantom connection...');
-                    const response = await provider.connect();
-
-                    if (response && response.publicKey) {
-                        return {
-                            provider: provider,
-                            address: response.publicKey.toString(),
-                            type: 'solana'
-                        };
-                    }
-                }
-
-                // Check for Phantom provider
-                if (window.phantom && window.phantom.solana) {
-                    console.log('🔌 Connecting via Phantom provider...');
-                    const phantomProvider = window.phantom.solana;
-
-                    if (phantomProvider.isConnected) {
-                        return {
-                            provider: phantomProvider,
-                            address: phantomProvider.publicKey.toString(),
-                            type: 'solana'
-                        };
-                    }
-
-                    const response = await phantomProvider.connect();
-                    return {
-                        provider: phantomProvider,
-                        address: response.publicKey.toString(),
-                        type: 'solana'
-                    };
-                }
-
+                const response = await provider.connect();
+                return {
+                    provider: provider,
+                    address: response.publicKey.toString(),
+                    type: 'solana'
+                };
             } catch (error) {
-                console.error('Phantom connection error:', error);
-                if (error.message && error.message.includes('User rejected')) {
-                    throw new Error('Phantom connection rejected. Please try again.');
-                }
+                console.error('Phantom error:', error);
             }
         }
 
@@ -226,50 +194,27 @@ class UniversalWalletAuth {
         try {
             const message = this.generateSignatureMessage();
 
-            // Determine wallet type and use appropriate signing method
-            if (this.wallet === window.ethereum) {
-                // Ethereum/MetaMask
+            // Sign with MetaMask
+            if (window.ethereum && this.wallet === window.ethereum) {
                 console.log('📝 Requesting Ethereum signature...');
-                const signature = await this.wallet.request({
+                const signature = await window.ethereum.request({
                     method: 'personal_sign',
                     params: [message, this.address]
                 });
                 return signature;
-
-            } else if (this.wallet === window.solana || this.wallet === window.phantom?.solana) {
-                // Solana/Phantom
-                console.log('📝 Requesting Solana signature...');
-
-                // For Solana, we need to encode the message properly
-                const encodedMessage = new TextEncoder().encode(message);
-
-                // Use the correct Solana signing method
-                const { signature } = await this.wallet.signMessage(encodedMessage, 'utf8');
-
-                // Convert signature to base64 for consistency with our system
-                const signatureArray = Array.from(signature);
-                return btoa(String.fromCharCode(...signatureArray));
-
-            } else {
-                console.error('❌ Unknown wallet type for signature');
-                return null;
             }
 
+            // Sign with Phantom
+            if (window.solana && this.wallet === window.solana) {
+                console.log('📝 Requesting Solana signature...');
+                const encodedMessage = new TextEncoder().encode(message);
+                const signedMessage = await this.wallet.signMessage(encodedMessage, 'utf8');
+                return btoa(String.fromCharCode.apply(null, signedMessage.signature));
+            }
+
+            return null;
         } catch (error) {
             console.error('Signature request failed:', error);
-
-            // Provide helpful error messages
-            if (error.message && error.message.includes('User rejected')) {
-                throw new Error('Signature rejected by user. Please try again.');
-            } else if (error.message && error.message.includes('Unexpected')) {
-                throw new Error(
-                    'Wallet connection issue. Please:\n\n' +
-                    '1. ✅ Ensure wallet is unlocked\n' +
-                    '2. 🔄 Refresh this page\n' +
-                    '3. 🔌 Try connecting again'
-                );
-            }
-
             return null;
         }
     }
