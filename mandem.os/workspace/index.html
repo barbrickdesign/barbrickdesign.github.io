@@ -387,12 +387,12 @@
             <!-- 3D Globe will be rendered here by Three.js -->             
         </div>         
         <div class="tooltip" id="globeTooltip"></div>         
-        <!-- Welcome overlay -->         
-        <div class="welcome-overlay"> 
-            <h2>Gem Bot Universe</h2> 
+        <!-- Welcome overlay (initially shown, fades out) -->
+        <div class="welcome-overlay" id="welcomeOverlay">
+            <h2>Gem Bot Universe</h2>
             <p>Explore our interactive 3D environments by navigating the Globe Interface. Log in to access additional features and control your Gem Bot deployment.</p>
             
-            <!-- MGC Promotion Section -->
+            <!-- Single MGC Promotion Card in welcome overlay -->
             <div class="mgc-promotion" style="
                 background: linear-gradient(135deg, #ffd700, #ffaa00);
                 padding: 20px;
@@ -401,13 +401,14 @@
                 text-align: center;
                 color: #333;
                 box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+                max-width: 600px;
             ">
                 <h3 style="margin: 0 0 15px 0; color: #222;">💎 Welcome to Gem Bot Universe!</h3>
                 <p style="margin: 0 0 15px 0; font-size: 16px; font-weight: bold;">
                     Earn <span style="color: #ff6b35; text-shadow: 0 0 5px #ff6b35;">MGC</span> (Mandem Game Currency) 
                     by exploring, completing quests, and trading in our virtual worlds!
                 </p>
-                <div style="display: flex; justify-content: center; gap: 15px; margin: 15px 0;">
+                <div style="display: flex; justify-content: center; gap: 15px; margin: 15px 0; flex-wrap: wrap;">
                     <div style="text-align: center;">
                         <div style="font-size: 24px; margin-bottom: 5px;">🔍</div>
                         <div style="font-size: 14px; font-weight: bold;">Explore</div>
@@ -460,101 +461,7 @@
             </div>
         </div>         
         <!-- Post-login content (initially hidden) -->         
-        <div class="post-login-content" id="postLoginContent" style="display:none;"> 
-            <section id="labControls"> 
-                <h2>Lab Controls</h2> 
-                <button id="launchLabBtn">🚀 Launch Virtual Lab</button>                 
-                <button id="checkConnectionBtn">🔗 Check Connection</button>                 
-                <button id="syncSettingsBtn">🔄 Sync Lab Settings</button>                 
-                <button id="globalMapBtn">🌎 View Global Lab Map</button>                 
-                <button id="seedPlatformBtn">🌱 Seed Next Platform</button>                 
-                <button id="deployNowBtn">📡 Deploy & Launch</button>                 
-                <button id="toggleModeBtn">🔄 Switch to Physical Mode</button>                 
-            </section>             
-            <!-- Status and Info Panel -->             
-            <section id="machineStatus"> 
-                <h2>Digital Readouts</h2> 
-                <div class="status-grid"> 
-                    <div class="status-item"> <span class="status-label">Current Mode</span> <span id="modeStatus" class="status-value">Virtual</span> 
-                    </div>                     
-                    <div class="status-item"> <span class="status-label">Connection</span> <span id="connectionStatus" class="status-value">Connected</span> 
-                    </div>                     
-                    <div class="status-item"> <span class="status-label">Current Progress</span> <span id="progressStatus" class="status-value">0%</span> 
-                    </div>                     
-                    <div class="status-item"> <span class="status-label">Estimated Time</span> <span id="timeStatus" class="status-value">00:00:00</span> 
-                    </div>                     
-                </div>                 
-            </section>             
-            <!-- Copilot Dashboard -->             
-            <section id="copilotDashboard"> 
-                <h2>Copilot D3 Feedback</h2> 
-                <div id="copilotLogs"> 
-                    <!-- Virtual user logs will display here -->                     
-                </div>                 
-            </section>             
-            <!-- Idea Tracker for Development Planning -->             
-            <section id="ideaTrackerSection"> 
-                <h2>💡 Idea Tracker</h2> 
-                <div class="idea-tracker-container"> 
-                    <div class="idea-form"> 
-                        <input type="text" id="ideaTitle" placeholder="New idea title..."/> 
-                        <textarea id="ideaDescription" placeholder="Describe your idea..."></textarea> 
-                        <div class="idea-form-row"> 
-                            <select id="ideaPriority" aria-label="Idea Priority"> 
-                                <option value="low">Low Priority</option>                                 
-                                <option value="medium" selected>Medium Priority</option>                                 
-                                <option value="high">High Priority</option>                                 
-                                <option value="critical">Critical Priority</option>                                 
-                            </select>                             
-                            <button id="addIdeaBtn">Add Idea</button>                             
-                        </div>                         
-                    </div>                     
-                    <div class="idea-filters"> 
-                        <button class="filter-btn active" data-filter="all">All Ideas</button>                         
-                        <button class="filter-btn" data-filter="low">Low Priority</button>                         
-                        <button class="filter-btn" data-filter="medium">Medium Priority</button>                         
-                        <button class="filter-btn" data-filter="high">High Priority</button>                         
-                        <button class="filter-btn" data-filter="critical">Critical Priority</button>                         
-                    </div>                     
-                    <div class="idea-list" id="ideaList"> 
-                        <!-- Ideas will be dynamically added here -->                         
-                    </div>                     
-                </div>                 
-            </section>             
-            <!-- Build Tracker Panel -->             
-            <div id="buildTrackerPanel" class="build-tracker-panel"> 
-                <!-- ...existing build tracker content... -->                 
-            </div>             
-            <button id="buildTrackerToggle" class="build-tracker-toggle">📊 Build Status</button>             
-            <!-- Sketchfab Integration UI -->
-            <div style="text-align:center;margin:1.5em 0;">
-                <button id="sketchfabBrowseBtn" class="auth-button" style="margin-bottom:0.5em;">Browse 3D Assets (Sketchfab)</button>
-                <button id="sketchfabEmbedBtn" class="auth-button">Embed 3D Model</button>
-            </div>
-            <div id="sketchfabModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.7);z-index:5000;align-items:center;justify-content:center;">
-                <div style="background:#222;padding:2em 1.5em;border-radius:12px;max-width:95vw;width:420px;text-align:center;position:relative;">
-                    <button id="closeSketchfabModal" style="position:absolute;top:8px;right:12px;font-size:20px;background:none;border:none;color:#fff;cursor:pointer;">&times;</button>
-                    <h3>Embed a Sketchfab Model</h3>
-                    <input id="sketchfabInput" type="text" placeholder="Paste Sketchfab URL or Model UID" style="width:90%;padding:8px;margin:1em 0;" />
-                    <button id="embedSketchfabModel" class="auth-button">Embed</button>
-                    <div id="sketchfabEmbedContainer" style="margin-top:1em;"></div>
-                </div>
-            </div>
-            <!-- 3D Model Gallery Section -->
-            <section id="modelGallerySection" style="margin:2em 0;">
-              <h2>3D Model Gallery</h2>
-              <input id="modelSearchInput" type="text" placeholder="Search models..." style="width:220px;padding:6px;margin-bottom:1em;" />
-              <div id="modelGalleryGrid" style="display:flex;flex-wrap:wrap;gap:18px;"></div>
-              <div id="modelPreviewModal" style="display:none;position:fixed;top:0;left:0;width:100vw;height:100vh;background:rgba(0,0,0,0.8);z-index:6000;align-items:center;justify-content:center;">
-                <div style="background:#222;padding:1.5em 1em;border-radius:12px;max-width:95vw;width:480px;text-align:center;position:relative;">
-                  <button id="closeModelPreview" style="position:absolute;top:8px;right:12px;font-size:20px;background:none;border:none;color:#fff;cursor:pointer;">&times;</button>
-                  <h3 id="previewModelName"></h3>
-                  <div id="previewModelViewer" style="width:100%;height:320px;background:#111;"></div>
-                  <div id="previewModelMeta" style="color:#aaa;font-size:13px;margin-top:8px;"></div>
-                </div>
-              </div>
-            </section>
-        </div>         
+        <div class="post-login-content" id="postLoginContent" style="display:none;">         
         
         <!-- MGC Promotion Section -->
         <section id="mgc-promotion" style="margin: 20px 0; padding: 25px; background: linear-gradient(135deg, #ffd700, #ffaa00); border-radius: 15px; text-align: center; color: #333; box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);">
@@ -647,6 +554,9 @@
         </div>
         <!-- Server Status Message (clickable link to server status indicator) -->
         <div id="statusMessage" style="position: fixed; top: 80px; left: 20px; z-index: 500; max-width: 200px; cursor: pointer; background: rgba(34, 34, 34, 0.9); color: #fff; padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: bold; box-shadow: 0 2px 6px rgba(0,0,0,0.5); transition: opacity 0.3s;">Server: ...</div>
+        <!-- Session Log Panel -->
+        <div id="sessionLogPanel"></div>
+        <button id="sessionLogToggle" onclick="toggleSessionLog()">📋 Logs</button> 
         <!-- Login Check Modal (Now non-blocking) -->         
         <div id="loginModal" class="modal" style="display:none"> 
             <div class="modal-content"> 
