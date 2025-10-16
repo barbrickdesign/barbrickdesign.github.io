@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contractor Portal - Classified Contracts Platform</title>
+    
+    <!-- Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iife.min.js"></script>
+    <script src="contractor-registry.js"></script>
+    <script src="crypto-bidding-system.js"></script>
+    <script src="samgov-integration.js"></script>
+    <script src="security-clearance-auth.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: #000;
+            color: #00ff00;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(180deg, rgba(0,255,0,0.1), transparent);
+            border: 2px solid rgba(0,255,0,0.5);
+            border-radius: 15px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        h1 {
+            font-size: 2.5em;
+            color: #00ff00;
+            text-shadow: 0 0 20px rgba(0,255,0,0.8);
+            margin-bottom: 10px;
+        }
+        
+        .welcome-section {
+            background: linear-gradient(135deg, rgba(0,50,0,0.9), rgba(0,80,0,0.9));
+            border: 2px solid rgba(0,255,0,0.3);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+        
+        .resources-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+        
+        .resource-card {
+            background: linear-gradient(135deg, rgba(0,30,0,0.9), rgba(0,50,0,0.9));
+            border: 2px solid rgba(0,255,0,0.3);
+            border-radius: 12px;
+            padding: 25px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .resource-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 30px rgba(0,255,0,0.4);
+            border-color: #00ff00;
+        }
+        
+        .resource-icon {
+            font-size: 3em;
+            margin-bottom: 15px;
+        }
+        
+        .resource-title {
+            font-size: 1.4em;
+            font-weight: 700;
+            color: #00ff00;
+            margin-bottom: 10px;
+        }
+        
+        .resource-desc {
+            color: #99ff99;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .resource-link {
+            display: inline-block;
+            padding: 10px 20px;
+            background: linear-gradient(90deg, #00ff00, #66ff66);
+            color: #000;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 700;
+            transition: all 0.3s;
+        }
+        
+        .resource-link:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0,255,0,0.6);
+        }
+        
+        .quick-actions {
+            background: rgba(0,100,255,0.1);
+            border: 2px solid rgba(0,150,255,0.3);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 30px 0;
+        }
+        
+        .action-buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .action-btn {
+            padding: 15px 25px;
+            background: linear-gradient(90deg, #0066ff, #0099ff);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: center;
+        }
+        
+        .action-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px rgba(0,100,255,0.6);
+        }
+        
+        @media (max-width: 768px) {
+            h1 { font-size: 1.8em; }
+            .resources-grid { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🏗️ CONTRACTOR PORTAL</h1>
+            <p style="color: #66ff66; margin-top: 10px; font-size: 1.2em;">Your Complete Government Contracting Platform</p>
+        </header>
+
+        <div class="welcome-section">
+            <h2 style="color: #00ff00; margin-bottom: 20px;">👋 Welcome to Your Contracting Hub</h2>
+            <p style="color: #99ff99; line-height: 1.8;">
+                Everything you need to find, bid on, and win government contracts - all in one place.<br>
+                We handle the complexity so you can focus on creating great solutions.
+            </p>
+        </div>
+
+        <div class="quick-actions">
+            <h2 style="color: #66ccff; margin-bottom: 20px;">⚡ Quick Actions</h2>
+            <div class="action-buttons">
+                <button class="action-btn" onclick="window.location.href='classified-contracts.html'">
+                    📋 Browse Contracts
+                </button>
+                <button class="action-btn" onclick="window.location.href='contractor-registration.html'">
+                    📝 Register/Update Profile
+                </button>
+                <button class="action-btn" onclick="window.location.href='contractor-leaderboard.html'">
+                    🏆 View Leaderboard
+                </button>
+                <button class="action-btn" onclick="window.location.href='#my-bids'">
+                    💰 My Bids & Awards
+                </button>
+            </div>
+        </div>
+
+        <h2 style="color: #00ff00; margin: 40px 0 20px 0; text-align: center;">📚 Contractor Resources & Guides</h2>
+
+        <div class="resources-grid">
+            <!-- Getting Started -->
+            <div class="resource-card" onclick="window.location.href='guide-getting-started.html'">
+                <div class="resource-icon">🚀</div>
+                <div class="resource-title">Getting Started Guide</div>
+                <div class="resource-desc">
+                    New to government contracting? Start here for a complete walkthrough of registration, 
+                    clearance requirements, and your first bid.
+                </div>
+                <a href="guide-getting-started.html" class="resource-link">Get Started →</a>
+            </div>
+
+            <!-- Contract Types -->
+            <div class="resource-card" onclick="window.location.href='guide-contract-types.html'">
+                <div class="resource-icon">📑</div>
+                <div class="resource-title">Understanding Contract Types</div>
+                <div class="resource-desc">
+                    Learn about Fixed Price, Cost Plus, Time & Materials contracts and which work best 
+                    for your projects.
+                </div>
+                <a href="guide-contract-types.html" class="resource-link">Learn More →</a>
+            </div>
+
+            <!-- Bidding Strategy -->
+            <div class="resource-card" onclick="window.location.href='guide-bidding-strategy.html'">
+                <div class="resource-icon">🎯</div>
+                <div class="resource-title">Winning Bid Strategies</div>
+                <div class="resource-desc">
+                    FPDS data-driven insights on how to price competitively, highlight your strengths, 
+                    and win contracts.
+                </div>
+                <a href="guide-bidding-strategy.html" class="resource-link">View Strategies →</a>
+            </div>
+
+            <!-- Compliance -->
+            <div class="resource-card" onclick="window.location.href='guide-compliance.html'">
+                <div class="resource-icon">✅</div>
+                <div class="resource-title">Compliance & Requirements</div>
+                <div class="resource-desc">
+                    Essential compliance information including clearances, certifications, 
+                    and regulatory requirements (FAR/DFARS).
+                </div>
+                <a href="guide-compliance.html" class="resource-link">View Requirements →</a>
+            </div>
+
+            <!-- Performance Tracking -->
+            <div class="resource-card" onclick="window.location.href='guide-performance.html'">
+                <div class="resource-icon">📊</div>
+                <div class="resource-title">Performance Scoring System</div>
+                <div class="resource-desc">
+                    Understand how your performance is scored (0-100), build your reputation, 
+                    and improve your competitive standing.
+                </div>
+                <a href="guide-performance.html" class="resource-link">Track Performance →</a>
+            </div>
+
+            <!-- Crypto Payments -->
+            <div class="resource-card" onclick="window.location.href='guide-crypto-payments.html'">
+                <div class="resource-icon">💎</div>
+                <div class="resource-title">Cryptocurrency Payments</div>
+                <div class="resource-desc">
+                    How crypto payments work, escrow contracts, milestone releases, 
+                    and multi-currency support (ETH, SOL, USDC, USDT).
+                </div>
+                <a href="guide-crypto-payments.html" class="resource-link">Learn About Crypto →</a>
+            </div>
+
+            <!-- NAICS Codes -->
+            <div class="resource-card" onclick="window.location.href='guide-naics-codes.html'">
+                <div class="resource-icon">🔢</div>
+                <div class="resource-title">NAICS Codes Guide</div>
+                <div class="resource-desc">
+                    Find your industry classification codes, understand set-asides 
+                    (Small Business, 8(a), HUBZone), and target the right contracts.
+                </div>
+                <a href="guide-naics-codes.html" class="resource-link">Find Your Code →</a>
+            </div>
+
+            <!-- Market Intelligence -->
+            <div class="resource-card" onclick="window.location.href='guide-market-intelligence.html'">
+                <div class="resource-icon">📈</div>
+                <div class="resource-title">Market Intelligence</div>
+                <div class="resource-desc">
+                    Access FPDS historical data, pricing trends, competition analysis, 
+                    and agency spending patterns to inform your strategy.
+                </div>
+                <a href="guide-market-intelligence.html" class="resource-link">View Market Data →</a>
+            </div>
+
+            <!-- Team Management -->
+            <div class="resource-card" onclick="window.location.href='guide-team-management.html'">
+                <div class="resource-icon">👥</div>
+                <div class="resource-title">Team & Subcontractor Management</div>
+                <div class="resource-desc">
+                    Build teams, manage subcontractors, collaborate on large contracts, 
+                    and share clearances effectively.
+                </div>
+                <a href="guide-team-management.html" class="resource-link">Manage Teams →</a>
+            </div>
+
+            <!-- FAQ -->
+            <div class="resource-card" onclick="window.location.href='contractor-faq.html'">
+                <div class="resource-icon">❓</div>
+                <div class="resource-title">Frequently Asked Questions</div>
+                <div class="resource-desc">
+                    Quick answers to common questions about registration, bidding, payments, 
+                    clearances, and platform features.
+                </div>
+                <a href="contractor-faq.html" class="resource-link">View FAQs →</a>
+            </div>
+        </div>
+
+        <div style="margin-top: 60px; padding: 30px; text-align: center; border-top: 2px solid rgba(0,255,0,0.3);">
+            <p style="color: #66ff66; margin-bottom: 15px;">
+                <strong>Need Help?</strong> Contact System Architect for support
+            </p>
+            <p style="color: #99ff99; font-size: 0.9em;">
+                ✌️ Rooted in Peace, Love, and Understanding
+            </p>
+            <p style="color: #66ff66; margin-top: 15px;">
+                <a href="index.html" style="color: #00ff00;">← Back to Main Hub</a>
+            </p>
+        </div>
+    </div>
+</body>
+</html>

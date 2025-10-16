@@ -210,37 +210,125 @@ class SecurityClearanceAuth {
 
     /**
      * Detect and connect available wallet (Phantom or MetaMask)
+     * Enhanced with mobile MetaMask support
      */
     async detectAndConnectWallet() {
         console.log('🔍 Detecting available wallets...');
         
-        // Try Phantom (Solana)
+        // Detect mobile environment
+        const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+        console.log(`📱 Mobile device: ${isMobile}`);
+        
+        // Try MetaMask (Ethereum) - Check multiple providers
+        // Mobile MetaMask injects ethereum differently
+        const ethereumProvider = window.ethereum || window.web3?.currentProvider;
+        
+        if (ethereumProvider) {
+            console.log('🦊 MetaMask/Web3 provider detected');
+            
+            // Handle mobile MetaMask deep linking
+            if (isMobile && !window.ethereum) {
+                console.log('📱 Mobile detected - checking for MetaMask app...');
+                
+                // Check if we're already in MetaMask browser
+                if (ethereumProvider.isMetaMask) {
+                    console.log('✅ Running in MetaMask mobile browser');
+                } else {
+                    // Redirect to MetaMask app if not in-app browser
+                    const currentUrl = window.location.href;
+                    const dappUrl = `https://metamask.app.link/dapp/${currentUrl.replace(/^https?:\/\//, '')}`;
+                    console.log('🔗 Redirecting to MetaMask app:', dappUrl);
+                    window.location.href = dappUrl;
+                    throw new Error('Redirecting to MetaMask app...');
+                }
+            }
+            
+            try {
+                // Request accounts with proper error handling
+                let accounts;
+                
+                if (ethereumProvider.request) {
+                    // Modern API (MetaMask, most providers)
+                    accounts = await ethereumProvider.request({ 
+                        method: 'eth_requestAccounts' 
+                    });
+                } else if (ethereumProvider.enable) {
+                    // Legacy API (older providers)
+                    accounts = await ethereumProvider.enable();
+                } else if (ethereumProvider.sendAsync) {
+                    // Very old API
+                    accounts = await new Promise((resolve, reject) => {
+                        ethereumProvider.sendAsync({
+                            method: 'eth_requestAccounts'
+                        }, (err, response) => {
+                            if (err) reject(err);
+                            else resolve(response.result);
+                        });
+                    });
+                }
+                
+                const address = accounts[0];
+                
+                if (!address) {
+                    throw new Error('No account found. Please unlock MetaMask.');
+                }
+                
+                // Normalize address to lowercase for consistency
+                const normalizedAddress = address.toLowerCase();
+                
+                console.log('✅ MetaMask connected:', normalizedAddress);
+                console.log('📱 Device type:', isMobile ? 'Mobile' : 'Desktop');
+                
+                // Listen for account changes
+                if (ethereumProvider.on) {
+                    ethereumProvider.on('accountsChanged', (accounts) => {
+                        console.log('👤 Account changed:', accounts[0]);
+                        window.location.reload(); // Refresh on account change
+                    });
+                    
+                    ethereumProvider.on('chainChanged', (chainId) => {
+                        console.log('⛓️ Chain changed:', chainId);
+                        window.location.reload(); // Refresh on chain change
+                    });
+                }
+                
+                return { 
+                    success: true, 
+                    address: normalizedAddress, 
+                    type: 'metamask',
+                    isMobile: isMobile,
+                    provider: ethereumProvider
+                };
+                
+            } catch (error) {
+                console.error('MetaMask connection error:', error);
+                throw error;
+            }
+        }
+        
+        // Try Phantom (Solana) - after MetaMask attempt
         if (window.solana && window.solana.isPhantom) {
             console.log('👻 Phantom wallet detected');
             try {
                 const resp = await window.solana.connect();
                 const address = resp.publicKey.toBase58();
                 console.log('✅ Phantom connected:', address);
-                return { success: true, address, type: 'phantom' };
+                return { success: true, address, type: 'phantom', isMobile: isMobile };
             } catch (error) {
                 console.warn('Phantom connection failed:', error);
             }
         }
         
-        // Try MetaMask (Ethereum)
-        if (window.ethereum) {
-            console.log('🦊 MetaMask detected');
-            try {
-                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                const address = accounts[0];
-                console.log('✅ MetaMask connected:', address);
-                return { success: true, address, type: 'metamask' };
-            } catch (error) {
-                console.warn('MetaMask connection failed:', error);
-            }
+        // No wallet found - provide helpful error
+        let errorMsg = 'No compatible wallet found. ';
+        
+        if (isMobile) {
+            errorMsg += 'Please open this page in MetaMask mobile browser or install MetaMask app.';
+        } else {
+            errorMsg += 'Please install MetaMask or Phantom browser extension.';
         }
         
-        throw new Error('No compatible wallet found. Please install Phantom or MetaMask.');
+        throw new Error(errorMsg);
     }
 
     /**
@@ -276,15 +364,21 @@ class SecurityClearanceAuth {
             
             // STEP 1: Connect Wallet (Phantom or MetaMask)
             const walletConnection = await this.detectAndConnectWallet();
-            const walletAddress = walletConnection.address;
+            let walletAddress = walletConnection.address;
             const walletType = walletConnection.type;
             
-            console.log(`💼 Step 1/3: ${walletType} wallet connected: ${walletAddress}`);
+            // Normalize Ethereum addresses to lowercase for consistent comparison
+            if (walletType === 'metamask') {
+                walletAddress = walletAddress.toLowerCase();
+            }
             
-            // Check if System Architect - GRANT IMMEDIATE ACCESS
+            console.log(`💼 Step 1/3: ${walletType} wallet connected: ${walletAddress}`);
+            console.log(`📱 Mobile: ${walletConnection.isMobile || false}`);
+            
+            // Check if System Architect - GRANT IMMEDIATE ACCESS (case-insensitive)
             const isArchitect = 
-                walletAddress === this.SYSTEM_ARCHITECT.metamask ||
-                walletAddress === this.SYSTEM_ARCHITECT.metamask2 ||
+                walletAddress.toLowerCase() === this.SYSTEM_ARCHITECT.metamask.toLowerCase() ||
+                walletAddress.toLowerCase() === this.SYSTEM_ARCHITECT.metamask2.toLowerCase() ||
                 walletAddress === this.SYSTEM_ARCHITECT.phantom;
             
             if (isArchitect) {
