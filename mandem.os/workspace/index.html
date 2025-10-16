@@ -513,18 +513,20 @@
             // Check if agent system loaded properly
             const agentSystemLoaded = typeof window.agentSystem !== 'undefined';
             const agentDisplayLoaded = typeof window.agentDisplay !== 'undefined';
-            const agentTypesLoaded = typeof window.agentTypes !== 'undefined';
+            const baseAgentLoaded = typeof window.BaseAgent !== 'undefined';
+            const monitoringLoaded = typeof window.setupEnhancedErrorMonitoring !== 'undefined';
             const scriptsLoaded = document.querySelectorAll('script[src*="agent-"]').length > 0;
 
             console.log('🔍 Agent loading check:', {
                 agentSystem: agentSystemLoaded,
                 agentDisplay: agentDisplayLoaded,
-                agentTypes: agentTypesLoaded,
+                baseAgent: baseAgentLoaded,
+                monitoring: monitoringLoaded,
                 scriptCount: document.querySelectorAll('script[src*="agent-"]').length,
                 timestamp: new Date().toISOString()
             });
 
-            if (!agentSystemLoaded || !agentDisplayLoaded || !agentTypesLoaded || !scriptsLoaded) {
+            if (!agentSystemLoaded || !agentDisplayLoaded || !baseAgentLoaded || !monitoringLoaded || !scriptsLoaded) {
                 console.warn('⚠️ Agent system not fully loaded, showing hard refresh option');
                 document.getElementById('hardRefreshBtn').style.display = 'block';
             } else {
