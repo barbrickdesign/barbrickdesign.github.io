@@ -670,60 +670,46 @@
           satelliteMaterial = new THREE.MeshPhongMaterial({
             color: satelliteColor,
             emissive: 0x1a0033,
-            emissiveIntensity: 0.8,
+            emissiveIntensity: 0.8, // Increased emissive intensity
             shininess: 120,
-            specular: 0x00ff99 // subtle green specular for a futuristic look
+            specular: 0x00ff99
           });
-          // Load a futuristic glowing Tron/robot metal texture if available
-          // textureLoader.load('images/lab_tron_texture.jpg', function(texture) {
-          //   satelliteMaterial.map = texture;
-          //   satelliteMaterial.emissiveMap = texture;
-          //   satelliteMaterial.needsUpdate = true;
-          // });
         } else if (isForge) {
           satelliteColor = 0x991a00; // Deep forge orange-red
           satelliteMaterial = new THREE.MeshPhongMaterial({
             color: satelliteColor,
             emissive: 0xff6600,
-            emissiveIntensity: 0.7,
+            emissiveIntensity: 0.8, // Increased emissive intensity
             shininess: 100,
-            specular: 0x3399ff // blue specular for flame
+            specular: 0x3399ff
           });
-          // textureLoader.load('images/forge scene.jpg', function(texture) {
-          //   satelliteMaterial.map = texture;
-          //   satelliteMaterial.needsUpdate = true;
-          // });
         } else if (isExchange) {
           satelliteColor = 0xffd700; // Gold
           satelliteMaterial = new THREE.MeshPhongMaterial({
             color: satelliteColor,
             emissive: 0xc0c0c0,
-            emissiveIntensity: 0.5,
+            emissiveIntensity: 0.8, // Increased emissive intensity
             shininess: 120,
             specular: 0xffffff
           });
-          // textureLoader.load('images/image1 (6).jpeg', function(texture) {
-          //   satelliteMaterial.map = texture;
-          //   satelliteMaterial.needsUpdate = true;
-          // });
         } else {
-          satelliteMaterial = new THREE.MeshBasicMaterial({ 
-            color: env.color
+          satelliteMaterial = new THREE.MeshPhongMaterial({
+            color: env.color,
+            emissive: new THREE.Color(env.color).multiplyScalar(0.3), // Add emissive glow
+            emissiveIntensity: 0.6, // Add emissive intensity for all satellites
+            shininess: 100
           });
-          // if (env.textureUrl) {
-          //   textureLoader.load(env.textureUrl, function(texture) {
-          //     satelliteMaterial.map = texture;
-          //     satelliteMaterial.needsUpdate = true;
-          //   });
-          // }
         }
         const satelliteGeometry = new THREE.SphereGeometry(1, 16, 16);
         const satellite = new THREE.Mesh(satelliteGeometry, satelliteMaterial);
         
-        // Position in circular orbit
+        // Position in circular orbit - make spheres larger and more visible
         satellite.position.x = Math.cos(angle) * radius;
-        satellite.position.y = Math.sin(angle) * 2; // Slightly varied y positions
+        satellite.position.y = Math.sin(angle) * 1.5; // More varied y positions
         satellite.position.z = Math.sin(angle) * radius;
+
+        // Make satellites larger and more emissive for better visibility
+        satellite.scale.setScalar(1.5); // 50% larger
         
         // Store metadata
         satellite.userData = {
