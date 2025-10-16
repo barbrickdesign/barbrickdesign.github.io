@@ -268,11 +268,260 @@
             font-size: 0.9em;
         }
         
-        .ticker-value {
-            font-size: 1.2em;
-            font-weight: 700;
-            color: #00ff00;
-            text-shadow: 0 0 10px rgba(0,255,0,0.6);
+        /* Agent Monitoring System Styles */
+        .agent-status-card {
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .agent-header {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 20px;
+            gap: 15px;
+        }
+
+        .agent-title-section {
+            flex: 1;
+        }
+
+        .agent-subtitle {
+            font-size: 0.9em;
+            color: #8addff;
+            margin-top: 5px;
+            line-height: 1.4;
+        }
+
+        .agent-stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            text-align: center;
+            padding: 12px;
+            background: rgba(0, 255, 255, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(0, 255, 255, 0.3);
+        }
+
+        .stat-label {
+            font-size: 0.8em;
+            color: #8addff;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .stat-value {
+            font-size: 1.4em;
+            font-weight: bold;
+        }
+
+        .health-value.healthy { color: #00ff00; }
+        .health-value.degraded { color: #ffaa00; }
+        .health-value.critical { color: #ff4444; }
+
+        .tests-value { color: #00ffff; }
+        .errors-value { color: #ff4444; }
+        .fixes-value { color: #00ff00; }
+
+        .agent-details-btn {
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.2), rgba(0, 255, 255, 0.1));
+            border: 2px solid rgba(0, 255, 255, 0.5);
+            color: #00ffff;
+            padding: 12px 20px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.9em;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            width: 100%;
+        }
+
+        .agent-details-btn:hover {
+            background: linear-gradient(135deg, rgba(0, 255, 255, 0.3), rgba(0, 255, 255, 0.2));
+            border-color: rgba(0, 255, 255, 0.8);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 255, 255, 0.3);
+        }
+
+        .mini-agent-indicators {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .mini-indicator {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .indicator-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #ff6b6b;
+            transition: all 0.3s ease;
+        }
+
+        .indicator-dot.active {
+            background: #00ff00;
+            animation: pulse 2s infinite;
+        }
+
+        .indicator-label {
+            font-size: 0.7em;
+            color: #8addff;
+            font-weight: bold;
+        }
+
+        .activity-header, .errors-header {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .activity-title, .errors-title {
+            flex: 1;
+        }
+
+        .activity-subtitle, .errors-subtitle {
+            font-size: 0.9em;
+            color: #8addff;
+            margin-top: 5px;
+            line-height: 1.4;
+        }
+
+        .activity-content, .errors-content {
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(0, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 12px;
+        }
+
+        /* Activity log styling */
+        .activity-content .log-entry {
+            display: flex;
+            align-items: flex-start;
+            gap: 8px;
+            margin-bottom: 6px;
+            padding: 6px 0;
+            border-bottom: 1px solid rgba(0, 255, 255, 0.1);
+        }
+
+        .activity-content .log-entry:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .log-timestamp {
+            font-size: 0.8em;
+            color: #8addff;
+            min-width: 60px;
+        }
+
+        .log-icon {
+            font-size: 0.9em;
+            margin-right: 4px;
+        }
+
+        .log-icon.success { color: #00ff00; }
+        .log-icon.error { color: #ff4444; }
+        .log-icon.warning { color: #ffaa00; }
+        .log-icon.info { color: #00ffff; }
+
+        .log-message {
+            flex: 1;
+            font-size: 0.85em;
+            color: #ffffff;
+            line-height: 1.3;
+        }
+
+        /* Error styling */
+        .errors-content .error-item {
+            background: rgba(255, 68, 68, 0.1);
+            border: 1px solid rgba(255, 68, 68, 0.3);
+            border-radius: 6px;
+            padding: 8px;
+            margin-bottom: 8px;
+        }
+
+        .errors-content .error-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .error-component {
+            font-size: 0.9em;
+            font-weight: bold;
+            color: #ff6b6b;
+            margin-bottom: 4px;
+        }
+
+        .error-message {
+            font-size: 0.8em;
+            color: #ffffff;
+            margin-bottom: 4px;
+            line-height: 1.3;
+        }
+
+        .error-timestamp {
+            font-size: 0.7em;
+            color: #8addff;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            .agent-stats-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .mini-agent-indicators {
+                position: static;
+                margin-top: 15px;
+                justify-content: center;
+            }
+
+            .agent-details-btn {
+                padding: 10px 16px;
+                font-size: 0.85em;
+            }
+        }
+
+        /* Pulse animation for active indicators */
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.7; transform: scale(1.1); }
+        }
+
+        /* Health status animations */
+        .health-value {
+            transition: all 0.3s ease;
+        }
+
+        .health-value.updated {
+            animation: healthUpdate 0.5s ease;
+        }
+
+        @keyframes healthUpdate {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+            100% { transform: scale(1); }
         }
     </style>
 </head>
