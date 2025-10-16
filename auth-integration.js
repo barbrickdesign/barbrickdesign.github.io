@@ -8,6 +8,7 @@ class AuthIntegration {
     constructor() {
         this.auth = window.universalWalletAuth;
         this.initialized = false;
+        this.initPromise = null;
     }
 
     /**
@@ -15,41 +16,49 @@ class AuthIntegration {
      * Automatically restores session if valid
      */
     async init(options = {}) {
-        if (this.initialized) return;
-
-        const {
-            requireAuth = false,      // Redirect if not authenticated?
-            loginPage = 'index.html',  // Where to redirect for login
-            onAuthSuccess = null,      // Callback on successful auth
-            onAuthFail = null,         // Callback on auth failure
-            showUI = true              // Show default connect button?
-        } = options;
-
-        // Wait for auth system to load
-        await this.waitForAuth();
-
-        // Check if already authenticated
-        if (this.auth.isAuthenticated()) {
-            console.log('✅ User already authenticated');
-            
-            if (onAuthSuccess) {
-                onAuthSuccess(this.auth.getAuthInfo());
-            }
-
-            if (showUI) {
-                this.showAuthenticatedUI();
-            }
-        } else if (requireAuth) {
-            console.log('⚠️ Authentication required, redirecting...');
-            window.location.href = loginPage;
-        } else if (showUI) {
-            this.showConnectButton();
+        if (this.initPromise) {
+            return this.initPromise;
         }
 
-        // Listen for auth events
-        this.setupEventListeners(onAuthSuccess, onAuthFail);
+        this.initPromise = (async () => {
+            if (this.initialized) return;
 
-        this.initialized = true;
+            const {
+                requireAuth = false,      // Redirect if not authenticated?
+                loginPage = 'index.html',  // Where to redirect for login
+                onAuthSuccess = null,      // Callback on successful auth
+                onAuthFail = null,         // Callback on auth failure
+                showUI = true              // Show default connect button?
+            } = options;
+
+            // Wait for auth system to load
+            await this.waitForAuth();
+
+            // Check if already authenticated
+            if (this.auth.isAuthenticated()) {
+                console.log('✅ User already authenticated');
+                
+                if (onAuthSuccess) {
+                    onAuthSuccess(this.auth.getAuthInfo());
+                }
+
+                if (showUI) {
+                    this.showAuthenticatedUI();
+                }
+            } else if (requireAuth) {
+                console.log('⚠️ Authentication required, redirecting...');
+                window.location.href = loginPage;
+            } else if (showUI) {
+                this.showConnectButton();
+            }
+
+            // Listen for auth events
+            this.setupEventListeners(onAuthSuccess, onAuthFail);
+
+            this.initialized = true;
+        })();
+
+        return this.initPromise;
     }
 
     /**
