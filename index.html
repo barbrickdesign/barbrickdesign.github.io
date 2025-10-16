@@ -1012,24 +1012,22 @@
             if (statusIcon && statusTitle && statusDesc) {
                 const healthIcon = stats.healthStatus === 'healthy' ? '✅' :
                                  stats.healthStatus === 'degraded' ? '⚠️' : '❌';
-                const healthColor = stats.healthStatus === 'healthy' ? '#00ff00' :
-                                   stats.healthStatus === 'degraded' ? '#ffaa00' : '#ff4444';
+                const healthColor = stats.healthStatus === 'healthy' ? 'healthy' :
+                                   stats.healthStatus === 'degraded' ? 'degraded' : 'critical';
 
                 statusIcon.textContent = healthIcon;
                 statusTitle.textContent = `Agent System: ${stats.healthStatus.toUpperCase()}`;
                 statusDesc.textContent = `${stats.activeAgents}/${stats.totalAgents} agents active, ${stats.testsRun} tests run`;
 
-                // Update stats
-                const healthEl = document.getElementById('agent-health');
-                const testsEl = document.getElementById('agent-tests');
-                const errorsEl = document.getElementById('agent-errors');
-                const fixesEl = document.getElementById('agent-fixes');
-
-                if (healthEl) healthEl.innerHTML = `Health: <span style="color: ${healthColor};">${stats.healthStatus.toUpperCase()}</span>`;
-                if (testsEl) testsEl.innerHTML = `Tests Run: <span style="color: #00ffff;">${stats.testsRun}</span>`;
-                if (errorsEl) errorsEl.innerHTML = `Open Errors: <span style="color: #ff4444;">${stats.openErrors}</span>`;
-                if (fixesEl) fixesEl.innerHTML = `Fixes Applied: <span style="color: #00ff00;">${stats.totalFixes}</span>`;
+                // Update stats with animation
+                updateStatValue('agent-health', stats.healthStatus.toUpperCase(), healthColor);
+                updateStatValue('agent-tests', stats.testsRun.toString(), 'tests');
+                updateStatValue('agent-errors', stats.openErrors.toString(), 'errors');
+                updateStatValue('agent-fixes', stats.totalFixes.toString(), 'fixes');
             }
+
+            // Update mini agent indicators
+            updateMiniIndicators(stats);
 
             // Update logs
             updateAgentLogs();
@@ -1038,29 +1036,70 @@
             updateAgentErrors();
         }
 
+        function updateStatValue(elementId, value, type) {
+            const element = document.getElementById(elementId);
+            if (!element) return;
+
+            // Add animation class
+            element.classList.add('updated');
+
+            // Update value and class
+            element.textContent = value;
+            element.className = `stat-value ${type}-value`;
+
+            // Remove animation class after animation completes
+            setTimeout(() => {
+                element.classList.remove('updated');
+            }, 500);
+        }
+
+        function updateMiniIndicators(stats) {
+            if (!stats.agentStats) return;
+
+            const agentTypes = {
+                'function-tester': 'func-dot',
+                'button-tester': 'btn-dot',
+                'navigation-tester': 'nav-dot',
+                'performance-monitor': 'perf-dot',
+                'security-monitor': 'sec-dot',
+                'error-recovery': 'err-dot'
+            };
+
+            Object.entries(agentTypes).forEach(([agentId, dotId]) => {
+                const dot = document.getElementById(dotId);
+                const agentStats = stats.agentStats[agentId];
+
+                if (dot && agentStats) {
+                    // Update dot color based on activity
+                    const isActive = agentStats.uptime > 0;
+                    dot.className = `indicator-dot ${isActive ? 'active' : ''}`;
+                }
+            });
+        }
+
         // Update agent logs display
         function updateAgentLogs() {
             if (!window.agentSystem || !window.agentSystem.logs) return;
 
             const logsContainer = document.getElementById('agent-logs');
-            const loadingEl = document.getElementById('logs-loading');
-
             if (!logsContainer) return;
 
             const recentLogs = window.agentSystem.logs.slice(-8);
 
             if (recentLogs.length === 0) {
-                logsContainer.innerHTML = '<div style="color: #8addff; font-size: 11px;">No recent logs</div>';
+                logsContainer.innerHTML = '<div style="color: #8addff; font-size: 11px; text-align: center; padding: 20px;">No recent activity</div>';
                 return;
             }
 
             const logsHtml = recentLogs.map(log => {
                 const time = new Date(log.timestamp).toLocaleTimeString();
+                const iconClass = log.level === 'error' ? 'error' : 'success';
                 const icon = log.level === 'error' ? '❌' : '✅';
-                return `<div style="margin-bottom: 2px; padding: 2px 0; display: flex; align-items: flex-start;">
-                    <span style="margin-right: 4px;">${icon}</span>
-                    <span style="color: #8addff; font-size: 10px; margin-right: 6px;">${time}</span>
-                    <span style="color: #ffffff; font-size: 10px; flex: 1;">${log.message}</span>
+
+                return `<div class="log-entry">
+                    <div class="log-timestamp">${time}</div>
+                    <div class="log-icon ${iconClass}">${icon}</div>
+                    <div class="log-message">${log.message}</div>
                 </div>`;
             }).join('');
 
@@ -1072,29 +1111,24 @@
             if (!window.agentSystem || !window.agentSystem.errors) return;
 
             const errorsContainer = document.getElementById('agent-errors-list');
-            const loadingEl = document.getElementById('errors-loading');
-
             if (!errorsContainer) return;
 
             const openErrors = window.agentSystem.errors.filter(e => e.status === 'open');
 
             if (openErrors.length === 0) {
-                errorsContainer.innerHTML = '<div style="color: #00ff00; font-size: 11px;">✅ No errors detected</div>';
+                errorsContainer.innerHTML = '<div style="color: #00ff00; font-size: 11px; text-align: center; padding: 20px;">✅ No errors detected</div>';
                 return;
             }
 
             const errorsHtml = openErrors.slice(-5).map(error => {
                 const time = new Date(error.timestamp).toLocaleTimeString();
-                return `<div style="margin-bottom: 4px; padding: 4px; background: rgba(255,0,0,0.1); border-radius: 3px; border-left: 3px solid #ff4444;">
-                    <div style="font-size: 10px; color: #ff6b6b; font-weight: bold;">${error.component}</div>
-                    <div style="font-size: 9px; color: #ffffff; margin-top: 2px;">${error.message}</div>
-                    <div style="font-size: 8px; color: #8addff; margin-top: 1px;">${time}</div>
+                return `<div class="error-item">
+                    <div class="error-component">${error.component}</div>
+                    <div class="error-message">${error.message}</div>
+                    <div class="error-timestamp">${time}</div>
                 </div>`;
             }).join('');
 
-            errorsContainer.innerHTML = errorsHtml;
-        }
-        
         // Load portfolio data and display ticker
         async function loadPortfolioTicker() {
             try {
