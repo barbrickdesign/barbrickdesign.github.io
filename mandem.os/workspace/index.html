@@ -449,14 +449,19 @@
       }
     });
 
-    // Initialize 3D Globe when document is ready
-    // Removed duplicate call - initGlobe() is called inside DOMContentLoaded below
+    // Initialize 3D Globe immediately when page loads
+    // This ensures the 3D scene renders before welcome overlay logic
+    window.addEventListener('load', function() {
+        console.log('🚀 Initializing Gem Bot Universe 3D Scene...');
+        initGlobe();
+    });
 
-    setInterval(updateMgcBalanceDisplay, 1000);
-    updateMgcBalanceDisplay();
-
-    // Globe and environment configuration
+    // Also initialize on DOMContentLoaded as backup
     document.addEventListener('DOMContentLoaded', function() {
+        console.log('📄 DOM ready, ensuring 3D scene...');
+        if (!window.globeInitialized) {
+            initGlobe();
+        }
       // Hide welcome overlay function
       function hideWelcomeOverlay() {
         const welcomeOverlay = document.querySelector('.welcome-overlay');
