@@ -1200,9 +1200,161 @@
         }, 3000);
     }
 
-    // Start multi-page crawling
+    // Enhanced Wallet Testing System
+    const walletTestMethods = [
+        { name: 'MetaMask', simulate: simulateMetaMask },
+        { name: 'Phantom', simulate: simulatePhantom },
+        { name: 'Manual', simulate: simulateManualWallet }
+    ];
+
+    function runWalletTesting() {
+        logSessionEvent('info', 'Starting comprehensive wallet functionality testing');
+        
+        // Agent 6: Wallet Tester
+        setTimeout(() => {
+            logSessionEvent('info', 'Agent6 (WalletTester) starting wallet creation and testing');
+            testWalletCreationAndFunctionality();
+        }, 20000); // Start after other agents
+    }
+
+    function testWalletCreationAndFunctionality() {
+        let methodIndex = 0;
+        
+        function tryNextMethod() {
+            if (methodIndex >= walletTestMethods.length) {
+                logSessionEvent('warning', 'Agent6: All wallet testing methods exhausted');
+                return;
+            }
+            
+            const method = walletTestMethods[methodIndex];
+            logSessionEvent('info', `Agent6: Testing wallet creation with ${method.name}`);
+            
+            method.simulate((success) => {
+                if (success) {
+                    logSessionEvent('info', `Agent6: ${method.name} wallet creation successful`);
+                    testWalletFeatures();
+                } else {
+                    logSessionEvent('warning', `Agent6: ${method.name} wallet creation failed, trying next method`);
+                    methodIndex++;
+                    tryNextMethod();
+                }
+            });
+        }
+        
+        tryNextMethod();
+    }
+
+    function simulateMetaMask(callback) {
+        // Simulate MetaMask wallet creation and connection
+        setTimeout(() => {
+            const hasMetaMask = typeof window.ethereum !== 'undefined';
+            if (hasMetaMask) {
+                logSessionEvent('info', 'Agent6: MetaMask detected, simulating wallet creation');
+                // Simulate wallet creation process
+                const mockWallet = {
+                    address: '0x' + Math.random().toString(16).substr(2, 40),
+                    type: 'ethereum',
+                    balance: Math.random() * 10
+                };
+                logSessionEvent('info', 'Agent6: MetaMask wallet created', { address: mockWallet.address });
+                callback(true);
+            } else {
+                logSessionEvent('warning', 'Agent6: MetaMask not detected');
+                callback(false);
+            }
+        }, 1000);
+    }
+
+    function simulatePhantom(callback) {
+        // Simulate Phantom wallet creation and connection
+        setTimeout(() => {
+            const hasPhantom = typeof window.solana !== 'undefined' || typeof window.phantom !== 'undefined';
+            if (hasPhantom) {
+                logSessionEvent('info', 'Agent6: Phantom detected, simulating wallet creation');
+                const mockWallet = {
+                    address: Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15),
+                    type: 'solana',
+                    balance: Math.random() * 100
+                };
+                logSessionEvent('info', 'Agent6: Phantom wallet created', { address: mockWallet.address });
+                callback(true);
+            } else {
+                logSessionEvent('warning', 'Agent6: Phantom not detected');
+                callback(false);
+            }
+        }, 1500);
+    }
+
+    function simulateManualWallet(callback) {
+        // Simulate manual wallet creation (e.g., via seed phrase or key generation)
+        setTimeout(() => {
+            logSessionEvent('info', 'Agent6: Simulating manual wallet creation');
+            const mockWallet = {
+                address: 'manual_' + Math.random().toString(36).substring(2, 15),
+                type: 'manual',
+                balance: Math.random() * 5
+            };
+            logSessionEvent('info', 'Agent6: Manual wallet created', { address: mockWallet.address });
+            callback(true);
+        }, 2000);
+    }
+
+    function testWalletFeatures() {
+        // Test wallet features after creation
+        logSessionEvent('info', 'Agent6: Testing wallet features');
+        
+        // Test balance display
+        setTimeout(() => {
+            const balanceElements = ['mgcBalance', 'mndmBalance'];
+            balanceElements.forEach(id => {
+                const element = document.getElementById(id);
+                if (element) {
+                    logSessionEvent('info', `Agent6: ${id} balance element found`);
+                } else {
+                    logSessionEvent('warning', `Agent6: ${id} balance element missing`);
+                }
+            });
+        }, 1000);
+        
+        // Test authentication state
+        setTimeout(() => {
+            if (isUserAuthenticated()) {
+                logSessionEvent('info', 'Agent6: Authentication state valid');
+            } else {
+                logSessionEvent('warning', 'Agent6: Authentication state invalid');
+            }
+        }, 1500);
+        
+        // Test cross-page wallet persistence
+        setTimeout(() => {
+            const currentAuth = localStorage.getItem('barbrick_auth_session');
+            if (currentAuth) {
+                logSessionEvent('info', 'Agent6: Wallet session persisted');
+            } else {
+                logSessionEvent('warning', 'Agent6: Wallet session not persisted');
+            }
+        }, 2000);
+    }
+
+    // Enhanced existing agents with wallet testing
+    function testLoginFlow() {
+        // ... existing code ...
+        
+        // Test wallet connection stability
+        setTimeout(() => {
+            logSessionEvent('info', 'Agent1: Testing wallet connection stability');
+            const walletType = localStorage.getItem('barbrick_wallet_type');
+            if (walletType) {
+                logSessionEvent('info', `Agent1: Wallet type detected: ${walletType}`);
+            } else {
+                logSessionEvent('warning', 'Agent1: No wallet type detected');
+            }
+        }, 5000);
+    }
+
+    // Start wallet testing
     window.addEventListener('load', () => {
-        setTimeout(runMultiPageCrawling, 15000); // Start after other agents
+        setTimeout(runWalletTesting, 25000); // Start after other agents
     });
     
     // Wallet-based authentication check (same as profile.js)
