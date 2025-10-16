@@ -16,7 +16,6 @@ const CACHE_URLS = [
     '/src/utils/shared-wallet-system.js',
     '/src/ui/wallet-button.js',
     '/src/ui/wallet-button.css',
-    '/mandem.os/workspace/index.html',
     'https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iife.min.js',
     'https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js',
     'https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js'
