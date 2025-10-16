@@ -25,6 +25,13 @@ class SharedWalletSystem {
     async init() {
         console.log('🔐 Shared Wallet System initializing...');
 
+        // Edge-specific: Wait a bit longer for extensions to load
+        const isEdge = /Edg/.test(navigator.userAgent);
+        if (isEdge) {
+            console.log('🌐 Microsoft Edge detected - waiting for wallet extensions...');
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+
         // Detect available wallets
         await this.detectWallets();
 
@@ -122,6 +129,12 @@ class SharedWalletSystem {
                 return this.getConnectionInfo();
             }
 
+            // Edge-specific: Additional logging
+            const isEdge = /Edg/.test(navigator.userAgent);
+            if (isEdge) {
+                console.log('🌐 Connecting wallet in Microsoft Edge...');
+            }
+
             let wallet;
             if (walletType) {
                 wallet = this.detectedWallets.find(w => w.type === walletType);
@@ -133,7 +146,10 @@ class SharedWalletSystem {
             }
 
             if (!wallet) {
-                throw new Error('No compatible wallet found. Please install MetaMask, Phantom, or another Web3 wallet.');
+                const errorMsg = isEdge
+                    ? 'No compatible wallet found. For Edge, please install MetaMask or another Web3 wallet.'
+                    : 'No compatible wallet found. Please install MetaMask, Phantom, or another Web3 wallet.';
+                throw new Error(errorMsg);
             }
 
             console.log(`🔌 Connecting to ${wallet.name}...`);
@@ -164,6 +180,13 @@ class SharedWalletSystem {
 
         } catch (error) {
             console.error('❌ Wallet connection failed:', error);
+
+            // Edge-specific error messages
+            const isEdge = /Edg/.test(navigator.userAgent);
+            if (isEdge && error.message?.includes('No compatible wallet')) {
+                error.message += ' Edge users may need to refresh the page after installing a wallet extension.';
+            }
+
             this.clearSession();
             throw error;
         }
