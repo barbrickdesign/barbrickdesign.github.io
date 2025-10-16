@@ -815,26 +815,30 @@
                             lastHoveredSatellite.material.emissive.setHex(lastHoveredSatellite.userData.originalEmissive);
                         }
                         lastHoveredSatellite = null;
+                        isHovering = false;
                     }
 
-                    // Reset all satellites to original state first
-                    satellites.forEach(sat => {
-                        if (sat.material && sat.material.emissive) {
-                            sat.material.emissive.setHex(sat.userData.originalEmissive);
-                        }
-                    });
+                    // Reset all satellites to original state first (only if not hovering)
+                    if (!isHovering) {
+                        satellites.forEach(sat => {
+                            if (sat.material && sat.material.emissive) {
+                                sat.material.emissive.setHex(sat.userData.originalEmissive);
+                            }
+                        });
+                    }
 
                     // Highlight currently hovered satellite
                     if (intersects.length > 0) {
                         const sat = intersects[0].object;
                         if (sat.material && sat.material.emissive) {
-                            sat.material.emissive.setHex(0x444444); // Subtle gray highlight instead of white
+                            sat.material.emissive.setHex(0x444444); // Subtle gray highlight
                         }
                         container.style.cursor = 'pointer';
                         lastHoveredSatellite = sat;
+                        isHovering = true;
                     } else {
                         container.style.cursor = 'default';
-                        lastHoveredSatellite = null;
+                        isHovering = false;
                     }
                 }, 16); // ~60fps debounce
             });
