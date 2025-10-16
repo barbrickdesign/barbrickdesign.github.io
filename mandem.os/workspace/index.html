@@ -629,8 +629,9 @@
       const earth = new THREE.Mesh(earthGeometry, earthMaterial);
       scene.add(earth);
       
-      // Position camera
-      camera.position.z = 15;
+      // Position camera for optimal viewing of orbiting spheres
+      camera.position.z = 18; // Moved back slightly to see full orbits
+      camera.position.y = 2; // Slight upward angle for better perspective
       
       // Add orbit controls
       const controls = new THREE.OrbitControls(camera, renderer.domElement);
