@@ -46,16 +46,17 @@ class WalletButton {
      * Render the button (Pump.fun style - clean and simple)
      */
     render() {
-        // Check shared wallet system first, fallback to universal auth
+        // PRIORITY 1: Check shared wallet system first
         let wallet = null;
         if (window.sharedWalletSystem && window.sharedWalletSystem.connected) {
             wallet = {
                 address: window.sharedWalletSystem.address,
-                shortAddress: window.sharedWalletSystem.address ?
-                    window.sharedWalletSystem.address.slice(0, 6) + '...' + window.sharedWalletSystem.address.slice(-4) : 'Unknown',
+                shortAddress: window.sharedWalletSystem.getShortAddress(),
                 authenticated: true
             };
-        } else if (window.universalWalletAuth) {
+        }
+        // PRIORITY 2: Fallback to universal auth
+        else if (window.universalWalletAuth) {
             wallet = window.universalWalletAuth.getAuthInfo();
         }
 
@@ -178,17 +179,17 @@ class WalletButton {
      */
     async disconnect() {
         try {
-            // Try shared wallet system first
+            // PRIORITY 1: Try shared wallet system first
             if (window.sharedWalletSystem) {
                 await window.sharedWalletSystem.disconnect();
             }
-            // Fallback to global disconnectWallet function
-            else if (window.disconnectWallet) {
-                await window.disconnectWallet();
-            }
-            // Last resort: universal wallet auth
+            // PRIORITY 2: Try universal auth
             else if (window.universalWalletAuth) {
                 await window.universalWalletAuth.disconnect();
+            }
+            // PRIORITY 3: Try global disconnectWallet function
+            else if (window.disconnectWallet) {
+                await window.disconnectWallet();
             }
 
             this.render();
@@ -212,13 +213,15 @@ class WalletButton {
      * Copy wallet address to clipboard
      */
     async copyAddress() {
-        // Get wallet info from shared system first, fallback to universal auth
+        // PRIORITY 1: Get from shared wallet system first
         let wallet = null;
         if (window.sharedWalletSystem && window.sharedWalletSystem.connected) {
             wallet = {
                 address: window.sharedWalletSystem.address
             };
-        } else if (window.universalWalletAuth) {
+        }
+        // PRIORITY 2: Fallback to universal auth
+        else if (window.universalWalletAuth) {
             wallet = window.universalWalletAuth.getAuthInfo();
         }
 
