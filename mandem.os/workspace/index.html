@@ -713,32 +713,51 @@
             const raycaster = new THREE.Raycaster();
             const mouse = new THREE.Vector2();
 
-            // Hover effect
+            // Hover effect with debouncing
+            let hoverTimeout;
+            let lastHoveredSatellite = null;
+
             container.addEventListener('mousemove', function(event) {
-                const rect = container.getBoundingClientRect();
-                mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-                mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
+                // Clear previous timeout
+                if (hoverTimeout) clearTimeout(hoverTimeout);
 
-                raycaster.setFromCamera(mouse, camera);
-                const intersects = raycaster.intersectObjects(satellites);
+                // Debounce mouse movements
+                hoverTimeout = setTimeout(() => {
+                    const rect = container.getBoundingClientRect();
+                    mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+                    mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
 
-                // Reset all satellites
-                satellites.forEach(sat => {
-                    if (sat.material && sat.material.emissive) {
-                        sat.material.emissive.setHex(sat.userData.originalColor || sat.userData.color);
+                    raycaster.setFromCamera(mouse, camera);
+                    const intersects = raycaster.intersectObjects(satellites);
+
+                    // Reset previously hovered satellite
+                    if (lastHoveredSatellite && lastHoveredSatellite !== (intersects[0]?.object)) {
+                        if (lastHoveredSatellite.material && lastHoveredSatellite.material.emissive) {
+                            lastHoveredSatellite.material.emissive.setHex(lastHoveredSatellite.userData.originalEmissive);
+                        }
+                        lastHoveredSatellite = null;
                     }
-                });
 
-                // Highlight hovered satellite
-                if (intersects.length > 0) {
-                    const sat = intersects[0].object;
-                    if (sat.material && sat.material.emissive) {
-                        sat.material.emissive.setHex(0xffffff); // White highlight
+                    // Reset all satellites to original state first
+                    satellites.forEach(sat => {
+                        if (sat.material && sat.material.emissive) {
+                            sat.material.emissive.setHex(sat.userData.originalEmissive);
+                        }
+                    });
+
+                    // Highlight currently hovered satellite
+                    if (intersects.length > 0) {
+                        const sat = intersects[0].object;
+                        if (sat.material && sat.material.emissive) {
+                            sat.material.emissive.setHex(0x444444); // Subtle gray highlight instead of white
+                        }
+                        container.style.cursor = 'pointer';
+                        lastHoveredSatellite = sat;
+                    } else {
+                        container.style.cursor = 'default';
+                        lastHoveredSatellite = null;
                     }
-                    container.style.cursor = 'pointer';
-                } else {
-                    container.style.cursor = 'default';
-                }
+                }, 16); // ~60fps debounce
             });
 
             // Add touch controls for mobile
@@ -831,7 +850,7 @@
                         const label = labels[index];
                         label.position.x = Math.cos(angle + index) * (radius + 1.5);
                         label.position.z = Math.sin(angle + index) * (radius + 1.5);
-                        label.position.y = Math.sin(angle + index) * 2 + 1.8; // Match lowered position
+                        label.position.y = Math.sin(angle + index) * 2 + 1.8;
 
                         // Make labels face the camera
                         label.lookAt(camera.position);
