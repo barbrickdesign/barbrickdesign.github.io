@@ -24,7 +24,13 @@ class WalletAdapter {
         // Try auto-reconnect if previously connected
         const shouldReconnect = localStorage.getItem('walletAutoConnect') === 'true';
         if (shouldReconnect) {
-            await this.connect(true); // Silent reconnect
+            try {
+                await this.connect(true); // Silent reconnect
+            } catch (error) {
+                console.log('Silent reconnect failed (user may need to manually connect):', error.message);
+                // Clear auto-connect flag if it fails
+                localStorage.removeItem('walletAutoConnect');
+            }
         }
         
         // Setup listeners
@@ -75,14 +81,16 @@ class WalletAdapter {
         this.connecting = true;
         
         try {
-            // Try Phantom/Solana first (most common on Pump.fun)
-            if (window.solana || window.phantom) {
-                return await this.connectSolana(silent);
+            // Prioritize MetaMask for stability (Phantom has issues on some browsers)
+            if (window.ethereum) {
+                console.log('🦊 Trying MetaMask first...');
+                return await this.connectEthereum(silent);
             }
             
-            // Fallback to Ethereum
-            if (window.ethereum) {
-                return await this.connectEthereum(silent);
+            // Fallback to Phantom/Solana
+            if (window.solana || window.phantom) {
+                console.log('👻 Trying Phantom...');
+                return await this.connectSolana(silent);
             }
             
             // No wallet found
@@ -101,8 +109,9 @@ class WalletAdapter {
                     this.showMessage('Connection cancelled', 'warning');
                 }
             } else {
+                // Show error message
                 if (!silent) {
-                    this.showMessage('Connection failed: ' + error.message, 'error');
+                    this.showMessage(error.message || 'Connection failed', 'error');
                 }
             }
             
@@ -139,26 +148,66 @@ class WalletAdapter {
             return this.getWalletInfo();
         }
         
-        // Request connection
-        const response = await provider.connect({ onlyIfTrusted: silent });
-        
-        this.wallet = provider;
-        this.publicKey = response.publicKey.toString();
-        this.connected = true;
-        
-        // Save state
-        localStorage.setItem('walletAutoConnect', 'true');
-        localStorage.setItem('walletType', 'solana');
-        localStorage.setItem('walletAddress', this.publicKey);
-        
-        console.log('✅ Solana wallet connected:', this.publicKey);
-        
-        if (!silent) {
-            this.showMessage('Wallet connected!', 'success');
+        // For silent mode, only connect if trusted/previously authorized
+        if (silent) {
+            try {
+                const response = await provider.connect({ onlyIfTrusted: true });
+                
+                this.wallet = provider;
+                this.publicKey = response.publicKey.toString();
+                this.connected = true;
+                
+                localStorage.setItem('walletAutoConnect', 'true');
+                localStorage.setItem('walletType', 'solana');
+                localStorage.setItem('walletAddress', this.publicKey);
+                
+                console.log('✅ Solana wallet silently reconnected:', this.publicKey);
+                this.notifyConnected();
+                return this.getWalletInfo();
+            } catch (error) {
+                // Silent connection failed, user needs to manually connect
+                console.log('Silent connection not available, requires user interaction');
+                throw error;
+            }
         }
         
-        this.notifyConnected();
-        return this.getWalletInfo();
+        // Request connection with user prompt
+        try {
+            const response = await provider.connect();
+            
+            this.wallet = provider;
+            this.publicKey = response.publicKey.toString();
+            this.connected = true;
+            
+            // Save state
+            localStorage.setItem('walletAutoConnect', 'true');
+            localStorage.setItem('walletType', 'solana');
+            localStorage.setItem('walletAddress', this.publicKey);
+            
+            console.log('✅ Solana wallet connected:', this.publicKey);
+            
+            if (!silent) {
+                this.showMessage('Wallet connected!', 'success');
+            }
+            
+            this.notifyConnected();
+            return this.getWalletInfo();
+        } catch (error) {
+            console.error('Phantom connection error:', error);
+            
+            // Provide helpful error message
+            let errorMsg = 'Failed to connect to Phantom wallet. ';
+            
+            if (error.message?.includes('Unexpected')) {
+                errorMsg += 'Please try: 1) Unlock your Phantom wallet, 2) Refresh the page, 3) Or use MetaMask instead.';
+            } else if (error.code === 4001) {
+                errorMsg = 'Connection request rejected. Please approve the connection in Phantom.';
+            } else {
+                errorMsg += error.message || 'Unknown error';
+            }
+            
+            throw new Error(errorMsg);
+        }
     }
 
     /**
