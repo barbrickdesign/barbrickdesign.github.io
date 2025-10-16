@@ -1067,7 +1067,7 @@
         }
       });
       
-      // Click event for navigation (FIXED: use event coordinates, not last mousemove)
+      // Click event for navigation (FIXED: Allow navigation to public pages)
       function handleGlobeClick(event) {
         const rect = renderer.domElement.getBoundingClientRect();
         let x, y;
@@ -1084,10 +1084,21 @@
         const intersects = raycaster.intersectObjects(satellites);
         if (intersects.length > 0) {
           const sat = intersects[0].object;
-          if (isUserLoggedIn()) {
-            window.location.href = sat.userData.url;
+          const targetUrl = sat.userData.url;
+
+          // Define public pages that don't require login
+          const publicPages = [
+            'laboratory.html',
+            'warehouse.html',
+            'outdoor.html',
+            'grand_exchange.html'
+          ];
+
+          if (publicPages.includes(targetUrl) || isUserLoggedIn()) {
+            window.location.href = targetUrl;
           } else {
-            window.location.href = 'login.html';
+            // Show login modal instead of redirecting
+            showLoginModal();
           }
         }
       }
