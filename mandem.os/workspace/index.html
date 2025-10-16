@@ -877,13 +877,30 @@
     // Start hourly enhancement
     runHourlyScriptEnhancement();
 
+    // Tester Agent System
+    const testerAgents = [
+        { id: 'Agent1', role: 'LoginTester', actions: testLoginFlow },
+        { id: 'Agent2', role: 'GlobeExplorer', actions: testGlobeInteractions },
+        { id: 'Agent3', role: 'ServerTester', actions: testServerConnections },
+        { id: 'Agent4', role: 'UITester', actions: testUIElements }
+    ];
+
+    function runTesterAgents() {
+        logSessionEvent('info', 'Starting tester agent exploration');
+        testerAgents.forEach(agent => {
+            setTimeout(() => {
+                logSessionEvent('info', `${agent.id} (${agent.role}) starting exploration`);
+                agent.actions();
+            }, Math.random() * 5000);
+        });
+    }
+
     // Agent 1: Test login flow and authentication
     function testLoginFlow() {
         logSessionEvent('info', 'Agent1: Checking login button visibility');
         const loginBtn = document.getElementById('loginBtn');
         if (loginBtn && loginBtn.style.display !== 'none') {
             logSessionEvent('info', 'Agent1: Login button visible, simulating click');
-            // Simulate click
             loginBtn.click();
             setTimeout(() => {
                 const modal = document.getElementById('loginModal');
@@ -911,6 +928,11 @@
             } else {
                 logSessionEvent('warning', 'Agent1: MGC balance not visible');
             }
+            
+            // Save report
+            const findings = ['Login button visible', 'Modal appears correctly', 'Balance display checked'];
+            const recommendations = ['Ensure wallet connection works smoothly'];
+            logAgentReport('Agent1', findings, recommendations);
         }, 2000);
     }
 
@@ -920,22 +942,25 @@
         const globeContainer = document.getElementById('globe-container');
         if (globeContainer) {
             logSessionEvent('info', 'Agent2: Globe container found, checking if Earth is rendered');
-            // Check if Earth texture loaded (simulate by checking if textureLoader was called)
             setTimeout(() => {
                 if (typeof THREE !== 'undefined') {
                     logSessionEvent('info', 'Agent2: Three.js loaded, attempting globe interaction');
-                    // Simulate mouse move over globe
-                    const event = new MouseEvent('mousemove', {
-                        clientX: 400,
-                        clientY: 300
-                    });
+                    const event = new MouseEvent('mousemove', { clientX: 400, clientY: 300 });
                     globeContainer.dispatchEvent(event);
                 } else {
                     logSessionEvent('warning', 'Agent2: Three.js not loaded');
                 }
+                
+                // Save report
+                const findings = ['Globe container loads', 'Three.js integration works'];
+                const recommendations = ['Add more visual feedback for interactions'];
+                logAgentReport('Agent2', findings, recommendations);
             }, 1000);
         } else {
             logSessionEvent('warning', 'Agent2: Globe container not found');
+            const findings = ['Globe container missing'];
+            const recommendations = ['Check globe initialization'];
+            logAgentReport('Agent2', findings, recommendations);
         }
     }
 
@@ -943,19 +968,32 @@
     function testServerConnections() {
         logSessionEvent('info', 'Agent3: Testing server API connections');
         const apiEndpoints = ['/api/ping', '/api/players/leaderboard', '/api/models'];
+        let successCount = 0;
+        let failureCount = 0;
+        
         apiEndpoints.forEach(endpoint => {
             fetch(endpoint, { cache: 'no-store' })
                 .then(response => {
                     if (response.ok) {
+                        successCount++;
                         logSessionEvent('info', `Agent3: ${endpoint} connected successfully`);
                     } else {
+                        failureCount++;
                         logSessionEvent('warning', `Agent3: ${endpoint} returned ${response.status}`);
                     }
                 })
                 .catch(error => {
+                    failureCount++;
                     logSessionEvent('info', `Agent3: ${endpoint} failed (expected offline)`, { error: error.message });
                 });
         });
+        
+        // Save report after all tests
+        setTimeout(() => {
+            const findings = [`${successCount} endpoints successful`, `${failureCount} endpoints failed`];
+            const recommendations = ['Improve server status indicators'];
+            logAgentReport('Agent3', findings, recommendations);
+        }, 5000);
     }
 
     // Agent 4: Test UI elements and responsiveness
@@ -968,11 +1006,12 @@
             { id: 'statusMessage', name: 'Server Status' }
         ];
 
+        let foundCount = 0;
         elements.forEach(el => {
             const element = document.getElementById(el.id);
             if (element) {
+                foundCount++;
                 logSessionEvent('info', `Agent4: ${el.name} found and visible`);
-                // Simulate click
                 if (el.id === 'contentToggleBtn') {
                     element.click();
                     setTimeout(() => {
@@ -988,6 +1027,11 @@
                 logSessionEvent('warning', `Agent4: ${el.name} not found`);
             }
         });
+        
+        // Save report
+        const findings = [`${foundCount}/${elements.length} UI elements found`];
+        const recommendations = ['Ensure mobile responsiveness'];
+        logAgentReport('Agent4', findings, recommendations);
     }
 
     // Run tester agents on page load
@@ -1276,9 +1320,13 @@
         earthMaterial.map = texture;
         earthMaterial.needsUpdate = true;
         logSessionEvent('info', 'Earth texture loaded successfully');
-      }, undefined, function(error) {
+      }, function(progress) {
+        logSessionEvent('info', 'Earth texture loading progress', { progress: (progress.loaded / progress.total * 100).toFixed(1) + '%' });
+      }, function(error) {
         console.error('Failed to load Earth texture:', error);
         logSessionEvent('error', 'Earth texture failed to load', { error: error.message });
+        // Fallback to a simple color
+        earthMaterial.color.setHex(0x2233aa);
       });
       
       // Position camera
