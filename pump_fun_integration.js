@@ -1,5 +1,7 @@
 // MandemOS Pump.fun Integration & Automated Trading
 // Purpose: Manage pump.fun wallet integration and automated trading strategies
+// NOTE: This is currently a SIMULATION system for demonstration purposes
+// Real trading would require actual wallet transaction signing
 
 const PUMP_FUN_API_BASE = 'https://frontend-api.pump.fun';
 const JUPITER_API_BASE = 'https://quote-api.jup.ag/v6';
@@ -10,6 +12,7 @@ class PumpFunTradingManager {
         this.agentPositions = {};
         this.tradingHistory = [];
         this.marketData = {};
+        this.isSimulationMode = true; // Flag to indicate simulation vs real trading
         this.riskManagement = {
             maxDailyLoss: 0.05, // 5% max daily loss
             maxPositionSize: 0.1, // 10% max position size
@@ -21,35 +24,39 @@ class PumpFunTradingManager {
     // Initialize pump.fun trading system
     async initialize() {
         console.log('🚀 Initializing Pump.fun Trading Manager...');
+        console.log('⚠️  CURRENTLY IN SIMULATION MODE - No real transactions');
+        console.log('🔗 For real trading: User must approve each transaction');
 
-        // Connect to main pump.fun wallet
-        await this.connectMainWallet();
+        // Connect to main fund wallet
+        await this.connectMainFundWallet();
 
         // Load existing positions and history
         this.loadTradingData();
 
-        // Start market monitoring
+        // Start market monitoring (simulation)
         this.startMarketMonitoring();
 
-        console.log('✅ Pump.fun Trading Manager initialized');
+        console.log('✅ Pump.fun Trading Manager initialized (SIMULATION MODE)');
     }
 
-    // Connect to main pump.fun wallet
-    async connectMainWallet() {
+    // Connect to main fund wallet
+    async connectMainFundWallet() {
         try {
             // In production, this would connect to actual wallet
             // For demo, we'll simulate the connection
             this.mainWallet = {
                 address: 'PumpFunMainWallet_ABC123DEF456',
-                balance: 50, // SOL balance
+                balance: 1000, // SOL balance
                 tokenBalance: 1000000, // MAND tokens
                 connected: true,
-                network: 'solana-mainnet'
+                network: 'solana-mainnet',
+                isRealWallet: false // Flag to indicate if this is real or simulated
             };
 
-            console.log('🔗 Connected to main pump.fun wallet');
+            console.log(`🔗 Connected to main fund wallet: ${this.mainWallet.address}`);
+            console.log('💡 This is a SIMULATION - no real funds at risk');
         } catch (error) {
-            console.error('Failed to connect main wallet:', error);
+            console.error('Failed to connect main fund wallet:', error);
         }
     }
 
