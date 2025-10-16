@@ -4,12 +4,12 @@
 // Wait for dependencies to be available
 async function waitForDependencies() {
     const dependencies = {
-        'AgentSystem': 'agent-core.js',
-        'BaseAgent': 'agent-types.js',
-        'setupEnhancedErrorMonitoring': 'monitoring-systems.js'
+        'agentSystem': 'agent-core.js',
+        'agentDisplay': 'agent-display.js',
+        'BaseAgent': 'agent-types.js'
     };
 
-    const maxRetries = 50; // 5 seconds max wait
+    const maxRetries = 80; // 8 seconds max wait (increased from 5)
     let retries = 0;
 
     while (retries < maxRetries) {
@@ -32,7 +32,7 @@ async function waitForDependencies() {
         retries++;
     }
 
-    console.error('❌ Agent dependencies failed to load after 5 seconds');
+    console.error('❌ Agent dependencies failed to load after 8 seconds');
     return false;
 }
 
