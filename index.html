@@ -502,16 +502,29 @@
                 // Set page timestamp
                 updatePageTimestamp();
 
-                // Initialize universal wallet auth (handled by bootstrap)
+                // Initialize universal wallet auth
                 await window.authIntegration.init({
-                    showUI: false,
+                    showUI: false,  // We handle UI ourselves
                     onAuthSuccess: (authInfo) => {
                         console.log('✅ Wallet authenticated:', authInfo.address);
+                        // Re-render wallet button when authenticated
+                        if (window.walletButton) {
+                            window.walletButton.render();
+                        }
                     },
                     onAuthFail: () => {
                         console.log('⚠️ Wallet authentication failed');
+                        // Re-render wallet button when disconnected
+                        if (window.walletButton) {
+                            window.walletButton.render();
+                        }
                     }
                 });
+
+                // Initialize wallet button after auth system loads
+                setTimeout(() => {
+                    window.walletButton = new WalletButton('walletButtonContainer');
+                }, 100);
                 
                 // All systems are initialized through their respective modules
                 // (auth-integration, project-tokenomics, pumpfun-integration)
