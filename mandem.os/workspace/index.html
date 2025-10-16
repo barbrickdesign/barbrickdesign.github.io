@@ -1362,12 +1362,6 @@ console.log('[DEBUG] currentUser:', localStorage.getItem('currentUser'));
 console.log('[DEBUG] userProfile:', localStorage.getItem('userProfile'));
 console.log('[DEBUG] userLoggedIn:', localStorage.getItem('userLoggedIn'));
 console.log('[DEBUG] lastWalletAuth:', localStorage.getItem('lastWalletAuth'));
-
-// Update UI based on login state on page load
-if (isUserLoggedIn()) {
-  updateUIForLoginState();
-  updateAuthButton();
-}
 </script>
 
 <!-- Mandem.OS Universal Auth Integration -->
