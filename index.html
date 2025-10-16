@@ -265,7 +265,32 @@
             -webkit-backdrop-filter: blur(10px); /* Added for Safari compatibility */
             box-shadow: 0 -5px 20px rgba(0,255,0,0.3);
         }
-    </style>
+        
+        .ticker-content {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 40px;
+            flex-wrap: wrap;
+            font-family: 'Orbitron', sans-serif;
+        }
+        
+        .ticker-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .ticker-label {
+            color: #8affff;
+            font-size: 0.9em;
+        }
+        
+        .ticker-value {
+            color: #00ff00;
+            font-size: 1.1em;
+            font-weight: bold;
+        }
 </head>
 <body>
     <div class="tron-grid"></div>
