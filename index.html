@@ -802,7 +802,7 @@
         // Register Service Worker for offline support
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
-                navigator.serviceWorker.register('sw-enhanced.js')
+                navigator.serviceWorker.register('service-worker.js')
                     .then((registration) => {
                         console.log('[Service Worker] Registered successfully');
                         // Check for updates
