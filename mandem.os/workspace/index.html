@@ -121,7 +121,10 @@
                 <a href="login.html" class="auth-button" id="loginBtn" style="display: inline-block;">Log In</a> 
                 <a href="profile.html" class="auth-button" id="profileBtn" style="display:none;">Profile</a> 
             </div>             
-            <div id="mgcBalanceDisplay"> <a id="mgcBalanceLink" href="profile.html">MGC Balance: <span id="mgcBalance">0</span></a> 
+            <div id="mgcBalanceDisplay"> 
+                <a id="mgcBalanceLink" href="profile.html">MGC Balance: <span id="mgcBalance">0</span></a>
+                <span style="margin: 0 10px; color: #666;">|</span>
+                <span style="color: #FF6B35; font-weight: bold;">🔥 MNDM: <span id="mndmBalance">0</span></span>
             </div>
             <!-- Pump.fun Token Widget -->
             <div id="pumpfun-token-container" style="max-width: 400px; margin: 15px auto 0;"></div>             
@@ -1886,9 +1889,52 @@ window.addEventListener('authSuccess', (event) => {
 window.addEventListener('authLogout', () => {
     console.log('👋 Mandem.OS - Auth logout event');
     updateMandemAuthUI(null);
+    updateMNDMBalance(); // Reset MNDM balance
 });
 
+// Update MANDEM Token Balance (MNDM) in header
+async function updateMNDMBalance() {
+    try {
+        const mndmSpan = document.getElementById('mndmBalance');
+        if (!mndmSpan) return;
+        
+        // Get connected wallet address
+        const walletAddress = window.universalWalletAuth && window.universalWalletAuth.getAddress();
+        
+        if (!walletAddress) {
+            // No wallet connected - show 0
+            mndmSpan.textContent = '0';
+            return;
+        }
+        
+        // Fetch MANDEM token balance
+        const balance = await window.getTokenBalance(walletAddress);
+        
+        // Update display
+        const formattedBalance = window.formatTokenAmount(balance, 2);
+        mndmSpan.textContent = formattedBalance;
+        
+        console.log('🔥 Mandem.OS - MNDM Balance Updated:', formattedBalance);
+    } catch (error) {
+        console.error('❌ Mandem.OS - Failed to update MNDM balance:', error);
+        const mndmSpan = document.getElementById('mndmBalance');
+        if (mndmSpan) mndmSpan.textContent = '0';
+    }
+}
+
+// Update MNDM balance when wallet connects
+window.addEventListener('authSuccess', (event) => {
+    console.log('🎉 Mandem.OS - Auth success, updating MNDM balance...');
+    updateMNDMBalance();
+});
+
+// Initial MNDM balance update on page load
+setTimeout(() => {
+    updateMNDMBalance();
+}, 1500); // Wait 1.5 seconds for auth to initialize
+
 console.log('✅ Mandem.OS - Wallet integration loaded');
+console.log('🔥 MANDEM Token (MNDM) tracking enabled');
 </script>
 
     </body>     
