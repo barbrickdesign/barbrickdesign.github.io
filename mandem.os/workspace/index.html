@@ -1363,88 +1363,11 @@ console.log('[DEBUG] userProfile:', localStorage.getItem('userProfile'));
 console.log('[DEBUG] userLoggedIn:', localStorage.getItem('userLoggedIn'));
 console.log('[DEBUG] lastWalletAuth:', localStorage.getItem('lastWalletAuth'));
 
-// Modal button handlers
-document.addEventListener('DOMContentLoaded', () => {
-  const modalLoginBtn = document.getElementById('modalLoginBtn');
-  const modalCloseBtn = document.getElementById('modalCloseBtn');
-  const loginModal = document.getElementById('loginModal');
-  
-  if (modalLoginBtn) {
-    modalLoginBtn.addEventListener('click', async () => {
-      const success = await quickConnectWallet();
-      if (success && loginModal) {
-        loginModal.style.display = 'none';
-      }
-    });
-  }
-  
-  if (modalCloseBtn) {
-    modalCloseBtn.addEventListener('click', () => {
-      if (loginModal) loginModal.style.display = 'none';
-    });
-  }
-  
-  // Close modal on background click
-  if (loginModal) {
-    loginModal.addEventListener('click', (e) => {
-      if (e.target === loginModal) {
-        loginModal.style.display = 'none';
-      }
-    });
-  }
-});
-
-async function updateStatusMessage() {
-  const statusMessage = document.getElementById('statusMessage');
-  if (!statusMessage) return;
-  
-  let text = '';
-  let lastServerError = '';
-  try {
-    const res = await fetch('/api/ping', { cache: 'no-store', signal: AbortSignal.timeout(2000) });
-    if (res.ok) {
-      text = '✓ Online';
-      lastServerError = '';
-      statusMessage.style.background = 'rgba(0, 200, 0, 0.8)';
-      statusMessage.style.display = 'block';
-    } else {
-      text = '✗ Offline';
-      lastServerError = `(${res.status})`;
-      statusMessage.style.background = 'rgba(200, 0, 0, 0.8)';
-    }
-  } catch (e) {
-    // Server offline is normal - hide status to avoid clutter
-    statusMessage.style.display = 'none';
-    return;
-  }
-  statusMessage.textContent = `Server: ${text}${lastServerError ? ' ' + lastServerError : ''}`;
+// Update UI based on login state on page load
+if (isUserLoggedIn()) {
+  updateUIForLoginState();
+  updateAuthButton();
 }
-
-// Server start button - graceful failure
-const statusMsg = document.getElementById('statusMessage');
-if (statusMsg) {
-  statusMsg.onclick = async function() {
-    statusMsg.textContent = 'Server: Retrying...';
-    statusMsg.style.background = 'rgba(255, 165, 0, 0.8)';
-    try {
-      const res = await fetch('/api/start-server', { method: 'POST', signal: AbortSignal.timeout(5000) });
-      if (res.ok) {
-        statusMsg.textContent = 'Server: Reconnecting...';
-        setTimeout(updateStatusMessage, 3000);
-      } else {
-        statusMsg.textContent = 'Server: Optional';
-        statusMsg.style.background = 'rgba(100, 100, 100, 0.7)';
-        setTimeout(() => statusMsg.style.display = 'none', 3000);
-      }
-    } catch (e) {
-      statusMsg.textContent = 'Server: Optional';
-      statusMsg.style.background = 'rgba(100, 100, 100, 0.7)';
-      setTimeout(() => statusMsg.style.display = 'none', 3000);
-    }
-  };
-}
-setInterval(updateStatusMessage, 5000);
-updateStatusMessage();
 </script>
 
 <!-- Mandem.OS Universal Auth Integration -->
