@@ -403,6 +403,9 @@
             if (loadedScripts >= agentScripts.length) {
                 console.log('✅ All core agent scripts loaded, initializing agent system...');
                 loadAgentSystemModule();
+            } else if (loadedScripts >= 4) { // Load agent system if most scripts are loaded
+                console.log('⚠️ Some agent scripts failed, but proceeding with available modules...');
+                loadAgentSystemModule();
             }
         }
 
@@ -430,6 +433,24 @@
                 typeof window.BaseAgent !== 'undefined' &&
                 typeof window.setupEnhancedErrorMonitoring !== 'undefined') {
                 console.log('✅ Agent system fully loaded and ready');
+
+                // Initialize feature systems
+                if (typeof window.dripProtocol !== 'undefined') {
+                    window.dripProtocol.initialize();
+                    console.log('💧 Drip Protocol initialized');
+                } else {
+                    console.log('⚠️ Drip Protocol not loaded, using simulation');
+                    // Fallback simulation code here if needed
+                }
+
+                if (typeof window.realAgentTradingManager !== 'undefined') {
+                    window.realAgentTradingManager.initialize();
+                    console.log('🌍 Real Agent Trading initialized');
+                } else {
+                    console.log('⚠️ Real Agent Trading not loaded, using simulation');
+                    // Fallback simulation code here if needed
+                }
+
                 // Cancel any pending timeout checks
                 if (window.agentLoadCheckTimeout) {
                     clearTimeout(window.agentLoadCheckTimeout);
