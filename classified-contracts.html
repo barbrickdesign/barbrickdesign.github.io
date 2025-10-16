@@ -9,6 +9,8 @@
     <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iife.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl.min.js"></script>
     <script src="contractor-registry.js"></script>
+    <script src="crypto-bidding-system.js"></script>
+    <script src="samgov-integration.js"></script>
     <script src="system-architect-auth.js"></script>
     <script src="security-clearance-auth.js"></script>
     <link rel="stylesheet" href="mobile-responsive.css">
@@ -448,6 +450,17 @@
     </div>
 
     <script>
+        // Check for existing wallet connection on page load
+        window.addEventListener('DOMContentLoaded', async () => {
+            console.log('🔍 Checking for existing wallet connection...');
+            
+            // Try to detect connected wallet without prompting
+            if (window.ethereum && window.ethereum.selectedAddress) {
+                console.log('💼 Wallet already connected, attempting auto-authentication...');
+                await authenticateCard();
+            }
+        });
+    
         async function authenticateCard() {
             const btn = document.getElementById('authBtn');
             const status = document.getElementById('authStatus');
@@ -557,6 +570,22 @@
                                 <strong style="color: #ff6666;">Caveats:</strong> ${contract.caveats.join(', ')}
                             </div>` : ''
                         }
+                        ${!user.systemArchitect ? `
+                            <div style="margin-top: 20px; display: flex; gap: 10px;">
+                                <button onclick="viewBids('${contract.id}')" style="flex: 1; padding: 12px; background: rgba(0,150,255,0.2); border: 2px solid #0099ff; border-radius: 8px; color: #66ccff; font-family: 'Orbitron', sans-serif; cursor: pointer; font-weight: 700;">
+                                    👁️ View Bids
+                                </button>
+                                <button onclick="openBidModal('${contract.id}', '${contract.title}', ${contract.value})" style="flex: 1; padding: 12px; background: linear-gradient(90deg, #00ff00, #66ff66); border: none; border-radius: 8px; color: #000; font-family: 'Orbitron', sans-serif; cursor: pointer; font-weight: 700;">
+                                    💰 Place Bid
+                                </button>
+                            </div>
+                        ` : `
+                            <div style="margin-top: 20px;">
+                                <button onclick="viewBids('${contract.id}')" style="width: 100%; padding: 12px; background: rgba(255,215,0,0.2); border: 2px solid #ffd700; border-radius: 8px; color: #ffdd66; font-family: 'Orbitron', sans-serif; cursor: pointer; font-weight: 700;">
+                                    ⚡ Manage Bids (System Architect)
+                                </button>
+                            </div>
+                        `}
                     `;
                     grid.appendChild(card);
                 });
