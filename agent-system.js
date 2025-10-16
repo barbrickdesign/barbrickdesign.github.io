@@ -1274,6 +1274,9 @@ function setupEnhancedErrorMonitoring() {
         }, 60000);
     }
 
+    console.log('🔍 Enhanced error monitoring activated for real site issues');
+}
+
 // Monitor for real DOM issues that occur during normal operation
 function monitorDOMIssues() {
     if (!window.agentSystem) return;
