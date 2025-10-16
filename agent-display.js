@@ -10,11 +10,23 @@ class AgentDisplay {
         this.agentsContainer = null;
         this.isVisible = false;
         this.updateInterval = null;
+        this.isInitialized = false;
     }
 
     initialize() {
+        if (this.isInitialized) {
+            return;
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', () => this.initialize(), { once: true });
+            return;
+        }
+
+        this.isInitialized = true;
         this.createDisplay();
         this.startAutoUpdate();
+        this.updateDisplay();
     }
 
     createDisplay() {
@@ -287,6 +299,18 @@ class AgentDisplay {
     }
 
     updateDisplay() {
+        if (!this.isInitialized) {
+            this.initialize();
+            if (!this.isInitialized || !this.statsContainer) {
+                return;
+            }
+        }
+
+        if (!this.statsContainer) {
+            console.warn('AgentDisplay: stats container not ready');
+            return;
+        }
+
         if (!window.agentSystem) {
             this.statsContainer.innerHTML = '<div style="color: #ff6b6b;">❌ Agent system not loaded</div>';
             return;
