@@ -1361,8 +1361,10 @@
       updateAuthButton();
     }
   </script>         
-        <!-- Register Service Worker -->         
+        <!-- Register Service Worker - DISABLED -->
         <script>
+    // Service Worker disabled to prevent cache issues
+    /*
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", function () {
         navigator.serviceWorker.register("service-worker.js").then(function (registration) {
@@ -1372,6 +1374,7 @@
         });
       });
     }
+    */
   </script>         
         <script>
 console.log('[DEBUG] index.html loaded');
