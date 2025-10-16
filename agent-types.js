@@ -867,7 +867,8 @@ class ErrorRecoveryAgent extends BaseAgent {
                 script.remove();
                 setTimeout(() => {
                     const newScript = document.createElement('script');
-                    newScript.src = module;
+                    // Use correct relative path from mandem.os/workspace/ to root directory
+                    newScript.src = '../../' + module;
                     newScript.onload = () => reloadedCount++;
                     newScript.onerror = () => this.log(`❌ Failed to reload ${module}`);
                     document.head.appendChild(newScript);
