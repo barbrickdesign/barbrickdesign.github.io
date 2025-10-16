@@ -301,15 +301,16 @@ class SharedAgentSystem {
         const criticalSystems = [
             { name: 'Wallet System', check: () => window.sharedWalletSystem?.connected || window.universalWalletAuth?.isAuthenticated() },
             { name: 'Auth System', check: () => !!window.authIntegration },
-            { name: 'Contract System', check: () => !!window.fpdsContractSchema },
-            { name: 'Trading System', check: () => !!window.samGovIntegration }
+            // Only check for FPDS/SAM.gov if they exist (not required for all pages)
+            { name: 'FPDS Schema', check: () => !window.fpdsContractSchema ? true : !!window.fpdsContractSchema, optional: true },
+            { name: 'SAM.gov Integration', check: () => !window.samGovIntegration ? true : !!window.samGovIntegration, optional: true }
         ];
 
         let allHealthy = true;
         for (const system of criticalSystems) {
             try {
                 const healthy = system.check();
-                if (!healthy) {
+                if (!healthy && !system.optional) {
                     this.logError({
                         component: system.name,
                         message: `${system.name} health check failed`,
@@ -317,15 +318,20 @@ class SharedAgentSystem {
                         category: 'health'
                     });
                     allHealthy = false;
+                } else if (!healthy && system.optional) {
+                    // Optional systems - just log as info, not error
+                    console.log(`ℹ️ Optional system ${system.name} not available`);
                 }
             } catch (error) {
-                this.logError({
-                    component: system.name,
-                    message: `Health check error: ${error.message}`,
-                    severity: 'high',
-                    category: 'health'
-                });
-                allHealthy = false;
+                if (!system.optional) {
+                    this.logError({
+                        component: system.name,
+                        message: `Health check error: ${error.message}`,
+                        severity: 'high',
+                        category: 'health'
+                    });
+                    allHealthy = false;
+                }
             }
         }
 
