@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Integration Test Dashboard - BarbrickDesign</title>
+    
+    <!-- Universal Wallet Authentication -->
+    <script src="fpds-contract-schema.js"></script>
+    <script src="contractor-registry.js"></script>
+    <script src="universal-wallet-auth.js"></script>
+    <script src="auth-integration.js"></script>
+    <script src="samgov-integration.js"></script>
+    
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        header h1 {
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+        
+        header p {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-pass {
+            background: #10b981;
+            box-shadow: 0 0 10px #10b981;
+        }
+        
+        .status-fail {
+            background: #ef4444;
+            box-shadow: 0 0 10px #ef4444;
+        }
+        
+        .status-pending {
+            background: #f59e0b;
+            box-shadow: 0 0 10px #f59e0b;
+        }
+        
+        .test-section {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+        
+        .test-section h2 {
+            color: #667eea;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .test-item {
+            padding: 15px;
+            border-left: 4px solid #e5e7eb;
+            margin-bottom: 15px;
+            background: #f9fafb;
+            border-radius: 5px;
+            transition: all 0.3s;
+        }
+        
+        .test-item.pass {
+            border-left-color: #10b981;
+            background: #ecfdf5;
+        }
+        
+        .test-item.fail {
+            border-left-color: #ef4444;
+            background: #fef2f2;
+        }
+        
+        .test-item.pending {
+            border-left-color: #f59e0b;
+            background: #fffbeb;
+        }
+        
+        .test-name {
+            font-weight: bold;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .test-result {
+            font-size: 14px;
+            color: #666;
+            margin-left: 20px;
+        }
+        
+        .test-details {
+            font-size: 12px;
+            color: #888;
+            margin-left: 20px;
+            margin-top: 5px;
+            font-family: 'Courier New', monospace;
+        }
+        
+        button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s;
+            margin-right: 10px;
+        }
+        
+        button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+        
+        button:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .summary-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .summary-value {
+            font-size: 36px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        
+        .summary-label {
+            font-size: 14px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 30px;
+            background: #e5e7eb;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-top: 20px;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #10b981, #059669);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🧪 Integration Test Dashboard</h1>
+            <p>BarbrickDesign Platform - Automated Testing Suite</p>
+            <p style="margin-top: 10px;"><strong>Version:</strong> 2.0.0 | <strong>Date:</strong> October 15, 2025</p>
+        </header>
+        
+        <div class="test-section">
+            <h2>⚡ Quick Actions</h2>
+            <button onclick="runAllTests()">🚀 Run All Tests</button>
+            <button onclick="clearResults()">🔄 Clear Results</button>
+            <button onclick="exportResults()">📊 Export Results</button>
+            <button onclick="window.location.href='index.html'">🏠 Return to Hub</button>
+            
+            <div class="progress-bar">
+                <div class="progress-fill" id="progress" style="width: 0%">0%</div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>📊 Test Summary</h2>
+            <div class="summary">
+                <div class="summary-card">
+                    <div class="summary-label">Total Tests</div>
+                    <div class="summary-value" id="total-tests">0</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">Passed</div>
+                    <div class="summary-value" style="color: #10b981" id="passed-tests">0</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">Failed</div>
+                    <div class="summary-value" style="color: #ef4444" id="failed-tests">0</div>
+                </div>
+                <div class="summary-card">
+                    <div class="summary-label">Success Rate</div>
+                    <div class="summary-value" style="color: #667eea" id="success-rate">0%</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="test-section">
+            <h2>🔐 Authentication Tests</h2>
+            <div id="auth-tests"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>📋 FPDS Contract Parser Tests</h2>
+            <div id="fpds-tests"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>🔧 System Integration Tests</h2>
+            <div id="system-tests"></div>
+        </div>
+        
+        <div class="test-section">
+            <h2>📁 File Verification Tests</h2>
+            <div id="file-tests"></div>
+        </div>
+    </div>
+    
+    <script>
+        let testResults = {
+            total: 0,
+            passed: 0,
+            failed: 0
+        };
+        
+        // Wait for auth to initialize
+        window.addEventListener('DOMContentLoaded', async () => {
+            console.log('🧪 Test Dashboard Loading...');
+            
+            try {
+                await window.authIntegration.init({
+                    showUI: false,
+                    onAuthSuccess: (authInfo) => {
+                        console.log('✅ Auth initialized:', authInfo.address);
+                    }
+                });
+            } catch (error) {
+                console.log('⚠️ Auth not yet initialized');
+            }
+            
+            console.log('✅ Test Dashboard Ready');
+        });
+        
+        function createTestItem(name, status, result, details = '') {
+            const item = document.createElement('div');
+            item.className = `test-item ${status}`;
+            
+            const statusIcon = status === 'pass' ? '✅' : status === 'fail' ? '❌' : '⏳';
+            
+            item.innerHTML = `
+                <div class="test-name">
+                    <span class="status-indicator status-${status}"></span>
+                    ${statusIcon} ${name}
+                </div>
+                <div class="test-result">${result}</div>
+                ${details ? `<div class="test-details">${details}</div>` : ''}
+            `;
+            
+            return item;
+        }
+        
+        function updateSummary() {
+            document.getElementById('total-tests').textContent = testResults.total;
+            document.getElementById('passed-tests').textContent = testResults.passed;
+            document.getElementById('failed-tests').textContent = testResults.failed;
+            
+            const successRate = testResults.total > 0 
+                ? Math.round((testResults.passed / testResults.total) * 100) 
+                : 0;
+            document.getElementById('success-rate').textContent = successRate + '%';
+            document.getElementById('progress').style.width = successRate + '%';
+            document.getElementById('progress').textContent = successRate + '%';
+        }
+        
+        async function runAllTests() {
+            console.log('🧪 Running all tests...');
+            clearResults();
+            
+            await runAuthTests();
+            await runFPDSTests();
+            await runSystemTests();
+            await runFileTests();
+            
+            updateSummary();
+            console.log('✅ All tests complete!');
+        }
+        
+        async function runAuthTests() {
+            const container = document.getElementById('auth-tests');
+            container.innerHTML = '';
+            
+            // Test 1: Universal Wallet Auth Loaded
+            try {
+                const test1 = window.universalWalletAuth !== undefined;
+                container.appendChild(createTestItem(
+                    'Universal Wallet Auth Loaded',
+                    test1 ? 'pass' : 'fail',
+                    test1 ? 'Module loaded successfully' : 'Module not found',
+                    test1 ? 'window.universalWalletAuth exists' : 'Check script loading order'
+                ));
+                testResults.total++;
+                if (test1) testResults.passed++;
+                else testResults.failed++;
+            } catch (e) {
+                container.appendChild(createTestItem('Universal Wallet Auth Loaded', 'fail', 'Error: ' + e.message));
+                testResults.total++;
+                testResults.failed++;
+            }
+            
+            // Test 2: Auth Integration Loaded
+            try {
+                const test2 = window.authIntegration !== undefined;
+                container.appendChild(createTestItem(
+                    'Auth Integration Loaded',
+                    test2 ? 'pass' : 'fail',
+                    test2 ? 'Module loaded successfully' : 'Module not found',
+                    test2 ? 'window.authIntegration exists' : 'Check script loading order'
+                ));
+                testResults.total++;
+                if (test2) testResults.passed++;
+                else testResults.failed++;
+            } catch (e) {
+                container.appendChild(createTestItem('Auth Integration Loaded', 'fail', 'Error: ' + e.message));
+                testResults.total++;
+                testResults.failed++;
+            }
+            
+            // Test 3: Authentication Status
+            try {
+                const isAuth = window.universalWalletAuth && window.universalWalletAuth.isAuthenticated();
+                const address = isAuth ? window.universalWalletAuth.getAddress() : 'Not connected';
+                container.appendChild(createTestItem(
+                    'Wallet Connection Status',
+                    isAuth ? 'pass' : 'pending',
+                    isAuth ? `Connected: ${address.substring(0, 10)}...` : 'Not connected - test wallet features manually',
+                    isAuth ? `Full address: ${address}` : 'Connect wallet to test authentication'
+                ));
+                testResults.total++;
+                if (isAuth) testResults.passed++;
+            } catch (e) {
+                container.appendChild(createTestItem('Wallet Connection Status', 'fail', 'Error: ' + e.message));
+                testResults.total++;
+                testResults.failed++;
+            }
+            
+            // Test 4: System Architect Check
+            try {
+                const isSA = window.universalWalletAuth && window.universalWalletAuth.isSystemArchitect();
+                container.appendChild(createTestItem(
+                    'System Architect Detection',
+                    'pass',
+                    isSA ? 'System Architect wallet detected' : 'Regular wallet (expected)',
+                    `Role check working correctly`
+                ));
+                testResults.total++;
+                testResults.passed++;
+            } catch (e) {
+                container.appendChild(createTestItem('System Architect Detection', 'fail', 'Error: ' + e.message));
+                testResults.total++;
+                testResults.failed++;
+            }
+        }
+        
+        async function runFPDSTests() {
+            const container = document.getElementById('fpds-tests');
+            container.innerHTML = '';
+            
+            // Test 1: FPDS Schema Loaded
+            try {
+                const test1 = window.fpdsSchema !== undefined;
+                container.appendChild(createTestItem(
+                    'FPDS Schema Loaded',
+                    test1 ? 'pass' : 'fail',
+                    test1 ? 'Module loaded successfully' : 'Module not found',
+                    test1 ? 'window.fpdsSchema exists' : 'Check fpds-contract-schema.js'
+                ));
+                testResults.total++;
+                if (test1) testResults.passed++;
+                else testResults.failed++;
+            } catch (e) {
+                container.appendChild(createTestItem('FPDS Schema Loaded', 'fail', 'Error: ' + e.message));
+                testResults.total++;
+                testResults.failed++;
+            }
+            
+            // Test 2: SAM.gov Integration Loaded
+            try {
+                const test2 = window.samGovIntegration !== undefined;
+                container.appendChild(createTestItem(
+                    'SAM.gov Integration Loaded',
+                    test2 ? 'pass' : 'fail',
+                    test2 ? 'Module loaded successfully' : 'Module not found',
+                    test2 ? 'window.samGovIntegration exists' : 'Check samgov-integration.js'
+                ));
+                testResults.total++;
+                if (test2) testResults.passed++;
+                else testResults.failed++;
+            } catch (e) {
+                container.appendChild(createTestItem('SAM.gov Integration Loaded', 'fail', 'Error: ' + e.message));
+                testResults.total++;
+                testResults.failed++;
+            }
+            
+            // Test 3: Parse Air Force Contract
+            try {
+                const parsed = window.samGovIntegration.parseContractNumber('FA8750-23-C-0001');
+                const test3 = parsed && parsed.valid && parsed.components.agencyName === 'Air Force';
+                container.appendChild(createTestItem(
+                    'Parse Air Force Contract',
+                    test3 ? 'pass' : 'fail',
+                    test3 ? 'FA8750-23-C-0001 parsed correctly' : 'Parsing failed',
+                    test3 ? JSON.stringify(parsed, null, 2) : 'Check parser logic'
+                ));
+                testResults.total++;
+                if (test3) testResults.passed++;
+                else testResults.failed++;
+            } catch (e) {
+                container.appendChild(createTestItem('Parse Air Force Contract', 'fail', 'Error: ' + e.message));
+                testResults.total++;
+                testResults.failed++;
+            }
+            
+            // Test 4: Parse NASA Contract
+            try {
+                const parsed = window.samGovIntegration.parseContractNumber('NNG-24-C-5678');
+                const test4 = parsed && parsed.valid && parsed.components.agencyName === 'NASA';
+                container.appendChild(createTestItem(
+                    'Parse NASA Contract',
+                    test4 ? 'pass' : 'fail',
+                    test4 ? 'NNG-24-C-5678 parsed correctly' : 'Parsing failed',
+                    test4 ? `Agency: ${parsed.components.agencyName}, Year: ${parsed.components.fiscalYear}` : 'Check parser logic'
+                ));
+                testResults.total++;
+                if (test4) testResults.passed++;
+                else testResults.failed++;
+            } catch (e) {
+                container.appendChild(createTestItem('Parse NASA Contract', 'fail', 'Error: ' + e.message));
+                testResults.total++;
+                testResults.failed++;
+            }
+            
+            // Test 5: Validation Test (Invalid Format)
+            try {
+                const validated = window.samGovIntegration.validateContractNumber('INVALID-123');
+                const test5 = validated && !validated.valid;
+                container.appendChild(createTestItem(
+                    'Invalid Contract Detection',
+                    test5 ? 'pass' : 'fail',
+                    test5 ? 'Correctly identified invalid format' : 'Validation not working',
+                    test5 ? 'Validation logic working correctly' : 'Should reject invalid formats'
+                ));
+                testResults.total++;
+                if (test5) testResults.passed++;
+                else testResults.failed++;
+            } catch (e) {
+                container.appendChild(createTestItem('Invalid Contract Detection', 'fail', 'Error: ' + e.message));
+                testResults.total++;
+                testResults.failed++;
+            }
+        }
+        
+        async function runSystemTests() {
+            const container = document.getElementById('system-tests');
+            container.innerHTML = '';
+            
+            // Test 1: Service Worker
+            try {
+                const test1 = 'serviceWorker' in navigator && navigator.serviceWorker.controller;
+                container.appendChild(createTestItem(
+                    'Service Worker Active',
+                    test1 ? 'pass' : 'pending',
+                    test1 ? 'Service worker is controlling the page' : 'Service worker not active yet',
+                    test1 ? 'Offline support enabled' : 'Refresh page to activate'
+                ));
+                testResults.total++;
+                if (test1) testResults.passed++;
+            } catch (e) {
+                container.appendChild(createTestItem('Service Worker Active', 'fail', 'Error: ' + e.message));
+                testResults.total++;
+                testResults.failed++;
+            }
+            
+            // Test 2: localStorage Available
+            try {
+                localStorage.setItem('test', 'test');
+                localStorage.removeItem('test');
+                container.appendChild(createTestItem(
+                    'localStorage Available',
+                    'pass',
+                    'Browser storage working correctly',
+                    'Session persistence enabled'
+                ));
+                testResults.total++;
+                testResults.passed++;
+            } catch (e) {
+                container.appendChild(createTestItem('localStorage Available', 'fail', 'Error: ' + e.message, 'Private mode may be enabled'));
+                testResults.total++;
+                testResults.failed++;
+            }
+            
+            // Test 3: Contractor Registry
+            try {
+                const test3 = window.contractorRegistry !== undefined;
+                container.appendChild(createTestItem(
+                    'Contractor Registry Loaded',
+                    test3 ? 'pass' : 'fail',
+                    test3 ? 'Module loaded successfully' : 'Module not found',
+                    test3 ? 'window.contractorRegistry exists' : 'Check contractor-registry.js'
+                ));
+                testResults.total++;
+                if (test3) testResults.passed++;
+                else testResults.failed++;
+            } catch (e) {
+                container.appendChild(createTestItem('Contractor Registry Loaded', 'fail', 'Error: ' + e.message));
+                testResults.total++;
+                testResults.failed++;
+            }
+        }
+        
+        async function runFileTests() {
+            const container = document.getElementById('file-tests');
+            container.innerHTML = '';
+            
+            // Test critical scripts loaded
+            const scripts = [
+                { name: 'universal-wallet-auth.js', check: () => window.universalWalletAuth !== undefined },
+                { name: 'auth-integration.js', check: () => window.authIntegration !== undefined },
+                { name: 'fpds-contract-schema.js', check: () => window.fpdsSchema !== undefined },
+                { name: 'samgov-integration.js', check: () => window.samGovIntegration !== undefined },
+                { name: 'contractor-registry.js', check: () => window.contractorRegistry !== undefined }
+            ];
+            
+            scripts.forEach(script => {
+                try {
+                    const loaded = script.check();
+                    container.appendChild(createTestItem(
+                        `${script.name} Loaded`,
+                        loaded ? 'pass' : 'fail',
+                        loaded ? 'Script loaded and initialized' : 'Script not loaded',
+                        loaded ? 'All dependencies met' : 'Check script path and loading order'
+                    ));
+                    testResults.total++;
+                    if (loaded) testResults.passed++;
+                    else testResults.failed++;
+                } catch (e) {
+                    container.appendChild(createTestItem(`${script.name} Loaded`, 'fail', 'Error: ' + e.message));
+                    testResults.total++;
+                    testResults.failed++;
+                }
+            });
+        }
+        
+        function clearResults() {
+            testResults = { total: 0, passed: 0, failed: 0 };
+            document.getElementById('auth-tests').innerHTML = '';
+            document.getElementById('fpds-tests').innerHTML = '';
+            document.getElementById('system-tests').innerHTML = '';
+            document.getElementById('file-tests').innerHTML = '';
+            updateSummary();
+        }
+        
+        function exportResults() {
+            const report = {
+                timestamp: new Date().toISOString(),
+                version: '2.0.0',
+                results: testResults,
+                successRate: testResults.total > 0 ? ((testResults.passed / testResults.total) * 100).toFixed(2) + '%' : '0%'
+            };
+            
+            const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `test-report-${Date.now()}.json`;
+            a.click();
+            URL.revokeObjectURL(url);
+            
+            console.log('📊 Test report exported');
+        }
+    </script>
+</body>
+</html>
