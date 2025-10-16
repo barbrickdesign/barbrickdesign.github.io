@@ -1206,58 +1206,6 @@
         });
       }
     });
-    document.addEventListener('DOMContentLoaded', enableMobileGlobeLinks);
-    console.log('Page loaded at', new Date().toLocaleTimeString());
-    window.addEventListener('DOMContentLoaded', () => {
-      console.log('DOM fully loaded at', new Date().toLocaleTimeString());
-    });
-
-    // Command Center toggle button
-    const contentToggleBtn = document.getElementById('contentToggleBtn');
-    const syncDropdown = document.getElementById('sync-status-dropdown');
-    let syncDropdownVisible = false;
-
-    // Show/hide sync dropdown on button click
-    contentToggleBtn.addEventListener('click', function() {
-      // ...existing code for toggling Mission Control...
-      syncDropdownVisible = !syncDropdownVisible;
-      syncDropdown.style.display = syncDropdownVisible ? 'block' : 'none';
-      if (syncDropdownVisible) updateSyncDropdown();
-    });
-
-    // Hide dropdown if user clicks outside (mobile friendly)
-    document.addEventListener('click', function(e) {
-      if (syncDropdownVisible && !syncDropdown.contains(e.target) && e.target !== contentToggleBtn) {
-        syncDropdown.style.display = 'none';
-        syncDropdownVisible = false;
-      }
-    });
-
-    // Poll sync status and update dropdown
-    async function updateSyncDropdown() {
-      try {
-        const res = await fetch('/api/sync-status');
-        if (!res.ok) throw new Error('Failed to fetch sync status');
-        const data = await res.json();
-        const main = document.getElementById('sync-status-main');
-        const times = document.getElementById('sync-status-times');
-        if (data.isSyncing) {
-          main.textContent = 'Servers are syncing... Real-time player data may be delayed.';
-        } else {
-          main.textContent = 'Servers are in sync.';
-        }
-        if (data.lastSyncTime && data.nextSyncTime) {
-          times.textContent = `Last sync: ${new Date(data.lastSyncTime).toLocaleTimeString()} | Next sync: ${new Date(data.nextSyncTime).toLocaleTimeString()}`;
-        } else {
-          times.textContent = '';
-        }
-      } catch (e) {
-        document.getElementById('sync-status-main').textContent = 'Unable to fetch sync status.';
-        document.getElementById('sync-status-times').textContent = '';
-      }
-    }
-    // Update dropdown every 5s if visible
-    setInterval(() => { if (syncDropdownVisible) updateSyncDropdown(); }, 5000);
   </script>
         <script src="public/facetProcessor.js"></script>
         <script src="public/simulation.js"></script>
