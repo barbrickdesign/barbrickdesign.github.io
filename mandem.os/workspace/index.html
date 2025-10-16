@@ -3923,16 +3923,11 @@ window.addEventListener('authSuccess', (event) => {
     updateGBPTBalance();
 });
 
-// Initial GBPT balance update on page load
-window.addEventListener('DOMContentLoaded', () => {
-    setTimeout(() => {
-        updateGBPTBalance();
-    }, 1500); // Wait 1.5 seconds for auth to initialize
+setTimeout(() => {
+    updateGBPTBalance();
+}, 1500); // Wait 1.5 seconds for auth to initialize
 
-    console.log('✅ Mandem.OS - Wallet integration loaded');
-    console.log('🔥 GBPT Token tracking enabled');
-    console.log('💎 MGC Promotion System loaded');
-});
-
-    </body>     
-</html>
+console.log('✅ Mandem.OS - Wallet integration loaded');
+console.log('🔥 GBPT Token tracking enabled');
+console.log('💎 MGC Promotion System loaded');
+</script>
