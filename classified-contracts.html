@@ -8,6 +8,7 @@
     <!-- Wallet Dependencies -->
     <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iife.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl.min.js"></script>
+    <script src="contractor-registry.js"></script>
     <script src="system-architect-auth.js"></script>
     <script src="security-clearance-auth.js"></script>
     <link rel="stylesheet" href="mobile-responsive.css">
@@ -284,6 +285,46 @@
             font-size: 0.9em;
         }
         
+        .match-indicator {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 4px solid;
+        }
+        
+        .match-excellent {
+            border-left-color: #00ff00;
+            background: rgba(0,255,0,0.1);
+        }
+        
+        .match-good {
+            border-left-color: #66ff66;
+            background: rgba(0,255,0,0.05);
+        }
+        
+        .match-fair {
+            border-left-color: #ffaa00;
+            background: rgba(255,170,0,0.05);
+        }
+        
+        .match-poor {
+            border-left-color: #ff6666;
+            background: rgba(255,0,0,0.05);
+        }
+        
+        .match-score {
+            font-size: 2em;
+            font-weight: 900;
+            margin-bottom: 10px;
+        }
+        
+        .match-reasons {
+            font-size: 0.85em;
+            line-height: 1.6;
+            margin-top: 10px;
+        }
+        
         @media (max-width: 768px) {
             h1 { font-size: 1.8em; }
             .contracts-grid { grid-template-columns: 1fr; }
@@ -308,11 +349,11 @@
             </p>
         </div>
 
-        <div style="background: rgba(255,0,0,0.15); border: 2px solid #ff0000; padding: 15px; border-radius: 10px; margin: 20px 0; text-align: center;">
-            <p style="color: #ff6666; font-weight: 700; margin-bottom: 8px;">🔐 RESTRICTED ACCESS</p>
-            <p style="color: #ff9999; font-size: 0.9em;">
-                This page is exclusively accessible to the authorized System Architect wallet:<br>
-                <code style="background: rgba(0,0,0,0.5); padding: 5px 10px; border-radius: 5px; color: #00ff00;">0xEFc6910e7624F164dAe9d0F799954aa69c943c8d</code>
+        <div style="background: rgba(0,100,255,0.15); border: 2px solid #0066ff; padding: 15px; border-radius: 10px; margin: 20px 0; text-align: center;">
+            <p style="color: #66ccff; font-weight: 700; margin-bottom: 8px;">👥 CONTRACTOR REGISTRATION</p>
+            <p style="color: #99ddff; font-size: 0.9em;">
+                Not registered yet? <a href="contractor-registration.html" style="color: #00ff99; text-decoration: underline;">Click here to register as a contractor</a><br>
+                Already registered? Connect your wallet to access classified contracts.
             </p>
         </div>
 
@@ -387,8 +428,14 @@
 
         <div style="margin-top: 60px; padding: 30px; text-align: center; border-top: 2px solid rgba(255,0,0,0.3);">
             <p style="color: #ff6666; margin-bottom: 15px;">
-                <a href="contractor-leaderboard.html" style="color: #00ff99; padding: 10px 20px; background: rgba(0,255,153,0.1); border: 1px solid #00ff99; border-radius: 8px; text-decoration: none; display: inline-block;">
+                <a href="contractor-leaderboard.html" style="color: #00ff99; padding: 10px 20px; background: rgba(0,255,153,0.1); border: 1px solid #00ff99; border-radius: 8px; text-decoration: none; display: inline-block; margin: 5px;">
                     💎 Contractor Leaderboard & Bidding
+                </a>
+                <a href="contractor-registration.html" style="color: #66ccff; padding: 10px 20px; background: rgba(0,150,255,0.1); border: 1px solid #66ccff; border-radius: 8px; text-decoration: none; display: inline-block; margin: 5px;">
+                    📝 Register as Contractor
+                </a>
+                <a href="admin-contractor-dashboard.html" style="color: #ffd700; padding: 10px 20px; background: rgba(255,215,0,0.1); border: 1px solid #ffd700; border-radius: 8px; text-decoration: none; display: inline-block; margin: 5px;">
+                    ⚡ Admin Dashboard (System Architect Only)
                 </a>
             </p>
             <p style="color: #ff6666;">
@@ -446,6 +493,7 @@
             try {
                 const contracts = await window.securityClearanceAuth.getClassifiedContracts();
                 const summary = window.securityClearanceAuth.getAccessSummary();
+                const user = window.securityClearanceAuth.currentUser;
                 
                 // Display stats
                 displayStats(summary);
@@ -459,10 +507,32 @@
                     return;
                 }
                 
-                contracts.forEach(contract => {
+                // If contractor (not System Architect), show AI-matched contracts
+                let displayContracts = contracts;
+                if (user.profile && window.contractorRegistry) {
+                    console.log('🤖 Running AI contract matching...');
+                    const matches = window.contractorRegistry.matchContractsToContractor(user.walletAddress, contracts);
+                    displayContracts = matches;
+                }
+                
+                displayContracts.forEach(item => {
+                    const contract = item.contract || item;
+                    const hasMatching = item.score !== undefined;
+                    
                     const card = document.createElement('div');
                     card.className = 'contract-card';
                     card.innerHTML = `
+                        ${hasMatching ? `
+                            <div class="match-indicator match-${item.matchQuality}">
+                                <div class="match-score" style="color: ${getMatchColor(item.matchQuality)};">
+                                    ${item.score}/100 - ${item.matchQuality.toUpperCase()} MATCH
+                                </div>
+                                <div style="color: #66ff66; font-weight: 700;">${item.recommendation}</div>
+                                <div class="match-reasons" style="color: #99ff99;">
+                                    ${item.reasons.join('<br>')}
+                                </div>
+                            </div>
+                        ` : ''}
                         <div class="contract-header">
                             <div class="contract-title">${contract.title}</div>
                         </div>
@@ -494,6 +564,16 @@
                 console.error('Error loading contracts:', error);
                 document.getElementById('contractsGrid').innerHTML = 
                     '<div class="access-denied"><h2>❌ ERROR</h2><p>' + error.message + '</p></div>';
+            }
+        }
+        
+        function getMatchColor(quality) {
+            switch(quality) {
+                case 'excellent': return '#00ff00';
+                case 'good': return '#66ff66';
+                case 'fair': return '#ffaa00';
+                case 'poor': return '#ff6666';
+                default: return '#ffffff';
             }
         }
 
