@@ -260,10 +260,10 @@
                 const btn = document.getElementById('metamask-connect');
                 btn.disabled = true;
                 btn.textContent = '⏳ Connecting...';
-                
+
                 try {
-                    const authInfo = await window.universalWalletAuth.connect();
-                    
+                    const authInfo = await window.sharedWalletSystem.connect('ethereum');
+
                     if (authInfo) {
                         console.log('✅ MetaMask connected:', authInfo.address);
                         // Redirect
