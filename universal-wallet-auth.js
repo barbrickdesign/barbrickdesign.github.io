@@ -366,8 +366,18 @@ class UniversalWalletAuth {
             // Reconnect wallet silently
             if (session.walletType === 'ethereum' && window.ethereum) {
                 this.wallet = window.ethereum;
-            } else if (session.walletType === 'solana' && window.solana) {
-                this.wallet = window.solana;
+            } else if (session.walletType === 'solana') {
+                // Try to reconnect to Solana wallet
+                if (window.phantom?.solana) {
+                    this.wallet = window.phantom.solana;
+                } else if (window.solana) {
+                    this.wallet = window.solana;
+                } else {
+                    // Wallet not available, clear session
+                    console.log('⚠️ Solana wallet not available for restoration');
+                    this.clearSession();
+                    return;
+                }
             }
 
             // Update last activity
@@ -496,6 +506,26 @@ class UniversalWalletAuth {
             });
 
             window.solana.on('accountChanged', (publicKey) => {
+                if (!publicKey) {
+                    this.clearSession();
+                } else if (publicKey.toString() !== this.address) {
+                    console.log('🔔 Account changed, re-authenticating...');
+                    this.clearSession();
+                    window.location.reload();
+                }
+            });
+        }
+
+        // Phantom events (more specific)
+        if (window.phantom && window.phantom.solana) {
+            const phantomProvider = window.phantom.solana;
+
+            phantomProvider.on('disconnect', () => {
+                console.log('🔔 Phantom disconnected');
+                this.clearSession();
+            });
+
+            phantomProvider.on('accountChanged', (publicKey) => {
                 if (!publicKey) {
                     this.clearSession();
                 } else if (publicKey.toString() !== this.address) {
