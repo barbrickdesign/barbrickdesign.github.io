@@ -68,7 +68,25 @@ self.addEventListener('fetch', (event) => {
     if (!event.request.url.startsWith('http')) {
         return;
     }
-    
+
+    // Bypass caching for complex pages that load external resources
+    const bypassCacheUrls = [
+        '/mandem.os/workspace/index.html',
+        '/ember-terminal/app.html',
+        '/classified-contracts.html',
+        '/grand-exchange.html'
+    ];
+
+    const shouldBypassCache = bypassCacheUrls.some(url =>
+        event.request.url.includes(url)
+    );
+
+    if (shouldBypassCache) {
+        // Always fetch fresh for these complex pages
+        console.log('[Service Worker] Bypassing cache for:', event.request.url);
+        return fetch(event.request);
+    }
+
     event.respondWith(
         caches.match(event.request)
             .then((response) => {
@@ -77,34 +95,34 @@ self.addEventListener('fetch', (event) => {
                     console.log('[Service Worker] Serving from cache:', event.request.url);
                     return response;
                 }
-                
+
                 // Clone the request
                 const fetchRequest = event.request.clone();
-                
+
                 return fetch(fetchRequest).then((response) => {
                     // Check if valid response
                     if (!response || response.status !== 200 || response.type === 'error') {
                         return response;
                     }
-                    
+
                     // Clone the response
                     const responseToCache = response.clone();
-                    
+
                     // Cache the fetched response
                     caches.open(CACHE_NAME)
                         .then((cache) => {
                             cache.put(event.request, responseToCache);
                         });
-                    
+
                     return response;
                 }).catch((error) => {
                     console.log('[Service Worker] Fetch failed, serving offline page:', error);
-                    
+
                     // Return offline page for navigation requests
                     if (event.request.mode === 'navigate') {
                         return caches.match(OFFLINE_URL);
                     }
-                    
+
                     return new Response('Offline - Content not available', {
                         status: 503,
                         statusText: 'Service Unavailable',
