@@ -102,7 +102,15 @@ class FPDSContractSchema {
             return { valid: false, error: 'Invalid contract number format' };
         }
         
-        const cleaned = contractNumber.trim().toUpperCase();
+        // Prevent infinite recursion
+        const stackKey = contractNumber.toLowerCase().trim();
+        if (this._parsingStack.has(stackKey)) {
+            return { valid: false, error: 'Circular reference detected' };
+        }
+        
+        this._parsingStack.add(stackKey);
+        
+        try {
         
         // Try to match standard format: AGENCY-YEAR-TYPE-NUMBER-MOD
         const standardPattern = /^([A-Z0-9]+)-(\d{2})-([A-Z])-(\d+)(-([A-Z]\d+))?$/;
