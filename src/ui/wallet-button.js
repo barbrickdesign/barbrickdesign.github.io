@@ -131,17 +131,31 @@ class WalletButton {
         try {
             let result = null;
 
-            // Try shared wallet system first
+            // PRIORITY 1: Try shared wallet system first (no signature required)
             if (window.sharedWalletSystem) {
+                console.log('🔌 Trying shared wallet system...');
                 result = await window.sharedWalletSystem.connect();
+                if (result) {
+                    console.log('✅ Connected via shared wallet system');
+                }
             }
-            // Fallback to global connectWallet function (from index.html)
-            else if (window.connectWallet) {
-                result = await window.connectWallet();
-            }
-            // Last resort: universal wallet auth
-            else if (window.universalWalletAuth) {
+
+            // PRIORITY 2: Try universal auth only if shared system fails
+            if (!result && window.universalWalletAuth) {
+                console.log('🔌 Falling back to universal auth...');
                 result = await window.universalWalletAuth.connect();
+                if (result) {
+                    console.log('✅ Connected via universal auth');
+                }
+            }
+
+            // PRIORITY 3: Last resort - global connectWallet function
+            if (!result && window.connectWallet) {
+                console.log('🔌 Trying global connectWallet...');
+                result = await window.connectWallet();
+                if (result) {
+                    console.log('✅ Connected via global function');
+                }
             }
 
             if (result) {
