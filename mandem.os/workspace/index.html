@@ -2010,7 +2010,7 @@
       updateUIForLoginState();
       
       // Show MGC balance if logged in
-      if (isUserLoggedIn()) {
+      if (isUserAuthenticated()) {
         fetchMgcBalance().then(showMgcBalance);
       }
       
@@ -2411,7 +2411,7 @@
         const intersects = raycaster.intersectObjects(satellites);
         if (intersects.length > 0) {
           const sat = intersects[0].object;
-          if (isUserLoggedIn()) {
+          if (isUserAuthenticated()) {
             window.location.href = sat.userData.url;
           } else {
             window.location.href = 'login.html';
@@ -2624,7 +2624,7 @@
         const intersects = window.raycaster.intersectObjects(window.satellites);
         if (intersects.length > 0) {
           const sat = intersects[0].object;
-          if (isUserLoggedIn()) {
+          if (isUserAuthenticated()) {
             window.location.href = sat.userData.url;
           } else {
             window.location.href = 'login.html';
@@ -2678,7 +2678,7 @@
     }
 
     // Call this after login
-    if (isUserLoggedIn()) {
+    if (isUserAuthenticated()) {
       fetchAndShowLocationLogs();
       updateAuthButton();
     }
@@ -2988,7 +2988,7 @@
           const intersects = window.raycaster.intersectObjects(window.satellites);
           if (intersects.length > 0) {
             const sat = intersects[0].object;
-            if (isUserLoggedIn()) {
+            if (isUserAuthenticated()) {
               window.location.href = sat.userData.url;
             } else {
               window.location.href = 'login.html';
@@ -3063,7 +3063,7 @@
     });
     
     // Add a "logged in" indicator if user is logged in
-    if (isUserLoggedIn()) {
+    if (isUserAuthenticated()) {
       const loginBtn = document.getElementById('loginBtn');
       loginBtn.textContent = 'Logged In';
       loginBtn.style.backgroundColor = '#4CAF50';
