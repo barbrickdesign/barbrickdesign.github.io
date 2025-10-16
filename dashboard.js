@@ -64,6 +64,7 @@ class DashboardManager {
         this.loadScoringStats();
         this.loadDripStats();
         this.loadSyncStatus();
+        this.loadRealAgentData();
         this.updateUI();
     }
 
