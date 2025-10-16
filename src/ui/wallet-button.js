@@ -181,8 +181,17 @@ class WalletButton {
      * Copy wallet address to clipboard
      */
     async copyAddress() {
-        const wallet = window.universalWalletAuth?.getAuthInfo();
-        if (!wallet) return;
+        // Get wallet info from shared system first, fallback to universal auth
+        let wallet = null;
+        if (window.sharedWalletSystem && window.sharedWalletSystem.connected) {
+            wallet = {
+                address: window.sharedWalletSystem.address
+            };
+        } else if (window.universalWalletAuth) {
+            wallet = window.universalWalletAuth.getAuthInfo();
+        }
+
+        if (!wallet || !wallet.address) return;
 
         try {
             await navigator.clipboard.writeText(wallet.address);
