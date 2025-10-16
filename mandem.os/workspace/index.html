@@ -703,13 +703,13 @@
       directionalLight.position.set(5, 3, 5);
       scene.add(directionalLight);
       
-      // Create Earth globe with texture
+      // Create Earth globe with real texture
       const earthGeometry = new THREE.SphereGeometry(5, 64, 64);
 
-      // Create Earth material with realistic colors and lighting
+      // Create Earth material with real Earth texture
       const earthMaterial = new THREE.MeshPhongMaterial({
-        map: null, // We'll load a texture
-        bumpMap: null, // For surface detail
+        map: null, // Will load Earth texture
+        bumpMap: null, // Surface detail
         bumpScale: 0.05,
         specularMap: null,
         specular: new THREE.Color(0x111111),
@@ -718,60 +718,61 @@
         opacity: 0.95
       });
 
-      // Create a simple Earth-like texture programmatically
-      const canvas = document.createElement('canvas');
-      const context = canvas.getContext('2d');
-      canvas.width = 1024;
-      canvas.height = 512;
-
-      // Create Earth-like colors
-      const imageData = context.createImageData(canvas.width, canvas.height);
-      for (let i = 0; i < imageData.data.length; i += 4) {
-        // Create continents (brown/green) and oceans (blue)
-        const x = (i / 4) % canvas.width;
-        const y = Math.floor((i / 4) / canvas.width);
-
-        // Simple noise-based continent generation
-        const noise1 = Math.sin(x * 0.01) * Math.cos(y * 0.01);
-        const noise2 = Math.sin(x * 0.02 + y * 0.03) * 0.5;
-        const noise3 = Math.sin(x * 0.005) * Math.sin(y * 0.008) * 0.3;
-        const continentValue = noise1 + noise2 + noise3;
-
-        if (continentValue > 0.1) {
-          // Land - brownish/greenish
-          const greenVariation = Math.sin(x * 0.02) * 0.2 + 0.5;
-          imageData.data[i] = Math.floor(34 + greenVariation * 50);     // R - brown/green
-          imageData.data[i + 1] = Math.floor(139 + greenVariation * 50); // G - green
-          imageData.data[i + 2] = Math.floor(34 + greenVariation * 20);  // B - dark
-        } else {
-          // Ocean - blue
-          const depth = Math.abs(continentValue) * 2;
-          imageData.data[i] = Math.floor(25 + depth * 30);     // R - deep blue
-          imageData.data[i + 1] = Math.floor(25 + depth * 50); // G - blue-green
-          imageData.data[i + 2] = Math.floor(112 + depth * 50); // B - blue
+      // Load real Earth texture
+      const textureLoader = new THREE.TextureLoader();
+      textureLoader.load(
+        'https://raw.githubusercontent.com/jeromeetienne/threex.planets/master/images/earthmap1k.jpg',
+        function(texture) {
+          earthMaterial.map = texture;
+          earthMaterial.needsUpdate = true;
+          console.log('✅ Earth texture loaded successfully');
+        },
+        function(progress) {
+          console.log('Earth texture loading progress:', progress);
+        },
+        function(error) {
+          console.warn('Earth texture failed to load, using fallback:', error);
+          // Fallback to procedural texture if real texture fails
+          createFallbackEarthTexture();
         }
-        imageData.data[i + 3] = 255; // Alpha
+      );
+
+      // Fallback procedural texture in case real texture fails
+      function createFallbackEarthTexture() {
+        const canvas = document.createElement('canvas');
+        const context = canvas.getContext('2d');
+        canvas.width = 1024;
+        canvas.height = 512;
+
+        const imageData = context.createImageData(canvas.width, canvas.height);
+        for (let i = 0; i < imageData.data.length; i += 4) {
+          const x = (i / 4) % canvas.width;
+          const y = Math.floor((i / 4) / canvas.width);
+
+          const noise1 = Math.sin(x * 0.01) * Math.cos(y * 0.01);
+          const noise2 = Math.sin(x * 0.02 + y * 0.03) * 0.5;
+          const noise3 = Math.sin(x * 0.005) * Math.sin(y * 0.008) * 0.3;
+          const continentValue = noise1 + noise2 + noise3;
+
+          if (continentValue > 0.1) {
+            imageData.data[i] = Math.floor(34 + Math.random() * 50);
+            imageData.data[i + 1] = Math.floor(139 + Math.random() * 50);
+            imageData.data[i + 2] = Math.floor(34 + Math.random() * 20);
+          } else {
+            imageData.data[i] = Math.floor(25 + Math.abs(continentValue) * 30);
+            imageData.data[i + 1] = Math.floor(25 + Math.abs(continentValue) * 50);
+            imageData.data[i + 2] = Math.floor(112 + Math.abs(continentValue) * 50);
+          }
+          imageData.data[i + 3] = 255;
+        }
+
+        context.putImageData(imageData, 0, 0);
+        const earthTexture = new THREE.CanvasTexture(canvas);
+        earthTexture.wrapS = THREE.RepeatWrapping;
+        earthTexture.wrapT = THREE.RepeatWrapping;
+        earthMaterial.map = earthTexture;
+        earthMaterial.needsUpdate = true;
       }
-
-      context.putImageData(imageData, 0, 0);
-
-      // Add some cloud-like effects
-      context.globalAlpha = 0.3;
-      context.fillStyle = 'white';
-      for (let i = 0; i < 50; i++) {
-        const x = Math.random() * canvas.width;
-        const y = Math.random() * canvas.height;
-        const size = Math.random() * 20 + 5;
-        context.beginPath();
-        context.arc(x, y, size, 0, Math.PI * 2);
-        context.fill();
-      }
-
-      const earthTexture = new THREE.CanvasTexture(canvas);
-      earthTexture.wrapS = THREE.RepeatWrapping;
-      earthTexture.wrapT = THREE.RepeatWrapping;
-
-      earthMaterial.map = earthTexture;
 
       const earth = new THREE.Mesh(earthGeometry, earthMaterial);
       scene.add(earth);
