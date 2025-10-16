@@ -291,6 +291,122 @@
             font-size: 1.1em;
             font-weight: bold;
         }
+
+        /* Wallet Button Styles */
+        .wallet-button-group {
+            position: relative;
+            display: inline-block;
+        }
+
+        .wallet-btn-connect, .wallet-btn-connected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 25px;
+            padding: 12px 24px;
+            color: white;
+            font-family: 'Orbitron', sans-serif;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .wallet-btn-connect:hover, .wallet-btn-connected:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .wallet-btn-connect:active, .wallet-btn-connected:active {
+            transform: translateY(0);
+        }
+
+        .wallet-btn-connect:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .wallet-icon {
+            font-size: 16px;
+        }
+
+        .wallet-text, .wallet-address {
+            font-size: 14px;
+            white-space: nowrap;
+        }
+
+        .wallet-address {
+            max-width: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Wallet Dropdown */
+        .wallet-dropdown {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: linear-gradient(135deg, rgba(0,0,0,0.95), rgba(20,20,20,0.95));
+            border: 1px solid rgba(102, 126, 234, 0.3);
+            border-radius: 12px;
+            padding: 12px;
+            min-width: 200px;
+            z-index: 1000;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.5);
+        }
+
+        .wallet-dropdown-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .wallet-address-full {
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            color: #8affff;
+            word-break: break-all;
+        }
+
+        .wallet-copy-btn {
+            background: rgba(102, 126, 234, 0.2);
+            border: 1px solid rgba(102, 126, 234, 0.4);
+            border-radius: 6px;
+            padding: 4px 8px;
+            color: #667eea;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .wallet-copy-btn:hover {
+            background: rgba(102, 126, 234, 0.4);
+        }
+
+        .wallet-disconnect-btn {
+            width: 100%;
+            background: rgba(255, 59, 48, 0.2);
+            border: 1px solid rgba(255, 59, 48, 0.4);
+            border-radius: 6px;
+            padding: 8px;
+            color: #ff3b30;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .wallet-disconnect-btn:hover {
+            background: rgba(255, 59, 48, 0.4);
+        }
 </head>
 <body>
     <div class="tron-grid"></div>
