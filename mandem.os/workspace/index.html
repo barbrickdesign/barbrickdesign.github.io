@@ -485,6 +485,33 @@
 
         // Also check after agent scripts should have loaded
         setTimeout(checkForLoadingIssues, 5000);
+
+        // Add event listeners for buttons (replacing inline onclick handlers)
+        document.addEventListener('DOMContentLoaded', function() {
+            // Hard refresh button
+            const hardRefreshBtn = document.getElementById('hardRefreshBtn');
+            if (hardRefreshBtn) {
+                hardRefreshBtn.addEventListener('click', hardRefresh);
+            }
+
+            // Connect wallet for MGC button
+            const connectWalletForMGCBtn = document.getElementById('connectWalletForMGC');
+            if (connectWalletForMGCBtn) {
+                connectWalletForMGCBtn.addEventListener('click', connectWalletForMGC);
+            }
+
+            // Hide welcome overlay button
+            const hideWelcomeOverlayBtn = document.getElementById('hideWelcomeOverlay');
+            if (hideWelcomeOverlayBtn) {
+                hideWelcomeOverlayBtn.addEventListener('click', hideWelcomeOverlay);
+            }
+
+            // Session log toggle button
+            const sessionLogToggleBtn = document.getElementById('sessionLogToggle');
+            if (sessionLogToggleBtn) {
+                sessionLogToggleBtn.addEventListener('click', toggleSessionLog);
+            }
+        });
         </script>         
         <!-- Welcome overlay (initially shown, fades out) -->
         <div class="welcome-overlay" id="welcomeOverlay">
