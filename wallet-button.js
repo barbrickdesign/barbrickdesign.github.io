@@ -120,7 +120,9 @@ class WalletButton {
      * Disconnect wallet
      */
     async disconnect() {
-        await window.universalWalletAuth.disconnect();
+        if (window.universalWalletAuth) {
+            await window.universalWalletAuth.disconnect();
+        }
         this.render();
     }
 
