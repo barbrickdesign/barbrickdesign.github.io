@@ -6,7 +6,8 @@ async function waitForDependencies() {
     const dependencies = {
         'agentSystem': 'agent-core.js',
         'agentDisplay': 'agent-display.js',
-        'BaseAgent': 'agent-types.js'
+        'BaseAgent': 'agent-types.js',
+        'setupEnhancedErrorMonitoring': 'monitoring-systems.js'
     };
 
     const maxRetries = 80; // 8 seconds max wait (increased from 5)
@@ -79,6 +80,12 @@ async function initializeAgentSystem() {
 
     // All dependencies are loaded, system is ready
     console.log('✅ Agent system initialized successfully');
+
+    // Initialize monitoring systems if available
+    if (typeof window.setupEnhancedErrorMonitoring === 'function') {
+        window.setupEnhancedErrorMonitoring();
+        console.log('🔍 Enhanced error monitoring activated');
+    }
 
     // Run initial tests if agent system is available
     if (typeof window.agentSystem !== 'undefined') {
