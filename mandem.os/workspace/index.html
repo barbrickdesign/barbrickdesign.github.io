@@ -1600,21 +1600,21 @@ async function checkServerAndShowBrainCellBtn() {
     const res = await fetch('/api/ping', {cache:'no-store'});
     if (res.ok) {
       document.getElementById('startBrainCellBtn').style.display = 'none';
-      return;
+    } else {
+      document.getElementById('startBrainCellBtn').style.display = 'block';
     }
   } catch {
     // Server is down
+    document.getElementById('startBrainCellBtn').style.display = 'block';
   }
-  document.getElementById('startBrainCellBtn').style.display = 'block';
+  document.getElementById('startBrainCellBtn').onclick = function() {
+    // Try to launch EXE (user must download and run it manually)
+    window.open('start-braincell-server.exe', '_blank');
+    alert('If prompted, please run the Brain Cell EXE to start your local server.');
+  };
 }
-document.getElementById('startBrainCellBtn').onclick = function() {
-  // Try to launch EXE (user must download and run it manually)
-  window.open('start-braincell-server.exe', '_blank');
-  alert('If prompted, please run the Brain Cell EXE to start your local server.');
-};
 window.addEventListener('DOMContentLoaded', checkServerAndShowBrainCellBtn);
 // ...existing code...
-</script>
 
 <!-- Mandem.OS Universal Auth Integration -->
 <script>
