@@ -43,12 +43,26 @@ class SharedWalletSystem {
     async detectWallets() {
         this.detectedWallets = [];
 
-        // MetaMask (Ethereum)
+        // Check if we're in Microsoft Edge
+        const isEdge = /Edg/.test(navigator.userAgent);
+        console.log('🌐 Browser detection:', isEdge ? 'Microsoft Edge' : 'Other browser');
+
+        // MetaMask (Ethereum) - with Edge fallback
         if (window.ethereum?.isMetaMask) {
             this.detectedWallets.push({
                 name: 'MetaMask',
                 type: 'ethereum',
                 icon: '🦊',
+                provider: window.ethereum
+            });
+        }
+        // Edge fallback: Check for any ethereum provider
+        else if (isEdge && window.ethereum) {
+            console.log('🔄 Edge detected, using generic ethereum provider');
+            this.detectedWallets.push({
+                name: 'Ethereum Wallet (Edge)',
+                type: 'ethereum',
+                icon: '🌐',
                 provider: window.ethereum
             });
         }
@@ -63,7 +77,7 @@ class SharedWalletSystem {
             });
         }
 
-        // Phantom (Solana)
+        // Phantom (Solana) - with Edge detection
         if (window.solana?.isPhantom || window.phantom?.solana) {
             const provider = window.phantom?.solana || window.solana;
             this.detectedWallets.push({
@@ -80,6 +94,17 @@ class SharedWalletSystem {
                 name: 'Trust Wallet',
                 type: 'ethereum',
                 icon: '🔒',
+                provider: window.ethereum
+            });
+        }
+
+        // Generic Ethereum provider fallback (for Edge and other browsers)
+        if (this.detectedWallets.length === 0 && window.ethereum) {
+            console.log('🔄 Using generic ethereum provider fallback');
+            this.detectedWallets.push({
+                name: 'Web3 Wallet',
+                type: 'ethereum',
+                icon: '🔗',
                 provider: window.ethereum
             });
         }
