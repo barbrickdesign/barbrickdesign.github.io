@@ -1116,6 +1116,9 @@ class ErrorRecoveryAgent extends BaseAgent {
                     } else if (result === 'cache_clear_suggestion') {
                         this.log(`💡 Suggestion: Clear browser cache for ${error.message}`);
                         return false;
+                    } else if (result === 'network_retry') {
+                        this.log(`💡 Network issue detected - will retry when connection restored`);
+                        return false;
                     }
                 }
             }
@@ -1227,8 +1230,49 @@ function setupEnhancedErrorMonitoring() {
         }
     };
 
-    console.log('🔍 Enhanced error monitoring activated for real site issues');
-}
+    // Monitor for localStorage/IndexedDB errors
+    try {
+        localStorage.setItem('agent-test', 'test');
+        localStorage.removeItem('agent-test');
+    } catch (storageError) {
+        agentSystem.recordError('storage-error', {
+            message: `Storage error: ${storageError.message}`,
+            error: storageError
+        });
+    }
+
+    // Monitor for performance issues
+    if ('performance' in window && 'PerformanceObserver' in window) {
+        try {
+            const observer = new PerformanceObserver((list) => {
+                for (const entry of list.getEntries()) {
+                    if (entry.entryType === 'largest-contentful-paint' && entry.startTime > 4000) {
+                        agentSystem.recordError('performance', {
+                            message: `Slow LCP detected: ${Math.round(entry.startTime)}ms`,
+                            metric: 'lcp',
+                            value: entry.startTime
+                        });
+                    }
+                }
+            });
+            observer.observe({ entryTypes: ['largest-contentful-paint'] });
+        } catch (perfError) {
+            // PerformanceObserver not supported
+        }
+    }
+
+    // Monitor for memory issues
+    if ('performance' in window && performance.memory) {
+        setInterval(() => {
+            const memUsage = performance.memory.usedJSHeapSize / performance.memory.totalJSHeapSize;
+            if (memUsage > 0.8) {
+                agentSystem.recordError('memory', {
+                    message: `High memory usage: ${Math.round(memUsage * 100)}%`,
+                    usage: memUsage
+                });
+            }
+        }, 60000);
+    }
 
 // Monitor for real DOM issues that occur during normal operation
 function monitorDOMIssues() {
