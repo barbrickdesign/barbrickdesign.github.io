@@ -3921,13 +3921,6 @@ async function updateGBPTBalance() {
 window.addEventListener('authSuccess', (event) => {
     console.log('🎉 Mandem.OS - Auth success, updating GBPT balance...');
     updateGBPTBalance();
+}
 });
-
-setTimeout(() => {
-    updateGBPTBalance();
-}, 1500); // Wait 1.5 seconds for auth to initialize
-
-console.log('✅ Mandem.OS - Wallet integration loaded');
-console.log('🔥 GBPT Token tracking enabled');
-console.log('💎 MGC Promotion System loaded');
 </script>
