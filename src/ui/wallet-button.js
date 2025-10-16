@@ -129,11 +129,28 @@ class WalletButton {
         btn.disabled = true;
 
         try {
-            const result = await window.universalWalletAuth.connect();
+            let result = null;
+
+            // Try shared wallet system first
+            if (window.sharedWalletSystem) {
+                result = await window.sharedWalletSystem.connect();
+            }
+            // Fallback to global connectWallet function (from index.html)
+            else if (window.connectWallet) {
+                result = await window.connectWallet();
+            }
+            // Last resort: universal wallet auth
+            else if (window.universalWalletAuth) {
+                result = await window.universalWalletAuth.connect();
+            }
 
             if (result) {
                 // Re-render to show connected state
                 this.render();
+            } else {
+                // Reset button if no result
+                btn.innerHTML = originalText;
+                btn.disabled = false;
             }
         } catch (error) {
             console.error('Connection failed:', error);
