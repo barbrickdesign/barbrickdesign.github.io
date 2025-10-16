@@ -11,6 +11,7 @@
     <script src="universal-wallet-auth.js"></script>
     <script src="auth-integration.js"></script>
     <script src="samgov-integration.js"></script>
+    <script src="pumpfun-integration.js"></script>
     <link rel="stylesheet" href="mobile-responsive.css">
     
     <style>
@@ -456,19 +457,43 @@
             loadItems();
         });
         
-        // Sample market items
+        // Sample market items (including pump.fun coins)
         const marketItems = [
-            { id: 1, name: 'Gem Bot NFT', icon: '⚔️', price: 0.5, category: 'nft' },
-            { id: 2, name: 'GBU Token', icon: '💎', price: 4.48, category: 'token' },
-            { id: 3, name: 'Game Asset', icon: '🎮', price: 0.3, category: 'asset' },
-            { id: 4, name: 'Achievement NFT', icon: '🏆', price: 0.1, category: 'nft' },
-            { id: 5, name: 'Ember Token', icon: '🔥', price: 0.324, category: 'token' },
-            { id: 6, name: 'Mandem Coin', icon: '🌐', price: 2.35, category: 'token' },
-            { id: 7, name: 'Rare Artifact', icon: '📿', price: 1.25, category: 'nft' },
-            { id: 8, name: 'Power Crystal', icon: '💠', price: 0.75, category: 'asset' },
-            { id: 9, name: 'Golden Sword', icon: '⚜️', price: 2.0, category: 'nft' },
-            { id: 10, name: 'Magic Scroll', icon: '📜', price: 0.45, category: 'asset' }
+            { id: 1, name: 'Gem Bot NFT', icon: '⚔️', price: 0.5, category: 'nft', type: 'traditional' },
+            { id: 2, name: 'GBU Token', icon: '💎', price: 4.48, category: 'token', type: 'traditional' },
+            { id: 3, name: 'Game Asset', icon: '🎮', price: 0.3, category: 'asset', type: 'traditional' },
+            { id: 4, name: 'Achievement NFT', icon: '🏆', price: 0.1, category: 'nft', type: 'traditional' },
+            { id: 5, name: 'Ember Token', icon: '🔥', price: 0.324, category: 'token', type: 'traditional' },
+            { id: 6, name: 'Mandem Coin', icon: '🌐', price: 2.35, category: 'token', type: 'traditional' },
+            { id: 7, name: 'Rare Artifact', icon: '📿', price: 1.25, category: 'nft', type: 'traditional' },
+            { id: 8, name: 'Power Crystal', icon: '💠', price: 0.75, category: 'asset', type: 'traditional' },
+            { id: 9, name: 'Golden Sword', icon: '⚜️', price: 2.0, category: 'nft', type: 'traditional' },
+            { id: 10, name: 'Magic Scroll', icon: '📜', price: 0.45, category: 'asset', type: 'traditional' }
         ];
+
+        // Add pump.fun coins to market items
+        async function loadPumpFunCoins() {
+            if (typeof window.pumpFun !== 'undefined') {
+                try {
+                    const pumpCoins = await window.pumpFun.getCoinsForDashboard();
+                    pumpCoins.forEach((coin, index) => {
+                        marketItems.push({
+                            id: 100 + index,
+                            name: coin.symbol,
+                            icon: '🚀',
+                            price: coin.currentPrice || coin.marketCap,
+                            category: 'pumpfun',
+                            type: 'pumpfun',
+                            coinData: coin,
+                            pumpFunUrl: coin.pumpFunUrl
+                        });
+                    });
+                    loadItems();
+                } catch (error) {
+                    console.error('Error loading pump.fun coins:', error);
+                }
+            }
+        }
         
         let selectedCrypto = 'ETH';
         let currentMode = 'buy';
