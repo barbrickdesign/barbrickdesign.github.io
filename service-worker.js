@@ -3,38 +3,23 @@
  * Enables all projects to work offline and sync when back online
  */
 
-const CACHE_NAME = 'barbrickdesign-v7';
+const CACHE_NAME = 'barbrickdesign-v8';
 const OFFLINE_URL = 'offline.html';
 
-// Files to cache for offline access
+// Files to cache for offline access - only essential working files
 const CACHE_URLS = [
     '/',
     '/index.html',
     '/src/core/universal-wallet-auth.js',
     '/src/core/auth-integration.js',
-    '/src/core/contractor-registry.js',
-    '/src/utils/fpds-contract-schema.js',
-    '/src/systems/pumpfun-token-config.js',
-    '/src/core/security-clearance-auth.js',
-    '/src/utils/samgov-integration.js',
-    '/src/systems/crypto-bidding-system.js',
-    '/src/ui/mobile-responsive.css',
-    '/dev-time-tracker.html',
-    '/gembot-control-3d.html',
-    '/investment-dashboard.html',
-    '/server-health-monitor.html',
-    '/test-all-projects.html',
-    '/classified-contracts.html',
-    '/contractor-registration.html',
-    '/contractor-portal.html',
-    '/admin-contractor-dashboard.html',
-    '/grand-exchange.html',
+    '/src/utils/shared-utilities.js',
+    '/src/utils/shared-wallet-system.js',
+    '/src/ui/wallet-button.js',
+    '/src/ui/wallet-button.css',
     '/mandem.os/workspace/index.html',
-    '/mandem.os/index.html',
-    '/ember-terminal/app.html',
-    '/ember-terminal/index.html',
     'https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iife.min.js',
-    'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js'
+    'https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js',
+    'https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js'
 ];
 
 // Install event - cache resources
