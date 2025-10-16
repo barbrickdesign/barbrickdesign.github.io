@@ -476,9 +476,8 @@
 
             // Force reload with cache bypass and timestamp
             const timestamp = new Date().getTime();
-            const currentUrl = new URL(window.location.href);
-            currentUrl.searchParams.set('cachebust', timestamp);
-            window.location.href = currentUrl.toString();
+            const separator = window.location.href.indexOf('?') === -1 ? '?' : '&';
+            window.location.href = window.location.href + separator + 'cachebust=' + timestamp;
         }
 
         // Check for loading issues on page load
