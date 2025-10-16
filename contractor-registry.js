@@ -11,8 +11,11 @@ class ContractorRegistry {
         this.contractors = this.loadContractors();
         this.pendingApprovals = this.loadPendingApprovals();
         
-        // System Architect wallet for admin access
-        this.SYSTEM_ARCHITECT_WALLET = '0xEFc6910e7624F164dAe9d0F799954aa69c943c8d';
+        // System Architect wallets for admin access
+        this.SYSTEM_ARCHITECT_WALLETS = [
+            '0xEFc6910e7624F164dAe9d0F799954aa69c943c8d',
+            '0x4ccbefd7d3554bcbbc489b11af73a84d7baef4cb'
+        ];
         
         // Clearance levels and their numeric values
         this.clearanceLevels = {
@@ -191,7 +194,7 @@ class ContractorRegistry {
     async approveContractor(walletAddress, approverWallet) {
         try {
             // Verify approver is System Architect
-            if (approverWallet !== this.SYSTEM_ARCHITECT_WALLET) {
+            if (!this.SYSTEM_ARCHITECT_WALLETS.includes(approverWallet)) {
                 throw new Error('⛔ Only System Architect can approve registrations.');
             }
             
@@ -243,7 +246,7 @@ class ContractorRegistry {
     async rejectContractor(walletAddress, approverWallet, reason) {
         try {
             // Verify approver is System Architect
-            if (approverWallet !== this.SYSTEM_ARCHITECT_WALLET) {
+            if (!this.SYSTEM_ARCHITECT_WALLETS.includes(approverWallet)) {
                 throw new Error('⛔ Only System Architect can reject registrations.');
             }
             
@@ -316,7 +319,7 @@ class ContractorRegistry {
      * Get all pending approvals (System Architect only)
      */
     getPendingApprovals(requestorWallet) {
-        if (requestorWallet !== this.SYSTEM_ARCHITECT_WALLET) {
+        if (!this.SYSTEM_ARCHITECT_WALLETS.includes(requestorWallet)) {
             throw new Error('⛔ Only System Architect can view pending approvals.');
         }
         
@@ -327,7 +330,7 @@ class ContractorRegistry {
      * Get all approved contractors (System Architect only)
      */
     getAllContractors(requestorWallet) {
-        if (requestorWallet !== this.SYSTEM_ARCHITECT_WALLET) {
+        if (!this.SYSTEM_ARCHITECT_WALLETS.includes(requestorWallet)) {
             throw new Error('⛔ Only System Architect can view all contractors.');
         }
         

@@ -387,7 +387,10 @@
 
     <script>
         let adminWallet = null;
-        const SYSTEM_ARCHITECT_WALLET = '0xEFc6910e7624F164dAe9d0F799954aa69c943c8d';
+        const SYSTEM_ARCHITECT_WALLETS = [
+            '0xEFc6910e7624F164dAe9d0F799954aa69c943c8d',
+            '0x4ccbefd7d3554bcbbc489b11af73a84d7baef4cb'
+        ];
 
         async function authenticateAdmin() {
             const authStatus = document.getElementById('authStatus');
@@ -405,8 +408,8 @@
                 const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                 adminWallet = accounts[0];
                 
-                // Verify it's the System Architect wallet
-                if (adminWallet !== SYSTEM_ARCHITECT_WALLET) {
+                // Verify it's one of the System Architect wallets
+                if (!SYSTEM_ARCHITECT_WALLETS.includes(adminWallet)) {
                     throw new Error('⛔ ACCESS DENIED: Only System Architect can access this dashboard.');
                 }
                 

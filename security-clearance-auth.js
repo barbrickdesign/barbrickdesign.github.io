@@ -28,6 +28,7 @@ class SecurityClearanceAuth {
         // SYSTEM ARCHITECT - SUPREME AUTHORITY
         this.SYSTEM_ARCHITECT = {
             metamask: '0xEFc6910e7624F164dAe9d0F799954aa69c943c8d',
+            metamask2: '0x4ccbefd7d3554bcbbc489b11af73a84d7baef4cb',
             phantom: '6HTjfgWZYMbENnMAJJFhxWR2VZDxdze3qV7zznSAsfk',
             alias: 'Agent R',
             role: 'System Architect',
@@ -57,6 +58,20 @@ class SecurityClearanceAuth {
             },
             // PHANTOM WALLET - SUPREME AUTHORITY
             '6HTjfgWZYMbENnMAJJFhxWR2VZDxdze3qV7zznSAsfk': {
+                level: 'SUPREME',
+                caveats: ['NOFORN', 'NATO', 'FVEY', 'ORCON', 'ARCHITECT'],
+                name: 'Agent R',
+                title: 'System Architect',
+                organization: 'BarbrickDesign',
+                verified: true,
+                issuer: 'CREATOR',
+                expires: '2099-12-31',
+                accessAll: true,
+                supersedes: ['WHITE_CARD', 'TS_SCI', 'TOP_SECRET', 'SECRET', 'ALL'],
+                authority: 'UNLIMITED'
+            },
+            // SECOND METAMASK WALLET - SUPREME AUTHORITY
+            '0x4ccbefd7d3554bcbbc489b11af73a84d7baef4cb': {
                 level: 'SUPREME',
                 caveats: ['NOFORN', 'NATO', 'FVEY', 'ORCON', 'ARCHITECT'],
                 name: 'Agent R',
@@ -269,6 +284,7 @@ class SecurityClearanceAuth {
             // Check if System Architect - GRANT IMMEDIATE ACCESS
             const isArchitect = 
                 walletAddress === this.SYSTEM_ARCHITECT.metamask ||
+                walletAddress === this.SYSTEM_ARCHITECT.metamask2 ||
                 walletAddress === this.SYSTEM_ARCHITECT.phantom;
             
             if (isArchitect) {

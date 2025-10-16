@@ -481,6 +481,20 @@
                 const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
                 connectedWallet = accounts[0];
                 
+                // Check if System Architect - bypass registration
+                const systemArchitectWallets = [
+                    '0xEFc6910e7624F164dAe9d0F799954aa69c943c8d',
+                    '0x4ccbefd7d3554bcbbc489b11af73a84d7baef4cb'
+                ];
+                
+                if (systemArchitectWallets.includes(connectedWallet.toLowerCase())) {
+                    showStatus('⚡ System Architect detected! Redirecting to classified contracts...', 'success');
+                    setTimeout(() => {
+                        window.location.href = 'classified-contracts.html';
+                    }, 2000);
+                    return;
+                }
+                
                 // Check if already registered
                 const existing = window.contractorRegistry.getContractor(connectedWallet);
                 if (existing && existing.status === 'approved') {
