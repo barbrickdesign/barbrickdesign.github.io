@@ -1821,7 +1821,7 @@
     
     // Update UI based on login state (non-blocking)
     function updateUIForLoginState() {
-      const isLoggedIn = isUserLoggedIn();
+      const isLoggedIn = isUserAuthenticated();
       const contentToggleBtn = document.getElementById('contentToggleBtn');
       const welcomeOverlay = document.querySelector('.welcome-overlay');
       
