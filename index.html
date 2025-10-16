@@ -393,33 +393,90 @@
             </div>
         <h2 class="section-title">🤖 AGENT MONITORING SYSTEM</h2>
         <div class="grid">
-            <div class="project-card" id="agent-status-card" style="border: 3px solid rgba(0,255,255,0.8); background: linear-gradient(135deg, rgba(0,20,40,0.9), rgba(0,40,60,0.9));">
-                <div class="project-icon" id="agent-status-icon">🔄</div>
-                <div class="project-title" id="agent-status-title">Agent System Initializing...</div>
-                <div class="project-desc" id="agent-status-desc">Loading monitoring agents and health checks...</div>
-                <div id="agent-stats" style="margin-top: 15px; font-size: 0.9em; color: #8addff;">
-                    <div id="agent-health" style="margin-bottom: 8px;">Health: <span style="color: #ffaa00;">Loading...</span></div>
-                    <div id="agent-tests" style="margin-bottom: 8px;">Tests Run: <span style="color: #00ffff;">0</span></div>
-                    <div id="agent-errors" style="margin-bottom: 8px;">Open Errors: <span style="color: #ff4444;">0</span></div>
-                    <div id="agent-fixes" style="margin-bottom: 8px;">Fixes Applied: <span style="color: #00ff00;">0</span></div>
+            <div class="project-card agent-status-card" id="agent-status-card" style="border: 3px solid rgba(0,255,255,0.8); background: linear-gradient(135deg, rgba(0,20,40,0.9), rgba(0,40,60,0.9)); position: relative;">
+                <div class="agent-header">
+                    <div class="project-icon" id="agent-status-icon">🔄</div>
+                    <div class="agent-title-section">
+                        <div class="project-title" id="agent-status-title">Agent System Initializing...</div>
+                        <div class="agent-subtitle" id="agent-status-desc">Loading monitoring agents and health checks...</div>
+                    </div>
                 </div>
-                <button id="view-agent-details" style="background: rgba(0,255,255,0.2); border: 1px solid rgba(0,255,255,0.5); color: #00ffff; padding: 8px 16px; border-radius: 8px; cursor: pointer; margin-top: 10px; font-size: 0.85em;">View Details</button>
+
+                <div class="agent-stats-grid" id="agent-stats">
+                    <div class="stat-item">
+                        <div class="stat-label">Health</div>
+                        <div class="stat-value health-value" id="agent-health">Loading...</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Tests</div>
+                        <div class="stat-value tests-value" id="agent-tests">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Errors</div>
+                        <div class="stat-value errors-value" id="agent-errors">0</div>
+                    </div>
+                    <div class="stat-item">
+                        <div class="stat-label">Fixes</div>
+                        <div class="stat-value fixes-value" id="agent-fixes">0</div>
+                    </div>
+                </div>
+
+                <button id="view-agent-details" class="agent-details-btn">
+                    <span class="btn-icon">📊</span>
+                    <span class="btn-text">View Details</span>
+                </button>
+
+                <!-- Mini agent status indicators -->
+                <div class="mini-agent-indicators" id="mini-agent-indicators">
+                    <div class="mini-indicator" title="Function Tester">
+                        <span class="indicator-dot" id="func-dot"></span>
+                        <span class="indicator-label">F</span>
+                    </div>
+                    <div class="mini-indicator" title="Button Tester">
+                        <span class="indicator-dot" id="btn-dot"></span>
+                        <span class="indicator-label">B</span>
+                    </div>
+                    <div class="mini-indicator" title="Navigation Tester">
+                        <span class="indicator-dot" id="nav-dot"></span>
+                        <span class="indicator-label">N</span>
+                    </div>
+                    <div class="mini-indicator" title="Performance Monitor">
+                        <span class="indicator-dot" id="perf-dot"></span>
+                        <span class="indicator-label">P</span>
+                    </div>
+                    <div class="mini-indicator" title="Security Monitor">
+                        <span class="indicator-dot" id="sec-dot"></span>
+                        <span class="indicator-label">S</span>
+                    </div>
+                    <div class="mini-indicator" title="Error Recovery">
+                        <span class="indicator-dot" id="err-dot"></span>
+                        <span class="indicator-label">R</span>
+                    </div>
+                </div>
             </div>
 
-            <div class="project-card" id="agent-logs-card" style="max-height: 300px; overflow: hidden;">
-                <div class="project-icon">📋</div>
-                <div class="project-title">Recent Activity</div>
-                <div class="project-desc">Latest agent logs and system events</div>
-                <div id="agent-logs" style="margin-top: 15px; max-height: 150px; overflow-y: auto; font-size: 0.8em; color: #8addff; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 5px;">
-                    <div id="logs-loading">Loading logs...</div>
+            <div class="project-card agent-activity-card" id="agent-logs-card" style="max-height: 300px; overflow: hidden;">
+                <div class="activity-header">
+                    <div class="project-icon">📋</div>
+                    <div class="activity-title">
+                        <div class="project-title">Recent Activity</div>
+                        <div class="activity-subtitle">Latest agent logs and system events</div>
+                    </div>
+                </div>
+                <div class="activity-content" id="agent-logs" style="margin-top: 15px; max-height: 200px; overflow-y: auto; font-size: 0.8em; color: #8addff; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 5px;">
+                    <div id="logs-loading">Loading activity logs...</div>
                 </div>
             </div>
 
-            <div class="project-card" id="agent-errors-card" style="border: 2px solid rgba(255,68,68,0.5);">
-                <div class="project-icon">❌</div>
-                <div class="project-title">Error Monitor</div>
-                <div class="project-desc">Active errors and issues detected</div>
-                <div id="agent-errors-list" style="margin-top: 15px; max-height: 150px; overflow-y: auto; font-size: 0.8em;">
+            <div class="project-card agent-errors-card" id="agent-errors-card" style="border: 2px solid rgba(255,68,68,0.5);">
+                <div class="errors-header">
+                    <div class="project-icon">❌</div>
+                    <div class="errors-title">
+                        <div class="project-title">Error Monitor</div>
+                        <div class="errors-subtitle">Active errors and issues detected</div>
+                    </div>
+                </div>
+                <div class="errors-content" id="agent-errors-list" style="margin-top: 15px; max-height: 200px; overflow-y: auto; font-size: 0.8em;">
                     <div id="errors-loading" style="color: #00ff00;">✅ No errors detected</div>
                 </div>
             </div>
