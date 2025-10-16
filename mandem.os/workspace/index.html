@@ -134,13 +134,13 @@
                 <a href="profile.html" class="auth-button" id="profileBtn" style="display:none;">Profile</a>
             </div>
         </header>         
-        <!-- Fullscreen 3D globe container -->         
-        <div id="globe-container"> 
-            <!-- 3D Globe will be rendered here by Three.js -->             
-        </div>         
-        <div class="tooltip" id="globeTooltip"></div>         
-        <!-- Welcome overlay -->
-        <div class="welcome-overlay">
+        <!-- Fullscreen 3D globe container -->
+        <div id="globe-container" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; display: block;">
+            <!-- 3D Globe will be rendered here by Three.js -->
+        </div>
+
+        <!-- Welcome overlay - hide immediately -->
+        <div class="welcome-overlay" style="display: none !important;">
             <h2>Gem Bot Universe</h2>
             <p>Explore our interactive 3D environments and trading systems by navigating the Globe Interface. Access the Laboratory for research, Warehouse for storage, Explorer for real-world navigation, and Grand Exchange for trading.</p>
 
