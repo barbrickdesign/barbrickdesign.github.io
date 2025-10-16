@@ -815,258 +815,209 @@
           <div id="sync-status-times" style="font-size:13px;color:#aaa;margin-top:6px;"></div>
         </div>
         <!-- Server Status Message (clickable link to server status indicator) -->
-        <div id="statusMessage" style="position: fixed; top: 80px; left: 20px; z-index: 500; max-width: 200px; cursor: pointer; background: rgba(34, 34, 34, 0.9); color: #fff; padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: bold; box-shadow: 0 2px 6px rgba(0,0,0,0.5); transition: opacity 0.3s;">Server: ...</div>
-        <!-- Session Log Panel -->
-        <div id="sessionLogPanel"></div>
-        <button id="sessionLogToggle">📋 Logs</button> 
-        <!-- Login Check Modal (Now non-blocking) -->         
-        <div id="loginModal" class="modal" style="display:none"> 
-            <div class="modal-content"> 
-                <h3>Enhanced Features Available</h3> 
-                <p>Connect your wallet to access advanced features like live feeds, MGC balance tracking, and exclusive 3D environments.</p> 
-                <button id="modalLoginBtn" class="auth-button">Connect Wallet</button>                 
-                <button id="modalCloseBtn" class="auth-button">Continue Without Login</button>                 
-            </div>             
-        </div> 
-        <footer> 
-            <p>&copy; 2025 Gem Bot Project | All Rights Reserved</p> 
-        </footer>         
-        <!-- Load JavaScript files -->         
-        <!-- Solana Wallet Integration -->
-        <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@latest/lib/index.iife.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl-fast.min.js"></script>
-        <script src="../../mandem.os/workspace/public/phantomLogin.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/three@latest/build/three.min.js"></script>         
-        <script src="https://cdn.jsdelivr.net/npm/three@latest/examples/js/controls/OrbitControls.js"></script>         
-        <script src="https://cdn.jsdelivr.net/npm/three@latest/examples/js/controls/PointerLockControls.js"></script>         
-        <!-- Clean session logging script -->
+        <div id="statusMessage" style="position: fixed; top: 80px; left: 20px; z-index: 500; max-width: 200px; cursor: pointer; background: rgba(34, 34, 34, 0.9); color: #fff; padding: 6px 12px; border-radius: 6px; font-size: 13px; font-weight: bold; box-shadow: 0 2px 6px rgba(0,0,0,0.5); transition: opacity        <!-- Globe Rendering Script -->
         <script>
-    // Clean Session Logging System
-    let sessionLogs = JSON.parse(localStorage.getItem('mandemSessionLogs') || '[]');
-    const MAX_LOGS = 50;
+        // Initialize 3D Globe
+        let scene, camera, renderer, globe, controls;
 
-    function logSessionEvent(type, message, data = {}) {
-        const logEntry = {
-            timestamp: new Date().toISOString(),
-            type: type,
-            message: message,
-            data: data,
-            url: window.location.href,
-            userAgent: navigator.userAgent
-        };
+        function initGlobe() {
+            // Create scene
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x000000);
 
-        sessionLogs.unshift(logEntry);
-        if (sessionLogs.length > MAX_LOGS) {
-            sessionLogs = sessionLogs.slice(0, MAX_LOGS);
+            // Create camera
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.z = 5;
+
+            // Create renderer
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            document.getElementById('globe-container').appendChild(renderer.domElement);
+
+            // Create globe geometry
+            const geometry = new THREE.SphereGeometry(2, 64, 64);
+
+            // Create materials with textures
+            const textureLoader = new THREE.TextureLoader();
+            const earthTexture = textureLoader.load('https://threejs.org/examples/textures/land_ocean_ice_cloud_2048.jpg');
+
+            const material = new THREE.MeshPhongMaterial({
+                map: earthTexture,
+                transparent: true,
+                opacity: 0.8
+            });
+
+            // Create mesh
+            globe = new THREE.Mesh(geometry, material);
+            scene.add(globe);
+
+            // Add lighting
+            const ambientLight = new THREE.AmbientLight(0x404040, 0.6);
+            scene.add(ambientLight);
+
+            const directionalLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            directionalLight.position.set(5, 3, 5);
+            scene.add(directionalLight);
+
+            // Add orbit controls
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.enableZoom = true;
+            controls.enablePan = false;
+
+            // Start animation loop
+            animate();
         }
 
-        localStorage.setItem('mandemSessionLogs', JSON.stringify(sessionLogs));
-        updateSessionLogPanel();
-    }
+        function animate() {
+            requestAnimationFrame(animate);
 
-    function toggleSessionLog() {
-        const panel = document.getElementById('sessionLogPanel');
-        if (!panel) return;
+            if (globe) {
+                globe.rotation.y += 0.002; // Slow rotation
+            }
 
-        if (panel.style.display === 'block') {
-            panel.style.display = 'none';
-        } else {
-            panel.style.display = 'block';
-            updateSessionLogPanel();
+            if (controls) {
+                controls.update();
+            }
+
+            renderer.render(scene, camera);
         }
-    }
 
-    function updateSessionLogPanel() {
-        const panel = document.getElementById('sessionLogPanel');
-        if (!panel || panel.style.display === 'none') return;
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
 
-        panel.innerHTML = '<h4>Session Logs</h4>' +
-            sessionLogs.slice(0, 10).map(log =>
-                `<div style="margin-bottom:5px;border-bottom:1px solid #333;padding:2px;">
-                    <small style="color:#888">${new Date(log.timestamp).toLocaleTimeString()}</small>
-                    <strong style="color:#00ff99">[${log.type}]</strong> ${log.message}
-                </div>`
-            ).join('');
-    }
+        // Handle globe interactions
+        function handleGlobeClick(event) {
+            const tooltip = document.getElementById('globeTooltip');
+            if (tooltip) {
+                tooltip.style.display = 'block';
+                tooltip.style.left = event.clientX + 10 + 'px';
+                tooltip.style.top = event.clientY - 10 + 'px';
+                tooltip.textContent = 'Click to explore locations';
+            }
+        }
 
-    // Initialize session logging
-    logSessionEvent('info', 'Gem Bot Universe loaded');
+        function hideGlobeTooltip() {
+            const tooltip = document.getElementById('globeTooltip');
+            if (tooltip) {
+                tooltip.style.display = 'none';
+            }
+        }
+
+        // Initialize when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            initGlobe();
+            window.addEventListener('resize', onWindowResize);
+
+            // Add globe interaction listeners
+            const globeContainer = document.getElementById('globe-container');
+            if (globeContainer) {
+                globeContainer.addEventListener('click', handleGlobeClick);
+                globeContainer.addEventListener('mouseleave', hideGlobeTooltip);
+            }
+        });
+        </script>
+
+        <!-- Mandem.OS Auth Integration -->
+        <script>
+        // Update Mandem.OS auth UI
+        function updateMandemAuthUI(authInfo) {
+            const loginBtn = document.getElementById('loginBtn');
+            const profileBtn = document.getElementById('profileBtn');
+
+            if (authInfo && authInfo.authenticated) {
+                // User is authenticated
+                if (loginBtn) loginBtn.style.display = 'none';
+                if (profileBtn) {
+                    profileBtn.style.display = 'inline-block';
+                    profileBtn.textContent = `👤 ${authInfo.shortAddress}`;
+                }
+
+                // Show work time if available
+                if (authInfo.workTimeMinutes > 0) {
+                    const hours = Math.floor(authInfo.workTimeMinutes / 60);
+                    const mins = authInfo.workTimeMinutes % 60;
+                }
+            } else {
+                // User is not authenticated
+                if (loginBtn) loginBtn.style.display = 'inline-block';
+                if (profileBtn) profileBtn.style.display = 'none';
+            }
+        }
+
+        // Enhance login button to use universal auth
+        const originalLoginBtn = document.getElementById('loginBtn');
+        if (originalLoginBtn) {
+            originalLoginBtn.addEventListener('click', async (e) => {
+                e.preventDefault();
+
+                try {
+                    const authInfo = await window.universalWalletAuth.connect();
+                    if (authInfo) {
+                        updateMandemAuthUI(authInfo);
+                    }
+                } catch (error) {
+                    console.error('❌ Mandem.OS wallet connection error:', error);
+                    alert('Wallet connection failed: ' + error.message);
+                }
+            });
+        }
+
+        // Listen for auth events
+        window.addEventListener('authSuccess', (event) => {
+            updateMandemAuthUI(event.detail);
+        });
+
+        window.addEventListener('authLogout', () => {
+            updateMandemAuthUI(null);
+            // Reset GBPT balance on logout
+            const gbptSpan = document.getElementById('mndmBalance');
+            if (gbptSpan) gbptSpan.textContent = '0';
+        });
+
+        // Update GBPT Token Balance (GBPT) in header
+        async function updateGBPTBalance() {
+            try {
+                const gbptSpan = document.getElementById('mndmBalance');
+                if (!gbptSpan) return;
+
+                // Get connected wallet address
+                const walletAddress = window.universalWalletAuth && window.universalWalletAuth.getAddress();
+
+                if (!walletAddress) {
+                    // No wallet connected - show 0
+                    gbptSpan.textContent = '0';
+                    return;
+                }
+
+                // Fetch GBPT token balance
+                const balance = await window.getTokenBalance(walletAddress);
+
+                // Update display
+                const formattedBalance = window.formatTokenAmount(balance, 2);
+                gbptSpan.textContent = formattedBalance;
+
+            } catch (error) {
+                console.error('❌ Mandem.OS - Failed to update GBPT balance:', error);
+                const gbptSpan = document.getElementById('mndmBalance');
+                if (gbptSpan) gbptSpan.textContent = '0';
+            }
+        }
+
+        // Update GBPT balance when wallet connects
+        window.addEventListener('authSuccess', (event) => {
+            updateGBPTBalance();
+            setTimeout(() => {
+                updateGBPTBalance();
+            }, 1500); // Wait 1.5 seconds for auth to initialize
+        });
         </script>
     </body>
 </html>
-            
-            currentIndex++;
-            setTimeout(crawlNextPage, 2000); // 2 second delay between pages
-        }
-        
-        crawlNextPage();
-    }
-
-    function simulatePageVisit(page) {
-        // Simulate loading the page and testing features
-        const features = page.expectedFeatures;
-        const foundFeatures = [];
-        const missingFeatures = [];
-        
-        features.forEach(feature => {
-            // Simulate checking if feature exists (would be actual DOM checks in real implementation)
-            const exists = Math.random() > 0.2; // 80% chance of finding feature
-            if (exists) {
-                foundFeatures.push(feature);
-                logSessionEvent('info', `Agent5: ${page.name} - Found ${feature}`);
-            } else {
-                missingFeatures.push(feature);
-                logSessionEvent('warning', `Agent5: ${page.name} - Missing ${feature}`);
-            }
-        });
-        
-        // Log page-specific issues
-        if (missingFeatures.length > 0) {
-            logSessionEvent('warning', `Agent5: ${page.name} has ${missingFeatures.length} missing features`, { missing: missingFeatures });
-        }
-        
-        // Test cross-page functionality
-        if (page.name === 'Login Page') {
-            testCrossPageAuth(page);
-        } else if (page.name === 'Profile Page') {
-            testProfileConsistency(page);
-        }
-    }
-
-    function testCrossPageAuth(page) {
-        // Simulate authentication state across pages
-        const isLoggedIn = isUserAuthenticated();
-        if (!isLoggedIn && page.name !== 'Login Page') {
-            logSessionEvent('warning', `Agent5: ${page.name} requires auth but user not logged in`);
-        } else {
-            logSessionEvent('info', `Agent5: ${page.name} auth state consistent`);
-        }
-    }
-
-    function testProfileConsistency(page) {
-        // Simulate checking if profile data is consistent across pages
-        const profile = JSON.parse(localStorage.getItem('userProfile') || 'null');
-        if (profile) {
-            logSessionEvent('info', `Agent5: ${page.name} profile data loaded`);
-        } else {
-            logSessionEvent('warning', `Agent5: ${page.name} missing profile data`);
-        }
-    }
-
-    function generateCrawlReport() {
-        const report = {
-            timestamp: new Date().toISOString(),
-            pagesTested: sitePages.length,
-            totalFeatures: sitePages.reduce((sum, page) => sum + page.expectedFeatures.length, 0),
-            findings: analyzeCrawlFindings(),
-            priorities: prioritizeFixes()
-        };
-        
-        logSessionEvent('info', 'Agent5: Generated comprehensive crawl report', report);
-        localStorage.setItem('mandemCrawlReport', JSON.stringify(report));
-        
-        return report;
-    }
-
-    function analyzeCrawlFindings() {
-        // Analyze patterns from recent logs
-        const recentLogs = sessionLogs.slice(0, 50);
-        const errorLogs = recentLogs.filter(log => log.type === 'error');
-        const warningLogs = recentLogs.filter(log => log.type === 'warning');
-        
-        return {
-            totalLogs: recentLogs.length,
-            errors: errorLogs.length,
-            warnings: warningLogs.length,
-            commonIssues: identifyCommonIssues(errorLogs, warningLogs)
-        };
-    }
-
-    function identifyCommonIssues(errors, warnings) {
-        const issues = {};
-        
-        [...errors, ...warnings].forEach(log => {
-            const message = log.message.toLowerCase();
-            if (message.includes('balance')) issues.balanceDisplay = (issues.balanceDisplay || 0) + 1;
-            if (message.includes('server') || message.includes('api')) issues.serverConnection = (issues.serverConnection || 0) + 1;
-            if (message.includes('texture') || message.includes('globe')) issues.visualRendering = (issues.visualRendering || 0) + 1;
-            if (message.includes('auth') || message.includes('login')) issues.authentication = (issues.authentication || 0) + 1;
-        });
-        
-        return issues;
-    }
-
-    function prioritizeFixes() {
-        // Based on findings, prioritize fixes
-        const priorities = [];
-        
-        if (analyzeCrawlFindings().commonIssues.balanceDisplay > 3) {
-            priorities.push({ area: 'Balance Display', priority: 'high', reason: 'Multiple balance-related warnings' });
-        }
-        
-        if (analyzeCrawlFindings().commonIssues.serverConnection > 2) {
-            priorities.push({ area: 'Server Connections', priority: 'high', reason: 'API failures affecting multiple pages' });
-        }
-        
-        if (analyzeCrawlFindings().commonIssues.visualRendering > 1) {
-            priorities.push({ area: 'Visual Elements', priority: 'medium', reason: 'Globe and texture issues' });
-        }
-        
-        if (analyzeCrawlFindings().commonIssues.authentication > 2) {
-            priorities.push({ area: 'Authentication Flow', priority: 'medium', reason: 'Auth inconsistencies across pages' });
-        }
-        
-        return priorities;
-    }
-
-    // Enhanced agent with cross-page testing
-    function testLoginFlow() {
-        // ... existing code ...
-        
-        // Test cross-page navigation
-        setTimeout(() => {
-            logSessionEvent('info', 'Agent1: Testing navigation to profile page');
-            // Simulate navigation
-            const profileLink = document.getElementById('profileBtn');
-            if (profileLink && profileLink.href) {
-                logSessionEvent('info', 'Agent1: Profile link found, navigation possible');
-            } else {
-                logSessionEvent('warning', 'Agent1: Profile link not accessible');
-            }
-        }, 4000);
-    }
-
-    // Add cross-page testing to other agents
-    function testGlobeInteractions() {
-        // ... existing code ...
-        
-        // Test if globe elements persist across potential page changes
-        setTimeout(() => {
-            const globeContainer = document.getElementById('globe-container');
-            if (globeContainer) {
-                logSessionEvent('info', 'Agent2: Globe container persists for cross-page consistency');
-            }
-        }, 3000);
-    }
-
-    // Enhanced Wallet Testing System
-    const walletTestMethods = [
-        { name: 'MetaMask', simulate: simulateMetaMask },
-        { name: 'Phantom', simulate: simulatePhantom },
-        { name: 'Manual', simulate: simulateManualWallet }
-    ];
-
-    function runWalletTesting() {
-        logSessionEvent('info', 'Starting comprehensive wallet functionality testing');
-        
-        // Agent 6: Wallet Tester
-        setTimeout(() => {
-            logSessionEvent('info', 'Agent6 (WalletTester) starting wallet creation and testing');
-            testWalletCreationAndFunctionality();
-        }, 20000); // Start after other agents
-    }
-
-    function testWalletCreationAndFunctionality() {
         let methodIndex = 0;
         
         function tryNextMethod() {
