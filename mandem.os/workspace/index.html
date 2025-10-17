@@ -1581,8 +1581,25 @@
         function loadAgentCustomizations() {
             const saved = localStorage.getItem('agentCustomizations');
             if (saved) {
-                Object.assign(agentCustomizations, JSON.parse(saved));
+                const loaded = JSON.parse(saved);
+                // Merge with defaults to ensure all properties exist
+                Object.keys(agentCustomizations).forEach(agent => {
+                    if (loaded[agent]) {
+                        agentCustomizations[agent] = {
+                            costume: loaded[agent].costume || agentCustomizations[agent].costume,
+                            color: loaded[agent].color || agentCustomizations[agent].color,
+                            level: loaded[agent].level || 1,
+                            xp: loaded[agent].xp || 0,
+                            achievements: loaded[agent].achievements || []
+                        };
+                    }
+                });
             }
+        }
+
+        // Save customizations
+        function saveAgentCustomizations() {
+            localStorage.setItem('agentCustomizations', JSON.stringify(agentCustomizations));
         }
 
         // Content Library Functions
