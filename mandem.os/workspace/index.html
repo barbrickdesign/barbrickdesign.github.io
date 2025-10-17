@@ -598,6 +598,20 @@
     <div id="missionControl" class="content-panel" style="display: none;">
         <h2>MISSION CONTROL</h2>
 
+        <!-- Grand Wizard Controls -->
+        <div style="margin-bottom: 2rem;">
+            <h3 style="color: var(--neon-pink); margin-bottom: 1rem;">🎭 GRAND WIZARD CONTROLS</h3>
+            <div class="wizard-controls-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                <div class="wizard-control-card">
+                    <h4>Wizard Status</h4>
+                    <div id="wizardStatusDisplay" style="font-family: monospace; font-size: 0.8rem; color: var(--neon-green); background: rgba(0,0,0,0.5); padding: 1rem; border-radius: 8px; border: 1px solid var(--neon-green); white-space: pre-line; max-height: 200px; overflow-y: auto;">
+                        Loading wizard status...
+                    </div>
+                    <button class="cyber-btn" onclick="refreshWizardStatus()">🔄 Refresh Status</button>
+                </div>
+            </div>
+        </div>
+
         <!-- Agent Network -->
         <div style="margin-bottom: 2rem;">
             <h3 style="color: var(--neon-pink); margin-bottom: 1rem;">AGENT NETWORK</h3>
