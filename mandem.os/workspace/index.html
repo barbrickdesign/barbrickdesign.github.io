@@ -759,30 +759,79 @@
                 scene.add(satellite);
                 satellites.push(satellite);
 
-                // Create floating 3D text label
+                // Create curved 3D text label that wraps around sphere
                 const canvas = document.createElement('canvas');
                 const ctx = canvas.getContext('2d');
-                canvas.width = 256;
-                canvas.height = 64;
+                canvas.width = 512;  // Wider canvas for curved text
+                canvas.height = 128; // Taller canvas
 
-                // Style the text
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
+                // Function to draw curved text
+                function drawCurvedText(text, centerX, centerY, radius, angle) {
+                    ctx.save();
+                    ctx.translate(centerX, centerY);
+                    ctx.rotate(angle);
+
+                    const textWidth = ctx.measureText(text).width;
+                    const charAngle = (textWidth / radius) / text.length;
+
+                    for (let i = 0; i < text.length; i++) {
+                        const char = text[i];
+                        const charWidth = ctx.measureText(char).width;
+                        const charRadius = radius - (i * charWidth * 0.8);
+
+                        ctx.save();
+                        ctx.rotate(i * charAngle);
+                        ctx.fillText(char, 0, -charRadius);
+                        ctx.restore();
+                    }
+
+                    ctx.restore();
+                }
+
+                // Style the canvas background
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
                 ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = 'white';
-                ctx.font = 'bold 20px Arial';
+
+                // Draw curved text
+                ctx.fillStyle = '#ffffff';
+                ctx.font = 'bold 24px Arial';
                 ctx.textAlign = 'center';
                 ctx.textBaseline = 'middle';
-                ctx.fillText(env.name, canvas.width / 2, canvas.height / 2);
+
+                // Calculate text curvature parameters
+                const textRadius = 80;  // Radius for text curve
+                const startAngle = -Math.PI / 6;  // Slight angle offset
+
+                drawCurvedText(env.name, canvas.width / 2, canvas.height / 2, textRadius, startAngle);
+
+                // Add subtle glow effect
+                ctx.shadowColor = '#ffd700';
+                ctx.shadowBlur = 8;
+                ctx.fillStyle = '#ffd700';
+                drawCurvedText(env.name, canvas.width / 2, canvas.height / 2, textRadius, startAngle);
 
                 const texture = new THREE.CanvasTexture(canvas);
-                const spriteMaterial = new THREE.SpriteMaterial({ map: texture, transparent: true });
+                texture.generateMipmaps = false;
+                texture.minFilter = THREE.LinearFilter;
+
+                const spriteMaterial = new THREE.SpriteMaterial({
+                    map: texture,
+                    transparent: true,
+                    alphaTest: 0.1,
+                    depthWrite: false
+                });
+
                 const sprite = new THREE.Sprite(spriteMaterial);
 
-                sprite.position.x = Math.cos(angle) * (radius + 1.5);
-                sprite.position.z = Math.sin(angle) * (radius + 1.5);
-                sprite.position.y = Math.sin(angle) * 2 + 1.2; // Lowered from +1.8 to +1.2 - directly above sphere
-                sprite.scale.set(4, 1, 1);
+                // Position label closer to sphere for wrapping effect
+                sprite.position.x = Math.cos(angle) * (radius + 0.8);
+                sprite.position.z = Math.sin(angle) * (radius + 0.8);
+                sprite.position.y = 0.5; // Lower position for sphere wrapping effect
 
+                // Scale for curved text appearance
+                sprite.scale.set(6, 2, 1); // Wider and shorter for curved effect
+
+                // Store reference to satellite
                 sprite.userData = { satellite: satellite };
                 scene.add(sprite);
                 labels.push(sprite);
@@ -924,9 +973,9 @@
                 // Adjust camera for mobile view
                 camera.position.z = 20; // Pull back slightly for mobile
 
-                // Make labels larger on mobile
+                // Make labels larger on mobile (adjusted for curved text)
                 labels.forEach(label => {
-                    label.scale.set(5, 1.2, 1); // Larger text on mobile
+                    label.scale.set(8, 2.5, 1); // Larger curved text on mobile
                 });
             }
 
@@ -951,15 +1000,21 @@
 
                     satellite.rotation.y += 0.01;
 
-                    // Update corresponding label position
+                    // Update corresponding label position and rotation
                     if (labels[index]) {
                         const label = labels[index];
-                        label.position.x = Math.cos(angle) * (radius + 1.5);
-                        label.position.z = Math.sin(angle) * (radius + 1.5);
-                        label.position.y = 1.2; // Fixed height above satellites
+                        const satelliteAngle = baseAngle + time;
 
-                        // Make labels face the camera
+                        // Position curved labels closer to sphere for wrapping effect
+                        label.position.x = Math.cos(satelliteAngle) * (radius + 0.8);
+                        label.position.z = Math.sin(satelliteAngle) * (radius + 0.8);
+                        label.position.y = 0.5; // Fixed height for sphere wrapping
+
+                        // Make labels always face the camera
                         label.lookAt(camera.position);
+
+                        // Add subtle rotation for curved text effect
+                        label.rotation.z = satelliteAngle + Math.PI / 2; // Rotate to follow sphere curvature
                     }
                 });
 
