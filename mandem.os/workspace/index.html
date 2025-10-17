@@ -630,11 +630,48 @@
                     <p>Customize Sora-generated video prompts</p>
                     <textarea id="soraPromptInput" placeholder="Describe the video embodiment..." style="width: 100%; height: 60px; background: var(--panel-bg); border: 1px solid var(--neon-blue); color: var(--neon-blue); border-radius: 5px; padding: 8px; margin-bottom: 10px; resize: vertical;"></textarea>
                     <button class="cyber-btn" onclick="generateCustomSoraVideo()">🎬 Generate Custom Video</button>
+        <!-- Content Library -->
+        <div style="margin-top: 2rem;">
+            <h3 style="color: var(--neon-purple); margin-bottom: 1rem;">📚 CONTENT LIBRARY</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                
+                <!-- Library Access -->
+                <div class="wizard-control-card">
+                    <h4>🔓 Access Library</h4>
+                    <p>Browse shared content from all projects</p>
+                    <button class="cyber-btn" onclick="openContentLibrary()">Open Library</button>
+                </div>
+
+                <!-- Content Stats -->
+                <div class="wizard-control-card">
+                    <h4>📊 Library Stats</h4>
+                    <div id="contentStats" style="font-family: monospace; font-size: 0.8rem; color: var(--neon-green); margin-bottom: 10px;">
+                        Loading stats...
+                    </div>
+                    <button class="cyber-btn cyber-btn-secondary" onclick="refreshContentStats()">🔄 Refresh</button>
+                </div>
+
+                <!-- Share Content -->
+                <div class="wizard-control-card">
+                    <h4>📤 Share Content</h4>
+                    <p>Share generated content with team</p>
+                    <select id="shareUserSelect" style="width: 100%; padding: 5px; margin-bottom: 10px; background: var(--panel-bg); border: 1px solid var(--neon-blue); color: var(--neon-blue); border-radius: 3px;">
+                        <option value="austin">Austin Moore</option>
+                        <option value="arya">Arya</option>
+                        <option value="andy">Andy Acker</option>
+                        <option value="ryan">Ryan Barbrick</option>
+                    </select>
+                    <button class="cyber-btn" onclick="shareRecentContent()">Share Recent</button>
+                </div>
+
+                <!-- Export Library -->
+                <div class="wizard-control-card">
+                    <h4>💾 Export Data</h4>
+                    <p>Download content library</p>
+                    <button class="cyber-btn cyber-btn-secondary" onclick="exportContentLibrary()">Export JSON</button>
                 </div>
             </div>
         </div>
-
-    <script>
         // Core System Variables
         let scene, camera, renderer, controls;
         let earth, satellites = [], labels = [];
