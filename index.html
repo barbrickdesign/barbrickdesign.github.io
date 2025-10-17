@@ -668,6 +668,12 @@
                 timestampElement.textContent = lastUpdated;
             }
         }
+
+        // Simple initialization
+        window.addEventListener('DOMContentLoaded', () => {
+            updatePageTimestamp();
+            console.log('🏠 BARBRICKDESIGN Hub loaded successfully - no service worker');
+        });
     </script>
 </body>
 </html>
