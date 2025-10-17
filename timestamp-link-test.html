@@ -92,6 +92,14 @@
             `;
 
             document.body.appendChild(modal);
+
+            // Add event listener to close button
+            const closeButton = modal.querySelector('#closeLogButton');
+            if (closeButton) {
+                closeButton.addEventListener('click', () => {
+                    modal.remove();
+                });
+            }
         }
 
         // Update page timestamp function
