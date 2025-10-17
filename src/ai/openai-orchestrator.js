@@ -178,8 +178,32 @@ class OpenAIOrchestrator {
         };
 
         try {
-            const response = await this.makeRequest('/videos/generations', payload);
-            return response.data?.[0]?.url || `Mock Sora video URL for ${agentName}`;
+            const response = await this.makeRequest('/videos/generations', {
+                model: this.models['sora-2'] || 'sora-2',
+                prompt: soraPrompt,
+                duration: options.duration || '30s',
+                resolution: options.resolution || '4k',
+                style: 'cyberpunk',
+                ...options
+            });
+            const videoUrl = response.data?.[0]?.url || `Mock Sora video URL for ${agentName}`;
+
+            // Auto-save to content library
+            if (window.contentSharingManager && videoUrl && !videoUrl.includes('placeholder')) {
+                window.contentSharingManager.addContent('videos', {
+                    agentName,
+                    prompt,
+                    url: videoUrl,
+                    duration: options.duration || '30s',
+                    resolution: options.resolution || '4k',
+                    style: 'cyberpunk',
+                    tags: ['sora-video', 'agent-embodiment', agentName, 'ai-generated'],
+                    project: 'gem-bot-universe',
+                    category: 'agent-embodiments'
+                }, 'openai-orchestrator');
+            }
+
+            return videoUrl;
         } catch (error) {
             console.warn('Sora video generation failed, using mock:', error);
             return `https://via.placeholder.com/1920x1080/00ffff/000000?text=Sora+2+Video+for+${agentName}`;
