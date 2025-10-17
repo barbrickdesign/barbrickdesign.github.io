@@ -1545,6 +1545,9 @@
             
             // Enhanced permissions (would normally check wallet)
             alert('👑 GRAND WIZARD MODE ACTIVATED!\n\nYou are now the supreme ruler of all realms!\n\n• Control all agent embodiments\n• Command the 3D wizard council\n• Access to all realm secrets\n• Unlimited customization power\n\nWelcome, Grand Wizard! ⚡🧙‍♂️');
+
+            // Award massive XP for Grand Wizard achievement
+            ['austin', 'arya', 'andy', 'ryan'].forEach(agent => addXP(agent, 10, 'grandWizard'));
         }
 
         // Status Dashboard
