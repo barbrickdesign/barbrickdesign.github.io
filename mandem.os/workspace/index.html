@@ -899,51 +899,81 @@
                 const aiVideosDiv = document.getElementById('aryaAIVideos');
                 aiVideosDiv.style.display = aiVideosDiv.style.display === 'none' ? 'block' : 'none';
 
-                // Populate AI video tutorials
+                // Populate AI video tutorials and Austin's videos
                 const videoList = document.getElementById('aryaVideoList');
                 videoList.innerHTML = `
-                    <div style="margin-bottom: 15px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px; border-left: 4px solid #ff6b35;">
-                        <div style="font-weight: bold; color: #ff6b35; margin-bottom: 5px;">🏆 ORIGINAL INVENTOR: Austin Moore (@earthartgems)</div>
-                        <div style="font-size: 12px; margin-bottom: 8px; color: #ffd700;">The true creator of the MGC Merlin's Gem Bot - groundbreaking innovation that inspired this entire ecosystem.</div>
-                        <button onclick="window.open('https://www.youtube.com/watch?v=S8ssTOxzHq0', '_blank')" style="margin-right: 5px; padding: 6px 10px; background: #ff6b35; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; color: white;">🎥 Watch Original Invention</button>
-                        <button onclick="window.open('https://www.youtube.com/@earthartgems', '_blank')" style="padding: 6px 10px; background: #ff4500; border: none; border-radius: 4px; cursor: pointer; font-size: 11px; color: white;">📺 Full Channel</button>
+                    <!-- Austin Moore's Featured Videos Section -->
+                    <div style="margin-bottom: 20px; padding: 12px; background: linear-gradient(135deg, #ff6b35, #ff8c42); border-radius: 8px; border: 2px solid #ffd700;">
+                        <h5 style="color: white; margin: 0 0 10px 0; font-size: 13px; text-align: center;">🎬 AUSTIN MOORE'S ORIGINAL GEM BOT VIDEOS</h5>
+
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                            <div style="padding: 8px; background: rgba(0,0,0,0.3); border-radius: 5px; border-left: 3px solid #ff6b35;">
+                                <div style="font-weight: bold; color: #ffd700; font-size: 11px;">MGC Merlin's Gem Bot Demo</div>
+                                <div style="font-size: 10px; margin: 3px 0;">Austin's original invention showcase</div>
+                                <button onclick="window.open('https://www.youtube.com/watch?v=S8ssTOxzHq0', '_blank')" style="width: 100%; padding: 4px; background: #ff6b35; border: none; border-radius: 3px; cursor: pointer; font-size: 10px; color: white;">▶️ Watch Original</button>
+                            </div>
+
+                            <div style="padding: 8px; background: rgba(0,0,0,0.3); border-radius: 5px; border-left: 3px solid #ff6b35;">
+                                <div style="font-weight: bold; color: #ffd700; font-size: 11px;">Gem Bot Innovation</div>
+                                <div style="font-size: 10px; margin: 3px 0;">Groundbreaking technology demo</div>
+                                <button onclick="window.open('https://www.youtube.com/@earthartgems', '_blank')" style="width: 100%; padding: 4px; background: #ff6b35; border: none; border-radius: 3px; cursor: pointer; font-size: 10px; color: white;">📺 Full Channel</button>
+                            </div>
+                        </div>
+
+                        <div style="font-size: 10px; color: white; text-align: center; padding: 5px; background: rgba(0,0,0,0.5); border-radius: 3px;">
+                            🏆 Learn from the Original Inventor • Austin Moore's Groundbreaking Work
+                        </div>
                     </div>
 
-                    <div style="margin-bottom: 10px; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 5px;">
-                        <div style="font-weight: bold; color: #00ff99;">🎥 "Getting Started with Gem Bots - Basic Controls"</div>
-                        <div style="font-size: 11px; margin-top: 2px;">AI Arya demonstrates basic Gem Bot navigation, controls, and first steps in the Gem Bot Universe.</div>
-                        <button onclick="alert('🎥 AI Video: Arya shows you how to:\n• Navigate the 3D globe\n• Access Mission Control\n• Connect your wallet\n• Start your first Gem Bot mission\n\n(Enhanced version of Austin Moore\'s original invention)')" style="margin-top: 5px; padding: 4px 8px; background: #ffd700; border: none; border-radius: 3px; cursor: pointer; font-size: 11px;">Watch Tutorial</button>
+                    <!-- AI-Generated Learning Series -->
+                    <div style="margin-bottom: 15px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px; border-left: 4px solid #00ff99;">
+                        <div style="font-weight: bold; color: #00ff99; margin-bottom: 8px; font-size: 12px;">🤖 AI ARYA LEARNING SERIES (Enhanced from Austin's Foundation)</div>
+
+                        <div style="display: grid; grid-template-columns: 1fr; gap: 8px;">
+                            <div style="padding: 8px; background: rgba(255,255,255,0.05); border-radius: 5px;">
+                                <div style="font-weight: bold; color: #00ff99; font-size: 11px;">🎥 "Gem Bot Fundamentals - Austin's Legacy"</div>
+                                <div style="font-size: 10px; margin: 3px 0;">AI Arya builds upon Austin's original MGC Merlin's Gem Bot foundation</div>
+                                <button onclick="alert('🎥 AI Tutorial: Learn the fundamentals that Austin Moore invented:\n• Basic Gem Bot operations\n• Core technology principles\n• Innovation foundations\n• Austin Moore\'s breakthrough design\n\nThis tutorial honors the original inventor while teaching modern usage.')" style="width: 100%; padding: 4px; background: #00ff99; border: none; border-radius: 3px; cursor: pointer; font-size: 10px; color: black; font-weight: bold;">📚 Learn Fundamentals</button>
+                            </div>
+
+                            <div style="padding: 8px; background: rgba(255,255,255,0.05); border-radius: 5px;">
+                                <div style="font-weight: bold; color: #00ff99; font-size: 11px;">🎥 "Advanced Gem Bot Techniques - Evolution"</div>
+                                <div style="font-size: 10px; margin: 3px 0;">Modern enhancements built on Austin's groundbreaking work</div>
+                                <button onclick="alert('🎥 AI Tutorial: Discover how Arya enhanced Austin\'s invention:\n• Laboratory integration\n• Advanced research capabilities\n• Technology upgrades\n• Creative applications\n\nBuilt upon Austin Moore\'s original foundation with modern innovations.')" style="width: 100%; padding: 4px; background: #00ff99; border: none; border-radius: 3px; cursor: pointer; font-size: 10px; color: black; font-weight: bold;">🔬 Advanced Techniques</button>
+                            </div>
+
+                            <div style="padding: 8px; background: rgba(255,255,255,0.05); border-radius: 5px;">
+                                <div style="font-weight: bold; color: #00ff99; font-size: 11px;">🎥 "Austin & Arya: Complete Gem Bot Mastery"</div>
+                                <div style="font-size: 10px; margin: 3px 0;">Comprehensive guide combining original invention with modern enhancements</div>
+                                <button onclick="alert('🎥 AI Tutorial: The complete Gem Bot journey:\n• Austin Moore\'s original invention\n• Arya\'s artistic enhancements\n• Full technology integration\n• Community collaboration\n\nLearn from both the inventor and the innovator!')" style="width: 100%; padding: 4px; background: #00ff99; border: none; border-radius: 3px; cursor: pointer; font-size: 10px; color: black; font-weight: bold;">🎓 Complete Mastery</button>
+                            </div>
+                        </div>
                     </div>
 
-                    <div style="margin-bottom: 10px; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 5px;">
-                        <div style="font-weight: bold; color: #00ff99;">🎥 "Advanced Gem Bot Techniques - Laboratory"</div>
-                        <div style="font-size: 11px; margin-top: 2px;">AI Arya guides you through advanced laboratory operations, research projects, and technological discoveries.</div>
-                        <button onclick="alert('🎥 AI Video: Arya teaches you:\n• Laboratory navigation\n• Research methodologies\n• Technology upgrades\n• Advanced Gem Bot capabilities\n\n(Built upon Austin Moore\'s foundational work)')" style="margin-top: 5px; padding: 4px 8px; background: #ffd700; border: none; border-radius: 3px; cursor: pointer; font-size: 11px;">Watch Tutorial</button>
-                    </div>
-
-                    <div style="margin-bottom: 10px; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 5px;">
-                        <div style="font-weight: bold; color: #00ff99;">🎥 "Gem Bot Trading & Economy"</div>
-                        <div style="font-size: 11px; margin-top: 2px;">AI Arya explains the Gem Bot economy, trading mechanics, and marketplace strategies.</div>
-                        <button onclick="alert('🎥 AI Video: Arya covers:\n• Grand Exchange navigation\n• Trading strategies\n• MGC token economics\n• Investment opportunities\n\n(Evolved from Austin Moore\'s original economic model)')" style="margin-top: 5px; padding: 4px 8px; background: #ffd700; border: none; border-radius: 3px; cursor: pointer; font-size: 11px;">Watch Tutorial</button>
-                    </div>
-
-                    <div style="margin-bottom: 10px; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 5px;">
-                        <div style="font-weight: bold; color: #00ff99;">🎥 "Creative Gem Bot Projects"</div>
-                        <div style="font-size: 11px; margin-top: 2px;">AI Arya showcases creative applications, artistic integrations, and innovative Gem Bot uses.</div>
-                        <button onclick="alert('🎥 AI Video: Arya demonstrates:\n• Creative project ideas\n• Art-tech integration\n• Innovative applications\n• Community collaborations\n\n(Inspired by Austin Moore\'s creative vision)')" style="margin-top: 5px; padding: 4px 8px; background: #ffd700; border: none; border-radius: 3px; cursor: pointer; font-size: 11px;">Watch Tutorial</button>
+                    <!-- Learning Path Recommendation -->
+                    <div style="margin-bottom: 15px; padding: 10px; background: linear-gradient(135deg, #ffd700, #ffed4e); border-radius: 8px;">
+                        <div style="font-weight: bold; color: black; margin-bottom: 8px; font-size: 12px; text-align: center;">📚 RECOMMENDED LEARNING PATH</div>
+                        <div style="font-size: 11px; color: black; line-height: 1.4;">
+                            <strong>1.</strong> Watch Austin's original invention video<br>
+                            <strong>2.</strong> Learn fundamentals from AI Arya<br>
+                            <strong>3.</strong> Explore advanced techniques<br>
+                            <strong>4.</strong> Master complete Gem Bot operations<br>
+                            <strong>5.</strong> Join the innovation community!
+                        </div>
                     </div>
 
                     <div style="text-align: center; margin-top: 15px; padding-top: 15px; border-top: 2px solid rgba(255,255,255,0.3);">
                         <div style="font-size: 11px; color: #ffd700; margin-bottom: 10px; font-weight: bold;">
-                            🙏 CREDITS & ACKNOWLEDGMENT
+                            🙏 HONORING THE INNOVATOR • LEARNING FROM THE MASTER
                         </div>
                         <div style="font-size: 10px; color: white; margin-bottom: 10px; line-height: 1.4;">
-                            <strong>Austin Moore (@earthartgems)</strong> is the original inventor and creator of the MGC Merlin's Gem Bot.<br>
-                            Arya and the team have enhanced and expanded upon his groundbreaking work.<br>
-                            All respect and credit goes to the true innovator. 🏆
+                            <strong>Austin Moore (@earthartgems)</strong> invented the MGC Merlin's Gem Bot.<br>
+                            <strong>Arya</strong> enhanced it with art and technology.<br>
+                            Together, they created this revolutionary ecosystem.
                         </div>
-                        <button onclick="window.open('https://www.youtube.com/@RyaBar', '_blank')" style="background: #ff1493; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px; margin-right: 5px;">📺 @RyaBar Tutorials</button>
-                        <button onclick="window.open('https://www.youtube.com/@ultratecusa/videos', '_blank')" style="background: #ff1493; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px;">📺 @ultratecusa Content</button>
+                        <button onclick="window.open('https://www.youtube.com/@earthartgems', '_blank')" style="background: #ff6b35; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px; margin-right: 5px;">🎥 Austin's Videos</button>
+                        <button onclick="window.open('https://www.youtube.com/@RyaBar', '_blank')" style="background: #ff1493; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px; margin-right: 5px;">🎨 Arya's Tutorials</button>
+                        <button onclick="window.open('https://www.youtube.com/@ultratecusa/videos', '_blank')" style="background: #ff1493; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px;">🎨 Ultra Content</button>
                     </div>
                 `;
 
