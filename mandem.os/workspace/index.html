@@ -1336,9 +1336,8 @@
             document.body.style.transform = 'scale(0.98)';
 
             setTimeout(() => {
-                // Update URL structure for proper navigation
-                const baseUrl = '/GemBotUniverse/';
-                window.location.href = baseUrl + destination + '.html';
+                // Navigate to local pages (no base URL needed)
+                window.location.href = destination + '.html';
             }, 800);
         }
 
