@@ -304,38 +304,48 @@
       localStorage.setItem('visited', 'true');
     }
     
-    // Enhanced wallet connection using shared wallet system with error handling
+    // Simplified MetaMask-only wallet connection for mandem.os
     async function connectWalletForMGC() {
       try {
-        console.log('🔐 Attempting wallet connection...');
+        console.log('🔐 Connecting MetaMask wallet...');
 
-        // Check if shared wallet system is available
-        if (window.sharedWalletSystem && typeof window.sharedWalletSystem.connect === 'function') {
-          console.log('✅ Using shared wallet system');
-          await window.sharedWalletSystem.connect();
-          console.log('✅ Wallet connected via shared system');
+        // For mandem.os, use MetaMask only (Ethereum)
+        if (window.ethereum && window.ethereum.isMetaMask) {
+          console.log('✅ MetaMask detected');
+
+          // Request account access
+          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+          const address = accounts[0];
+
+          console.log('✅ MetaMask connected:', address);
+
+          // Store authentication info
+          const user = {
+            walletAddress: address,
+            displayName: `${address.slice(0, 6)}...${address.slice(-4)}`,
+            walletType: 'metamask',
+            joinDate: new Date().toISOString()
+          };
+
+          localStorage.setItem('currentUser', JSON.stringify(user));
+          localStorage.setItem('userLoggedIn', 'true');
+          localStorage.setItem('lastWalletAuth', new Date().toISOString());
+
+          // Update UI
           updateAuthButton();
           updateMgcBalanceDisplay();
-          return true;
-        }
 
-        // Check if universal auth is available
-        if (window.universalWalletAuth && typeof window.universalWalletAuth.connect === 'function') {
-          console.log('✅ Using universal wallet auth');
-          await window.universalWalletAuth.connect();
-          console.log('✅ Wallet connected via universal auth');
-          updateAuthButton();
-          updateMgcBalanceDisplay();
           return true;
+        } else {
+          console.warn('⚠️ MetaMask not detected');
+          alert('MetaMask wallet not found. Please install MetaMask browser extension to connect.');
+          window.open('https://metamask.io/download/', '_blank');
+          return false;
         }
-
-        // Fallback to old system if shared system not available
-        console.log('⚠️ Fallback to basic wallet connection');
-        return await quickConnectWallet();
 
       } catch (error) {
-        console.error('❌ Wallet connection failed:', error);
-        alert('Wallet connection failed. Please try again or check if your wallet extension is installed.');
+        console.error('❌ MetaMask connection failed:', error);
+        alert('MetaMask connection failed. Please try again or check if MetaMask is unlocked.');
         return false;
       }
     }
