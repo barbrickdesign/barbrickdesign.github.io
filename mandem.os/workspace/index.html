@@ -1175,6 +1175,9 @@
             if (wizardMode) {
                 createWizards();
                 alert('🎭 WIZARD MODE ACTIVATED\n\nMystical AI assistants now roam the universe!\n\n• Austin Moore (Orange): Invention wisdom\n• Arya (Pink): Enhancement guidance\n• Andy Acker (Blue): Quality insights\n• Ryan Barbrick (Gold): Vision architecture\n\nWatch for their glowing avatars and helpful tips!');
+
+                // Award XP for activating wizard mode
+                ['austin', 'arya', 'andy', 'ryan'].forEach(agent => addXP(agent, 2, 'wizardMaster'));
             } else {
                 removeWizards();
                 alert('🎭 WIZARD MODE DEACTIVATED\n\nAI assistants have returned to their ethereal realm.');
