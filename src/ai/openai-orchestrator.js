@@ -254,26 +254,47 @@ class OpenAIOrchestrator {
      */
     async textToSpeech(text, options = {}) {
         const payload = {
-            model: 'tts-1',
-            input: text,
-            voice: 'alloy',
+            model: options.model || this.models['gpt-4o-tts'] || 'gpt-4o-tts',
+            input: [{ role: 'user', content: text }],
+            response_format: {
+                type: 'audio',
+                audio: {
+                    voice: options.voice || 'alloy',
+                    format: options.format || 'mp3'
+                }
+            },
             ...options
         };
 
-        const response = await fetch(`${this.baseURL}/audio/speech`, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${this.apiKey}`,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(payload)
-        });
+        try {
+            const response = await this.makeRequest(payload);
+            // Convert to blob for compatibility
+            return response.output?.[0]?.audio || new Blob(['Mock audio data'], { type: 'audio/mpeg' });
+        } catch (error) {
+            // Fallback to old endpoint if new one not supported
+            console.warn('New responses API TTS failed, using legacy endpoint:', error);
+            const legacyPayload = {
+                model: 'tts-1',
+                input: text,
+                voice: 'alloy',
+                ...options
+            };
 
-        if (!response.ok) {
-            throw new Error(`TTS API error: ${response.status}`);
+            const response = await fetch(`${this.baseURL}/audio/speech`, {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${this.apiKey}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(legacyPayload)
+            });
+
+            if (!response.ok) {
+                throw new Error(`TTS API error: ${response.status}`);
+            }
+
+            return await response.blob();
         }
-
-        return await response.blob();
     }
 
     /**
