@@ -2550,6 +2550,98 @@
         // Auto-save session state
         setInterval(saveSessionState, 5000); // Save every 5 seconds
 
+        // Agent Coin Functions
+        function copyVaultAddress() {
+            const vaultAddress = 'GJFCA8XxnGns9TqKsMLScyVSooyiNrNPpjp2CyQCz7z5';
+            navigator.clipboard.writeText(vaultAddress).then(() => {
+                alert('✅ Vault address copied to clipboard!');
+            }).catch(() => {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = vaultAddress;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('✅ Vault address copied to clipboard!');
+            });
+        }
+
+        function openKnowledgeBaseCoin() {
+            window.open('https://pump.fun/coin/Aj7H2e1PW8N8d1eVLL5k49oE3LzKeo8HMhjS6tv3trow', '_blank');
+        }
+
+        function openVisionArchitectCoin() {
+            window.open('https://pump.fun/coin/Axw9V2vXc6AH6jtqPJsWNC2o8knAtpqRJKXwJaSAcU7N', '_blank');
+        }
+
+        function distributeAgentCoins() {
+            if (!window.contractorPaymentSystem) {
+                alert('❌ Payment system not loaded');
+                return;
+            }
+
+            const agentType = document.getElementById('distributionAgentType').value;
+            const walletAddress = document.getElementById('distributionWallet').value;
+            const amount = parseFloat(document.getElementById('distributionAmount').value);
+
+            if (!walletAddress || !amount) {
+                alert('❌ Please fill in all fields');
+                return;
+            }
+
+            if (amount <= 0) {
+                alert('❌ Amount must be greater than 0');
+                return;
+            }
+
+            try {
+                const result = window.contractorPaymentSystem.distributeAgentCoins(agentType, walletAddress, amount);
+                alert(`✅ Agent coins distributed successfully!\n\nAgent: ${agentType}\nRecipient: ${walletAddress}\nAmount: ${amount}`);
+                
+                // Clear form
+                document.getElementById('distributionWallet').value = '';
+                document.getElementById('distributionAmount').value = '';
+                
+                // Refresh history
+                refreshDistributionHistory();
+            } catch (error) {
+                alert(`❌ Distribution failed: ${error.message}`);
+            }
+        }
+
+        function refreshDistributionHistory() {
+            if (!window.contractorPaymentSystem) {
+                return;
+            }
+
+            const history = window.contractorPaymentSystem.getAgentCoinDistributions();
+            const historyDiv = document.getElementById('distributionHistory');
+            
+            if (history.length === 0) {
+                historyDiv.textContent = 'No distributions yet';
+                return;
+            }
+
+            historyDiv.innerHTML = history.map(dist => `
+                <div style="border-bottom: 1px solid rgba(0,255,255,0.2); padding: 8px 0;">
+                    <strong>${dist.agentType}:</strong> ${dist.amount} to ${dist.recipientWallet.substring(0, 8)}...
+                    <br><small style="color: var(--neon-blue);">${new Date(dist.timestamp).toLocaleString()}</small>
+                </div>
+            `).join('');
+        }
+
+        // Check if user is System Architect to show distribution controls
+        function checkSystemArchitectStatus() {
+            if (window.contractorPaymentSystem && window.universalWalletAuth) {
+                const userAddress = window.universalWalletAuth.getAddress();
+                if (userAddress && window.contractorPaymentSystem.isSystemArchitect(userAddress)) {
+                    document.getElementById('distributionControls').style.display = 'block';
+                    refreshDistributionHistory();
+                }
+            }
+        }
+
         // Handle window resize
         window.addEventListener('resize', function() {
             if (camera && renderer) {
