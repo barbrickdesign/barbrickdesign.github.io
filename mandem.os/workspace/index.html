@@ -518,10 +518,13 @@
     </div>
 
     <!-- Agent Coin Vault Widget (Top Left) -->
-    <div id="agentCoinWidget" style="position: fixed; top: 20px; left: 20px; z-index: 1000; background: var(--panel-bg); border: 2px solid var(--neon-green); border-radius: 10px; padding: 15px; min-width: 300px; box-shadow: 0 0 20px rgba(0,255,136,0.3);">
+    <div id="agentCoinWidget" style="position: fixed; top: 20px; left: 20px; z-index: 1000; background: var(--panel-bg); border: 2px solid var(--neon-green); border-radius: 10px; padding: 15px; min-width: 300px; box-shadow: 0 0 20px rgba(0,255,136,0.3); transition: all 0.3s ease;">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
             <h3 style="color: var(--neon-green); margin: 0; font-size: 1.1em;">🪙 Agent Vault</h3>
-            <button id="expandVaultBtn" style="background: var(--neon-green); border: none; color: black; border-radius: 5px; padding: 5px 10px; cursor: pointer; font-size: 0.8em;">▼</button>
+            <div style="display: flex; gap: 5px;">
+                <button id="moveVaultBtn" style="background: var(--neon-blue); border: none; color: white; border-radius: 5px; padding: 5px 10px; cursor: pointer; font-size: 0.8em;">📍</button>
+                <button id="expandVaultBtn" style="background: var(--neon-green); border: none; color: black; border-radius: 5px; padding: 5px 10px; cursor: pointer; font-size: 0.8em;">▼</button>
+            </div>
         </div>
 
         <!-- Compact View -->
@@ -2555,9 +2558,13 @@
         // Initialize vault widget
         function initAgentCoinVault() {
             const expandBtn = document.getElementById('expandVaultBtn');
+            const moveBtn = document.getElementById('moveVaultBtn');
             const vaultCompact = document.getElementById('vaultCompact');
             const vaultExpanded = document.getElementById('vaultExpanded');
             const connectBtn = document.getElementById('connectPhantomBtn');
+            const widget = document.getElementById('agentCoinWidget');
+
+            let isInCorner = true;
 
             if (expandBtn) {
                 expandBtn.addEventListener('click', () => {
@@ -2565,6 +2572,34 @@
                     vaultExpanded.style.display = isExpanded ? 'none' : 'block';
                     vaultCompact.style.display = isExpanded ? 'block' : 'none';
                     expandBtn.textContent = isExpanded ? '▼' : '▲';
+                });
+            }
+
+            if (moveBtn) {
+                moveBtn.addEventListener('click', () => {
+                    if (isInCorner) {
+                        // Move to center
+                        widget.style.top = '50%';
+                        widget.style.left = '50%';
+                        widget.style.transform = 'translate(-50%, -50%)';
+                        widget.style.width = '80%';
+                        widget.style.maxWidth = '600px';
+                        widget.style.minWidth = '400px';
+                        moveBtn.textContent = '↖️';
+                        moveBtn.title = 'Move to corner';
+                        isInCorner = false;
+                    } else {
+                        // Move back to corner
+                        widget.style.top = '20px';
+                        widget.style.left = '20px';
+                        widget.style.transform = 'none';
+                        widget.style.width = 'auto';
+                        widget.style.maxWidth = 'none';
+                        widget.style.minWidth = '300px';
+                        moveBtn.textContent = '📍';
+                        moveBtn.title = 'Move to center';
+                        isInCorner = true;
+                    }
                 });
             }
 
