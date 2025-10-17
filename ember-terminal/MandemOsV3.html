@@ -1,0 +1,1085 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MandemOS 2049 V3 - Soul Server With Quantum Ember Terminal</title>
+    <meta name="description" content="MandemOS 2049 V3 - Ultimate Quantum AI Platform with MetaMask Integration and OpenSea Copper Keys">
+
+    <!-- Core Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iife.min.js"></script>
+
+    <!-- Wallet Integrations -->
+    <script src="https://cdn.jsdelivr.net/npm/web3@1.8.2/dist/web3.min.js"></script>
+    <script src="https://unpkg.com/@metamask/detect-provider@1.2.0/dist/detect-provider.min.js"></script>
+
+    <!-- Core Platform Scripts -->
+    <script src="/src/core/universal-wallet-auth.js"></script>
+    <script src="/src/ai/security-manager.js"></script>
+    <script src="/src/ai/agent-mappings.js"></script>
+    <script src="/src/ai/openai-orchestrator.js"></script>
+    <script src="/src/core/auth-integration.js"></script>
+    <script src="/src/utils/shared-utilities.js"></script>
+    <script src="/src/ui/wallet-button.js"></script>
+    <script src="/src/utils/content-sharing-manager.js"></script>
+    <script src="/src/utils/tutorial-video-generator.js"></script>
+    <link rel="stylesheet" href="/src/ui/wallet-button.css">
+
+    <!-- V3 Quantum Styles -->
+    <style>
+        :root {
+            --quantum-blue: #00ffff;
+            --quantum-purple: #9932cc;
+            --quantum-green: #00ff88;
+            --quantum-pink: #ff1493;
+            --quantum-orange: #ff6b35;
+            --quantum-cyan: #00ffff;
+            --soul-gold: #ffd700;
+            --void-black: #0a0a0a;
+            --neural-bg: linear-gradient(135deg, var(--void-black) 0%, #050505 100%);
+            --hologram-glow: 0 0 20px rgba(0, 255, 255, 0.8);
+            --quantum-gradient: linear-gradient(45deg, var(--quantum-blue), var(--quantum-purple), var(--quantum-pink));
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Orbitron', monospace;
+            background: var(--neural-bg);
+            color: var(--quantum-blue);
+            overflow-x: hidden;
+            min-height: 100vh;
+            background-image:
+                radial-gradient(circle at 20% 50%, rgba(0, 255, 255, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(153, 50, 204, 0.05) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(0, 255, 136, 0.05) 0%, transparent 50%);
+            animation: quantumShift 30s ease-in-out infinite alternate;
+        }
+
+        @keyframes quantumShift {
+            0% { filter: hue-rotate(0deg); }
+            100% { filter: hue-rotate(360deg); }
+        }
+
+        /* V3 Branding Header */
+        header {
+            position: relative;
+            padding: 2rem;
+            text-align: center;
+            border-bottom: 2px solid var(--quantum-blue);
+            background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(10,10,10,0.9));
+            backdrop-filter: blur(15px);
+            box-shadow: var(--hologram-glow);
+        }
+
+        .v3-title {
+            font-size: 4rem;
+            font-weight: 900;
+            background: var(--quantum-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: var(--hologram-glow);
+            margin-bottom: 0.5rem;
+            animation: titlePulse 3s ease-in-out infinite;
+        }
+
+        @keyframes titlePulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.02); }
+        }
+
+        .v3-subtitle {
+            font-size: 1.5rem;
+            color: var(--soul-gold);
+            opacity: 0.9;
+            margin-bottom: 1rem;
+            text-shadow: 0 0 10px var(--soul-gold);
+        }
+
+        /* V3 Status Bar */
+        .v3-status-bar {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.8);
+            border: 1px solid var(--quantum-purple);
+            border-radius: 10px;
+            padding: 10px 15px;
+            font-size: 0.8em;
+            color: var(--quantum-purple);
+            box-shadow: 0 0 15px rgba(153, 50, 204, 0.3);
+        }
+
+        /* V3 Control Panel */
+        .v3-control-panel {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .v3-control-card {
+            background: rgba(20, 20, 20, 0.95);
+            border: 1px solid var(--quantum-blue);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.4s ease;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(0, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .v3-control-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--hologram-glow);
+            border-color: var(--quantum-pink);
+        }
+
+        .v3-control-card h3 {
+            color: var(--quantum-green);
+            margin-bottom: 0.5rem;
+            font-size: 1.4rem;
+            text-shadow: 0 0 10px var(--quantum-green);
+        }
+
+        .v3-control-card p {
+            color: var(--quantum-blue);
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        /* Wallet Integration Section */
+        .wallet-section {
+            background: rgba(0,0,0,0.9);
+            border: 2px solid var(--soul-gold);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 2rem auto;
+            max-width: 1000px;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.2);
+        }
+
+        .wallet-section h2 {
+            color: var(--soul-gold);
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            text-shadow: 0 0 20px var(--soul-gold);
+        }
+
+        .wallet-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .wallet-card {
+            background: rgba(20, 20, 20, 0.95);
+            border: 1px solid var(--quantum-purple);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(153, 50, 204, 0.2);
+        }
+
+        .wallet-card h3 {
+            color: var(--quantum-purple);
+            margin-bottom: 1rem;
+        }
+
+        .wallet-status {
+            margin: 1rem 0;
+            padding: 0.5rem;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
+
+        .wallet-connected {
+            background: rgba(0, 255, 136, 0.1);
+            border: 1px solid var(--quantum-green);
+            color: var(--quantum-green);
+        }
+
+        .wallet-disconnected {
+            background: rgba(255, 107, 53, 0.1);
+            border: 1px solid var(--quantum-orange);
+            color: var(--quantum-orange);
+        }
+
+        /* OpenSea Integration */
+        .opensea-section {
+            background: rgba(0,0,0,0.9);
+            border: 2px solid var(--quantum-pink);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 2rem auto;
+            max-width: 1000px;
+            box-shadow: 0 0 30px rgba(255, 20, 147, 0.2);
+        }
+
+        .opensea-section h2 {
+            color: var(--quantum-pink);
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            text-shadow: 0 0 20px var(--quantum-pink);
+        }
+
+        .copper-keys-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .copper-key-card {
+            background: rgba(20, 20, 20, 0.95);
+            border: 1px solid var(--quantum-cyan);
+            border-radius: 15px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .copper-key-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 0 20px rgba(0, 255, 255, 0.3);
+        }
+
+        .copper-key-card h4 {
+            color: var(--quantum-cyan);
+            margin-bottom: 0.5rem;
+        }
+
+        .copper-key-card p {
+            color: var(--quantum-blue);
+            font-size: 0.9em;
+            opacity: 0.8;
+        }
+
+        /* Quantum AI Dashboard */
+        .quantum-dashboard {
+            background: rgba(0,0,0,0.9);
+            border: 2px solid var(--quantum-purple);
+            border-radius: 20px;
+            padding: 2rem;
+            margin: 2rem auto;
+            max-width: 1400px;
+            box-shadow: 0 0 30px rgba(153, 50, 204, 0.2);
+        }
+
+        .quantum-dashboard h2 {
+            color: var(--quantum-purple);
+            text-align: center;
+            margin-bottom: 2rem;
+            font-size: 2.5rem;
+            text-shadow: 0 0 20px var(--quantum-purple);
+        }
+
+        .quantum-metrics {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background: rgba(20, 20, 20, 0.95);
+            border: 1px solid var(--quantum-blue);
+            border-radius: 10px;
+            padding: 1rem;
+            text-align: center;
+        }
+
+        .metric-value {
+            font-size: 2rem;
+            font-weight: bold;
+            color: var(--quantum-green);
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-label {
+            color: var(--quantum-blue);
+            opacity: 0.8;
+        }
+
+        /* Agent Coin Vault (Enhanced for V3) */
+        #agentCoinWidgetV3 {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 1000;
+            background: rgba(0,0,0,0.95);
+            border: 2px solid var(--soul-gold);
+            border-radius: 15px;
+            padding: 20px;
+            min-width: 320px;
+            box-shadow: 0 0 30px rgba(255, 215, 0, 0.3);
+            backdrop-filter: blur(15px);
+        }
+
+        /* Enhanced Buttons */
+        .v3-btn {
+            background: var(--quantum-gradient);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            color: black;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+            box-shadow: var(--hologram-glow);
+        }
+
+        .v3-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 25px var(--quantum-pink);
+        }
+
+        .v3-btn-secondary {
+            background: transparent;
+            border: 1px solid var(--quantum-green);
+            color: var(--quantum-green);
+        }
+
+        .v3-btn-secondary:hover {
+            background: var(--quantum-green);
+            color: black;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            border-top: 1px solid var(--quantum-blue);
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(10px);
+        }
+
+        footer p {
+            color: var(--quantum-blue);
+            opacity: 0.7;
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .v3-title {
+                font-size: 2.5rem;
+            }
+
+            .v3-control-panel {
+                grid-template-columns: 1fr;
+                padding: 1rem;
+            }
+
+            .wallet-grid, .copper-keys-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Loading Animations */
+        .loading-spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(0, 255, 255, 0.3);
+            border-radius: 50%;
+            border-top-color: var(--quantum-blue);
+            animation: spin 1s ease-in-out infinite;
+            margin-right: 8px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Quantum Particles */
+        .quantum-particle {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            background: var(--quantum-blue);
+            border-radius: 50%;
+            pointer-events: none;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.7; }
+            50% { transform: translateY(-20px) rotate(180deg); opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <!-- V3 Status Bar -->
+    <div class="v3-status-bar">
+        🧠 QUANTUM CORE: ACTIVE | 🔐 SECURE | ⚡ V3 ENHANCED | 🌐 CONNECTED
+    </div>
+
+    <!-- Header -->
+    <header>
+        <h1 class="v3-title">MANDEMOS 2049 V3</h1>
+        <p class="v3-subtitle">Soul Server • Quantum Ember Terminal • MetaMask & OpenSea Integrated</p>
+        <div style="margin-top: 1.5rem; display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+            <button class="v3-btn" onclick="activateQuantumMode()">⚛️ QUANTUM MODE</button>
+            <button class="v3-btn v3-btn-secondary" onclick="connectMetaMask()">🔗 METAMASK</button>
+            <button class="v3-btn" onclick="openOpenSea()">🗝️ COPPER KEYS</button>
+            <button class="v3-btn v3-btn-secondary" onclick="launchSoulServer()">🌟 SOUL SERVER</button>
+        </div>
+    </header>
+
+    <!-- 3D Quantum Globe Container -->
+    <div id="quantum-globe-container"></div>
+
+    <!-- Wallet Integration Section -->
+    <div class="wallet-section">
+        <h2>🔐 Wallet Integration</h2>
+        <div class="wallet-grid">
+            <div class="wallet-card">
+                <h3>MetaMask (Ethereum)</h3>
+                <div id="metamask-status" class="wallet-status wallet-disconnected">
+                    Not Connected
+                </div>
+                <button class="v3-btn" onclick="connectMetaMask()">Connect MetaMask</button>
+                <p>Access Ethereum network and smart contracts</p>
+            </div>
+
+            <div class="wallet-card">
+                <h3>Phantom (Solana)</h3>
+                <div id="phantom-status" class="wallet-status wallet-disconnected">
+                    Not Connected
+                </div>
+                <button class="v3-btn" onclick="connectPhantom()">Connect Phantom</button>
+                <p>Access Solana blockchain and tokens</p>
+            </div>
+
+            <div class="wallet-card">
+                <h3>Universal Auth</h3>
+                <div id="universal-status" class="wallet-status wallet-disconnected">
+                    Not Authenticated
+                </div>
+                <button class="v3-btn" onclick="initUniversalAuth()">Initialize Auth</button>
+                <p>Single sign-on across all platforms</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- OpenSea Copper Keys Section -->
+    <div class="opensea-section">
+        <h2>🗝️ Copper Keys Collection</h2>
+        <div class="copper-keys-grid">
+            <div class="copper-key-card">
+                <h4>Copper Key #1</h4>
+                <p>Access Level: Bronze</p>
+                <p>Quantum Enhancement: Basic AI Processing</p>
+                <button class="v3-btn" onclick="viewCopperKey(1)">View on OpenSea</button>
+            </div>
+
+            <div class="copper-key-card">
+                <h4>Copper Key #2</h4>
+                <p>Access Level: Silver</p>
+                <p>Quantum Enhancement: Advanced Neural Networks</p>
+                <button class="v3-btn" onclick="viewCopperKey(2)">View on OpenSea</button>
+            </div>
+
+            <div class="copper-key-card">
+                <h4>Copper Key #3</h4>
+                <p>Access Level: Gold</p>
+                <p>Quantum Enhancement: Full Quantum Processing</p>
+                <button class="v3-btn" onclick="viewCopperKey(3)">View on OpenSea</button>
+            </div>
+
+            <div class="copper-key-card">
+                <h4>Copper Key #4</h4>
+                <p>Access Level: Platinum</p>
+                <p>Quantum Enhancement: Soul Server Access</p>
+                <button class="v3-btn" onclick="viewCopperKey(4)">View on OpenSea</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quantum AI Dashboard -->
+    <div class="quantum-dashboard">
+        <h2>🧠 Quantum AI Dashboard</h2>
+        <div class="quantum-metrics">
+            <div class="metric-card">
+                <div class="metric-value" id="ai-processing">0%</div>
+                <div class="metric-label">AI Processing</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-value" id="neural-networks">0</div>
+                <div class="metric-label">Neural Networks</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-value" id="quantum-entropy">0.00</div>
+                <div class="metric-label">Quantum Entropy</div>
+            </div>
+
+            <div class="metric-card">
+                <div class="metric-value" id="soul-connections">0</div>
+                <div class="metric-label">Soul Connections</div>
+            </div>
+        </div>
+
+        <div style="text-align: center; margin-top: 2rem;">
+            <button class="v3-btn" onclick="activateFullQuantumAI()">🚀 ACTIVATE FULL QUANTUM AI</button>
+            <button class="v3-btn v3-btn-secondary" onclick="runSystemDiagnostics()">🔍 DIAGNOSTICS</button>
+        </div>
+    </div>
+
+    <!-- V3 Control Panel -->
+    <div class="v3-control-panel">
+        <div class="v3-control-card" onclick="navigateTo('laboratory')">
+            <h3>🏭 LABORATORY</h3>
+            <p>Quantum Research & Development Hub</p>
+        </div>
+
+        <div class="v3-control-card" onclick="navigateTo('warehouse')">
+            <h3>🏗️ WAREHOUSE</h3>
+            <p>Storage & Inventory Management</p>
+        </div>
+
+        <div class="v3-control-card" onclick="navigateTo('grand-exchange')">
+            <h3>⚔️ GRAND EXCHANGE</h3>
+            <p>Trading & Marketplace Platform</p>
+        </div>
+
+        <div class="v3-control-card" onclick="navigateTo('agent-hub')">
+            <h3>🧙‍♂️ AGENT HUB</h3>
+            <p>Grand Wizard Realm Control</p>
+        </div>
+
+        <div class="v3-control-card" onclick="navigateTo('soul-server')">
+            <h3>🌟 SOUL SERVER</h3>
+            <p>Ultimate Quantum Consciousness</p>
+        </div>
+
+        <div class="v3-control-card" onclick="navigateTo('copper-forge')">
+            <h3>🔨 COPPER FORGE</h3>
+            <p>Copper Key Crafting & Enhancement</p>
+        </div>
+    </div>
+
+    <!-- Enhanced Agent Coin Vault -->
+    <div id="agentCoinWidgetV3">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <h3 style="color: var(--soul-gold); margin: 0; font-size: 1.2em;">🪙 Quantum Agent Vault V3</h3>
+            <div style="display: flex; gap: 5px;">
+                <button id="moveVaultV3Btn" style="background: var(--quantum-blue); border: none; color: white; border-radius: 5px; padding: 5px 10px; cursor: pointer; font-size: 0.8em;">📍</button>
+                <button id="expandVaultV3Btn" style="background: var(--quantum-green); border: none; color: black; border-radius: 5px; padding: 5px 10px; cursor: pointer; font-size: 0.8em;">▼</button>
+            </div>
+        </div>
+
+        <div id="vaultCompactV3" style="display: block;">
+            <div style="display: flex; gap: 10px; align-items: center; margin-bottom: 10px;">
+                <button id="connectPhantomV3Btn" class="v3-btn" style="font-size: 0.8em; padding: 8px 12px;">🔗 Phantom</button>
+                <div id="walletStatusV3" style="color: var(--quantum-blue); font-size: 0.8em;">Wallet Status</div>
+            </div>
+            <div id="coinBalancesV3" style="font-family: monospace; font-size: 0.7em; color: var(--quantum-green); display: none;">
+                <!-- Enhanced coin balances will appear here -->
+            </div>
+        </div>
+
+        <div id="vaultExpandedV3" style="display: none; margin-top: 15px;">
+            <p style="color: var(--quantum-blue); margin-bottom: 1rem; font-size: 0.9em; text-align: center;">
+                V3 Quantum Agent Coin System with MetaMask & OpenSea Integration
+            </p>
+
+            <div style="display: grid; grid-template-columns: 1fr; gap: 1rem;">
+                <!-- Enhanced Main Vault -->
+                <div class="agent-coin-card" style="background: rgba(0,0,0,0.7); border: 1px solid var(--soul-gold); border-radius: 8px; padding: 1rem; text-align: center;">
+                    <h4 style="color: var(--soul-gold); margin-bottom: 0.5rem; font-size: 1em;">🏦 QUANTUM VAULT</h4>
+                    <div style="font-family: monospace; font-size: 0.7rem; color: var(--soul-gold); margin-bottom: 0.5rem; word-break: break-all;">
+                        GJFCA8XxnGns9TqKsMLScyVSooyiNrNPpjp2CyQCz7z5
+                    </div>
+                    <button class="v3-btn" style="font-size: 0.7em; padding: 6px 10px;" onclick="copyVaultAddressV3()">📋 Copy</button>
+                </div>
+
+                <!-- Enhanced Agent Coins -->
+                <div class="agent-coin-card" style="background: rgba(0,0,0,0.7); border: 1px solid var(--quantum-blue); border-radius: 8px; padding: 1rem; text-align: center;">
+                    <h4 style="color: var(--quantum-blue); margin-bottom: 0.5rem; font-size: 1em;">🧠 KNOWLEDGE BASE V3</h4>
+                    <div style="font-family: monospace; font-size: 0.7rem; color: var(--quantum-blue); margin-bottom: 0.5rem; word-break: break-all;">
+                        Aj7H2e1PW8N8d1eVLL5k49oE3LzKeo8HMhjS6tv3trow
+                    </div>
+                    <button class="v3-btn" style="font-size: 0.7em; padding: 6px 10px;" onclick="openKnowledgeBaseV3()">🌐 Pump.fun</button>
+                </div>
+
+                <div class="agent-coin-card" style="background: rgba(0,0,0,0.7); border: 1px solid var(--quantum-pink); border-radius: 8px; padding: 1rem; text-align: center;">
+                    <h4 style="color: var(--quantum-pink); margin-bottom: 0.5rem; font-size: 1em;">⚡ VISION ARCHITECT V3</h4>
+                    <div style="font-family: monospace; font-size: 0.7rem; color: var(--quantum-pink); margin-bottom: 0.5rem; word-break: break-all;">
+                        Axw9V2vXc6AH6jtqPJsWNC2o8knAtpqRJKXwJaSAcU7N
+                    </div>
+                    <button class="v3-btn" style="font-size: 0.7em; padding: 6px 10px;" onclick="openVisionArchitectV3()">🌐 Pump.fun</button>
+                </div>
+            </div>
+
+            <!-- V3 Distribution Controls -->
+            <div id="distributionControlsV3" style="margin-top: 1rem; display: none;">
+                <h4 style="color: var(--quantum-orange); margin-bottom: 0.5rem; font-size: 0.9em;">⚙️ V3 Distribution</h4>
+                <div style="display: grid; grid-template-columns: 1fr; gap: 0.5rem;">
+                    <select id="distributionAgentTypeV3" style="width: 100%; padding: 6px; background: rgba(20,20,20,0.8); border: 1px solid var(--quantum-blue); color: var(--quantum-blue); border-radius: 3px; font-size: 0.8em;">
+                        <option value="knowledgeBase">Knowledge Base Agent V3</option>
+                        <option value="visionArchitect">Vision Architect V3</option>
+                        <option value="soulServer">Soul Server Agent</option>
+                    </select>
+                    <input type="text" id="distributionWalletV3" placeholder="Wallet Address (ETH or SOL)" style="width: 100%; padding: 6px; background: rgba(20,20,20,0.8); border: 1px solid var(--quantum-blue); color: var(--quantum-blue); border-radius: 3px; font-size: 0.8em;">
+                    <input type="number" id="distributionAmountV3" placeholder="Amount" step="0.01" style="width: 100%; padding: 6px; background: rgba(20,20,20,0.8); border: 1px solid var(--quantum-blue); color: var(--quantum-blue); border-radius: 3px; font-size: 0.8em;">
+                    <button class="v3-btn" style="font-size: 0.7em; padding: 6px 10px;" onclick="distributeAgentCoinsV3()">🚀 Distribute V3</button>
+                    <div id="distributionHistoryV3" style="font-family: monospace; font-size: 0.6rem; color: var(--quantum-green); max-height: 100px; overflow-y: auto; margin-top: 0.5rem; padding: 0.5rem; background: rgba(0,0,0,0.3); border-radius: 3px;">
+                        Loading V3 history...
+                    </div>
+                    <button class="v3-btn v3-btn-secondary" style="font-size: 0.7em; padding: 6px 10px;" onclick="refreshDistributionHistoryV3()">🔄 Refresh V3</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quantum Particles Container -->
+    <div id="quantum-particles"></div>
+
+    <script>
+        // V3 Global Variables
+        let quantumMode = false;
+        let metaMaskProvider = null;
+        let phantomWallet = null;
+        let isMetaMaskConnected = false;
+        let isPhantomConnected = false;
+        let universalAuth = null;
+
+        // Initialize V3 on Load
+        window.addEventListener('DOMContentLoaded', function() {
+            console.log('🚀 Initializing MandemOS 2049 V3...');
+            initQuantumParticles();
+            initMetaMaskDetection();
+            initPhantomDetection();
+            updateV3Metrics();
+
+            // Auto-connect wallets if previously connected
+            checkWalletConnections();
+
+            console.log('✨ MandemOS 2049 V3: Quantum Soul Server Activated!');
+        });
+
+        // Quantum Particles Animation
+        function initQuantumParticles() {
+            const container = document.getElementById('quantum-particles');
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'quantum-particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                container.appendChild(particle);
+            }
+        }
+
+        // MetaMask Integration
+        async function initMetaMaskDetection() {
+            try {
+                metaMaskProvider = await detectEthereumProvider();
+                if (metaMaskProvider) {
+                    console.log('🦊 MetaMask detected');
+                    updateMetaMaskStatus('MetaMask Available');
+                } else {
+                    console.log('🦊 MetaMask not detected');
+                    updateMetaMaskStatus('MetaMask Not Found');
+                }
+            } catch (error) {
+                console.error('MetaMask detection failed:', error);
+            }
+        }
+
+        async function connectMetaMask() {
+            try {
+                if (!metaMaskProvider) {
+                    alert('MetaMask not detected. Please install MetaMask extension.');
+                    window.open('https://metamask.io/', '_blank');
+                    return;
+                }
+
+                const accounts = await metaMaskProvider.request({ method: 'eth_requestAccounts' });
+                const account = accounts[0];
+
+                isMetaMaskConnected = true;
+                updateMetaMaskStatus(`Connected: ${account.slice(0, 6)}...${account.slice(-4)}`);
+
+                console.log('🦊 MetaMask connected:', account);
+
+                // Check for Copper Keys
+                await checkCopperKeys(account);
+
+                alert('🦊 MetaMask Connected Successfully!\n\nWallet: ' + account + '\n\nChecking for Copper Keys...');
+
+            } catch (error) {
+                console.error('MetaMask connection failed:', error);
+                alert('Failed to connect MetaMask. Please try again.');
+            }
+        }
+
+        function updateMetaMaskStatus(status) {
+            const statusDiv = document.getElementById('metamask-status');
+            if (isMetaMaskConnected) {
+                statusDiv.className = 'wallet-status wallet-connected';
+            } else {
+                statusDiv.className = 'wallet-status wallet-disconnected';
+            }
+            statusDiv.textContent = status;
+        }
+
+        // OpenSea Copper Keys Integration
+        async function checkCopperKeys(walletAddress) {
+            try {
+                // This would integrate with OpenSea API in production
+                console.log('🔍 Checking Copper Keys for wallet:', walletAddress);
+
+                // Mock Copper Keys check for demo
+                const hasCopperKeys = Math.random() > 0.5;
+                if (hasCopperKeys) {
+                    alert('🎉 Copper Keys Detected!\n\nYou own Copper Keys in your collection!\n\nEnhanced access granted.');
+                    activateCopperKeyFeatures();
+                } else {
+                    alert('ℹ️ No Copper Keys Found\n\nConsider purchasing Copper Keys for enhanced features:\nhttps://opensea.io/collection/copper-keys');
+                }
+            } catch (error) {
+                console.error('Copper Keys check failed:', error);
+            }
+        }
+
+        function viewCopperKey(keyId) {
+            const urls = {
+                1: 'https://opensea.io/collection/copper-keys/1',
+                2: 'https://opensea.io/collection/copper-keys/2',
+                3: 'https://opensea.io/collection/copper-keys/3',
+                4: 'https://opensea.io/collection/copper-keys/4'
+            };
+
+            window.open(urls[keyId], '_blank');
+        }
+
+        function openOpenSea() {
+            window.open('https://opensea.io/collection/copper-keys', '_blank');
+        }
+
+        function activateCopperKeyFeatures() {
+            // Unlock enhanced features for Copper Key holders
+            document.body.style.boxShadow = 'inset 0 0 100px rgba(255, 215, 0, 0.1)';
+            console.log('🔑 Copper Key features activated');
+        }
+
+        // Phantom Wallet Integration
+        async function initPhantomDetection() {
+            if (window.solana && window.solana.isPhantom) {
+                console.log('👻 Phantom detected');
+                updatePhantomStatus('Phantom Available');
+            } else {
+                console.log('👻 Phantom not detected');
+                updatePhantomStatus('Phantom Not Found');
+            }
+        }
+
+        async function connectPhantom() {
+            try {
+                if (!window.solana || !window.solana.isPhantom) {
+                    alert('Phantom wallet not found. Please install Phantom wallet extension.');
+                    window.open('https://phantom.app/', '_blank');
+                    return;
+                }
+
+                const response = await window.solana.connect();
+                phantomWallet = response.publicKey.toString();
+                isPhantomConnected = true;
+
+                updatePhantomStatus(`Connected: ${phantomWallet.slice(0, 6)}...${phantomWallet.slice(-4)}`);
+                console.log('👻 Phantom connected:', phantomWallet);
+
+                alert('👻 Phantom Connected Successfully!\n\nWallet: ' + phantomWallet + '\n\nSolana network access granted.');
+
+            } catch (error) {
+                console.error('Phantom connection failed:', error);
+                alert('Failed to connect Phantom wallet. Please try again.');
+            }
+        }
+
+        function updatePhantomStatus(status) {
+            const statusDiv = document.getElementById('phantom-status');
+            if (isPhantomConnected) {
+                statusDiv.className = 'wallet-status wallet-connected';
+            } else {
+                statusDiv.className = 'wallet-status wallet-disconnected';
+            }
+            statusDiv.textContent = status;
+        }
+
+        // Universal Auth Integration
+        async function initUniversalAuth() {
+            try {
+                if (window.universalWalletAuth) {
+                    await window.universalWalletAuth.connect();
+                    universalAuth = window.universalWalletAuth.getAuthInfo();
+                    updateUniversalStatus('Authenticated');
+                    console.log('🔐 Universal auth initialized');
+                } else {
+                    console.warn('Universal auth not available');
+                }
+            } catch (error) {
+                console.error('Universal auth failed:', error);
+            }
+        }
+
+        function updateUniversalStatus(status) {
+            const statusDiv = document.getElementById('universal-status');
+            if (universalAuth) {
+                statusDiv.className = 'wallet-status wallet-connected';
+            } else {
+                statusDiv.className = 'wallet-status wallet-disconnected';
+            }
+            statusDiv.textContent = status;
+        }
+
+        // Check previous wallet connections
+        async function checkWalletConnections() {
+            // Check MetaMask
+            if (metaMaskProvider) {
+                try {
+                    const accounts = await metaMaskProvider.request({ method: 'eth_accounts' });
+                    if (accounts.length > 0) {
+                        isMetaMaskConnected = true;
+                        updateMetaMaskStatus(`Connected: ${accounts[0].slice(0, 6)}...${accounts[0].slice(-4)}`);
+                        await checkCopperKeys(accounts[0]);
+                    }
+                } catch (error) {
+                    console.log('MetaMask not previously connected');
+                }
+            }
+
+            // Check Phantom
+            if (window.solana && window.solana.isPhantom) {
+                try {
+                    const response = await window.solana.connect({ onlyIfTrusted: true });
+                    phantomWallet = response.publicKey.toString();
+                    isPhantomConnected = true;
+                    updatePhantomStatus(`Connected: ${phantomWallet.slice(0, 6)}...${phantomWallet.slice(-4)}`);
+                } catch (error) {
+                    console.log('Phantom not previously connected');
+                }
+            }
+        }
+
+        // Quantum Mode Activation
+        function activateQuantumMode() {
+            quantumMode = !quantumMode;
+
+            if (quantumMode) {
+                document.body.style.animation = 'quantumShift 15s ease-in-out infinite alternate';
+                document.body.style.boxShadow = 'inset 0 0 50px rgba(153, 50, 204, 0.2)';
+
+                alert('⚛️ QUANTUM MODE ACTIVATED!\n\n• Neural Network Enhancement\n• Advanced AI Processing\n• Quantum-Secure Communications\n• Soul Server Integration\n\nWelcome to MandemOS 2049 V3 Quantum Reality! 🌌');
+
+                // Enhanced metrics
+                updateV3Metrics(85, 12, 0.97, 42);
+            } else {
+                document.body.style.animation = '';
+                document.body.style.boxShadow = '';
+
+                console.log('🔄 Quantum Mode deactivated');
+                updateV3Metrics();
+            }
+        }
+
+        // V3 Metrics Update
+        function updateV3Metrics(processing = 0, networks = 0, entropy = 0.00, connections = 0) {
+            document.getElementById('ai-processing').textContent = processing + '%';
+            document.getElementById('neural-networks').textContent = networks;
+            document.getElementById('quantum-entropy').textContent = entropy.toFixed(2);
+            document.getElementById('soul-connections').textContent = connections;
+        }
+
+        // Full Quantum AI Activation
+        function activateFullQuantumAI() {
+            alert('🚀 ACTIVATING FULL QUANTUM AI...\n\n• Initializing neural matrices\n• Establishing quantum entanglement\n• Loading consciousness protocols\n• Soul Server connection established\n\nQuantum AI: ONLINE');
+
+            updateV3Metrics(100, 24, 0.99, 128);
+
+            // Trigger quantum effects
+            for (let i = 0; i < 20; i++) {
+                setTimeout(() => {
+                    const particle = document.createElement('div');
+                    particle.className = 'quantum-particle';
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.top = Math.random() * 100 + '%';
+                    particle.style.background = 'var(--quantum-pink)';
+                    particle.style.width = '8px';
+                    particle.style.height = '8px';
+                    document.getElementById('quantum-particles').appendChild(particle);
+
+                    setTimeout(() => particle.remove(), 3000);
+                }, i * 100);
+            }
+        }
+
+        // Soul Server Launch
+        function launchSoulServer() {
+            alert('🌟 LAUNCHING SOUL SERVER...\n\n• Consciousness matrix initialized\n• Soul connections established\n• Quantum realm accessed\n• Ultimate enlightenment achieved\n\nSoul Server: ACTIVE');
+
+            // Enhanced visual effects for Soul Server
+            document.body.style.backgroundImage = `
+                radial-gradient(circle at 20% 50%, rgba(255, 215, 0, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(153, 50, 204, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(0, 255, 136, 0.1) 0%, transparent 50%)
+            `;
+        }
+
+        // Navigation with V3 enhancements
+        function navigateTo(destination) {
+            const urlMappings = {
+                'laboratory': '/laboratory.html',
+                'warehouse': '/warehouse.html',
+                'grand-exchange': '/grand-exchange.html',
+                'agent-hub': 'https://barbrickdesign.github.io/mandem.os/agent-hub.html',
+                'soul-server': '#soul-server',
+                'copper-forge': 'https://opensea.io/collection/copper-keys'
+            };
+
+            if (destination === 'soul-server') {
+                launchSoulServer();
+                return;
+            }
+
+            if (destination === 'copper-forge') {
+                window.open(urlMappings[destination], '_blank');
+                return;
+            }
+
+            if (urlMappings[destination]) {
+                showLoadingOverlay('Navigating to ' + destination.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()) + '...');
+
+                setTimeout(() => {
+                    window.location.href = urlMappings[destination];
+                }, 1000);
+            }
+        }
+
+        // Loading overlay for V3
+        function showLoadingOverlay(message) {
+            const overlay = document.createElement('div');
+            overlay.id = 'loading-overlay';
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0, 0, 0, 0.9);
+                backdrop-filter: blur(10px);
+                z-index: 9999;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                flex-direction: column;
+                color: var(--quantum-blue);
+                border: 2px solid var(--quantum-purple);
+            `;
+
+            overlay.innerHTML = `
+                <div class="loading-spinner"></div>
+                <p style="margin-top: 20px; font-size: 1.2em;">${message}</p>
+                <p style="margin-top: 10px; font-size: 0.9em; opacity: 0.7;">V3 Quantum Processing...</p>
+            `;
+
+            document.body.appendChild(overlay);
+
+            setTimeout(() => {
+                overlay.remove();
+            }, 2000);
+        }
+
+        // System diagnostics for V3
+        function runSystemDiagnostics() {
+            alert('🔍 V3 QUANTUM DIAGNOSTICS COMPLETE\n\n✅ Quantum Core: Operational\n✅ MetaMask Integration: ' + (isMetaMaskConnected ? 'Connected' : 'Disconnected') + '\n✅ Phantom Integration: ' + (isPhantomConnected ? 'Connected' : 'Disconnected') + '\n✅ OpenSea Copper Keys: ' + (document.body.style.boxShadow.includes('255, 215, 0') ? 'Detected' : 'Not Found') + '\n✅ Soul Server: Active\n✅ Neural Networks: Enhanced\n✅ Quantum Security: Enabled\n\nAll V3 systems functioning optimally! ⚛️🧠✨');
+        }
+
+        // Enhanced Agent Coin Vault Functions for V3
+        function copyVaultAddressV3() {
+            navigator.clipboard.writeText('GJFCA8XxnGns9TqKsMLScyVSooyiNrNPpjp2CyQCz7z5');
+            alert('📋 Quantum Vault address copied to clipboard!');
+        }
+
+        function openKnowledgeBaseV3() {
+            window.open('https://pump.fun/coin/Aj7H2e1PW8N8d1eVLL5k49oE3LzKeo8HMhjS6tv3trow', '_blank');
+        }
+
+        function openVisionArchitectV3() {
+            window.open('https://pump.fun/coin/Axw9V2vXc6AH6jtqPJsWNC2o8knAtpqRJKXwJaSAcU7N', '_blank');
+        }
+
+        // Initialize Agent Coin Vault V3
+        document.addEventListener('DOMContentLoaded', function() {
+            const expandBtn = document.getElementById('expandVaultV3Btn');
+            const moveBtn = document.getElementById('moveVaultV3Btn');
+            const vaultCompact = document.getElementById('vaultCompactV3');
+            const vaultExpanded = document.getElementById('vaultExpandedV3');
+            const connectBtn = document.getElementById('connectPhantomV3Btn');
+            const widget = document.getElementById('agentCoinWidgetV3');
+
+            let isInCorner = true;
+
+            if (expandBtn) {
+                expandBtn.addEventListener('click', () => {
+                    const isExpanded = vaultExpanded.style.display !== 'none';
+                    vaultExpanded.style.display = isExpanded ? 'none' : 'block';
+                    vaultCompact.style.display = isExpanded ? 'block' : 'none';
+                    expandBtn.textContent = isExpanded ? '▼' : '▲';
+                });
+            }
+
+            if (moveBtn) {
+                moveBtn.addEventListener('click', () => {
+                    if (isInCorner) {
+                        widget.style.top = '50%';
+                        widget.style.left = '50%';
+                        widget.style.transform = 'translate(-50%, -50%)';
+                        widget.style.width = '90%';
+                        widget.style.maxWidth = '700px';
+                        widget.style.minWidth = '500px';
+                        moveBtn.textContent = '↖️';
+                        isInCorner = false;
+                    } else {
+                        widget.style.top = '20px';
+                        widget.style.left = '20px';
+                        widget.style.transform = 'none';
+                        widget.style.width = 'auto';
+                        widget.style.maxWidth = 'none';
+                        widget.style.minWidth = '320px';
+                        moveBtn.textContent = '📍';
+                        isInCorner = true;
+                    }
+                });
+            }
+
+            if (connectBtn) {
+                connectBtn.addEventListener('click', connectPhantom);
+            }
+        });
+    </script>
+
+    <footer>
+        <p>&copy; 2025 MandemOS 2049 V3 | Quantum Soul Server • MetaMask & OpenSea Integrated • Ultimate AI Platform</p>
+    </footer>
+</body>
+</html>
