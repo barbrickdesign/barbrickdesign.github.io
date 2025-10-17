@@ -1278,7 +1278,8 @@
         function navigateTo(destination) {
             // Handle special cases
             if (destination === 'agent-hub') {
-                window.location.href = '../agent-hub.html';
+                // Use absolute path to ensure proper navigation
+                window.location.href = '/mandem.os/agent-hub.html';
                 return;
             }
 
