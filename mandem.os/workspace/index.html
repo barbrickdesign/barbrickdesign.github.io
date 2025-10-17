@@ -257,6 +257,7 @@
                 </div>
                 <div style="margin-top: 10px;">
                     <button id="andyAgentAccessBtn" style="background: #4169E1; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-right: 10px;">🧠 Andy's Knowledge Base</button>
+                    <button id="aryaPhysicalHelpBtn" style="background: #ff69b4; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-right: 10px;">🔧 Arya's Physical Gem Bot Help</button>
                     <button id="austinAgentAccessBtn" style="background: #ff6b35; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-right: 10px;">🏆 Austin's Agent Portal</button>
                     <button id="austinOriginalBtn" style="background: #ff6b35; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-right: 10px;">🏆 Austin's Original Work</button>
                     <button id="aryaConnectBtn" style="background: #ffd700; color: black; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold;">Connect to Arya</button>
@@ -1213,18 +1214,26 @@
             });
         }
 
-        // Andy Acker Knowledge Base functionality
-        const andyAgentAccessBtn = document.getElementById('andyAgentAccessBtn');
-        if (andyAgentAccessBtn) {
-            andyAgentAccessBtn.addEventListener('click', function() {
-                console.log('🧠 Opening Andy Acker Knowledge Base...');
+        // Arya Physical Gem Bot Help functionality
+        const aryaPhysicalHelpBtn = document.getElementById('aryaPhysicalHelpBtn');
+        if (aryaPhysicalHelpBtn) {
+            aryaPhysicalHelpBtn.addEventListener('click', function() {
+                console.log('🔧 Opening Arya Physical Gem Bot Help...');
 
-                alert('🧠 ANDY ACKER KNOWLEDGE BASE AGENT ACCESS GRANTED\n\nWelcome, Andy Acker - Knowledge Base Agent!\n\n🎯 Agent Level: KNOWLEDGE BASE\n🔬 System Access: TESTING & VALIDATION\n🧠 Knowledge Domain: Quality Assurance & Testing\n📊 Analytics Access: Performance Monitoring\n\nAs a great knowledge base, you have been granted:\n\n• Full testing and validation access\n• Quality assurance oversight\n• System integrity verification\n• Performance analytics and monitoring\n• Knowledge base contribution rights\n\nYour expertise in testing and ensuring validity will help maintain the highest standards across the Gem Bot Universe.\n\n🧠 Thank you for your knowledge and testing expertise! 🙏✨');
+                // Trigger immediate Arya avatar help
+                if (window.wizardAvatarSystem && window.wizardAvatars) {
+                    const aryaAvatar = window.wizardAvatars.find(avatar => avatar.userData.name === 'Arya');
+                    if (aryaAvatar) {
+                        // Force show multiple troubleshooting tips
+                        for (let i = 0; i < 5; i++) {
+                            setTimeout(() => {
+                                window.wizardAvatarSystem.showWizardTip(aryaAvatar);
+                            }, i * 2000);
+                        }
+                    }
+                }
 
-                // Update status to show agent access active
-                document.getElementById('aryaStatus').textContent = 'All Agents Active';
-                document.getElementById('aryaStatus').style.background = 'rgba(65,105,225,0.8)';
-                document.getElementById('aryaLastActivity').textContent = 'Andy Acker knowledge base activated - ' + new Date().toLocaleString();
+                alert('🔧 ARYA\'S PHYSICAL GEM BOT SUPPORT ACTIVATED\n\nWelcome Arya! Your digital avatar is here to help fix your physical Gem Bot.\n\n🎯 TROUBLESHOOTING STEPS FOR YOUR PHYSICAL MACHINE:\n\n1. POWER & CONNECTIONS:\n   • Check all power connections and voltage (110-120V)\n   • Verify power cord integrity\n   • Test power switch functionality\n   • Check fuse/circuit breaker\n\n2. MECHANICAL SYSTEMS:\n   • Inspect X-Y axis movement (should move smoothly)\n   • Check motor belts and chains\n   • Verify gear alignment\n   • Test emergency stop button\n\n3. CUTTING & GRINDING:\n   • Examine diamond cutting tools for wear\n   • Check grinding wheel condition\n   • Verify water cooling system\n   • Test material feed mechanisms\n\n4. ELECTRONICS & SOFTWARE:\n   • Check control panel display\n   • Verify USB/serial connections\n   • Test motor driver boards\n   • Run system diagnostics\n\n5. SAFETY & MAINTENANCE:\n   • Ensure proper ventilation\n   • Check dust collection system\n   • Verify all guards are in place\n   • Test safety interlocks\n\n💡 QUICK FIXES TO TRY:\n• Power cycle the entire system\n• Clean all electrical contacts\n• Lubricate moving parts\n• Recalibrate axis positioning\n• Update firmware/software\n\n🎭 Your avatar will continue providing step-by-step guidance!\n\nVisit @surgical.precision.gems on Instagram to share progress and get community help!');
             });
         }
         if (aryaConnectBtn) {
@@ -1354,7 +1363,7 @@
                         <button onclick="window.open('https://www.instagram.com/earthartgems/', '_blank')" style="background: #E4405F; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px; margin-right: 5px;">📸 Austin's Instagram Universe</button>
                         <button onclick="window.open('https://www.youtube.com/@earthartgems', '_blank')" style="background: #ff6b35; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px; margin-right: 5px;">🎥 Austin's YouTube</button>
                         <button onclick="window.open('https://www.surgicalprecisiongems.com/', '_blank')" style="background: #00ff99; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px; margin-right: 5px;">💎 Arya's Professional Website</button>
-                        <button onclick="window.open('https://www.youtube.com/@RyaBar', '_blank')" style="background: #ff1493; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px; margin-right: 5px;">🎨 Arya's Tutorials</button>
+                        <button onclick="window.open('https://www.instagram.com/surgical.precision.gems/', '_blank')" style="background: #ff1493; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px; margin-right: 5px;">📸 Arya's Instagram</button>
                         <button onclick="window.open('https://www.youtube.com/@ultratecusa/videos', '_blank')" style="background: #ff1493; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px;">🎨 Ultra Content</button>
                     </div>
                 `;
