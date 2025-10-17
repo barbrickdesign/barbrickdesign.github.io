@@ -450,6 +450,22 @@
         .modal-overlay.active .modal-content {
             transform: translate(-50%, -50%) scale(1);
         }
+
+        /* Agent Coin Vault Widget */
+        #agentCoinWidget {
+            pointer-events: none; /* Allow clicks to pass through to 3D scene */
+        }
+
+        #agentCoinWidget button,
+        #agentCoinWidget input,
+        #agentCoinWidget select {
+            pointer-events: auto; /* Make interactive elements clickable */
+        }
+
+        /* Make sure the widget content doesn't block 3D scene */
+        #vaultCompact, #vaultExpanded {
+            pointer-events: auto;
+        }
     </style>
 
     <!-- Dependencies -->
