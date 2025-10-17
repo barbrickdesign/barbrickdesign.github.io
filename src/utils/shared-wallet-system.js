@@ -25,20 +25,15 @@ class SharedWalletSystem {
     async init() {
         console.log('🔐 Shared Wallet System initializing...');
 
-        // Edge-specific: Wait a bit longer for extensions to load
-        const isEdge = /Edg/.test(navigator.userAgent);
-        if (isEdge) {
-            console.log('🌐 Microsoft Edge detected - waiting for wallet extensions...');
-            await new Promise(resolve => setTimeout(resolve, 1000));
-        }
-
-        // Detect available wallets
+        // Detect available wallets (passive)
         await this.detectWallets();
 
-        // Try to restore session
-        await this.restoreSession();
+        // Only restore session if universal auth isn't handling it
+        if (!window.universalWalletAuth) {
+            await this.restoreSession();
+        }
 
-        // Setup event listeners
+        // Setup event listeners (coordinated)
         this.setupEventListeners();
 
         console.log('✅ Shared Wallet System ready');
