@@ -114,13 +114,13 @@
 </style>
     
     <!-- Universal Wallet Authentication System -->
-    <script src="../../src/core/contractor-registry.js"></script>
-    <script src="../../src/core/universal-wallet-auth.js"></script>
-    <script src="../../src/core/auth-integration.js"></script>
+    <script src="../../../src/core/contractor-registry.js"></script>
+    <script src="../../../src/core/universal-wallet-auth.js"></script>
+    <script src="../../../src/core/auth-integration.js"></script>
 
     <!-- Shared Systems -->
-    <script src="../../src/utils/shared-utilities.js"></script>
-    <script src="../../src/utils/shared-wallet-system.js"></script>
+    <script src="../../../src/utils/shared-utilities.js"></script>
+    <script src="../../../src/utils/shared-wallet-system.js"></script>
     </head>     
     <body> 
         <header>
@@ -304,10 +304,14 @@
       localStorage.setItem('visited', 'true');
     }
     
-    // Enhanced wallet connection using shared wallet system
+    // Enhanced wallet connection using shared wallet system with error handling
     async function connectWalletForMGC() {
       try {
-        if (window.sharedWalletSystem) {
+        console.log('🔐 Attempting wallet connection...');
+
+        // Check if shared wallet system is available
+        if (window.sharedWalletSystem && typeof window.sharedWalletSystem.connect === 'function') {
+          console.log('✅ Using shared wallet system');
           await window.sharedWalletSystem.connect();
           console.log('✅ Wallet connected via shared system');
           updateAuthButton();
@@ -315,11 +319,23 @@
           return true;
         }
 
+        // Check if universal auth is available
+        if (window.universalWalletAuth && typeof window.universalWalletAuth.connect === 'function') {
+          console.log('✅ Using universal wallet auth');
+          await window.universalWalletAuth.connect();
+          console.log('✅ Wallet connected via universal auth');
+          updateAuthButton();
+          updateMgcBalanceDisplay();
+          return true;
+        }
+
         // Fallback to old system if shared system not available
+        console.log('⚠️ Fallback to basic wallet connection');
         return await quickConnectWallet();
+
       } catch (error) {
         console.error('❌ Wallet connection failed:', error);
-        alert('Wallet connection failed. Please try again.');
+        alert('Wallet connection failed. Please try again or check if your wallet extension is installed.');
         return false;
       }
     }
@@ -522,25 +538,27 @@
             });
         }
 
-        // Fix loginBtn to actually connect wallet
+        // Fix loginBtn to actually connect wallet with comprehensive error handling
         const loginBtn = document.getElementById('loginBtn');
         if (loginBtn) {
             loginBtn.addEventListener('click', async function(e) {
                 e.preventDefault();
+                console.log('🔘 Login button clicked');
 
                 try {
                     console.log('🔐 Connecting wallet...');
                     const success = await connectWalletForMGC();
+
                     if (success) {
                         console.log('✅ Wallet connected successfully');
                         alert('Wallet connected successfully! You can now access all Gem Bot Universe features.');
                     } else {
-                        console.log('❌ Wallet connection failed');
-                        alert('Wallet connection failed. Please try again.');
+                        console.log('❌ Wallet connection returned false');
+                        // Alert already shown in connectWalletForMGC
                     }
                 } catch (error) {
-                    console.error('❌ Wallet connection error:', error);
-                    alert('Wallet connection error: ' + error.message);
+                    console.error('❌ Login button error:', error);
+                    alert('An error occurred while connecting your wallet. Please try again.');
                 }
 
                 return false;
