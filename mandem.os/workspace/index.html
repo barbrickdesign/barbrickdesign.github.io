@@ -1010,10 +1010,10 @@
         // TRON-STYLE SATELLITES
         function createTronSatellites() {
             const environments = [
-                { name: 'Laboratory', color: 0x00ff88, icon: '🏭', url: 'laboratory' },
-                { name: 'Warehouse', color: 0xffaa00, icon: '🏗️', url: 'warehouse' },
-                { name: 'Explorer', color: 0x66ff99, icon: '🗺️', url: 'outdoor' },
-                { name: 'Exchange', color: 0x3399ff, icon: '⚔️', url: 'grand-exchange' }
+                { name: 'Ember Terminal', color: 0x00ff88, icon: '🔥', url: 'ember-terminal' },
+                { name: 'Grand Exchange', color: 0xffaa00, icon: '⚔️', url: 'grand-exchange' },
+                { name: 'Crypto Recovery', color: 0x66ff99, icon: '💰', url: 'crypto-recovery-universal' },
+                { name: 'Classified Contracts', color: 0x3399ff, icon: '🔒', url: 'classified-contracts' }
             ];
 
             environments.forEach((env, index) => {
@@ -1283,6 +1283,38 @@
                 return;
             }
 
+            // Handle different project locations
+            const urlMappings = {
+                'ember-terminal': '../ember-terminal/app.html',
+                'grand-exchange': '../grand-exchange.html',
+                'crypto-recovery-universal': '../crypto-recovery-universal.html',
+                'classified-contracts': '../classified-contracts.html',
+                'gembot-control-3d': '../gembot-control-3d.html',
+                'investment-dashboard': '../investment-dashboard.html',
+                'universal-dev-tracker': '../universal-dev-tracker.html',
+                'gov-transparency-hub': '../gov-transparency-hub.html',
+                'dev-time-tracker': '../dev-time-tracker.html',
+                'server-health-monitor': '../server-health-monitor.html',
+                'test-all-projects': '../test-all-projects.html',
+                'sol-recovery': '../sol-recovery.html'
+            };
+
+            // Check if we have a mapped URL
+            if (urlMappings[destination]) {
+                // Add loading state
+                showLoadingOverlay('Navigating to ' + destination.replace('-', ' ').replace(/\b\w/g, l => l.toUpperCase()) + '...');
+
+                // Smooth transition with cinematic effect
+                document.body.style.opacity = '0.7';
+                document.body.style.transform = 'scale(0.98)';
+
+                setTimeout(() => {
+                    window.location.href = urlMappings[destination];
+                }, 800);
+                return;
+            }
+
+            // Default navigation for unmapped destinations
             // Add loading state
             showLoadingOverlay('Navigating to ' + destination.charAt(0).toUpperCase() + destination.slice(1) + '...');
 
@@ -2462,6 +2494,13 @@
                 camera.updateProjectionMatrix();
                 renderer.setSize(window.innerWidth, window.innerHeight);
             }
+        });
+
+        // Initialize 3D scene on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            console.log('🌍 Initializing Gem Bot Universe...');
+            initScene();
+            checkSystemArchitectStatus();
         });
     </script>
 
