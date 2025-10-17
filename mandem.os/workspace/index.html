@@ -1447,6 +1447,14 @@
 
             console.log('✅ Controls added, starting animation...');
 
+            // Create wizard avatars
+            const wizardAvatars = [];
+            wizardAvatarSystem.wizards.forEach(wizard => {
+                const avatar = wizardAvatarSystem.createWizardAvatar(wizard, scene);
+                wizardAvatars.push(avatar);
+            });
+            console.log('✅ Wizard avatars created:', wizardAvatars.length);
+
             // Add orbiting satellites with labels
             const environments = [
                 { name: 'Grand Exchange', color: 0x3399ff, url: 'grand_exchange.html' },
@@ -1708,6 +1716,9 @@
 
                 // Rotate earth
                 earth.rotation.y += 0.005;
+
+                // Update wizard avatars
+                wizardAvatarSystem.updateWizardAvatars(wizardAvatars, camera);
 
                 // Rotate satellites and update labels (maintain even spacing)
                 const time = Date.now() * 0.0001; // Same speed for all satellites
