@@ -301,11 +301,285 @@
         <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/PointerLockControls.js"></script>         
         <!-- New globe script -->         
         <script>
-    // Check if the user is logged in
-    function isUserLoggedIn() {
-      // Check for both authentication methods to ensure compatibility
-      return localStorage.getItem('currentUser') !== null || localStorage.getItem('userLoggedIn') === 'true';
-    }
+    // Austin Moore NFT Jewelry System
+    const nftJewelrySystem = {
+        // Jewelry item metadata structure
+        jewelryTypes: {
+            diamond: { baseValue: 1000, rarity: 'legendary', properties: ['brilliance', 'fire', 'scintillation'] },
+            emerald: { baseValue: 800, rarity: 'epic', properties: ['color', 'clarity', 'cut'] },
+            ruby: { baseValue: 900, rarity: 'epic', properties: ['color', 'clarity', 'luster'] },
+            sapphire: { baseValue: 850, rarity: 'epic', properties: ['color', 'clarity', 'cut'] },
+            gold: { baseValue: 500, rarity: 'rare', properties: ['purity', 'weight', 'craftsmanship'] },
+            platinum: { baseValue: 600, rarity: 'rare', properties: ['purity', 'weight', 'durability'] },
+            pearl: { baseValue: 300, rarity: 'uncommon', properties: ['luster', 'shape', 'nacre'] }
+        },
+
+        // Calculate NFT value based on metadata
+        calculateNFTValue: function(jewelryType, metadata) {
+            const baseItem = this.jewelryTypes[jewelryType];
+            if (!baseItem) return 0;
+
+            let value = baseItem.baseValue;
+
+            // Apply metadata modifiers
+            if (metadata) {
+                // Weight/carats multiplier
+                if (metadata.weight) value *= (1 + metadata.weight * 0.1);
+
+                // Quality multipliers
+                if (metadata.quality === 'flawless') value *= 2.5;
+                else if (metadata.quality === 'excellent') value *= 2.0;
+                else if (metadata.quality === 'very_good') value *= 1.5;
+
+                // Rarity multipliers
+                if (metadata.rarity === 'unique') value *= 3.0;
+                else if (metadata.rarity === 'legendary') value *= 2.5;
+                else if (metadata.rarity === 'epic') value *= 2.0;
+
+                // Origin bonus
+                if (metadata.origin === 'natural') value *= 1.8;
+                else if (metadata.origin === 'synthetic') value *= 0.6;
+            }
+
+            return Math.round(value);
+        },
+
+        // Create NFT from jewelry item
+        createNFT: async function(jewelryData) {
+            const value = this.calculateNFTValue(jewelryData.type, jewelryData.metadata);
+
+            const nftData = {
+                name: `${jewelryData.type.charAt(0).toUpperCase() + jewelryData.type.slice(1)} NFT`,
+                symbol: 'EARTHART',
+                description: `Authentic ${jewelryData.type} jewelry transformed into NFT by Austin Moore`,
+                image: jewelryData.image || 'https://earthartgems.com/default-jewelry.png',
+                attributes: [
+                    { trait_type: 'Type', value: jewelryData.type },
+                    { trait_type: 'Value', value: value },
+                    { trait_type: 'Rarity', value: this.jewelryTypes[jewelryData.type]?.rarity || 'common' },
+                    { trait_type: 'Creator', value: 'Austin Moore' },
+                    { trait_type: 'Collection', value: 'EarthArt Gems' }
+                ],
+                properties: {
+                    category: 'jewelry',
+                    creators: [{ address: 'AustinMooreEarthArt', verified: true, share: 100 }]
+                }
+            };
+
+            return { nftData, calculatedValue: value };
+        }
+    };
+
+    // 3D Wizard Avatar System
+    const wizardAvatarSystem = {
+        wizards: [
+            {
+                name: 'Austin Moore',
+                title: 'Supreme Inventor',
+                color: '#ff6b35',
+                position: { x: -15, y: 8, z: 10 },
+                tips: [
+                    'Welcome to the Gem Bot Universe! I created the original MGC Merlin.',
+                    'NFT jewelry preserves true value through blockchain metadata.',
+                    'Each gem tells a story - let your NFT collection reflect that.',
+                    'Quality over quantity - authentic gems hold their value eternally.'
+                ]
+            },
+            {
+                name: 'Arya',
+                title: 'Innovation Wizard',
+                color: '#ff1493',
+                position: { x: 15, y: 6, z: -10 },
+                tips: [
+                    'Art and technology blend beautifully in the digital realm.',
+                    'Your NFT jewelry is a bridge between physical and digital worlds.',
+                    'Innovation comes from combining tradition with technology.',
+                    'Every enhancement builds upon Austin\'s groundbreaking foundation.'
+                ]
+            },
+            {
+                name: 'Ryan Barbrick',
+                title: 'Vision Architect',
+                color: '#ffd700',
+                position: { x: 0, y: 10, z: 15 },
+                tips: [
+                    'The future of jewelry is in NFTs - track value, provenance, authenticity.',
+                    'Grand Exchange brings global traders together in one marketplace.',
+                    'Your gem collection becomes a living, tradable asset.',
+                    'Innovation requires both creators and visionaries working together.'
+                ]
+            }
+        ],
+
+        createWizardAvatar: function(wizardData, scene) {
+            // Create tron-like glowing wizard avatar
+            const avatarGroup = new THREE.Group();
+
+            // Main body - geometric tron form
+            const bodyGeometry = new THREE.OctahedronGeometry(1.5, 0);
+            const bodyMaterial = new THREE.MeshPhongMaterial({
+                color: wizardData.color,
+                emissive: wizardData.color,
+                emissiveIntensity: 0.3,
+                transparent: true,
+                opacity: 0.8
+            });
+            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
+            avatarGroup.add(body);
+
+            // Floating particles around avatar
+            const particleCount = 20;
+            const particleGeometry = new THREE.SphereGeometry(0.05, 8, 8);
+
+            for (let i = 0; i < particleCount; i++) {
+                const particleMaterial = new THREE.MeshBasicMaterial({
+                    color: wizardData.color,
+                    transparent: true,
+                    opacity: 0.6
+                });
+                const particle = new THREE.Mesh(particleGeometry, particleMaterial);
+
+                // Random position around avatar
+                const angle = (i / particleCount) * Math.PI * 2;
+                const radius = 2 + Math.random() * 1;
+                particle.position.x = Math.cos(angle) * radius;
+                particle.position.y = (Math.random() - 0.5) * 2;
+                particle.position.z = Math.sin(angle) * radius;
+
+                avatarGroup.add(particle);
+            }
+
+            // Position the avatar
+            avatarGroup.position.set(wizardData.position.x, wizardData.position.y, wizardData.position.z);
+
+            // Store wizard data
+            avatarGroup.userData = {
+                name: wizardData.name,
+                title: wizardData.title,
+                tips: wizardData.tips,
+                tipIndex: 0,
+                lastTipTime: 0
+            };
+
+            scene.add(avatarGroup);
+            return avatarGroup;
+        },
+
+        updateWizardAvatars: function(avatars, camera) {
+            const currentTime = Date.now();
+
+            avatars.forEach(avatar => {
+                // Make avatars face the camera
+                avatar.lookAt(camera.position);
+
+                // Floating animation
+                avatar.position.y += Math.sin(currentTime * 0.001 + avatar.position.x) * 0.005;
+
+                // Rotate particles
+                avatar.children.forEach((child, index) => {
+                    if (child.geometry.type === 'SphereGeometry') {
+                        child.rotation.y += 0.02;
+                        child.position.y += Math.sin(currentTime * 0.002 + index) * 0.01;
+                    }
+                });
+
+                // Show tips occasionally
+                if (currentTime - avatar.userData.lastTipTime > 15000) { // Every 15 seconds
+                    this.showWizardTip(avatar);
+                    avatar.userData.lastTipTime = currentTime;
+                }
+            });
+        },
+
+        showWizardTip: function(avatar) {
+            const tip = avatar.userData.tips[avatar.userData.tipIndex];
+            avatar.userData.tipIndex = (avatar.userData.tipIndex + 1) % avatar.userData.tips.length;
+
+            // Create floating tip text
+            const tipDiv = document.createElement('div');
+            tipDiv.className = 'wizard-tip';
+            tipDiv.innerHTML = `<strong>${avatar.userData.name}:</strong> ${tip}`;
+            tipDiv.style.cssText = `
+                position: fixed;
+                background: rgba(0,0,0,0.8);
+                color: ${avatar.userData.name === 'Austin Moore' ? '#ff6b35' : avatar.userData.name === 'Arya' ? '#ff1493' : '#ffd700'};
+                padding: 10px 15px;
+                border-radius: 8px;
+                font-size: 14px;
+                font-family: Arial, sans-serif;
+                z-index: 1000;
+                pointer-events: none;
+                border: 2px solid ${avatar.userData.name === 'Austin Moore' ? '#ff6b35' : avatar.userData.name === 'Arya' ? '#ff1493' : '#ffd700'};
+                box-shadow: 0 0 20px ${avatar.userData.name === 'Austin Moore' ? '#ff6b35' : avatar.userData.name === 'Arya' ? '#ff1493' : '#ffd700'}40;
+            `;
+
+            document.body.appendChild(tipDiv);
+
+            // Position near avatar (convert 3D to 2D screen coordinates)
+            const vector = new THREE.Vector3();
+            avatar.getWorldPosition(vector);
+            vector.project(camera);
+
+            const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
+            const y = (-vector.y * 0.5 + 0.5) * window.innerHeight;
+
+            tipDiv.style.left = x + 'px';
+            tipDiv.style.top = (y - 60) + 'px';
+
+            // Animate and remove
+            setTimeout(() => {
+                tipDiv.style.opacity = '0';
+                tipDiv.style.transform = 'translateY(-20px)';
+                setTimeout(() => {
+                    if (tipDiv.parentNode) {
+                        tipDiv.parentNode.removeChild(tipDiv);
+                    }
+                }, 1000);
+            }, 4000);
+        }
+    };
+
+    // Grand Exchange NFT Integration
+    const grandExchangeNFT = {
+        nftListings: [],
+
+        addNFTListing: function(nftData, price, seller) {
+            const listing = {
+                id: Date.now(),
+                nft: nftData,
+                price: price,
+                seller: seller,
+                timestamp: new Date(),
+                status: 'active'
+            };
+
+            this.nftListings.push(listing);
+            this.updateExchangeDisplay();
+            return listing;
+        },
+
+        calculateNFTMarketValue: function(nft) {
+            let marketValue = nft.calculatedValue || 0;
+
+            // Apply market modifiers
+            const rarityMultiplier = {
+                'common': 1.0,
+                'uncommon': 1.2,
+                'rare': 1.5,
+                'epic': 2.0,
+                'legendary': 3.0,
+                'mythical': 5.0
+            };
+
+            const rarity = nft.attributes?.find(attr => attr.trait_type === 'Rarity')?.value || 'common';
+            marketValue *= rarityMultiplier[rarity] || 1.0;
+
+            // Demand factor (simulated)
+            marketValue *= (0.8 + Math.random() * 0.4); // ±20% variance
+
+            return Math.round(marketValue);
+        }
+    };
 
     // Wallet-based authentication check (same as profile.js)
     function isUserAuthenticated() {
