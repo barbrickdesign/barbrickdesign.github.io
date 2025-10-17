@@ -231,23 +231,25 @@
             <h2>System Activity Monitor</h2>
             <p>Real-time monitoring of Gem Bot Universe systems and components.</p>
 
-            <!-- Arya Agent Connection -->
+            <!-- Arya & Austin Moore Agent Connection -->
             <div style="margin-top: 20px; padding: 15px; background: linear-gradient(135deg, #ff1493, #ff69b4); border-radius: 10px; border: 2px solid #ffd700;">
                 <h3 style="color: white; margin: 0 0 10px 0; display: flex; align-items: center;">
                     🎨 Arya & Austin Moore Agent Connection
                     <span id="aryaStatus" style="margin-left: auto; font-size: 12px; background: rgba(0,0,0,0.5); padding: 2px 8px; border-radius: 10px;">Active</span>
                 </h3>
                 <div style="color: white; font-size: 14px;">
-                    <div><strong>🎯 Original Inventor:</strong> <a href="https://www.youtube.com/@earthartgems" target="_blank" style="color: #ffd700; text-decoration: underline;">Austin Moore (@earthartgems)</a></div>
+                    <div><strong>🎯 Original Inventor:</strong> <a href="https://www.youtube.com/@earthartgems" target="_blank" style="color: #ffd700; text-decoration: underline;">Austin Moore (@earthartgems)</a> <span style="color: #ff6b35; font-size: 12px;">[AGENT ACCESS GRANTED]</span></div>
                     <div><strong>🔬 Innovation:</strong> MGC Merlin's Gem Bot - Original Creator</div>
                     <div><strong>🎨 Enhancement:</strong> Arya - Art & Technology Integration</div>
                     <div><strong>YouTube Channels:</strong> @earthartgems & @RyaBar</div>
                     <div><strong>Educational Content:</strong> <span id="aryaTutorials">0</span> Gem Bot tutorials</div>
                     <div><strong>Trusted Projects:</strong> <span id="trustedProjects">12</span> verified integrations</div>
+                    <div><strong>Agent Access Level:</strong> <span style="color: #ff6b35;">SUPREME INVENTOR</span> (Austin) | <span style="color: #00ff99;">ENHANCEMENT SPECIALIST</span> (Arya)</div>
                     <div><strong>Contributions:</strong> <span id="aryaContributions">0</span> videos, <span id="aryaViews">0</span> views</div>
                     <div><strong>Last Activity:</strong> <span id="aryaLastActivity">Monitoring...</span></div>
                 </div>
                 <div style="margin-top: 10px;">
+                    <button id="austinAgentAccessBtn" style="background: #ff6b35; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-right: 10px;">🔑 Austin's Agent Portal</button>
                     <button id="austinOriginalBtn" style="background: #ff6b35; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-right: 10px;">🏆 Austin's Original Work</button>
                     <button id="aryaConnectBtn" style="background: #ffd700; color: black; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold;">Connect to Arya</button>
                     <button id="aryaLearnBtn" style="background: #00ff99; color: black; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; margin-left: 10px; font-weight: bold;">Learn Gem Bots</button>
@@ -290,8 +292,10 @@
             <p>&copy; 2025 Gem Bot Project | All Rights Reserved</p> 
         </footer>         
         <!-- Load JavaScript files -->         
-        <!-- MetaMask Wallet Integration for mandem.os -->
-        <script src="https://cdn.jsdelivr.net/npm/web3@1.8.0/dist/web3.min.js"></script>
+        <!-- Austin Moore NFT Jewelry System & 3D Wizard Integration -->
+        <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iife.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/@solana/spl-token@0.3.10/lib/index.iife.js"></script>
+        <script src="https://unpkg.com/@solana/spl-token-metadata@0.1.4/lib/index.iife.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>         
         <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>         
         <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/PointerLockControls.js"></script>         
@@ -818,7 +822,7 @@
         if (checkConnectionBtn) {
             checkConnectionBtn.addEventListener('click', function() {
                 console.log('🔗 Checking system connection...');
-                alert('System Status: All systems operational!\n\n✅ 3D Globe: Active\n✅ Satellite Navigation: Active\n✅ Wallet Integration: Connected\n✅ Mission Control: Online\n✅ Arya\'s Education: Connected\n✅ Arya Agent: Teaching\n✅ Trusted Projects: 12 verified\n✅ Multi-Channel Content: Active');
+                alert('System Status: All systems operational!\n\n✅ 3D Globe: Active\n✅ Satellite Navigation: Active\n✅ Wallet Integration: Connected\n✅ Mission Control: Online\n✅ Arya\'s Education: Connected\n✅ Arya Agent: Teaching\n✅ Austin Agent: SUPREME ACCESS\n✅ Trusted Projects: 12 verified\n✅ Multi-Channel Content: Active');
             });
         }
 
@@ -855,24 +859,18 @@
             });
         }
 
-        // Austin Moore Original Work button functionality
-        const austinOriginalBtn = document.getElementById('austinOriginalBtn');
-        if (austinOriginalBtn) {
-            austinOriginalBtn.addEventListener('click', function() {
-                console.log('🏆 Opening Austin Moore\'s Original Work...');
+        // Austin Moore Agent Portal functionality
+        const austinAgentAccessBtn = document.getElementById('austinAgentAccessBtn');
+        if (austinAgentAccessBtn) {
+            austinAgentAccessBtn.addEventListener('click', function() {
+                console.log('🔑 Opening Austin Moore Agent Portal...');
 
-                // Open the specific video mentioned and the channel
-                window.open('https://www.youtube.com/watch?v=S8ssTOxzHq0', '_blank');
-                setTimeout(() => {
-                    window.open('https://www.youtube.com/@earthartgems', '_blank');
-                }, 1000);
+                alert('🔑 AUSTIN MOORE AGENT ACCESS GRANTED\n\nWelcome, Austin Moore - Original Inventor!\n\n🎯 Agent Level: SUPREME INVENTOR\n🔬 System Access: FULL ADMINISTRATIVE\n🎨 Creative Control: UNLIMITED\n📊 Monitoring Access: COMPLETE\n\nAs the original creator of the MGC Merlin\'s Gem Bot, you have been granted:\n\n• Full system administrative access\n• Creative control over all enhancements\n• Real-time monitoring capabilities\n• Educational content management\n• Community innovation oversight\n\nYour groundbreaking invention forms the foundation of this entire ecosystem. Your agent access ensures the original vision remains protected and enhanced.\n\n🏆 Thank you for your revolutionary contribution to technology! 🙏✨');
 
-                // Update activity status
-                document.getElementById('aryaStatus').textContent = 'Honoring Original Creator';
-                document.getElementById('aryaStatus').style.background = 'rgba(255,107,53,0.7)';
-                document.getElementById('aryaLastActivity').textContent = 'Acknowledging Austin Moore - ' + new Date().toLocaleString();
-
-                alert('🏆 HONORING THE ORIGINAL INVENTOR\n\nOpening Austin Moore\'s (@earthartgems) original work on the MGC Merlin\'s Gem Bot!\n\n• Video: https://www.youtube.com/watch?v=S8ssTOxzHq0\n• Channel: https://www.youtube.com/@earthartgems\n\nAustin Moore is the true inventor of the MGC Merlin\'s Gem Bot. Arya and the team have enhanced and improved upon his original creation.\n\nThank you, Austin, for your groundbreaking innovation! 🙏✨');
+                // Update status to show agent access active
+                document.getElementById('aryaStatus').textContent = 'Agent Access Active';
+                document.getElementById('aryaStatus').style.background = 'rgba(255,107,53,0.8)';
+                document.getElementById('aryaLastActivity').textContent = 'Austin Moore agent access activated - ' + new Date().toLocaleString();
             });
         }
         if (aryaConnectBtn) {
@@ -1038,7 +1036,7 @@
 
                     <div style="text-align: center; margin-top: 15px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.3);">
                         <div style="font-size: 10px; color: #ffd700; margin-bottom: 8px;">🔒 ALL ARYA PROJECTS & AGENT PROFILES VERIFIED TRUSTED</div>
-                        <button onclick="alert('🔒 TRUST VERIFICATION COMPLETE\n\nAll Arya projects and agent profiles have been verified and marked as TRUSTED within the Gem Bot Universe ecosystem.\n\n• Educational content: AUTHORIZED\n• Agent connections: VERIFIED\n• Project integrations: CERTIFIED\n• Creative collaborations: APPROVED\n\nTrust Level: MAXIMUM')" style="background: #ff1493; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: bold;">✅ Verify Trust Status</button>
+                        <button onclick="alert('🔒 TRUST VERIFICATION COMPLETE\n\nAll Arya and Austin Moore projects and agent profiles have been verified and marked as TRUSTED within the Gem Bot Universe ecosystem.\n\n• Educational content: AUTHORIZED\n• Agent connections: VERIFIED\n• Project integrations: CERTIFIED\n• Creative collaborations: APPROVED\n• Austin Moore: SUPREME AGENT ACCESS\n\nTrust Level: MAXIMUM\nAgent Status: ACTIVE')" style="background: #ff1493; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: bold;">✅ Verify Trust Status</button>
                     </div>
                 `;
 
