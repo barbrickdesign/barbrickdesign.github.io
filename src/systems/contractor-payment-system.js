@@ -22,7 +22,12 @@ class ContractorPaymentSystem {
             trustScoreWeight: 0.5,      // Trust score influence
             minimumDrip: 0.005,         // Minimum daily drip
             maximumDrip: 5.0,           // Maximum daily drip
-            paymentToken: 'SOL'         // Payment token (SOL/MGC)
+            paymentToken: 'SOL',        // Payment token (SOL/MGC)
+
+            // Agent Coin Vault Configuration
+            agentCoinVault: 'GJFCA8XxnGns9TqKsMLScyVSooyiNrNPpjp2CyQCz7z5',
+            knowledgeBaseCoin: 'Aj7H2e1PW8N8d1eVLL5k49oE3LzKeo8HMhjS6tv3trow',
+            visionArchitectCoin: 'Axw9V2vXc6AH6jtqPJsWNC2o8knAtpqRJKXwJaSAcU7N'
         };
         
         // Leaderboard Categories
@@ -42,6 +47,8 @@ class ContractorPaymentSystem {
     isSystemArchitect(walletAddress) {
         const ARCHITECT_WALLETS = [
             '0xEFc6910e7624F164dAe9d0F799954aa69c943c8d',
+            '0x4ccbefd7d3554bcbbc489b11af73a84d7baef4cb',
+            '0x45a328572b2a06484e02EB5D4e4cb6004136eB16',
             '6HTjfgWZYMbENnMAJJFhxWR2VZDxdze3qV7zznSAsfk'
         ];
         return ARCHITECT_WALLETS.includes(walletAddress);
@@ -626,6 +633,72 @@ class ContractorPaymentSystem {
      */
     generateProjectId() {
         return 'PRJ_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+    }
+
+    /**
+     * Distribute agent coins from vault
+     */
+    distributeAgentCoins(agentType, recipientWallet, amount) {
+        if (!this.isSystemArchitect(window.universalWalletAuth?.getAddress())) {
+            throw new Error('Only System Architects can distribute agent coins');
+        }
+
+        const distribution = {
+            agentType,
+            recipientWallet,
+            amount,
+            timestamp: new Date().toISOString(),
+            vaultAddress: this.config.agentCoinVault,
+            coinAddress: agentType === 'knowledgeBase' ?
+                this.config.knowledgeBaseCoin :
+                this.config.visionArchitectCoin
+        };
+
+        // Log the distribution for tracking
+        const distributions = JSON.parse(localStorage.getItem('agentCoinDistributions') || '[]');
+        distributions.push(distribution);
+        localStorage.setItem('agentCoinDistributions', JSON.stringify(distributions));
+
+        console.log(`🎯 Agent coin distribution recorded:`, distribution);
+        return distribution;
+    }
+
+    /**
+     * Get agent coin distribution history
+     */
+    getAgentCoinDistributions() {
+        return JSON.parse(localStorage.getItem('agentCoinDistributions') || '[]');
+    }
+
+    /**
+     * Setup agent coin wallet for recipient
+     */
+    setupAgentCoinWallet(agentType, recipientWallet) {
+        const agentCoin = agentType === 'knowledgeBase' ?
+            this.config.knowledgeBaseCoin :
+            this.config.visionArchitectCoin;
+
+        return {
+            agentType,
+            recipientWallet,
+            agentCoin,
+            vaultAddress: this.config.agentCoinVault,
+            setupComplete: true,
+            setupTimestamp: new Date().toISOString()
+        };
+    }
+
+    /**
+     * Get agent coin configuration
+     */
+    getAgentCoinConfig() {
+        return {
+            vaultAddress: this.config.agentCoinVault,
+            knowledgeBaseCoin: this.config.knowledgeBaseCoin,
+            visionArchitectCoin: this.config.visionArchitectCoin,
+            knowledgeBaseUrl: `https://pump.fun/coin/${this.config.knowledgeBaseCoin}`,
+            visionArchitectUrl: `https://pump.fun/coin/${this.config.visionArchitectCoin}`
+        };
     }
 
     /**
