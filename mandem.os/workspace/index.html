@@ -1501,6 +1501,10 @@
             });
             console.log('✅ Wizard avatars created:', wizardAvatars.length);
 
+            // Make wizards globally accessible
+            window.wizardAvatars = wizardAvatars;
+            window.wizardAvatarSystem = wizardAvatarSystem;
+
             // Add orbiting satellites with labels
             const environments = [
                 { name: 'Grand Exchange', color: 0x3399ff, url: 'grand_exchange.html' },
