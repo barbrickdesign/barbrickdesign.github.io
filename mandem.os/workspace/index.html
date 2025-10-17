@@ -2510,14 +2510,139 @@
             `).join('');
         }
 
-        // Check if user is System Architect to show distribution controls
-        function checkSystemArchitectStatus() {
-            if (window.contractorPaymentSystem && window.universalWalletAuth) {
-                const userAddress = window.universalWalletAuth.getAddress();
-                if (userAddress && window.contractorPaymentSystem.isSystemArchitect(userAddress)) {
-                    document.getElementById('distributionControls').style.display = 'block';
-                    refreshDistributionHistory();
+        // Agent Coin Vault Widget Functions
+        let phantomWallet = null;
+        let isWalletConnected = false;
+
+        // Initialize vault widget
+        function initAgentCoinVault() {
+            const expandBtn = document.getElementById('expandVaultBtn');
+            const vaultCompact = document.getElementById('vaultCompact');
+            const vaultExpanded = document.getElementById('vaultExpanded');
+            const connectBtn = document.getElementById('connectPhantomBtn');
+
+            if (expandBtn) {
+                expandBtn.addEventListener('click', () => {
+                    const isExpanded = vaultExpanded.style.display !== 'none';
+                    vaultExpanded.style.display = isExpanded ? 'none' : 'block';
+                    vaultCompact.style.display = isExpanded ? 'block' : 'none';
+                    expandBtn.textContent = isExpanded ? '▼' : '▲';
+                });
+            }
+
+            if (connectBtn) {
+                connectBtn.addEventListener('click', connectPhantomWallet);
+            }
+
+            // Check if Phantom is already connected
+            checkPhantomConnection();
+        }
+
+        // Check if Phantom wallet is connected
+        async function checkPhantomConnection() {
+            try {
+                if (window.solana && window.solana.isPhantom) {
+                    const response = await window.solana.connect({ onlyIfTrusted: true });
+                    phantomWallet = response.publicKey.toString();
+                    isWalletConnected = true;
+                    updateWalletUI();
+                    await loadCoinBalances();
                 }
+            } catch (error) {
+                // User hasn't connected before, that's okay
+                console.log('Phantom not previously connected');
+            }
+        }
+
+        // Connect Phantom wallet
+        async function connectPhantomWallet() {
+            try {
+                if (!window.solana || !window.solana.isPhantom) {
+                    alert('Phantom wallet not found. Please install Phantom wallet extension.');
+                    window.open('https://phantom.app/', '_blank');
+                    return;
+                }
+
+                const response = await window.solana.connect();
+                phantomWallet = response.publicKey.toString();
+                isWalletConnected = true;
+                updateWalletUI();
+                await loadCoinBalances();
+
+                console.log('Phantom wallet connected:', phantomWallet);
+            } catch (error) {
+                console.error('Failed to connect Phantom wallet:', error);
+                alert('Failed to connect wallet. Please try again.');
+            }
+        }
+
+        // Update wallet UI
+        function updateWalletUI() {
+            const walletStatus = document.getElementById('walletStatus');
+            const connectBtn = document.getElementById('connectPhantomBtn');
+            const coinBalances = document.getElementById('coinBalances');
+
+            if (isWalletConnected && phantomWallet) {
+                walletStatus.textContent = `Connected: ${phantomWallet.slice(0, 6)}...${phantomWallet.slice(-4)}`;
+                walletStatus.style.color = 'var(--neon-green)';
+                connectBtn.textContent = '🔌 Disconnect';
+                connectBtn.onclick = disconnectPhantomWallet;
+                coinBalances.style.display = 'block';
+            } else {
+                walletStatus.textContent = 'Not Connected';
+                walletStatus.style.color = 'var(--neon-blue)';
+                connectBtn.textContent = '🔗 Connect Phantom';
+                connectBtn.onclick = connectPhantomWallet;
+                coinBalances.style.display = 'none';
+                coinBalances.innerHTML = '';
+            }
+        }
+
+        // Disconnect Phantom wallet
+        function disconnectPhantomWallet() {
+            phantomWallet = null;
+            isWalletConnected = false;
+            updateWalletUI();
+        }
+
+        // Load coin balances from connected wallet
+        async function loadCoinBalances() {
+            if (!isWalletConnected || !phantomWallet) return;
+
+            const coinBalances = document.getElementById('coinBalances');
+            coinBalances.innerHTML = '<div style="text-align: center; color: var(--neon-blue);">Loading balances...</div>';
+
+            try {
+                // Mock balances for demonstration (replace with real API calls)
+                const mockBalances = {
+                    SOL: '2.45',
+                    'Knowledge Base': '1,250.00',
+                    'Vision Architect': '850.50'
+                };
+
+                coinBalances.innerHTML = `
+                    <div style="margin-bottom: 5px;"><strong>SOL:</strong> ${mockBalances.SOL}</div>
+                    <div style="margin-bottom: 5px;"><strong>🧠 KB Agent:</strong> ${mockBalances['Knowledge Base']}</div>
+                    <div style="margin-bottom: 5px;"><strong>⚡ Vision Arch:</strong> ${mockBalances['Vision Architect']}</div>
+                `;
+
+                // In a real implementation, you would use the Solana Web3.js connection
+                // to fetch actual token balances from the connected wallet
+                /*
+                const connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl('mainnet-beta'));
+                const publicKey = new solanaWeb3.PublicKey(phantomWallet);
+
+                // Get SOL balance
+                const solBalance = await connection.getBalance(publicKey);
+                const solAmount = solBalance / solanaWeb3.LAMPORTS_PER_SOL;
+
+                // Get token balances (would need token program integration)
+                // ... token balance fetching logic
+                */
+
+            } catch (error) {
+                console.error('Failed to load coin balances:', error);
+                coinBalances.innerHTML = '<div style="color: var(--neon-orange);">Failed to load balances</div>';
             }
         }
 
