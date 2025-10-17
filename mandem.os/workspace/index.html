@@ -615,7 +615,31 @@
 
     <!-- Mission Control Panel -->
     <div id="missionControl" class="content-panel" style="display: none;">
-        <h2>MISSION CONTROL</h2>
+        <h2>🧠 MISSION CONTROL - MANDEM.OS v2</h2>
+
+        <!-- v2 Quantum Control Center -->
+        <div style="margin-bottom: 2rem;">
+            <h3 style="color: var(--neon-purple); margin-bottom: 1rem;">⚛️ QUANTUM CONTROL CENTER</h3>
+            <div class="quantum-controls-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                <div class="quantum-control-card" style="background: var(--hologram-bg); border: 1px solid var(--neon-purple); border-radius: 10px; padding: 1rem;">
+                    <h4 style="color: var(--neon-purple);">Quantum Processing</h4>
+                    <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                        <button class="cyber-btn" style="font-size: 0.8em; padding: 6px 12px;" onclick="activateQuantumAI()">🧠 Activate</button>
+                        <button class="cyber-btn cyber-btn-secondary" style="font-size: 0.8em; padding: 6px 12px;" onclick="optimizeNeuralNetwork()">⚡ Optimize</button>
+                    </div>
+                    <div id="quantumAIStatus" style="margin-top: 0.5rem; font-size: 0.8em; color: var(--neon-cyan);">Status: Ready</div>
+                </div>
+
+                <div class="quantum-control-card" style="background: var(--hologram-bg); border: 1px solid var(--neon-cyan); border-radius: 10px; padding: 1rem;">
+                    <h4 style="color: var(--neon-cyan);">Neural Enhancement</h4>
+                    <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                        <button class="cyber-btn" style="font-size: 0.8em; padding: 6px 12px;" onclick="enhanceAgentCapabilities()">🚀 Enhance</button>
+                        <button class="cyber-btn cyber-btn-secondary" style="font-size: 0.8em; padding: 6px 12px;" onclick="syncAgentNetwork()">🔄 Sync</button>
+                    </div>
+                    <div id="neuralStatus" style="margin-top: 0.5rem; font-size: 0.8em; color: var(--neon-green);">Agents: 4 Active</div>
+                </div>
+            </div>
+        </div>
 
         <!-- Grand Wizard Controls -->
         <div style="margin-bottom: 2rem;">
