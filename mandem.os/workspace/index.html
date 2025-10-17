@@ -476,6 +476,94 @@
             </div>
             <div id="responseArea" style="background: var(--panel-bg); border: 1px solid var(--neon-green); padding: 1rem; border-radius: 5px; min-height: 100px; color: var(--neon-green); font-family: monospace;"></div>
         </div>
+
+        <!-- Sora 2 Live Helper Feeds -->
+        <div style="margin-top: 2rem;">
+            <h3 style="color: var(--neon-orange); margin-bottom: 1rem;">🎬 SORA 2 LIVE HELPER EMBODIMENTS</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;">
+                
+                <!-- Austin Moore Embodiment -->
+                <div class="helper-feed-card">
+                    <h4>🏆 Austin Moore - Supreme Inventor</h4>
+                    <div class="video-embodiment" style="background: var(--panel-bg); border: 1px solid var(--neon-orange); border-radius: 10px; padding: 1rem; margin-bottom: 1rem;">
+                        <div id="austin-video" class="sora-video-feed" style="width: 100%; height: 200px; background: linear-gradient(45deg, var(--neon-orange), #ff8c00); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; position: relative; overflow: hidden;">
+                            <div style="text-align: center;">
+                                <div style="font-size: 3rem; margin-bottom: 0.5rem;">🏆</div>
+                                <div>Austin Moore</div>
+                                <div style="font-size: 0.8rem; opacity: 0.8;">Sora 2 Embodiment Active</div>
+                            </div>
+                            <!-- Placeholder for Sora-generated video -->
+                            <iframe id="austin-sora-video" style="display: none; width: 100%; height: 100%; border: none; border-radius: 8px;" src="" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                    <div class="helper-controls">
+                        <button class="cyber-btn" onclick="activateAustinHelper()">🎥 Activate Feed</button>
+                        <button class="cyber-btn cyber-btn-secondary" onclick="chatWithAustin()">💬 Chat</button>
+                        <button class="cyber-btn cyber-btn-secondary" onclick="getAustinGuidance()">🧠 Get Guidance</button>
+                    </div>
+                </div>
+
+                <!-- Arya Embodiment -->
+                <div class="helper-feed-card">
+                    <h4>🎨 Arya - Enhancement Specialist</h4>
+                    <div class="video-embodiment" style="background: var(--panel-bg); border: 1px solid var(--neon-pink); border-radius: 10px; padding: 1rem; margin-bottom: 1rem;">
+                        <div id="arya-video" class="sora-video-feed" style="width: 100%; height: 200px; background: linear-gradient(45deg, var(--neon-pink), #ff69b4); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; position: relative; overflow: hidden;">
+                            <div style="text-align: center;">
+                                <div style="font-size: 3rem; margin-bottom: 0.5rem;">🎨</div>
+                                <div>Arya</div>
+                                <div style="font-size: 0.8rem; opacity: 0.8;">Sora 2 Embodiment Active</div>
+                            </div>
+                            <iframe id="arya-sora-video" style="display: none; width: 100%; height: 100%; border: none; border-radius: 8px;" src="" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                    <div class="helper-controls">
+                        <button class="cyber-btn" onclick="activateAryaHelper()">🎥 Activate Feed</button>
+                        <button class="cyber-btn cyber-btn-secondary" onclick="chatWithArya()">💬 Chat</button>
+                        <button class="cyber-btn cyber-btn-secondary" onclick="getAryaEnhancement()">✨ Get Enhancement</button>
+                    </div>
+                </div>
+
+                <!-- Andy Acker Embodiment -->
+                <div class="helper-feed-card">
+                    <h4>🧠 Andy Acker - Knowledge Base Agent</h4>
+                    <div class="video-embodiment" style="background: var(--panel-bg); border: 1px solid var(--neon-blue); border-radius: 10px; padding: 1rem; margin-bottom: 1rem;">
+                        <div id="andy-video" class="sora-video-feed" style="width: 100%; height: 200px; background: linear-gradient(45deg, var(--neon-blue), #4169e1); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; position: relative; overflow: hidden;">
+                            <div style="text-align: center;">
+                                <div style="font-size: 3rem; margin-bottom: 0.5rem;">🧠</div>
+                                <div>Andy Acker</div>
+                                <div style="font-size: 0.8rem; opacity: 0.8;">Sora 2 Embodiment Active</div>
+                            </div>
+                            <iframe id="andy-sora-video" style="display: none; width: 100%; height: 100%; border: none; border-radius: 8px;" src="" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                    <div class="helper-controls">
+                        <button class="cyber-btn" onclick="activateAndyHelper()">🎥 Activate Feed</button>
+                        <button class="cyber-btn cyber-btn-secondary" onclick="chatWithAndy()">💬 Chat</button>
+                        <button class="cyber-btn cyber-btn-secondary" onclick="getAndyKnowledge()">📚 Get Knowledge</button>
+                    </div>
+                </div>
+
+                <!-- Ryan Barbrick Embodiment -->
+                <div class="helper-feed-card">
+                    <h4>⚡ Ryan Barbrick - Vision Architect</h4>
+                    <div class="video-embodiment" style="background: var(--panel-bg); border: 1px solid var(--neon-green); border-radius: 10px; padding: 1rem; margin-bottom: 1rem;">
+                        <div id="ryan-video" class="sora-video-feed" style="width: 100%; height: 200px; background: linear-gradient(45deg, var(--neon-green), #32cd32); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; position: relative; overflow: hidden;">
+                            <div style="text-align: center;">
+                                <div style="font-size: 3rem; margin-bottom: 0.5rem;">⚡</div>
+                                <div>Ryan Barbrick</div>
+                                <div style="font-size: 0.8rem; opacity: 0.8;">Sora 2 Embodiment Active</div>
+                            </div>
+                            <iframe id="ryan-sora-video" style="display: none; width: 100%; height: 100%; border: none; border-radius: 8px;" src="" allowfullscreen></iframe>
+                        </div>
+                    </div>
+                    <div class="helper-controls">
+                        <button class="cyber-btn" onclick="activateRyanHelper()">🎥 Activate Feed</button>
+                        <button class="cyber-btn cyber-btn-secondary" onclick="chatWithRyan()">💬 Chat</button>
+                        <button class="cyber-btn cyber-btn-secondary" onclick="getRyanVision()">🔮 Get Vision</button>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -761,6 +849,124 @@
             } catch (error) {
                 responseArea.textContent = `❌ Error: ${error.message}`;
             }
+        }
+
+        // Tutorial functions
+        function showTutorial(type) {
+            const tutorials = {
+                navigation: '🎥 **3D Navigation Tutorial**\n\n1. **Orbit**: Click and drag to rotate around Earth\n2. **Zoom**: Scroll wheel to zoom in/out\n3. **Satellites**: Click orbiting satellites to visit realms\n4. **Controls**: Use mouse for full 3D interaction\n\nWatch the embedded video for visual guide!',
+                ai: '🤖 **AI Agent Tutorial**\n\n1. **Select Agent**: Choose from Governor, Scout, Archivist, Artist\n2. **Set API Key**: Enter your OpenAI key securely\n3. **Enter Prompt**: Type your question or request\n4. **Get Response**: Receive AI-powered assistance\n\nEach agent specializes in different tasks!',
+                trading: '⚔️ **Grand Exchange Tutorial**\n\n1. **Navigate**: Go to Grand Exchange satellite\n2. **Select Items**: Browse NFTs and tokens\n3. **Place Orders**: Buy/sell with crypto payments\n4. **Multi-chain**: Support for ETH, SOL, and more\n\nMaster the art of Web3 trading!'
+            };
+            
+            alert(tutorials[type] || 'Tutorial coming soon!');
+        }
+
+        // Sora 2 Embodiment Functions
+        const soraVideos = {
+            austin: 'https://www.youtube.com/embed/dQw4w9WgXcQ', // Placeholder - would be Sora-generated video
+            arya: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+            andy: 'https://www.youtube.com/embed/dQw4w9WgXcQ',
+            ryan: 'https://www.youtube.com/embed/dQw4w9WgXcQ'
+        };
+
+        function activateAustinHelper() {
+            activateSoraFeed('austin');
+            alert('🎥 **Austin Moore Sora 2 Embodiment Activated**\n\nSupreme Inventor is now live! Watch as Austin demonstrates invention techniques and provides real-time guidance.\n\n• Live video feed from Sora 2\n• Real-time interaction\n• Invention demonstrations\n• Technical expertise');
+        }
+
+        function activateAryaHelper() {
+            activateSoraFeed('arya');
+            alert('🎥 **Arya Sora 2 Embodiment Activated**\n\nEnhancement Specialist is now live! Experience Arya\'s art-technology fusion in real-time.\n\n• Live enhancement demos\n• Creative guidance\n• Technical troubleshooting\n• Artistic inspiration');
+        }
+
+        function activateAndyHelper() {
+            activateSoraFeed('andy');
+            alert('🎥 **Andy Acker Sora 2 Embodiment Activated**\n\nKnowledge Base Agent is now live! Andy shares quality assurance insights and testing methodologies.\n\n• Live testing demonstrations\n• Quality assurance guidance\n• Performance monitoring\n• Knowledge sharing');
+        }
+
+        function activateRyanHelper() {
+            activateSoraFeed('ryan');
+            alert('🎥 **Ryan Barbrick Sora 2 Embodiment Activated**\n\nVision Architect is now live! Experience system integration and future technology visions.\n\n• Live architecture demos\n• System integration guidance\n• Future technology insights\n• Platform optimization');
+        }
+
+        function activateSoraFeed(agent) {
+            const placeholder = document.getElementById(`${agent}-video`);
+            const video = document.getElementById(`${agent}-sora-video`);
+            
+            if (video.src) {
+                video.style.display = 'block';
+                placeholder.style.display = 'none';
+            } else {
+                // Simulate loading Sora-generated video
+                video.src = soraVideos[agent];
+                setTimeout(() => {
+                    video.style.display = 'block';
+                    placeholder.style.display = 'none';
+                }, 2000);
+            }
+        }
+
+        // Chat functions for embodiments
+        async function chatWithAustin() {
+            const prompt = prompt('💬 Chat with Austin Moore:\n\nWhat invention or technical guidance do you need?');
+            if (prompt) {
+                document.getElementById('agentSelect').value = 'governor';
+                document.getElementById('promptInput').value = `Austin, as the Supreme Inventor: ${prompt}`;
+                await sendPrompt();
+            }
+        }
+
+        async function chatWithArya() {
+            const prompt = prompt('💬 Chat with Arya:\n\nWhat enhancement or creative guidance do you need?');
+            if (prompt) {
+                document.getElementById('agentSelect').value = 'artist';
+                document.getElementById('promptInput').value = `Arya, as the Enhancement Specialist: ${prompt}`;
+                await sendPrompt();
+            }
+        }
+
+        async function chatWithAndy() {
+            const prompt = prompt('💬 Chat with Andy Acker:\n\nWhat knowledge or testing guidance do you need?');
+            if (prompt) {
+                document.getElementById('agentSelect').value = 'archivist';
+                document.getElementById('promptInput').value = `Andy, as the Knowledge Base Agent: ${prompt}`;
+                await sendPrompt();
+            }
+        }
+
+        async function chatWithRyan() {
+            const prompt = prompt('💬 Chat with Ryan Barbrick:\n\nWhat vision or architectural guidance do you need?');
+            if (prompt) {
+                document.getElementById('agentSelect').value = 'governor';
+                document.getElementById('promptInput').value = `Ryan, as the Vision Architect: ${prompt}`;
+                await sendPrompt();
+            }
+        }
+
+        // Specialized guidance functions
+        async function getAustinGuidance() {
+            document.getElementById('agentSelect').value = 'governor';
+            document.getElementById('promptInput').value = 'Austin, provide guidance on invention methodology and technical innovation strategies.';
+            await sendPrompt();
+        }
+
+        async function getAryaEnhancement() {
+            document.getElementById('agentSelect').value = 'artist';
+            document.getElementById('promptInput').value = 'Arya, suggest enhancements for creative technology integration and artistic improvement.';
+            await sendPrompt();
+        }
+
+        async function getAndyKnowledge() {
+            document.getElementById('agentSelect').value = 'archivist';
+            document.getElementById('promptInput').value = 'Andy, provide quality assurance knowledge and testing methodologies.';
+            await sendPrompt();
+        }
+
+        async function getRyanVision() {
+            document.getElementById('agentSelect').value = 'governor';
+            document.getElementById('promptInput').value = 'Ryan, share vision for system architecture and future technology integration.';
+            await sendPrompt();
         }
 
         // Initialize everything
