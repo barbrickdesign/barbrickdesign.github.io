@@ -2108,6 +2108,11 @@
         // Status Dashboard
         function refreshWizardStatus() {
             const statusDiv = document.getElementById('wizardStatusDisplay');
+            if (!statusDiv) {
+                console.warn('Wizard status display element not found');
+                return;
+            }
+
             let status = '🎭 WIZARD REALM STATUS\n\n';
 
             status += 'SORA EMBODIMENTS:\n';
