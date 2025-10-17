@@ -485,6 +485,7 @@
                 <!-- Austin Moore Embodiment -->
                 <div class="helper-feed-card">
                     <h4>🏆 Austin Moore - Supreme Inventor</h4>
+                    <div id="austin-status" class="embodiment-status">○ INACTIVE</div>
                     <div class="video-embodiment" style="background: var(--panel-bg); border: 1px solid var(--neon-orange); border-radius: 10px; padding: 1rem; margin-bottom: 1rem;">
                         <div id="austin-video" class="sora-video-feed" style="width: 100%; height: 200px; background: linear-gradient(45deg, var(--neon-orange), #ff8c00); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; position: relative; overflow: hidden;">
                             <div style="text-align: center;">
@@ -506,6 +507,7 @@
                 <!-- Arya Embodiment -->
                 <div class="helper-feed-card">
                     <h4>🎨 Arya - Enhancement Specialist</h4>
+                    <div id="arya-status" class="embodiment-status">○ INACTIVE</div>
                     <div class="video-embodiment" style="background: var(--panel-bg); border: 1px solid var(--neon-pink); border-radius: 10px; padding: 1rem; margin-bottom: 1rem;">
                         <div id="arya-video" class="sora-video-feed" style="width: 100%; height: 200px; background: linear-gradient(45deg, var(--neon-pink), #ff69b4); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; position: relative; overflow: hidden;">
                             <div style="text-align: center;">
@@ -526,6 +528,7 @@
                 <!-- Andy Acker Embodiment -->
                 <div class="helper-feed-card">
                     <h4>🧠 Andy Acker - Knowledge Base Agent</h4>
+                    <div id="andy-status" class="embodiment-status">○ INACTIVE</div>
                     <div class="video-embodiment" style="background: var(--panel-bg); border: 1px solid var(--neon-blue); border-radius: 10px; padding: 1rem; margin-bottom: 1rem;">
                         <div id="andy-video" class="sora-video-feed" style="width: 100%; height: 200px; background: linear-gradient(45deg, var(--neon-blue), #4169e1); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; position: relative; overflow: hidden;">
                             <div style="text-align: center;">
@@ -546,6 +549,7 @@
                 <!-- Ryan Barbrick Embodiment -->
                 <div class="helper-feed-card">
                     <h4>⚡ Ryan Barbrick - Vision Architect</h4>
+                    <div id="ryan-status" class="embodiment-status">○ INACTIVE</div>
                     <div class="video-embodiment" style="background: var(--panel-bg); border: 1px solid var(--neon-green); border-radius: 10px; padding: 1rem; margin-bottom: 1rem;">
                         <div id="ryan-video" class="sora-video-feed" style="width: 100%; height: 200px; background: linear-gradient(45deg, var(--neon-green), #32cd32); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; position: relative; overflow: hidden;">
                             <div style="text-align: center;">
@@ -870,22 +874,49 @@
             ryan: 'https://www.youtube.com/embed/dQw4w9WgXcQ'
         };
 
+        // Track active embodiments
+        const activeEmbodiments = {
+            austin: false,
+            arya: false,
+            andy: false,
+            ryan: false
+        };
+
+        function updateEmbodimentIndicators() {
+            // Update visual indicators for each agent
+            Object.keys(activeEmbodiments).forEach(agent => {
+                const indicator = document.getElementById(`${agent}-status`);
+                if (indicator) {
+                    indicator.textContent = activeEmbodiments[agent] ? '● ACTIVE' : '○ INACTIVE';
+                    indicator.style.color = activeEmbodiments[agent] ? '#00ff88' : '#666';
+                }
+            });
+        }
+
         function activateAustinHelper() {
+            activeEmbodiments.austin = true;
+            updateEmbodimentIndicators();
             activateSoraFeed('austin');
             alert('🎥 **Austin Moore Sora 2 Embodiment Activated**\n\nSupreme Inventor is now live! Watch as Austin demonstrates invention techniques and provides real-time guidance.\n\n• Live video feed from Sora 2\n• Real-time interaction\n• Invention demonstrations\n• Technical expertise');
         }
 
         function activateAryaHelper() {
+            activeEmbodiments.arya = true;
+            updateEmbodimentIndicators();
             activateSoraFeed('arya');
             alert('🎥 **Arya Sora 2 Embodiment Activated**\n\nEnhancement Specialist is now live! Experience Arya\'s art-technology fusion in real-time.\n\n• Live enhancement demos\n• Creative guidance\n• Technical troubleshooting\n• Artistic inspiration');
         }
 
         function activateAndyHelper() {
+            activeEmbodiments.andy = true;
+            updateEmbodimentIndicators();
             activateSoraFeed('andy');
             alert('🎥 **Andy Acker Sora 2 Embodiment Activated**\n\nKnowledge Base Agent is now live! Andy shares quality assurance insights and testing methodologies.\n\n• Live testing demonstrations\n• Quality assurance guidance\n• Performance monitoring\n• Knowledge sharing');
         }
 
         function activateRyanHelper() {
+            activeEmbodiments.ryan = true;
+            updateEmbodimentIndicators();
             activateSoraFeed('ryan');
             alert('🎥 **Ryan Barbrick Sora 2 Embodiment Activated**\n\nVision Architect is now live! Experience system integration and future technology visions.\n\n• Live architecture demos\n• System integration guidance\n• Future technology insights\n• Platform optimization');
         }
