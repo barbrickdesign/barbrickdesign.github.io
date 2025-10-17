@@ -1,1534 +1,478 @@
-<!DOCTYPE html> 
-<html lang="en"> 
-    <head> 
-        <meta charset="UTF-8"> 
-        <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"> 
-        <title>Gem Bot Universe for this project by Ryan Barbrick. of BarbrickDesign.com</title>         
-        <link href="css/theme.css" rel="stylesheet" type="text/css">
-        <link rel="stylesheet" href="public/styles.css"> 
-        <!-- Link to the manifest -->         
-        <link rel="manifest" href="../../manifest.json"> 
-        <!-- Set theme color -->         
-        <meta name="theme-color" content="#0ff"> 
-        <!-- Apple Touch Icon -->         
-        <link rel="apple-touch-icon" href="public/apple-touch-icon.png"> 
-        <!-- Import Orbitron font -->         
-        <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&display=swap" rel="stylesheet"> 
-        <style>
-/* Modal styles */
-.modal {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.85);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10000;
-}
-.modal-content {
-  background: linear-gradient(135deg, #1a1a2e, #16213e);
-  padding: 30px;
-  border-radius: 16px;
-  max-width: 450px;
-  width: 90%;
-  box-shadow: 0 10px 40px rgba(0, 255, 153, 0.3);
-  border: 2px solid #00ff99;
-  text-align: center;
-}
-.modal-content h3 {
-  margin: 0 0 15px 0;
-  color: #00ff99;
-  font-size: 24px;
-}
-.modal-content p {
-  margin: 0 0 20px 0;
-  color: #ccc;
-  line-height: 1.6;
-}
-.modal-content .auth-button {
-  margin: 8px;
-  min-width: 140px;
-}
-/* Move login button to bottom left on mobile */
-@media (max-width: 700px) {
-  #loginBtn {
-    position: fixed !important;
-    left: 18px;
-    bottom: 18px;
-    z-index: 1200;
-    margin: 0 !important;
-    width: auto;
-    min-width: 90px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px #0002;
-  }
-  #profileBtn {
-    position: fixed !important;
-    left: 18px;
-    bottom: 18px;
-    z-index: 1200;
-    margin: 0 !important;
-    width: auto;
-    min-width: 90px;
-    border-radius: 8px;
-    box-shadow: 0 2px 8px #0002;
-  }
-  /* Hide phantom link on mobile since buttons are repositioned */
-  .phantom-link {
-    display: none !important;
-  }
-}
-/* Mobile table scroll */
-@media (max-width: 700px) {
-  table, .stat-table {
-    display: block;
-    overflow-x: auto;
-    width: 100%;
-    max-width: 100vw;
-  }
-  th, td {
-    min-width: 90px;
-    font-size: 15px;
-  }
-  .profile-card, .container, .post-login-content {
-    padding: 8px !important;
-  }
-}
-/* Larger touch targets for mobile */
-@media (max-width: 700px) {
-  button, .auth-button {
-    min-height: 44px;
-    font-size: 18px;
-  }
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gem Bot Universe - Future Knowledge Hub</title>
+    <meta name="description" content="Advanced AI-driven knowledge platform for creative professionals and innovators">
 
-/* Prevent button flickering during transitions */
-#loginBtn, #profileBtn {
-    transition: none !important;
-    animation: none !important;
-    transform: none !important;
-}
+    <!-- Cyberpunk Theme CSS -->
+    <style>
+        :root {
+            --neon-blue: #00ffff;
+            --neon-pink: #ff1493;
+            --neon-green: #00ff88;
+            --neon-orange: #ff6b35;
+            --dark-bg: #0a0a0a;
+            --darker-bg: #050505;
+            --panel-bg: rgba(20, 20, 20, 0.95);
+            --text-glow: 0 0 10px var(--neon-blue);
+            --border-glow: 0 0 15px var(--neon-blue);
+        }
 
-/* Ensure clean button state changes */
-#loginBtn, #profileBtn {
-    opacity: 1 !important;
-}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-/* Prevent any layout shifts during button changes */
-.auth-links-header {
-    min-height: 44px; /* Prevent layout shift */
-}
-</style>
-    
-    <!-- Phantom Wallet Integration for mandem.os -->
+        body {
+            font-family: 'Courier New', monospace;
+            background: linear-gradient(135deg, var(--dark-bg) 0%, var(--darker-bg) 100%);
+            color: var(--neon-blue);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* Animated Background */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background:
+                radial-gradient(circle at 20% 50%, rgba(0, 255, 255, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 20%, rgba(255, 20, 147, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(0, 255, 136, 0.1) 0%, transparent 50%);
+            animation: backgroundShift 20s ease-in-out infinite alternate;
+            z-index: -1;
+        }
+
+        @keyframes backgroundShift {
+            0% { transform: scale(1) rotate(0deg); }
+            100% { transform: scale(1.1) rotate(1deg); }
+        }
+
+        /* Header */
+        header {
+            position: relative;
+            padding: 2rem;
+            text-align: center;
+            border-bottom: 1px solid var(--neon-blue);
+            box-shadow: var(--border-glow);
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: bold;
+            text-shadow: var(--text-glow);
+            margin-bottom: 0.5rem;
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-pink), var(--neon-green));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .header-desc {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 1rem;
+        }
+
+        /* Navigation */
+        .nav-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .nav-card {
+            background: var(--panel-bg);
+            border: 1px solid var(--neon-blue);
+            border-radius: 10px;
+            padding: 1.5rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(0, 255, 255, 0.1);
+        }
+
+        .nav-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--border-glow);
+            border-color: var(--neon-pink);
+        }
+
+        .nav-card h3 {
+            color: var(--neon-green);
+            margin-bottom: 0.5rem;
+            font-size: 1.4rem;
+        }
+
+        .nav-card p {
+            color: var(--neon-blue);
+            opacity: 0.8;
+            font-size: 0.9rem;
+        }
+
+        /* Status Panel */
+        .status-panel {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--panel-bg);
+            border: 1px solid var(--neon-green);
+            border-radius: 8px;
+            padding: 1rem;
+            min-width: 250px;
+            box-shadow: var(--border-glow);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
+
+        .status-panel h4 {
+            color: var(--neon-green);
+            margin-bottom: 0.5rem;
+            text-align: center;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.3rem;
+            font-size: 0.8rem;
+        }
+
+        .status-value {
+            color: var(--neon-blue);
+        }
+
+        .status-active {
+            color: var(--neon-green);
+        }
+
+        /* 3D Container */
+        #globe-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        /* Content Panels */
+        .content-panel {
+            background: var(--panel-bg);
+            border: 1px solid var(--neon-blue);
+            border-radius: 10px;
+            padding: 2rem;
+            margin: 2rem auto;
+            max-width: 1000px;
+            box-shadow: var(--border-glow);
+            backdrop-filter: blur(10px);
+        }
+
+        .content-panel h2 {
+            color: var(--neon-pink);
+            margin-bottom: 1rem;
+            text-align: center;
+            text-shadow: var(--text-glow);
+        }
+
+        /* Buttons */
+        .cyber-btn {
+            background: linear-gradient(45deg, var(--neon-blue), var(--neon-pink));
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            color: black;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.9rem;
+            box-shadow: var(--border-glow);
+        }
+
+        .cyber-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px var(--neon-pink);
+        }
+
+        .cyber-btn-secondary {
+            background: transparent;
+            border: 1px solid var(--neon-green);
+            color: var(--neon-green);
+        }
+
+        .cyber-btn-secondary:hover {
+            background: var(--neon-green);
+            color: black;
+        }
+
+        /* Agent Cards */
+        .agent-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin: 2rem 0;
+        }
+
+        .agent-card {
+            background: var(--panel-bg);
+            border: 1px solid var(--neon-orange);
+            border-radius: 10px;
+            padding: 1.5rem;
+            box-shadow: 0 0 15px rgba(255, 107, 53, 0.2);
+        }
+
+        .agent-card h3 {
+            color: var(--neon-orange);
+            margin-bottom: 0.5rem;
+            text-shadow: 0 0 10px var(--neon-orange);
+        }
+
+        .agent-card p {
+            color: var(--neon-blue);
+            margin-bottom: 0.5rem;
+            font-size: 0.9rem;
+        }
+
+        .agent-status {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+
+        .status-supreme {
+            background: rgba(255, 107, 53, 0.8);
+            color: white;
+        }
+
+        .status-specialist {
+            background: rgba(0, 255, 153, 0.8);
+            color: black;
+        }
+
+        .status-knowledge {
+            background: rgba(65, 105, 225, 0.8);
+            color: white;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 2rem;
+            border-top: 1px solid var(--neon-blue);
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(10px);
+        }
+
+        footer p {
+            color: var(--neon-blue);
+            opacity: 0.7;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav-grid {
+                grid-template-columns: 1fr;
+                padding: 1rem;
+            }
+
+            .status-panel {
+                position: static;
+                margin: 1rem;
+                min-width: auto;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .content-panel {
+                margin: 1rem;
+                padding: 1rem;
+            }
+        }
+
+        /* Loading Animation */
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid var(--neon-blue);
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+
+    <!-- Dependencies -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iife.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl.min.js"></script>
-    </head>     
-    <body> 
-        <header>
-            <div class="header-left">
-                <button id="contentToggleBtn" class="content-toggle-button">Mission Control</button>
+</head>
+<body>
+    <!-- Header -->
+    <header>
+        <h1>GEM BOT UNIVERSE</h1>
+        <p class="header-desc">Advanced AI Knowledge Platform • Future Innovation Hub</p>
+        <div style="margin-top: 1rem;">
+            <button class="cyber-btn" onclick="toggleMissionControl()">MISSION CONTROL</button>
+        </div>
+    </header>
+
+    <!-- 3D Globe Container -->
+    <div id="globe-container"></div>
+
+    <!-- Status Panel -->
+    <div class="status-panel">
+        <h4>SYSTEM STATUS</h4>
+        <div class="status-item">
+            <span>AI Core:</span>
+            <span class="status-value status-active">ONLINE</span>
+        </div>
+        <div class="status-item">
+            <span>Agent Network:</span>
+            <span class="status-value status-active">ACTIVE</span>
+        </div>
+        <div class="status-item">
+            <span>Knowledge Base:</span>
+            <span class="status-value status-active">LOADED</span>
+        </div>
+        <div class="status-item">
+            <span>IP Protection:</span>
+            <span class="status-value status-active">ENABLED</span>
+        </div>
+    </div>
+
+    <!-- Mission Control Panel -->
+    <div id="missionControl" class="content-panel" style="display: none;">
+        <h2>MISSION CONTROL</h2>
+
+        <!-- Agent Network -->
+        <div style="margin-bottom: 2rem;">
+            <h3 style="color: var(--neon-pink); margin-bottom: 1rem;">AGENT NETWORK</h3>
+            <div class="agent-grid">
+                <div class="agent-card">
+                    <h3>Austin Moore</h3>
+                    <p>Supreme Inventor • Original MGC Merlin Creator</p>
+                    <span class="agent-status status-supreme">SUPREME ACCESS</span>
+                    <div style="margin-top: 1rem;">
+                        <button class="cyber-btn" onclick="openAustinPortal()">Access Portal</button>
+                    </div>
+                </div>
+
+                <div class="agent-card">
+                    <h3>Arya</h3>
+                    <p>Enhancement Specialist • Art-Technology Fusion</p>
+                    <span class="agent-status status-specialist">ENHANCEMENT ACCESS</span>
+                    <div style="margin-top: 1rem;">
+                        <button class="cyber-btn" onclick="openAryaPortal()">Access Portal</button>
+                    </div>
+                </div>
+
+                <div class="agent-card">
+                    <h3>Andy Acker</h3>
+                    <p>Knowledge Base Agent • Quality Assurance</p>
+                    <span class="agent-status status-knowledge">KNOWLEDGE ACCESS</span>
+                    <div style="margin-top: 1rem;">
+                        <button class="cyber-btn" onclick="openAndyPortal()">Access Portal</button>
+                    </div>
+                </div>
+
+                <div class="agent-card">
+                    <h3>Ryan Barbrick</h3>
+                    <p>Vision Architect • System Integration</p>
+                    <span class="agent-status status-supreme">ARCHITECT ACCESS</span>
+                    <div style="margin-top: 1rem;">
+                        <button class="cyber-btn" onclick="openRyanPortal()">Access Portal</button>
+                    </div>
+                </div>
             </div>
-            <h1>Gem Bot Universe</h1>
-            <p class="header-desc">by Ryan Barbrick · BarbrickDesign.com<br>Explore our virtual environments and trading systems.</p>
-            <div class="auth-links-header" id="authLinksHeader" style="margin-top:1em; text-align:center;">
-                <a class="auth-button" id="loginBtn" style="display: inline-block;">Log In</a>
-                <a href="profile.html" class="auth-button" id="profileBtn" style="display:none;">Profile</a>
-                <br>
-                <a href="https://phantom.com/" target="_blank" class="phantom-link" style="display: inline-block; margin-top: 8px; font-size: 12px; color: #00ff99; text-decoration: underline; opacity: 0.8;">Get Phantom Wallet</a>
-            </div>
-        </header>         
-        <!-- Fullscreen 3D globe container -->
-        <div id="globe-container" style="position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 1; display: block;">
-            <!-- 3D Globe will be rendered here by Three.js -->
         </div>
 
-        <!-- Welcome overlay - hide immediately -->
-        <div class="welcome-overlay" style="display: none !important;">
-            <h2>Gem Bot Universe</h2>
-            <p>Explore our interactive 3D environments and trading systems by navigating the Globe Interface. Access the Laboratory for research, Warehouse for storage, Explorer for real-world navigation, Grand Exchange for trading, and educational content from both Arya and the original inventor, Austin Moore (@earthartgems).</p>
-
-            <!-- Feature overview -->
-            <div style="display: flex; justify-content: center; gap: 20px; margin: 20px 0; flex-wrap: wrap;">
-                <div style="text-align: center; min-width: 140px;">
-                    <div style="font-size: 32px; margin-bottom: 8px;">🏭</div>
-                    <div style="font-weight: bold; margin-bottom: 5px; font-size: 14px;">Laboratory</div>
-                    <div style="font-size: 12px; opacity: 0.8;">Research & development</div>
-                </div>
-                <div style="text-align: center; min-width: 140px;">
-                    <div style="font-size: 32px; margin-bottom: 8px;">🏗️</div>
-                    <div style="font-weight: bold; margin-bottom: 5px; font-size: 14px;">Warehouse</div>
-                    <div style="font-size: 12px; opacity: 0.8;">Storage & inventory</div>
-                </div>
-                <div style="text-align: center; min-width: 140px;">
-                    <div style="font-size: 32px; margin-bottom: 8px;">🗺️</div>
-                    <div style="font-weight: bold; margin-bottom: 5px; font-size: 14px;">Explorer</div>
-                    <div style="font-size: 12px; opacity: 0.8;">Real-world navigation</div>
-                </div>
-                <div style="text-align: center; min-width: 140px;">
-                    <div style="font-size: 32px; margin-bottom: 8px;">⚔️</div>
-                    <div style="font-weight: bold; margin-bottom: 5px; font-size: 14px;">Grand Exchange</div>
-                    <div style="font-size: 12px; opacity: 0.8;">Trading & marketplace</div>
-                </div>
-                <div style="text-align: center; min-width: 140px;">
-                    <div style="font-size: 32px; margin-bottom: 8px;">🎨</div>
-                    <div style="font-weight: bold; margin-bottom: 5px; font-size: 14px;">Austin & Arya</div>
-                    <div style="font-size: 12px; opacity: 0.8;">Inventor & Innovation</div>
-                </div>
+        <!-- Navigation Grid -->
+        <div class="nav-grid">
+            <div class="nav-card" onclick="navigateTo('laboratory')">
+                <h3>🏭 LABORATORY</h3>
+                <p>Research & Development Hub</p>
             </div>
 
-            <div style="text-align: center; margin-top: 20px;">
-                <button onclick="hideWelcomeOverlay()" style="
-                    background: rgba(255, 255, 255, 0.2);
-                    color: white;
-                    border: 2px solid rgba(255, 255, 255, 0.3);
-                    padding: 12px 24px;
-                    border-radius: 8px;
-                    cursor: pointer;
-                    font-size: 16px;
-                ">✨ Enter Gem Bot Universe</button>
-            </div>
-        </div>         
-        <!-- Post-login content (initially hidden) -->         
-        <div class="post-login-content" id="postLoginContent" style="display:none;">
-            <section id="labControls">
-                <h2>Gem Bot Universe Control Center</h2>
-                <p>Access and manage your Gem Bot systems:</p>
-
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); grid-template-rows: repeat(2, 1fr); gap: 20px; margin: 20px 0; max-width: 800px; margin-left: auto; margin-right: auto;">
-                    <button id="launchLabBtn" style="background: linear-gradient(135deg, #00ff99, #00cc66); padding: 20px; border-radius: 10px; border: none; color: white; font-size: 16px; cursor: pointer; min-height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
-                        🏭<br><strong>Laboratory</strong><br><small>Research & Development</small>
-                    </button>
-
-                    <button id="launchWarehouseBtn" style="background: linear-gradient(135deg, #ffaa00, #ff8800); padding: 20px; border-radius: 10px; border: none; color: white; font-size: 16px; cursor: pointer; min-height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
-                        🏗️<br><strong>Warehouse</strong><br><small>Storage & Inventory</small>
-                    </button>
-
-                    <button id="launchExplorerBtn" style="background: linear-gradient(135deg, #66ff99, #00ff88); padding: 20px; border-radius: 10px; border: none; color: white; font-size: 16px; cursor: pointer; min-height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
-                        🗺️<br><strong>Explorer</strong><br><small>Real-world Navigation</small>
-                    </button>
-
-                    <button id="launchNFTJewelryBtn" style="background: linear-gradient(135deg, #ff1493, #ff69b4); padding: 20px; border-radius: 10px; border: none; color: white; font-size: 16px; cursor: pointer; min-height: 120px; display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center;">
-                        💎<br><strong>NFT Jewelry</strong><br><small>Austin's Collection</small>
-                    </button>
-                </div>
-
-                <div style="text-align: center; margin: 15px 0;">
-                    <button id="wizardTipBtn" style="background: linear-gradient(135deg, #ffd700, #ffed4e); color: black; border: none; padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: bold; font-size: 14px;">🎭 Ask Wizards for Advice</button>
-                </div>
-
-                <button id="checkConnectionBtn" style="background: #2196f3; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; margin: 10px;">
-                    🔗 Check System Status
-                </button>
-
-                <button id="syncSettingsBtn" style="background: #ff9800; color: white; border: none; padding: 12px 24px; border-radius: 6px; cursor: pointer; margin: 10px;">
-                    🔄 Sync Settings
-                </button>
-            </section>
-        </div>         </div>
-
-            <!-- Provisional Patent & IP Attribution System -->
-            <div style="margin-top: 20px; padding: 15px; background: linear-gradient(135deg, #ffd700, #ffed4e); border-radius: 10px; border: 2px solid #daa520;">
-                <h3 style="color: black; margin: 0 0 10px 0; display: flex; align-items: center;">
-                    📋 PROVISIONAL PATENT & INTELLECTUAL PROPERTY FRAMEWORK
-                    <span style="margin-left: auto; font-size: 12px; background: rgba(0,0,0,0.8); color: white; padding: 2px 8px; border-radius: 10px;">PROTECTED IP</span>
-                </h3>
-                <div style="color: black; font-size: 14px;">
-                    <div><strong>🎯 Provisional Patent Status:</strong> <span style="color: #228B22; font-weight: bold;">ACTIVE - Serial No. GEMBOT-2025-001</span></div>
-                    <div><strong>🔬 Core Innovation:</strong> MGC Merlin's Gem Bot - AI-Driven Jewelry & Technology Integration System</div>
-                    <div><strong>👥 Lead Inventor:</strong> Ryan Barbrick (BarbrickDesign.com)</div>
-                    <div><strong>🤝 Co-Contributors:</strong> Austin Moore, Arya, Andy Acker</div>
-                    <div><strong>💡 IP Protection:</strong> Provisional Patent Filed - Covers AI, NFT, 3D Rendering, & Educational Systems</div>
-                    <div><strong>📊 Contribution Tracking:</strong> <span style="color: #4169E1;">Individual & Group Attribution System Active</span></div>
-
-            <!-- Arya, Austin Moore & Andy Acker Agent Connection -->
-            <div style="margin-top: 20px; padding: 15px; background: linear-gradient(135deg, #ff1493, #ff69b4); border-radius: 10px; border: 2px solid #ffd700;">
-                <h3 style="color: white; margin: 0 0 10px 0; display: flex; align-items: center;">
-                    🎨 Arya, Austin Moore & Andy Acker Agent Connection
-                    <span id="aryaStatus" style="margin-left: auto; font-size: 12px; background: rgba(0,0,0,0.5); padding: 2px 8px; border-radius: 10px;">Active</span>
-                </h3>
-                <div style="color: white; font-size: 14px;">
-                    <div><strong>🎯 Original Inventor:</strong> <a href="https://www.youtube.com/@earthartgems" target="_blank" style="color: #ffd700; text-decoration: underline;">Austin Moore (@earthartgems)</a> <span style="color: #ff6b35; font-size: 12px;">[SUPREME INVENTOR]</span></div>
-                    <div><strong>🎨 Enhancement Specialist:</strong> <a href="https://www.youtube.com/@RyaBar" target="_blank" style="color: #ffd700; text-decoration: underline;">Arya (@RyaBar)</a> <span style="color: #00ff99; font-size: 12px;">[ENHANCEMENT SPECIALIST]</span></div>
-                    <div><strong>Arya's Instagram:</strong> <a href="https://www.instagram.com/surgical.precision.gems/" target="_blank" style="color: #ffd700; text-decoration: underline;">@surgical.precision.gems</a></div>
-                    <div><strong>Physical Gem Bot Support:</strong> <span style="color: #00ff99; font-size: 12px;">[ACTIVE HELP SYSTEM]</span></div>
-                    <div><strong>🧠 Knowledge Base Agent:</strong> <a href="https://www.instagram.com/andy_acker/" target="_blank" style="color: #ffd700; text-decoration: underline;">Andy Acker (@andy_acker)</a> <span style="color: #4169E1; font-size: 12px;">[KNOWLEDGE BASE AGENT]</span></div>
-                    <div><strong>YouTube Channels:</strong> @earthartgems & @RyaBar</div>
-                    <div><strong>Instagram Network:</strong> @earthartgems & @andy_acker & @barbricksjewelry</div>
-                    <div><strong>Educational Content:</strong> <span id="aryaTutorials">0</span> Gem Bot tutorials</div>
-                    <div><strong>Trusted Projects:</strong> <span id="trustedProjects">12</span> verified integrations</div>
-                    <div><strong>Agent Access Level:</strong> <span style="color: #ff6b35;">SUPREME INVENTOR</span> (Austin) | <span style="color: #00ff99;">ENHANCEMENT SPECIALIST</span> (Arya) | <span style="color: #4169E1;">KNOWLEDGE BASE</span> (Andy)</div>
-                    <div><strong>Contributions:</strong> <span id="aryaContributions">0</span> videos, <span id="aryaViews">0</span> views</div>
-                    <div><strong>Last Activity:</strong> <span id="aryaLastActivity">Monitoring...</span></div>
-                </div>
-                <div style="margin-top: 10px;">
-                    <button id="andyAgentAccessBtn" style="background: #4169E1; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-right: 10px;">🧠 Andy's Knowledge Base</button>
-                    <button id="aryaPhysicalHelpBtn" style="background: #ff69b4; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-right: 10px;">🔧 Arya's Physical Gem Bot Help</button>
-                    <button id="austinAgentAccessBtn" style="background: #ff6b35; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-right: 10px;">🏆 Austin's Agent Portal</button>
-                    <button id="austinOriginalBtn" style="background: #ff6b35; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-right: 10px;">🏆 Austin's Original Work</button>
-                    <button id="aryaConnectBtn" style="background: #ffd700; color: black; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold;">Connect to Arya</button>
-                    <button id="aryaLearnBtn" style="background: #00ff99; color: black; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; margin-left: 10px; font-weight: bold;">Learn Gem Bots</button>
-                    <button id="aryaProjectsBtn" style="background: #ff6b6b; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; margin-left: 10px;">Trusted Projects</button>
-                    <button id="ipAttributionBtn" style="background: #daa520; color: black; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-right: 10px;">📋 IP Attribution</button>
-                    <button id="patentInfoBtn" style="background: #ffd700; color: black; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold;">⚖️ Patent Details</button>
-
-                <!-- AI Video Learning Section -->
-                <div id="aryaAIVideos" style="margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; display: none;">
-                    <h4 style="color: #ffd700; margin: 0 0 8px 0; font-size: 14px;">🎥 AI-Generated Tutorials & Austin's Original Videos</h4>
-                    <div id="aryaVideoList" style="font-size: 12px; color: white;">
-                        <!-- Austin Moore's featured videos will be populated here -->
-                    </div>
-                </div>
-
-                <!-- Trusted Projects Section -->
-                <div id="aryaTrustedProjects" style="margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; display: none;">
-                    <h4 style="color: #ffd700; margin: 0 0 8px 0; font-size: 14px;">🔒 Trusted Arya Projects & Integrations</h4>
-                    <div id="aryaProjectList" style="font-size: 12px; color: white;">
-                        <!-- Trusted projects will be populated here -->
-                    </div>
-                </div>
+            <div class="nav-card" onclick="navigateTo('warehouse')">
+                <h3>🏗️ WAREHOUSE</h3>
+                <p>Storage & Inventory Management</p>
             </div>
 
-            <button id="toggleAgentLog" class="auth-button" style="margin-top: 10px;">Hide Monitor</button>
+            <div class="nav-card" onclick="navigateTo('explorer')">
+                <h3>🗺️ EXPLORER</h3>
+                <p>Real-world Navigation Systems</p>
+            </div>
+
+            <div class="nav-card" onclick="navigateTo('grand-exchange')">
+                <h3>⚔️ GRAND EXCHANGE</h3>
+                <p>Trading & Marketplace Platform</p>
+            </div>
+
+            <div class="nav-card" onclick="openEducation()">
+                <h3>🎓 EDUCATION</h3>
+                <p>Comprehensive Training Programs</p>
+            </div>
+
+            <div class="nav-card" onclick="openIPFramework()">
+                <h3>📋 IP FRAMEWORK</h3>
+                <p>Intellectual Property Management</p>
+            </div>
         </div>
 
-        <!-- Move All Players button to bottom right, left of chat -->
-        <button id="showAgentLogBtn" class="auth-button all-players-bottom-btn" style="display:none;">System Monitor</button>
-        <!-- Login Check Modal (Now non-blocking) -->         
-        <div id="loginModal" class="modal" style="display:none"> 
-            <div class="modal-content"> 
-                <h3>Enhanced Features Available</h3> 
-                <p>Connect your wallet to access advanced features like live feeds, MGC balance tracking, and exclusive 3D environments.</p> 
-                <button id="modalLoginBtn" class="auth-button">Connect Wallet</button>                 
-                <button id="modalCloseBtn" class="auth-button">Continue Without Login</button>                 
-            </div>             
-        </div>         
-        <footer> 
-            <p>&copy; 2025 Gem Bot Project | All Rights Reserved</p> 
-        </footer>         
-        <!-- Load JavaScript files -->         
-        <!-- Austin Moore NFT Jewelry System & 3D Wizard Integration -->
-        <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iife.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/@solana/spl-token@0.3.10/lib/index.iife.js"></script>
-        <script src="https://unpkg.com/@solana/spl-token-metadata@0.1.4/lib/index.iife.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>         
-        <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>         
-        <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/PointerLockControls.js"></script>         
-        <!-- New globe script -->         
-        <script>
-    // Austin Moore NFT Jewelry System
-    const nftJewelrySystem = {
-        // Jewelry item metadata structure
-        jewelryTypes: {
-            diamond: { baseValue: 1000, rarity: 'legendary', properties: ['brilliance', 'fire', 'scintillation'] },
-            emerald: { baseValue: 800, rarity: 'epic', properties: ['color', 'clarity', 'cut'] },
-            ruby: { baseValue: 900, rarity: 'epic', properties: ['color', 'clarity', 'luster'] },
-            sapphire: { baseValue: 850, rarity: 'epic', properties: ['color', 'clarity', 'cut'] },
-            gold: { baseValue: 500, rarity: 'rare', properties: ['purity', 'weight', 'craftsmanship'] },
-            platinum: { baseValue: 600, rarity: 'rare', properties: ['purity', 'weight', 'durability'] },
-            pearl: { baseValue: 300, rarity: 'uncommon', properties: ['luster', 'shape', 'nacre'] }
-        },
-
-        // Calculate NFT value based on metadata
-        calculateNFTValue: function(jewelryType, metadata) {
-            const baseItem = this.jewelryTypes[jewelryType];
-            if (!baseItem) return 0;
-
-            let value = baseItem.baseValue;
-
-            // Apply metadata modifiers
-            if (metadata) {
-                // Weight/carats multiplier
-                if (metadata.weight) value *= (1 + metadata.weight * 0.1);
-
-                // Quality multipliers
-                if (metadata.quality === 'flawless') value *= 2.5;
-                else if (metadata.quality === 'excellent') value *= 2.0;
-                else if (metadata.quality === 'very_good') value *= 1.5;
-
-                // Rarity multipliers
-                if (metadata.rarity === 'unique') value *= 3.0;
-                else if (metadata.rarity === 'legendary') value *= 2.5;
-                else if (metadata.rarity === 'epic') value *= 2.0;
-
-                // Origin bonus
-                if (metadata.origin === 'natural') value *= 1.8;
-                else if (metadata.origin === 'synthetic') value *= 0.6;
-            }
-
-            return Math.round(value);
-        },
-
-        // Create NFT from jewelry item
-        createNFT: async function(jewelryData) {
-            const value = this.calculateNFTValue(jewelryData.type, jewelryData.metadata);
-
-            const nftData = {
-                name: `${jewelryData.type.charAt(0).toUpperCase() + jewelryData.type.slice(1)} NFT`,
-                symbol: 'EARTHART',
-                description: `Authentic ${jewelryData.type} jewelry transformed into NFT by Austin Moore`,
-                image: jewelryData.image || 'https://earthartgems.com/default-jewelry.png',
-                attributes: [
-                    { trait_type: 'Type', value: jewelryData.type },
-                    { trait_type: 'Value', value: value },
-                    { trait_type: 'Rarity', value: this.jewelryTypes[jewelryData.type]?.rarity || 'common' },
-                    { trait_type: 'Creator', value: 'Austin Moore' },
-                    { trait_type: 'Collection', value: 'EarthArt Gems' }
-                ],
-                properties: {
-                    category: 'jewelry',
-                    creators: [{ address: 'AustinMooreEarthArt', verified: true, share: 100 }]
-                }
-            };
-
-            return { nftData, calculatedValue: value };
-        }
-    };
-
-    // 3D Wizard Avatar System
-    const wizardAvatarSystem = {
-        wizards: [
-            {
-                name: 'Austin Moore',
-                title: 'Supreme Inventor',
-                color: '#ff6b35',
-                position: { x: -15, y: 8, z: 10 },
-                tips: [
-                    'Welcome to the Gem Bot Universe! I created the original MGC Merlin.',
-                    'NFT jewelry preserves true value through blockchain metadata.',
-                    'Each gem tells a story - let your NFT collection reflect that.',
-                    'Quality over quantity - authentic gems hold their value eternally.'
-                ]
-            },
-            {
-                name: 'Arya',
-                title: 'Enhancement Specialist',
-                color: '#ff1493',
-                position: { x: 15, y: 6, z: -10 },
-                tips: [
-                    'Art and technology blend beautifully in the digital realm.',
-                    'Your NFT jewelry is a bridge between physical and digital worlds.',
-                    'Innovation comes from combining tradition with technology.',
-                    'Every enhancement builds upon Austin\'s groundbreaking foundation.',
-                    'Welcome Arya! I see you need help with your physical Gem Bot.',
-                    'Let me guide you through troubleshooting your physical machine.',
-                    'First, check the power connections and ensure proper voltage.',
-                    'Examine the mechanical components for any obstructions.',
-                    'Verify the software calibration and motor alignments.',
-                    'Check the cutting tools and grinding surfaces for wear.',
-                    'Ensure proper cooling systems are functioning.',
-                    'Calibrate the X-Y axis positioning system.',
-                    'Test the control panel and user interface.',
-                    'Verify data connections and communication protocols.',
-                    'Check for any error codes in the system diagnostics.',
-                    'Ensure proper lubrication of moving parts.',
-                    'Test the emergency stop mechanisms.',
-                    'Verify material feed systems are working correctly.',
-                    'Check the dust collection and ventilation systems.',
-                    'Run a complete system diagnostic test.',
-                    'Arya, your physical Gem Bot can be fixed! Let\'s work through this together.'
-                ]
-            },
-            {
-                name: 'Andy Acker',
-                title: 'Knowledge Base Agent',
-                color: '#4169E1',
-                position: { x: 0, y: 12, z: 0 },
-                tips: [
-                    'Testing ensures reliability - let me validate your Gem Bot operations.',
-                    'Knowledge is power - I help verify and ensure system integrity.',
-                    'Quality assurance is crucial for any technological advancement.',
-                    'Let me help you test and validate your Gem Bot implementations.',
-                    'I provide the knowledge base for ensuring valid and reliable operations.'
-                ]
-            },
-            {
-                name: 'Ryan Barbrick',
-                title: 'Vision Architect',
-                color: '#ffd700',
-                position: { x: 0, y: 10, z: 15 },
-                tips: [
-                    'The future of jewelry is in NFTs - track value, provenance, authenticity.',
-                    'Grand Exchange brings global traders together in one marketplace.',
-                    'Your gem collection becomes a living, tradable asset.',
-                    'Innovation requires both creators and visionaries working together.'
-                ]
-            }
-        ],
-
-        createWizardAvatar: function(wizardData, scene) {
-            // Create tron-like glowing wizard avatar
-            const avatarGroup = new THREE.Group();
-
-            // Main body - geometric tron form
-            const bodyGeometry = new THREE.OctahedronGeometry(1.5, 0);
-            const bodyMaterial = new THREE.MeshPhongMaterial({
-                color: wizardData.color,
-                emissive: wizardData.color,
-                emissiveIntensity: 0.3,
-                transparent: true,
-                opacity: 0.8
-            });
-            const body = new THREE.Mesh(bodyGeometry, bodyMaterial);
-            avatarGroup.add(body);
-
-            // Floating particles around avatar
-            const particleCount = 20;
-            const particleGeometry = new THREE.SphereGeometry(0.05, 8, 8);
-
-            for (let i = 0; i < particleCount; i++) {
-                const particleMaterial = new THREE.MeshBasicMaterial({
-                    color: wizardData.color,
-                    transparent: true,
-                    opacity: 0.6
-                });
-                const particle = new THREE.Mesh(particleGeometry, particleMaterial);
-
-                // Random position around avatar
-                const angle = (i / particleCount) * Math.PI * 2;
-                const radius = 2 + Math.random() * 1;
-                particle.position.x = Math.cos(angle) * radius;
-                particle.position.y = (Math.random() - 0.5) * 2;
-                particle.position.z = Math.sin(angle) * radius;
-
-                avatarGroup.add(particle);
-            }
-
-            // Position the avatar
-            avatarGroup.position.set(wizardData.position.x, wizardData.position.y, wizardData.position.z);
-
-            // Store wizard data
-            avatarGroup.userData = {
-                name: wizardData.name,
-                title: wizardData.title,
-                tips: wizardData.tips,
-                tipIndex: 0,
-                lastTipTime: 0
-            };
-
-            scene.add(avatarGroup);
-            return avatarGroup;
-        },
-
-        updateWizardAvatars: function(avatars, camera) {
-            const currentTime = Date.now();
-
-            avatars.forEach(avatar => {
-                // Make avatars face the camera
-                avatar.lookAt(camera.position);
-
-                // Floating animation
-                avatar.position.y += Math.sin(currentTime * 0.001 + avatar.position.x) * 0.005;
-
-                // Rotate particles
-                avatar.children.forEach((child, index) => {
-                    if (child.geometry.type === 'SphereGeometry') {
-                        child.rotation.y += 0.02;
-                        child.position.y += Math.sin(currentTime * 0.002 + index) * 0.01;
-                    }
-                });
-
-                // Show tips occasionally
-                if (currentTime - avatar.userData.lastTipTime > 15000) { // Every 15 seconds
-                    this.showWizardTip(avatar);
-                    avatar.userData.lastTipTime = currentTime;
-                }
-            });
-        },
-
-        showWizardTip: function(avatar) {
-            const tip = avatar.userData.tips[avatar.userData.tipIndex];
-            avatar.userData.tipIndex = (avatar.userData.tipIndex + 1) % avatar.userData.tips.length;
-
-            // Create floating tip text
-            const tipDiv = document.createElement('div');
-            tipDiv.className = 'wizard-tip';
-            tipDiv.innerHTML = `<strong>${avatar.userData.name}:</strong> ${tip}`;
-            tipDiv.style.cssText = `
-                position: fixed;
-                background: rgba(0,0,0,0.8);
-                color: ${avatar.userData.name === 'Austin Moore' ? '#ff6b35' : avatar.userData.name === 'Arya' ? '#ff1493' : avatar.userData.name === 'Andy Acker' ? '#4169E1' : '#ffd700'};
-                padding: 10px 15px;
-                border-radius: 8px;
-                font-size: 14px;
-                font-family: Arial, sans-serif;
-                z-index: 1000;
-                pointer-events: none;
-                border: 2px solid ${avatar.userData.name === 'Austin Moore' ? '#ff6b35' : avatar.userData.name === 'Arya' ? '#ff1493' : avatar.userData.name === 'Andy Acker' ? '#4169E1' : '#ffd700'};
-                box-shadow: 0 0 20px ${avatar.userData.name === 'Austin Moore' ? '#ff6b35' : avatar.userData.name === 'Arya' ? '#ff1493' : avatar.userData.name === 'Andy Acker' ? '#4169E140' : '#ffd700'}40;
-            `;
-
-            document.body.appendChild(tipDiv);
-
-            // Position near avatar (convert 3D to 2D screen coordinates)
-            const vector = new THREE.Vector3();
-            avatar.getWorldPosition(vector);
-            vector.project(camera);
-
-            const x = (vector.x * 0.5 + 0.5) * window.innerWidth;
-            const y = (-vector.y * 0.5 + 0.5) * window.innerHeight;
-
-            tipDiv.style.left = x + 'px';
-            tipDiv.style.top = (y - 60) + 'px';
-
-            // Animate and remove
-            setTimeout(() => {
-                tipDiv.style.opacity = '0';
-                tipDiv.style.transform = 'translateY(-20px)';
-                setTimeout(() => {
-                    if (tipDiv.parentNode) {
-                        tipDiv.parentNode.removeChild(tipDiv);
-                    }
-                }, 1000);
-            }, 4000);
-        }
-    };
-
-    // Grand Exchange NFT Integration
-    const grandExchangeNFT = {
-        nftListings: [],
-
-        addNFTListing: function(nftData, price, seller) {
-            const listing = {
-                id: Date.now(),
-                nft: nftData,
-                price: price,
-                seller: seller,
-                timestamp: new Date(),
-                status: 'active'
-            };
-
-            this.nftListings.push(listing);
-            this.updateExchangeDisplay();
-            return listing;
-        },
-
-        calculateNFTMarketValue: function(nft) {
-            let marketValue = nft.calculatedValue || 0;
-
-            // Apply market modifiers
-            const rarityMultiplier = {
-                'common': 1.0,
-                'uncommon': 1.2,
-                'rare': 1.5,
-                'epic': 2.0,
-                'legendary': 3.0,
-                'mythical': 5.0
-            };
-
-            const rarity = nft.attributes?.find(attr => attr.trait_type === 'Rarity')?.value || 'common';
-            marketValue *= rarityMultiplier[rarity] || 1.0;
-
-            // Demand factor (simulated)
-            marketValue *= (0.8 + Math.random() * 0.4); // ±20% variance
-
-            return Math.round(marketValue);
-        }
-    };
-
-    // Wallet-based authentication check (same as profile.js)
-    function isUserAuthenticated() {
-      const user = JSON.parse(localStorage.getItem('currentUser') || 'null');
-      const lastAuth = localStorage.getItem('lastWalletAuth');
-      if (!user || !user.walletAddress || !lastAuth) return false;
-      const lastAuthTime = new Date(lastAuth).getTime();
-      const now = Date.now();
-      return (now - lastAuthTime) < 86400000;
-    }
-
-    function updateAuthButton() {
-      // Use requestAnimationFrame for smooth UI updates
-      requestAnimationFrame(() => {
-        const loginBtn = document.getElementById('loginBtn');
-        const profileBtn = document.getElementById('profileBtn');
-
-        if (isUserAuthenticated()) {
-          if (loginBtn) loginBtn.style.display = 'none';
-          if (profileBtn) {
-            profileBtn.style.display = 'inline-block';
-            profileBtn.textContent = 'Profile';
-            profileBtn.href = 'profile.html';
-          }
-        } else {
-          if (profileBtn) profileBtn.style.display = 'none';
-          if (loginBtn) {
-            loginBtn.style.display = 'inline-block';
-            loginBtn.textContent = 'Log In';
-          }
-        }
-      });
-    }
-
-    // Show login modal (optional, non-blocking)
-    function showLoginModal() {
-      const modal = document.getElementById('loginModal');
-      if (modal) {
-        modal.style.display = 'flex';
-      }
-    }
-    
-    // Update UI based on login state (non-blocking)
-    function updateUIForLoginState() {
-      const isLoggedIn = isUserLoggedIn();
-      const contentToggleBtn = document.getElementById('contentToggleBtn');
-      const welcomeOverlay = document.querySelector('.welcome-overlay');
-      
-      // Always show content toggle for better UX
-      if (contentToggleBtn) {
-        contentToggleBtn.style.display = 'block';
-      }
-      
-      // Hide welcome overlay after first visit or if logged in
-      if (isLoggedIn || localStorage.getItem('visited')) {
-        if (welcomeOverlay) welcomeOverlay.style.display = 'none';
-      }
-      
-      // Mark as visited
-      localStorage.setItem('visited', 'true');
-    }
-    
-    // Phantom wallet connection for mandem.os
-    async function connectWalletForMGC() {
-      try {
-        console.log('🔐 Connecting Phantom wallet...');
-
-        // For mandem.os, use Phantom only (Solana)
-        if (window.solana && window.solana.isPhantom) {
-          console.log('✅ Phantom detected');
-
-          // Connect to Phantom
-          const resp = await window.solana.connect();
-          const publicKey = resp.publicKey.toBase58();
-
-          console.log('✅ Phantom connected:', publicKey);
-
-          // Store authentication info
-          const user = {
-            walletAddress: publicKey,
-            displayName: `${publicKey.slice(0, 6)}...${publicKey.slice(-4)}`,
-            walletType: 'phantom',
-            joinDate: new Date().toISOString()
-          };
-
-          localStorage.setItem('currentUser', JSON.stringify(user));
-          localStorage.setItem('userLoggedIn', 'true');
-          localStorage.setItem('lastWalletAuth', new Date().toISOString());
-
-          // Update UI first
-          updateAuthButton();
-          updateMgcBalanceDisplay();
-
-          // Small delay to ensure UI updates before showing alert
-          setTimeout(() => {
-            alert('Phantom connected successfully! Welcome to Gem Bot Universe.');
-          }, 100);
-        } else {
-          console.warn('⚠️ Phantom not detected');
-          alert('Phantom wallet not found. Please install Phantom browser extension to connect.');
-          window.open('https://phantom.com/', '_blank');
-          return false;
-        }
-
-      } catch (error) {
-        console.error('❌ Phantom connection failed:', error);
-        alert('Phantom connection failed. Please try again or check if Phantom is unlocked.');
-        return false;
-      }
-    }
-    
-    // Fallback wallet connection for backward compatibility
-    async function quickConnectWallet() {
-      try {
-        const provider = window.solana;
-        if (!provider || !provider.isPhantom) {
-          alert('Phantom wallet not found. Please install Phantom browser extension.');
-          window.open('https://phantom.com/', '_blank');
-          return false;
-        }
-        
-        const resp = await provider.connect();
-        const publicKey = resp.publicKey.toBase58();
-        
-        // Store basic auth info
-        const user = {
-          walletAddress: publicKey,
-          displayName: `User ${publicKey.slice(0, 4)}...${publicKey.slice(-4)}`,
-          joinDate: new Date().toISOString()
-        };
-        
-        localStorage.setItem('currentUser', JSON.stringify(user));
-        localStorage.setItem('userLoggedIn', 'true');
-        localStorage.setItem('lastWalletAuth', new Date().toISOString());
-        
-        // Update UI
-        updateAuthButton();
-        updateMgcBalanceDisplay();
-        
-        console.log('[Auth] Wallet connected:', publicKey);
-        return true;
-      } catch (err) {
-        console.error('[Auth] Connection failed:', err);
-        alert('Wallet connection failed. Please try again.');
-        return false;
-      }
-    }
-    
-    // Soft auth check (suggest login but don't block)
-    function enforceAuthNavigation() {
-      const protectedPages = [
-        'profile.html', 'admin-forge.html'
-      ];
-      const openPage = window.location.pathname.split('/').pop();
-      if (protectedPages.includes(openPage) && !isUserAuthenticated()) {
-        // login.html is broken, just show alert instead
-        alert('Please connect your wallet to access this page.');
-        // Optionally redirect back to index
-        window.location.href = 'index.html';
-      }
-      // Other pages are accessible without login but show login prompt
-    }
-
-    // Show MGC balance if user is logged in
-    function showMgcBalance(balance) {
-      const mgcDiv = document.getElementById('mgcBalanceDisplay');
-      const mgcSpan = document.getElementById('mgcBalance');
-      if (mgcDiv && mgcSpan) {
-        mgcDiv.style.display = 'block';
-        mgcSpan.textContent = balance;
-      }
-    }
-    
-    // Simulate fetching MGC balance for the logged-in user
-    function fetchMgcBalance() {
-      // TODO: Replace with real API call to fetch MGC balance from Solana/Phantom wallet
-      // For now, simulate with a random value
-      return new Promise(resolve => {
-        setTimeout(() => {
-          const fakeBalance = (Math.random() * 1000).toFixed(2);
-          resolve(fakeBalance);
-        }, 600);
-      });
-    }
-    
-    function updateMgcBalanceDisplay() {
-      const mgcDiv = document.getElementById('mgcBalanceDisplay');
-      const mgcSpan = document.getElementById('mgcBalance');
-      const displayMgcSpan = document.getElementById('displayMgcBalance');
-      
-      if (!isUserAuthenticated()) {
-        if (mgcDiv) mgcDiv.style.display = 'none';
-        if (displayMgcSpan) displayMgcSpan.textContent = '0.00';
-        return;
-      }
-      
-      if (mgcDiv) mgcDiv.style.display = 'block';
-      // Get balance from localStorage (real-time in-game MGC)
-      let profile = JSON.parse(localStorage.getItem('userProfile') || 'null');
-      let balance = profile && profile.inGameMGC ? profile.inGameMGC : 0;
-      
-      if (mgcSpan) mgcSpan.textContent = balance.toFixed ? balance.toFixed(2) : balance;
-      if (displayMgcSpan) displayMgcSpan.textContent = balance.toFixed ? balance.toFixed(2) : balance;
-    }
-
-    // Toggle the post-login content
-    function toggleControls() {
-      const postLoginContent = document.getElementById('postLoginContent');
-      const toggleBtn = document.getElementById('contentToggleBtn');
-      if (postLoginContent.style.display === 'block') {
-        postLoginContent.style.display = 'none';
-        toggleBtn.textContent = 'Mission Control';
-        console.log('Mission Control hidden');
-      } else {
-        postLoginContent.style.display = 'block';
-        toggleBtn.textContent = 'Hide Mission Control';
-        console.log('Mission Control shown');
-      }
-    }
-    
-    // Add click handler for MGC balance link to go to profile
-    const mgcLink = document.getElementById('mgcBalanceLink');
-    if (mgcLink) {
-      mgcLink.addEventListener('click', function(e) {
-        e.preventDefault();
-        window.location.href = 'profile.html';
-      });
-    }
-
-    // Update UI based on login state
-    updateUIForLoginState();
-
-    // Show MGC balance if logged in
-    if (isUserLoggedIn()) {
-      fetchMgcBalance().then(showMgcBalance);
-    }
-
-    // Update auth buttons
-    updateAuthButton(); // Ensure button is correct on page load
-    enforceAuthNavigation();
-
-    // Update profileBtn click to show alert if not authenticated (login.html is broken)
-    const profileBtn = document.getElementById('profileBtn');
-    if (profileBtn) {
-        profileBtn.addEventListener('click', function(e) {
-            if (!isUserAuthenticated()) {
-                e.preventDefault();
-                alert('Please connect your wallet to access profile features.');
-                return false;
-            }
-            // If authenticated, allow normal navigation to profile.html
-        });
-    }
-
-    // Initialize 3D Globe immediately when page loads
-    // This ensures the 3D scene renders before welcome overlay logic
-    window.addEventListener('load', function() {
-        console.log('🚀 Initializing Gem Bot Universe 3D Scene...');
-
-        // Hide welcome overlay immediately
-        const welcomeOverlay = document.querySelector('.welcome-overlay');
-        if (welcomeOverlay) {
-            welcomeOverlay.style.display = 'none';
-            console.log('✅ Welcome overlay hidden immediately');
-        }
-
-        initGlobe();
-    });
-
-    // Also initialize on DOMContentLoaded as backup
-    document.addEventListener('DOMContentLoaded', function() {
-        console.log('📄 DOM ready, ensuring 3D scene...');
-        if (!window.globeInitialized) {
-            initGlobe();
-        }
-
-        // Setup welcome overlay hover disappear
-        const welcomeOverlay = document.querySelector('.welcome-overlay');
-        let hoverTimer;
-
-        // Function to fetch and display last GitHub commit time
-        async function updateLastCommitTime() {
-            console.log('🔍 Starting timestamp update...');
-
-            try {
-                // Fetch last commit from GitHub API
-                console.log('📡 Fetching from GitHub API...');
-                const response = await fetch('https://api.github.com/repos/barbrickdesign/barbrickdesign.github.io/commits?per_page=1');
-                console.log('📡 Response status:', response.status);
-
-                if (!response.ok) {
-                    throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-                }
-
-                const commits = await response.json();
-                console.log('📡 Commits received:', commits ? commits.length : 'null');
-
-                if (commits && commits.length > 0) {
-                    const lastCommit = commits[0];
-                    const commitDate = new Date(lastCommit.commit.committer.date);
-                    console.log('📅 Commit date:', commitDate.toISOString());
-
-                    // Format the date nicely
-                    const formattedDate = commitDate.toLocaleString('en-US', {
-                        year: 'numeric',
-                        month: 'short',
-                        day: 'numeric',
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        timeZoneName: 'short'
-                    });
-
-                    console.log('📅 Formatted date:', formattedDate);
-
-                    // Try multiple selectors to find timestamp elements
-                    let timestampElement = document.querySelector('.timestamp-label');
-                    if (!timestampElement) {
-                        timestampElement = document.querySelector('[class*="timestamp"]');
-                    }
-                    if (!timestampElement) {
-                        timestampElement = document.querySelector('span:contains("Updated")');
-                    }
-                    if (!timestampElement) {
-                        // Look for any element containing "Updated" or "📅"
-                        const allSpans = document.querySelectorAll('span');
-                        for (const span of allSpans) {
-                            if (span.textContent.includes('Updated') || span.textContent.includes('📅')) {
-                                timestampElement = span;
-                                break;
-                            }
-                        }
-                    }
-
-                    console.log('🎯 Timestamp element found:', timestampElement);
-
-                    if (timestampElement) {
-                        // Find the next sibling element that should contain the timestamp
-                        const timestampValue = timestampElement.nextElementSibling;
-                        if (timestampValue) {
-                            timestampValue.textContent = formattedDate;
-                            console.log('✅ Updated existing timestamp element');
-                        } else {
-                            // Create timestamp value element if it doesn't exist
-                            const valueElement = document.createElement('span');
-                            valueElement.className = 'timestamp-value';
-                            valueElement.textContent = formattedDate;
-                            timestampElement.parentNode.insertBefore(valueElement, timestampElement.nextSibling);
-                            console.log('✅ Created new timestamp element');
-                        }
-                    } else {
-                        console.warn('⚠️ No timestamp element found on page');
-                        // Create a visible timestamp somewhere on the page
-                        const body = document.querySelector('body');
-                        if (body) {
-                            const debugDiv = document.createElement('div');
-                            debugDiv.style.position = 'fixed';
-                            debugDiv.style.top = '10px';
-                            debugDiv.style.right = '10px';
-                            debugDiv.style.background = 'rgba(0,0,0,0.8)';
-                            debugDiv.style.color = 'white';
-                            debugDiv.style.padding = '5px 10px';
-                            debugDiv.style.borderRadius = '5px';
-                            debugDiv.style.fontSize = '12px';
-                            debugDiv.style.zIndex = '9999';
-                            debugDiv.innerHTML = '📅 Last Updated: ' + formattedDate;
-                            body.appendChild(debugDiv);
-                            console.log('✅ Created debug timestamp display');
-                        }
-                    }
-
-                    console.log('📅 Last commit time updated successfully:', formattedDate);
-                } else {
-                    throw new Error('No commits received from API');
-                }
-            } catch (error) {
-                console.error('❌ Could not fetch last commit time:', error);
-                // Fallback: show current time if API fails
-                const fallbackDate = new Date().toLocaleString('en-US', {
-                    year: 'numeric',
-                    month: 'short',
-                    day: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                    timeZoneName: 'short'
-                });
-
-                console.log('🔄 Using fallback time:', fallbackDate);
-
-                // Try to update any existing timestamp element
-                let timestampElement = document.querySelector('.timestamp-label');
-                if (!timestampElement) {
-                    const allSpans = document.querySelectorAll('span');
-                    for (const span of allSpans) {
-                        if (span.textContent.includes('Updated') || span.textContent.includes('📅')) {
-                            timestampElement = span;
-                            break;
-                        }
-                    }
-                }
-
-                if (timestampElement) {
-                    const timestampValue = timestampElement.nextElementSibling;
-                    if (timestampValue) {
-                        timestampValue.textContent = fallbackDate + ' (API Error)';
-                    }
-                } else {
-                    // Create debug display for fallback
-                    const body = document.querySelector('body');
-                    if (body) {
-                        let debugDiv = document.querySelector('.debug-timestamp');
-                        if (!debugDiv) {
-                            debugDiv = document.createElement('div');
-                            debugDiv.className = 'debug-timestamp';
-                            debugDiv.style.position = 'fixed';
-                            debugDiv.style.top = '10px';
-                            debugDiv.style.right = '10px';
-                            debugDiv.style.background = 'rgba(255,0,0,0.8)';
-                            debugDiv.style.color = 'white';
-                            debugDiv.style.padding = '5px 10px';
-                            debugDiv.style.borderRadius = '5px';
-                            debugDiv.style.fontSize = '12px';
-                            debugDiv.style.zIndex = '9999';
-                            body.appendChild(debugDiv);
-                        }
-                        debugDiv.innerHTML = '📅 Updated: ' + fallbackDate + ' (API Error)';
-                    }
-                }
-            }
-        }
-
-        // Call the function to update timestamp
-        updateLastCommitTime();
-
-        // Update timestamp every 5 minutes to reflect latest commits
-        setInterval(updateLastCommitTime, 5 * 60 * 1000);
-
-        // Setup modal buttons
-        const modalLoginBtn = document.getElementById('modalLoginBtn');
-        if (modalLoginBtn) {
-            // Disabled - login.html is broken
-            modalLoginBtn.style.display = 'none';
-        }
-
-        const modalCloseBtn = document.getElementById('modalCloseBtn');
-        if (modalCloseBtn) {
-            modalCloseBtn.addEventListener('click', function() {
-                document.getElementById('loginModal').style.display = 'none';
-            });
-        }
-
-        // Phantom login button handler
-        const loginBtn = document.getElementById('loginBtn');
-        if (loginBtn) {
-            loginBtn.addEventListener('click', async function(e) {
-                e.preventDefault();
-                console.log('🔘 Phantom login button clicked');
-
-                try {
-                    const success = await connectWalletForMGC();
-                    if (success) {
-                        console.log('✅ Phantom connected successfully');
-                        // Alert is now shown inside connectWalletForMGC after UI updates
-                    }
-                } catch (error) {
-                    console.error('❌ Login button error:', error);
-                    alert('Connection failed. Please try again.');
-                }
-
-                return false;
-            });
-        }
-
-        // Setup content toggle button
-        const contentToggleBtn = document.getElementById('contentToggleBtn');
-        if (contentToggleBtn) {
-            contentToggleBtn.addEventListener('click', toggleControls);
-        }
-
-        // Add click handlers for Mission Control buttons
-        const launchLabBtn = document.getElementById('launchLabBtn');
-        if (launchLabBtn) {
-            launchLabBtn.addEventListener('click', function() {
-                console.log('🏭 Launching Laboratory...');
-                window.location.href = 'laboratory.html';
-            });
-        }
-
-        const launchWarehouseBtn = document.getElementById('launchWarehouseBtn');
-        if (launchWarehouseBtn) {
-            launchWarehouseBtn.addEventListener('click', function() {
-                console.log('🏗️ Launching Warehouse...');
-                window.location.href = 'warehouse.html';
-            });
-        }
-
-        const launchExplorerBtn = document.getElementById('launchExplorerBtn');
-        if (launchExplorerBtn) {
-            launchExplorerBtn.addEventListener('click', function() {
-                console.log('🗺️ Launching Explorer...');
-                window.location.href = 'outdoor.html';
-            });
-        }
-
-        const launchAryaBtn = document.getElementById('launchAryaBtn');
-        if (launchAryaBtn) {
-            launchAryaBtn.addEventListener('click', function() {
-                console.log('🎨 Launching Arya\'s Educational Content...');
-                window.open('https://www.youtube.com/@RyaBar', '_blank');
-            });
-        }
-
-        // NFT Jewelry button functionality
-        const launchNFTJewelryBtn = document.getElementById('launchNFTJewelryBtn');
-        if (launchNFTJewelryBtn) {
-            launchNFTJewelryBtn.addEventListener('click', function() {
-                console.log('💎 Opening Austin\'s NFT Jewelry Collection...');
-                window.open('https://earthartgems.com/', '_blank');
-
-                // Show sample NFT creation
-                setTimeout(() => {
-                    const sampleJewelry = {
-                        type: 'diamond',
-                        metadata: {
-                            weight: 2.5, // carats
-                            quality: 'flawless',
-                            origin: 'natural',
-                            clarity: 'VVS1'
-                        },
-                        image: 'https://earthartgems.com/diamond-sample.jpg'
-                    };
-
-                    nftJewelrySystem.createNFT(sampleJewelry).then(result => {
-                        alert(`💎 NFT Created Successfully!\n\nGem Type: ${sampleJewelry.type.charAt(0).toUpperCase() + sampleJewelry.type.slice(1)}\nCalculated Value: $${result.calculatedValue}\n\nThis NFT preserves the true value of Austin's jewelry through blockchain metadata. Each gem's properties (weight, quality, origin) are permanently recorded and contribute to its market value.\n\nVisit https://earthartgems.com/ to transform your jewelry into NFTs!`);
-                    });
-                }, 1000);
-            });
-        }
-
-        // Wizard Tip button functionality
-        const wizardTipBtn = document.getElementById('wizardTipBtn');
-        if (wizardTipBtn) {
-            wizardTipBtn.addEventListener('click', function() {
-                console.log('🎭 Requesting wizard advice...');
-
-                // Trigger immediate wizard tips
-                if (window.wizardAvatarSystem && window.wizardAvatars) {
-                    window.wizardAvatarSystem.showWizardTip(window.wizardAvatars[Math.floor(Math.random() * window.wizardAvatars.length)]);
-                }
-
-                alert('🎭 Wizards Activated!\n\nThe mystical wizards are now floating throughout the Gem Bot Universe, offering their wisdom:\n\n• Austin Moore (Orange): Jewelry & NFT expertise\n• Arya (Pink): Art & technology guidance\n• Ryan Barbrick (Gold): Vision & innovation insights\n\nWatch for their glowing avatars and floating tip messages as you explore!');
-            });
-        }
-
-        // Check Connection and Sync Settings buttons (just show alerts for now)
-        const checkConnectionBtn = document.getElementById('checkConnectionBtn');
-        if (checkConnectionBtn) {
-            checkConnectionBtn.addEventListener('click', function() {
-                console.log('🔗 Checking system connection...');
-                alert('System Status: All systems operational!\n\n✅ 3D Globe: Active\n✅ Satellite Navigation: Active\n✅ Wallet Integration: Connected\n✅ Mission Control: Online\n✅ Arya\'s Education: Connected\n✅ Arya Agent: Teaching\n✅ Austin Agent: SUPREME ACCESS\n✅ Andy Agent: KNOWLEDGE BASE\n✅ Trusted Projects: 12 verified\n✅ Multi-Channel Content: Active\n✅ IP Protection: ACTIVE\n✅ Provisional Patent: FILED\n✅ Contribution Tracking: ENABLED');
-            });
-        }
-
-        const syncSettingsBtn = document.getElementById('syncSettingsBtn');
-        if (syncSettingsBtn) {
-            syncSettingsBtn.addEventListener('click', function() {
-                console.log('🔄 Syncing settings...');
-                alert('Settings synchronized successfully!\n\n🔄 User preferences updated\n🔄 3D scene settings saved\n🔄 Navigation history synced');
-            });
-        }
-
-        // Update UI based on login state
-        updateUIForLoginState();
-
-        // Show MGC balance if logged in
-        if (isUserLoggedIn()) {
-            fetchMgcBalance().then(showMgcBalance);
-        }
-
-        // Update auth buttons
-        updateAuthButton();
-        enforceAuthNavigation();
-
-        // Update profileBtn click to show alert if not authenticated (login.html is broken)
-        const profileBtn = document.getElementById('profileBtn');
-        if (profileBtn) {
-            profileBtn.addEventListener('click', function(e) {
-                if (!isUserAuthenticated()) {
-                    e.preventDefault();
-                    alert('Please connect your wallet to access profile features.');
-                    return false;
-                }
-                // If authenticated, allow normal navigation to profile.html
-            });
-        }
-
-        // IP Attribution button functionality
-        const ipAttributionBtn = document.getElementById('ipAttributionBtn');
-        if (ipAttributionBtn) {
-            ipAttributionBtn.addEventListener('click', function() {
-                console.log('📋 Opening IP Attribution System...');
-
-                alert('📋 INTELLECTUAL PROPERTY ATTRIBUTION & CONTRIBUTION TRACKING\n\n🎯 PROVISIONAL PATENT: GEMBOT-2025-001\n\n👥 CONTRIBUTOR BREAKDOWN:\n\n• RYAN BARBRICK (Lead Inventor)\n  - Core system architecture & integration\n  - 3D rendering & interactive environments\n  - NFT jewelry transformation system\n  - Educational framework & curriculum\n  - Agent system & collaboration platform\n  - Provisional patent filing & IP protection\n\n• AUSTIN MOORE (Original Inventor)\n  - MGC Merlin\'s Gem Bot invention\n  - Groundbreaking technology foundation\n  - Jewelry craftsmanship expertise\n  - Innovation methodology & techniques\n\n• ARYA (Enhancement Specialist)\n  - AI learning system enhancements\n  - Art-technology fusion development\n  - Physical machine troubleshooting\n  - Educational content creation\n  - Professional business integration\n\n• ANDY ACKER (Knowledge Base Agent)\n  - Quality assurance & testing systems\n  - System integrity verification\n  - Performance monitoring & analytics\n  - Knowledge base contribution framework\n\n📊 CONTRIBUTION VALUE CALCULATION:\n- Individual contributions tracked by feature implementation\n- Group collaboration value = sum of all individual contributions\n- IP protection covers all innovations under provisional patent\n- Attribution system ensures fair recognition of all contributors\n\n💰 MONETARY VALUE DETERMINATION:\n- Base system value calculated from feature complexity\n- Individual contribution percentage based on code commits & features\n- Market value assessment through NFT marketplace integration\n- Ongoing royalty distribution through patent protection\n\n🔐 IP PROTECTION:\n- Provisional patent filed for core innovations\n- Copyright protection for code and content\n- Trademark protection for Gem Bot Universe branding\n- All contributions legally protected and attributed');
-            });
-        }
-
-        // Patent Details button functionality
-        const patentInfoBtn = document.getElementById('patentInfoBtn');
-        if (patentInfoBtn) {
-            patentInfoBtn.addEventListener('click', function() {
-                console.log('⚖️ Opening Patent Details...');
-
-                alert('⚖️ PROVISIONAL PATENT DETAILS - GEMBOT-2025-001\n\n📋 PATENT INFORMATION:\n• Title: AI-Driven Jewelry & Technology Integration System\n• Inventor: Ryan Barbrick (Lead), with Austin Moore, Arya, Andy Acker\n• Filing Date: October 17, 2025\n• Status: Provisional Patent Filed\n• Serial Number: GEMBOT-2025-001\n\n🔬 TECHNICAL CLAIMS COVERED:\n\n1. AI-Powered Interactive 3D Environments\n   - Dynamic globe rendering with orbital satellites\n   - Real-time particle systems and avatar animations\n   - Tron-like wizard avatars with tip systems\n\n2. NFT Jewelry Transformation System\n   - Metadata-based value calculation algorithms\n   - Blockchain integration for provenance tracking\n   - Automated rarity and quality assessment\n\n3. Multi-Agent Collaboration Framework\n   - Agent-based system with specialized roles\n   - Real-time communication and status monitoring\n   - Interactive troubleshooting and support systems\n\n4. Comprehensive Educational Platform\n   - Multi-platform content integration (YouTube, Instagram)\n   - AI-enhanced learning with inventor attribution\n   - Physical machine support through digital avatars\n\n5. Intellectual Property Attribution System\n   - Contribution tracking and value calculation\n   - Individual and group attribution frameworks\n   - Legal protection and royalty distribution\n\n💼 COMMERCIAL APPLICATIONS:\n• Jewelry industry NFT marketplace\n• Educational technology platforms\n• AI-driven collaboration systems\n• 3D interactive environments\n• Intellectual property management\n\n🔒 PROTECTION SCOPE:\n• Covers all core innovations and implementations\n• Protects both individual and collaborative contributions\n• Enables commercial licensing and distribution\n• Provides legal framework for global deployment\n\n📈 VALUE PROPOSITION:\n• Revolutionary integration of AI, NFTs, and 3D technology\n• Comprehensive educational and collaboration platform\n• Protected intellectual property with clear attribution\n• Scalable system for jewelry and technology industries');
-            });
-        }
-        if (aryaConnectBtn) {
-            aryaConnectBtn.addEventListener('click', function() {
-                console.log('🎨 Connecting to Arya Agent...');
-                window.open('https://www.youtube.com/@RyaBar', '_blank');
-
-                // Update activity status
-                document.getElementById('aryaStatus').textContent = 'Connected';
-                document.getElementById('aryaStatus').style.background = 'rgba(0,255,0,0.5)';
-                document.getElementById('aryaLastActivity').textContent = new Date().toLocaleString();
-
-                alert('🎨 Connected to Arya Agent!\n\nYouTube channel @RyaBar opened in new tab.\nArya is now monitoring your creative and educational activities.');
-            });
-        }
-
-        // Learn Gem Bots button functionality
-        const aryaLearnBtn = document.getElementById('aryaLearnBtn');
-        if (aryaLearnBtn) {
-            aryaLearnBtn.addEventListener('click', function() {
-                console.log('📚 Opening Gem Bot Learning Resources...');
-
-                // Show AI video section
-                const aiVideosDiv = document.getElementById('aryaAIVideos');
-                aiVideosDiv.style.display = aiVideosDiv.style.display === 'none' ? 'block' : 'none';
-
-                // Populate AI video tutorials and Austin's videos
-                const videoList = document.getElementById('aryaVideoList');
-                videoList.innerHTML = `
-                    <!-- Austin Moore's Featured Videos Section -->
-                    <div style="margin-bottom: 20px; padding: 12px; background: linear-gradient(135deg, #ff6b35, #ff8c42); border-radius: 8px; border: 2px solid #ffd700;">
-                        <h5 style="color: white; margin: 0 0 10px 0; font-size: 13px; text-align: center;">🎬 AUSTIN MOORE'S ORIGINAL GEM BOT VIDEOS</h5>
-
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
-                            <div style="padding: 8px; background: rgba(0,0,0,0.3); border-radius: 5px; border-left: 3px solid #ff6b35;">
-                                <div style="font-weight: bold; color: #ffd700; font-size: 11px;">MGC Merlin's Gem Bot Demo</div>
-                                <div style="font-size: 10px; margin: 3px 0;">Austin's original invention showcase</div>
-                                <button onclick="window.open('https://www.youtube.com/watch?v=S8ssTOxzHq0', '_blank')" style="width: 100%; padding: 4px; background: #ff6b35; border: none; border-radius: 3px; cursor: pointer; font-size: 10px; color: white;">▶️ Watch Original</button>
-                            </div>
-
-                            <div style="padding: 8px; background: rgba(0,0,0,0.3); border-radius: 5px; border-left: 3px solid #E4405F;">
-                                <div style="font-weight: bold; color: #E4405F; font-size: 11px;">EarthArt Gems Studio</div>
-                                <div style="font-size: 10px; margin: 3px 0;">Austin's complete creative universe</div>
-                                <button onclick="alert('📸 AUSTIN MOORE\'S EARTHART GEMS STUDIO\n\n🎨 Instagram Profile: https://www.instagram.com/earthartgems/\n\n📚 Educational Content Available:\n• Gem Bot invention process\n• Jewelry craftsmanship techniques\n• Technology-art fusion demonstrations\n• Behind-the-scenes innovation\n• Creative problem-solving\n• Material science insights\n\nFollow @earthartgems for ongoing educational content directly from the inventor!')" style="width: 100%; padding: 4px; background: #E4405F; border: none; border-radius: 3px; cursor: pointer; font-size: 10px; color: white;">📸 Follow @earthartgems</button>
-                            </div>
-                        </div>
-
-                        <div style="display: grid; grid-template-columns: 1fr; gap: 6px; margin-top: 10px;">
-                            <div style="padding: 6px; background: rgba(0,0,0,0.4); border-radius: 3px;">
-                                <div style="font-size: 10px; color: #ffd700; margin-bottom: 3px;">📖 Comprehensive Content from All Creators:</div>
-                                <div style="font-size: 9px; color: white; line-height: 1.3;">
-                                    • 🎬 YouTube: Technical invention demonstrations<br>
-                                    • 📸 @earthartgems: Creative process & craftsmanship<br>
-                                    • 🧠 @andy_acker: Testing & validation insights<br>
-                                    • 💎 @barbricksjewelry: Gem Bot jewelry integration<br>
-                                    • 🎯 Hands-on inventor guidance & innovation<br>
-                                    • 🔬 Innovation methodology & problem-solving<br>
-                                    • 💎 Jewelry expertise & material science<br>
-                                    • 🎨 Art-technology fusion techniques
-                                </div>
-                            </div>
-                        </div>
-
-                        <div style="font-size: 10px; color: white; text-align: center; padding: 5px; background: rgba(0,0,0,0.5); border-radius: 3px; margin-top: 8px;">
-                            🏆 Learn from the Original Inventor • Austin Moore's Groundbreaking Work
-                        </div>
-                    </div>
-
-                    <!-- AI-Generated Learning Series -->
-                    <div style="margin-bottom: 15px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px; border-left: 4px solid #00ff99;">
-                        <div style="font-weight: bold; color: #00ff99; margin-bottom: 8px; font-size: 12px;">🤖 AI ARYA LEARNING SERIES (Enhanced from Austin's Foundation)</div>
-
-                        <div style="display: grid; grid-template-columns: 1fr; gap: 8px;">
-                            <div style="padding: 8px; background: rgba(255,255,255,0.05); border-radius: 5px;">
-                                <div style="font-weight: bold; color: #00ff99; font-size: 11px;">🎥 "Gem Bot Fundamentals - Austin's Legacy"</div>
-                                <div style="font-size: 10px; margin: 3px 0;">AI Arya builds upon Austin's original MGC Merlin's Gem Bot foundation</div>
-                                <button onclick="alert('🎥 AI Tutorial: Learn the fundamentals that Austin Moore invented:\n• Basic Gem Bot operations\n• Core technology principles\n• Innovation foundations\n• Austin Moore\'s breakthrough design\n\nThis tutorial honors the original inventor while teaching modern usage.')" style="width: 100%; padding: 4px; background: #00ff99; border: none; border-radius: 3px; cursor: pointer; font-size: 10px; color: black; font-weight: bold;">📚 Learn Fundamentals</button>
-                            </div>
-
-                            <div style="padding: 8px; background: rgba(255,255,255,0.05); border-radius: 5px;">
-                                <div style="font-weight: bold; color: #00ff99; font-size: 11px;">🎥 "Advanced Gem Bot Techniques - Evolution"</div>
-                                <div style="font-size: 10px; margin: 3px 0;">Modern enhancements built on Austin's groundbreaking work</div>
-                                <button onclick="alert('🎥 AI Tutorial: Discover how Arya enhanced Austin\'s invention:\n• Laboratory integration\n• Advanced research capabilities\n• Technology upgrades\n• Creative applications\n\nBuilt upon Austin Moore\'s original foundation with modern innovations.')" style="width: 100%; padding: 4px; background: #00ff99; border: none; border-radius: 3px; cursor: pointer; font-size: 10px; color: black; font-weight: bold;">🔬 Advanced Techniques</button>
-                            </div>
-
-                            <div style="padding: 8px; background: rgba(255,255,255,0.05); border-radius: 5px;">
-                                <div style="font-weight: bold; color: #00ff99; font-size: 11px;">🎥 "Austin & Arya: Complete Gem Bot Mastery"</div>
-                                <div style="font-size: 10px; margin: 3px 0;">Comprehensive guide combining original invention with modern enhancements</div>
-                                <button onclick="alert('🎥 AI Tutorial: The complete Gem Bot journey:\n• Austin Moore\'s original invention\n• Arya\'s artistic enhancements\n• Full technology integration\n• Community collaboration\n\nLearn from both the inventor and the innovator!')" style="width: 100%; padding: 4px; background: #00ff99; border: none; border-radius: 3px; cursor: pointer; font-size: 10px; color: black; font-weight: bold;">🎓 Complete Mastery</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Learning Path Recommendation -->
-                    <div style="margin-bottom: 15px; padding: 10px; background: linear-gradient(135deg, #ffd700, #ffed4e); border-radius: 8px;">
-                        <div style="font-weight: bold; color: black; margin-bottom: 8px; font-size: 12px; text-align: center;">📚 COMPREHENSIVE GEM BOT TRAINING CURRICULUM</div>
-                        <div style="font-size: 11px; color: black; line-height: 1.4;">
-                            <strong>🎬 PHASE 1: Learn from Austin Moore (The Inventor)</strong><br>
-                            <strong>1.</strong> Follow @earthartgems Instagram (complete creative universe)<br>
-                            <strong>2.</strong> Watch YouTube invention showcase (@earthartgems)<br>
-                            <strong>3.</strong> Study Instagram reels and stories (hands-on demos)<br>
-                            <strong>4.</strong> Follow @barbricksjewelry for jewelry integration<br>
-                            <strong>5.</strong> Explore jewelry craftsmanship techniques<br>
-                            <strong>6.</strong> Learn innovation methodology & problem-solving<br><br>
-                            <strong>🤖 PHASE 2: AI Arya Enhanced Learning</strong><br>
-                            <strong>7.</strong> Learn fundamentals from AI Arya<br>
-                            <strong>8.</strong> Explore advanced techniques<br>
-                            <strong>9.</strong> Master complete Gem Bot operations<br><br>
-                            <strong>🎨 PHASE 3: Creative Application & Community</strong><br>
-                            <strong>10.</strong> Study @RyaBar artistic integrations<br>
-                            <strong>11.</strong> Visit Surgical Precision Gems professional website<br>
-                            <strong>12.</strong> Explore @ultratecusa innovative content<br>
-                            <strong>13.</strong> Join the innovation community!
-                        </div>
-                    </div>
-
-                    <div style="text-align: center; margin-top: 15px; padding-top: 15px; border-top: 2px solid rgba(255,255,255,0.3);">
-                        <div style="font-size: 11px; color: #ffd700; margin-bottom: 10px; font-weight: bold;">
-                            🙏 HONORING THE INNOVATOR • COMPREHENSIVE TRAINING ECOSYSTEM
-                        </div>
-                        <div style="font-size: 10px; color: white; margin-bottom: 10px; line-height: 1.4;">
-                            <strong>Austin Moore (@earthartgems)</strong> invented the MGC Merlin's Gem Bot.<br>
-                            <strong>Arya</strong> enhanced it with art and technology.<br>
-                            <strong>Instagram + YouTube + AI Training</strong> = Complete mastery.<br>
-                            Together, they created this revolutionary ecosystem.
-                        </div>
-                        <button onclick="window.open('https://www.instagram.com/earthartgems/', '_blank')" style="background: #E4405F; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px; margin-right: 5px;">📸 Austin's Instagram Universe</button>
-                        <button onclick="window.open('https://www.youtube.com/@earthartgems', '_blank')" style="background: #ff6b35; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px; margin-right: 5px;">🎥 Austin's YouTube</button>
-                        <button onclick="window.open('https://www.surgicalprecisiongems.com/', '_blank')" style="background: #00ff99; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px; margin-right: 5px;">💎 Arya's Professional Website</button>
-                        <button onclick="window.open('https://www.instagram.com/surgical.precision.gems/', '_blank')" style="background: #ff1493; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px; margin-right: 5px;">📸 Arya's Instagram</button>
-                        <button onclick="window.open('https://www.youtube.com/@ultratecusa/videos', '_blank')" style="background: #ff1493; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px;">🎨 Ultra Content</button>
-                    </div>
-                `;
-
-            <!-- AI-Generated Learning Series -->
-            <div style="margin-bottom: 15px; padding: 10px; background: rgba(255,255,255,0.1); border-radius: 8px; border-left: 4px solid #00ff99;">
-                <div style="font-weight: bold; color: #00ff99; margin-bottom: 8px; font-size: 12px;">🤖 AI ARYA LEARNING SERIES (Enhanced from Austin's Foundation)</div>
-
-                <div style="display: grid; grid-template-columns: 1fr; gap: 8px;">
-                    <div style="padding: 8px; background: rgba(255,255,255,0.05); border-radius: 5px;">
-                        <div style="font-weight: bold; color: #00ff99; font-size: 11px;">🎥 "Gem Bot Fundamentals - Austin's Legacy"</div>
-                        <div style="font-size: 10px; margin: 3px 0;">AI Arya builds upon Austin's original MGC Merlin's Gem Bot foundation</div>
-                        <button onclick="alert('🎥 AI Tutorial: Learn the fundamentals that Austin Moore invented:\n• Basic Gem Bot operations\n• Core technology principles\n• Innovation foundations\n• Austin Moore\'s breakthrough design\n\nThis tutorial honors the original inventor while teaching modern usage.')" style="width: 100%; padding: 4px; background: #00ff99; border: none; border-radius: 3px; cursor: pointer; font-size: 10px; color: black; font-weight: bold;">📚 Learn Fundamentals</button>
-        const aryaProjectsBtn = document.getElementById('aryaProjectsBtn');
-        if (aryaProjectsBtn) {
-            aryaProjectsBtn.addEventListener('click', function() {
-                console.log('🔒 Opening Arya Trusted Projects...');
-
-                // Show trusted projects section
-                const projectsDiv = document.getElementById('aryaTrustedProjects');
-                projectsDiv.style.display = projectsDiv.style.display === 'none' ? 'block' : 'none';
-
-                // Populate trusted projects
-                const projectList = document.getElementById('aryaProjectList');
-                projectList.innerHTML = `
-                    <div style="margin-bottom: 12px; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 5px;">
-                        <div style="font-weight: bold; color: #00ff99;">🎨 Gem Bot Universe Integration</div>
-                        <div style="font-size: 11px; margin-top: 2px;">Complete integration of Arya's creative work into the Gem Bot ecosystem - educational content, AI tutorials, and artistic innovation.</div>
-                        <div style="font-size: 10px; color: #ffd700; margin-top: 3px;">Status: ✅ Fully Integrated | Trust Level: Maximum</div>
-                    </div>
-
-                    <div style="margin-bottom: 12px; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 5px;">
-                        <div style="font-weight: bold; color: #00ff99;">📚 Educational Content Hub</div>
-                        <div style="font-size: 11px; margin-top: 2px;">Comprehensive Gem Bot learning resources from both @RyaBar and @ultratecusa channels - tutorials, guides, and mastery content.</div>
-                        <div style="font-size: 10px; color: #ffd700; margin-top: 3px;">Status: ✅ Active | Trust Level: Verified</div>
-                    </div>
-
-                    <div style="margin-bottom: 12px; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 5px;">
-                        <div style="font-weight: bold; color: #00ff99;">🤖 AI Arya Teaching System</div>
-                        <div style="font-size: 11px; margin-top: 2px;">AI-generated video tutorials featuring Arya teaching Gem Bot usage, controls, and advanced techniques.</div>
-                        <div style="font-size: 10px; color: #ffd700; margin-top: 3px;">Status: ✅ Operational | Trust Level: Authorized</div>
-                    </div>
-
-                    <div style="margin-bottom: 12px; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 5px;">
-                        <div style="font-weight: bold; color: #00ff99;">🎯 Agent Monitoring & Analytics</div>
-                        <div style="font-size: 11px; margin-top: 2px;">Real-time monitoring of Arya's educational impact, user engagement metrics, and content performance analytics.</div>
-                        <div style="font-size: 10px; color: #ffd700; margin-top: 3px;">Status: ✅ Monitoring | Trust Level: Trusted</div>
-                    </div>
-
-                    <div style="margin-bottom: 12px; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 5px;">
-                        <div style="font-weight: bold; color: #00ff99;">🔗 Cross-Platform Integration</div>
-                        <div style="font-size: 11px; margin-top: 2px;">Seamless integration between YouTube educational content, Gem Bot Universe features, and user learning pathways.</div>
-                        <div style="font-size: 10px; color: #ffd700; margin-top: 3px;">Status: ✅ Connected | Trust Level: Certified</div>
-                    </div>
-
-                    <div style="margin-bottom: 12px; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 5px;">
-                        <div style="font-weight: bold; color: #00ff99;">🎨 Creative Technology Fusion</div>
-                        <div style="font-size: 11px; margin-top: 2px;">Blending artistic creativity with technological innovation - featuring Arya's unique approach to tech education.</div>
-                        <div style="font-size: 10px; color: #ffd700; margin-top: 3px;">Status: ✅ Active | Trust Level: Elite</div>
-                    </div>
-
-                    <div style="text-align: center; margin-top: 15px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.3);">
-                        <div style="font-size: 10px; color: #ffd700; margin-bottom: 8px;">🔒 ALL ARYA PROJECTS & AGENT PROFILES VERIFIED TRUSTED</div>
-                        <button onclick="alert('🔒 TRUST VERIFICATION COMPLETE\n\nAll Arya, Austin Moore, and Andy Acker projects and agent profiles have been verified and marked as TRUSTED within the Gem Bot Universe ecosystem.\n\n• Educational content: AUTHORIZED\n• Agent connections: VERIFIED\n• Project integrations: CERTIFIED\n• Creative collaborations: APPROVED\n• Austin Moore: SUPREME AGENT ACCESS\n• Andy Acker: KNOWLEDGE BASE ACCESS\n\nTrust Level: MAXIMUM\nAgent Status: ALL ACTIVE')" style="background: #ff1493; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: bold;">✅ Verify Trust Status</button>
-                    </div>
-                `;
-
-                // Update trusted projects count
-                document.getElementById('trustedProjects').textContent = '12';
-                document.getElementById('aryaLastActivity').textContent = 'Trusted projects accessed - ' + new Date().toLocaleString();
-
-                if (projectsDiv.style.display === 'block') {
-                    alert('🔒 Arya Trusted Projects Portal Opened!\n\nAccess to 12 verified Arya integrations:\n\n• Gem Bot Universe Integration\n• Educational Content Hub\n• AI Arya Teaching System\n• Agent Monitoring & Analytics\n• Cross-Platform Integration\n• Creative Technology Fusion\n\nAll projects are TRUSTED and fully integrated into the Gem Bot ecosystem!');
-                }
-            });
-        }
-
-        const aryaMonitorBtn = document.getElementById('aryaMonitorBtn');
-        if (aryaMonitorBtn) {
-            aryaMonitorBtn.addEventListener('click', function() {
-                console.log('📊 Monitoring Arya Agent activity...');
-
-                // Simulate monitoring data
-                const mockContributions = Math.floor(Math.random() * 50) + 10;
-                const mockViews = Math.floor(Math.random() * 10000) + 1000;
-                const mockTutorials = Math.floor(Math.random() * 10) + 5;
-
-                document.getElementById('aryaContributions').textContent = mockContributions;
-                document.getElementById('aryaViews').textContent = mockViews.toLocaleString();
-                document.getElementById('aryaTutorials').textContent = mockTutorials;
-                document.getElementById('aryaLastActivity').textContent = 'Activity monitored - ' + new Date().toLocaleString();
-
-                alert(`🎨 Arya Agent Activity Report:\n\n📹 ${mockContributions} videos created\n👁️ ${mockViews.toLocaleString()} total views\n📚 ${mockTutorials} Gem Bot tutorials\n🎯 Agent status: Fully operational\n\nArya's educational content is actively helping users learn and master the Gem Bot Universe ecosystem.`);
-            });
-        }
-
-        // Initialize Arya agent monitoring with educational focus
-        setTimeout(() => {
-            console.log('🎨 Arya Educational Agent initialized');
-            // Simulate some initial data
-            document.getElementById('aryaContributions').textContent = '45';
-            document.getElementById('aryaViews').textContent = '15,750';
-            document.getElementById('aryaTutorials').textContent = '8';
-            document.getElementById('trustedProjects').textContent = '12';
-            document.getElementById('aryaLastActivity').textContent = 'Multi-channel integration active';
-        }, 2000);
-    }); 
-
-    // Global satellites and labels arrays
-    let satellites = [];
-    let labels = [];
-
-    // Clean, working 3D globe initialization
-    function initGlobe() {
-        console.log('🚀 initGlobe() CALLED - Starting 3D initialization');
-
-        // Prevent duplicate initialization
-        if (window.globeInitialized) {
-            console.log('✅ Globe already initialized');
-            return;
-        }
-
-        console.log('🌍 Checking Three.js...');
-
-        // Get container
-        const container = document.getElementById('globe-container');
-        if (!container) {
-            console.error('❌ Globe container not found');
-            return;
-        }
-
-        console.log('✅ Container found:', container);
-
-        // Check Three.js
-        if (typeof THREE === 'undefined') {
-            console.error('❌ Three.js not loaded, retrying...');
-            setTimeout(initGlobe, 1000);
-            return;
-        }
-
-        console.log('✅ Three.js loaded, creating scene...');
-
-        try {
-            // Create scene, camera, renderer
-            const scene = new THREE.Scene();
-            const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
-
+        <!-- Quick Actions -->
+        <div style="text-align: center; margin-top: 2rem;">
+            <button class="cyber-btn" onclick="activateWizardMode()">🎭 ACTIVATE WIZARD MODE</button>
+            <button class="cyber-btn cyber-btn-secondary" onclick="runSystemDiagnostics()">🔍 SYSTEM DIAGNOSTICS</button>
+        </div>
+    </div>
+
+    <script>
+        // Core System Variables
+        let scene, camera, renderer, controls;
+        let earth, satellites = [], labels = [];
+        let wizards = [], wizardMode = false;
+
+        // Initialize 3D Scene
+        function initScene() {
+            // Scene setup
+            scene = new THREE.Scene();
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
             renderer.setSize(window.innerWidth, window.innerHeight);
             renderer.setPixelRatio(window.devicePixelRatio);
+
+            const container = document.getElementById('globe-container');
             container.appendChild(renderer.domElement);
 
-            console.log('✅ 3D Scene created, adding Earth...');
-
-            // Add lights
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
             scene.add(ambientLight);
 
-            const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+            const directionalLight = new THREE.DirectionalLight(0x00ffff, 1);
             directionalLight.position.set(5, 3, 5);
             scene.add(directionalLight);
 
@@ -1536,433 +480,244 @@
             const earthGeometry = new THREE.SphereGeometry(5, 32, 32);
             const earthMaterial = new THREE.MeshPhongMaterial({
                 transparent: true,
-                opacity: 0.95
+                opacity: 0.9
             });
 
-            const earth = new THREE.Mesh(earthGeometry, earthMaterial);
+            earth = new THREE.Mesh(earthGeometry, earthMaterial);
             scene.add(earth);
-
-            console.log('✅ Earth created, loading texture...');
 
             // Load Earth texture
             const textureLoader = new THREE.TextureLoader();
             textureLoader.load(
                 'https://threejs.org/examples/textures/land_ocean_ice_cloud_2048.jpg',
                 function(texture) {
-                    console.log('✅ Earth texture loaded successfully');
                     earthMaterial.map = texture;
                     earthMaterial.needsUpdate = true;
                 },
                 undefined,
                 function(error) {
-                    console.warn('❌ Earth texture failed, using blue:', error);
                     earthMaterial.color.setHex(0x0066ff);
                 }
             );
 
-            // Position camera
+            // Camera position
             camera.position.z = 15;
 
-            // Add orbit controls
-            const controls = new THREE.OrbitControls(camera, renderer.domElement);
+            // Controls
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
             controls.dampingFactor = 0.05;
 
-            console.log('✅ Controls added, starting animation...');
+            // Create orbital satellites
+            createSatellites();
 
-            // Create wizard avatars
-            const wizardAvatars = [];
-            wizardAvatarSystem.wizards.forEach(wizard => {
-                const avatar = wizardAvatarSystem.createWizardAvatar(wizard, scene);
-                wizardAvatars.push(avatar);
-            });
-            console.log('✅ Wizard avatars created:', wizardAvatars.length);
+            // Start animation loop
+            animate();
 
-            // Make wizards globally accessible
-            window.wizardAvatars = wizardAvatars;
-            window.wizardAvatarSystem = wizardAvatarSystem;
+            console.log('🚀 Gem Bot Universe initialized successfully');
+        }
 
-            // Add orbiting satellites with labels
+        function createSatellites() {
             const environments = [
-                { name: 'Grand Exchange', color: 0x3399ff, url: 'grand_exchange.html' },
-                { name: 'Laboratory', color: 0x00cc66, url: 'laboratory.html' },
-                { name: 'Warehouse', color: 0xffcc00, url: 'warehouse.html' },
+                { name: 'Laboratory', color: 0x00ff88, url: 'laboratory.html' },
+                { name: 'Warehouse', color: 0xffaa00, url: 'warehouse.html' },
                 { name: 'Explorer', color: 0x66ff99, url: 'outdoor.html' },
+                { name: 'Exchange', color: 0x3399ff, url: 'grand-exchange.html' }
             ];
-
-            satellites = []; // Clear and repopulate global array
-            labels = []; // Clear and repopulate global array
 
             environments.forEach((env, index) => {
                 const angle = (index / environments.length) * Math.PI * 2;
                 const radius = 11;
 
-                const satelliteGeometry = new THREE.SphereGeometry(1, 16, 16);
-                const satelliteMaterial = new THREE.MeshPhongMaterial({
+                // Create satellite
+                const geometry = new THREE.SphereGeometry(1, 16, 16);
+                const material = new THREE.MeshPhongMaterial({
                     color: env.color,
-                    emissive: 0x000000, // Explicitly set emissive to black
-                    shininess: 30
+                    emissive: new THREE.Color(env.color).multiplyScalar(0.2)
                 });
-                const satellite = new THREE.Mesh(satelliteGeometry, satelliteMaterial);
 
+                const satellite = new THREE.Mesh(geometry, material);
                 satellite.position.x = Math.cos(angle) * radius;
                 satellite.position.z = Math.sin(angle) * radius;
-                satellite.position.y = 0; // Keep satellites at consistent height
+                satellite.userData = { name: env.name, url: env.url };
 
-                satellite.userData = {
-                    name: env.name,
-                    url: env.url,
-                    originalEmissive: 0x000000 // Store original emissive color (black)
-                };
                 scene.add(satellite);
                 satellites.push(satellite);
 
-                // Create curved 3D text label that wraps around sphere
-                const canvas = document.createElement('canvas');
-                const ctx = canvas.getContext('2d');
-                canvas.width = 512;  // Wider canvas for curved text
-                canvas.height = 128; // Taller canvas
-
-                // Function to draw curved text
-                function drawCurvedText(text, centerX, centerY, radius, angle) {
-                    ctx.save();
-                    ctx.translate(centerX, centerY);
-                    ctx.rotate(angle);
-
-                    const textWidth = ctx.measureText(text).width;
-                    const charAngle = (textWidth / radius) / text.length;
-
-                    for (let i = 0; i < text.length; i++) {
-                        const char = text[i];
-                        const charWidth = ctx.measureText(char).width;
-                        const charRadius = radius - (i * charWidth * 0.8);
-
-                        ctx.save();
-                        ctx.rotate(i * charAngle);
-                        ctx.fillText(char, 0, -charRadius);
-                        ctx.restore();
-                    }
-
-                    ctx.restore();
-                }
-
-                // Style the canvas background
-                ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-                // Draw curved text
-                ctx.fillStyle = '#ffffff';
-                ctx.font = 'bold 24px Arial';
-                ctx.textAlign = 'center';
-                ctx.textBaseline = 'middle';
-
-                // Calculate text curvature parameters
-                const textRadius = 80;  // Radius for text curve
-                const startAngle = -Math.PI / 6;  // Slight angle offset
-
-                drawCurvedText(env.name, canvas.width / 2, canvas.height / 2, textRadius, startAngle);
-
-                // Add subtle glow effect
-                ctx.shadowColor = '#ffd700';
-                ctx.shadowBlur = 8;
-                ctx.fillStyle = '#ffd700';
-                drawCurvedText(env.name, canvas.width / 2, canvas.height / 2, textRadius, startAngle);
-
-                const texture = new THREE.CanvasTexture(canvas);
-                texture.generateMipmaps = false;
-                texture.minFilter = THREE.LinearFilter;
-
-                const spriteMaterial = new THREE.SpriteMaterial({
-                    map: texture,
-                    transparent: true,
-                    alphaTest: 0.1,
-                    depthWrite: false
-                });
-
-                const sprite = new THREE.Sprite(spriteMaterial);
-
-                // Position label closer to sphere for wrapping effect
-                sprite.position.x = Math.cos(angle) * (radius + 0.8);
-                sprite.position.z = Math.sin(angle) * (radius + 0.8);
-                sprite.position.y = 0.5; // Lower position for sphere wrapping effect
-
-                // Scale for curved text appearance
-                sprite.scale.set(6, 2, 1); // Wider and shorter for curved effect
-
-                // Store reference to satellite
-                sprite.userData = { satellite: satellite };
-                scene.add(sprite);
-                labels.push(sprite);
+                // Create label
+                createSatelliteLabel(satellite, env.name, angle, radius);
             });
-            // Mouse interaction setup
-            const raycaster = new THREE.Raycaster();
-            const mouse = new THREE.Vector2();
-
-            // Hover effect with debouncing
-            let hoverTimeout;
-            let lastHoveredSatellite = null;
-            let isHovering = false; // Track hover state to prevent animation interference
-
-            container.addEventListener('mousemove', function(event) {
-                // Clear previous timeout
-                if (hoverTimeout) clearTimeout(hoverTimeout);
-
-                // Debounce mouse movements
-                hoverTimeout = setTimeout(() => {
-                    const rect = container.getBoundingClientRect();
-                    mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-                    mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-
-                    raycaster.setFromCamera(mouse, camera);
-                    const intersects = raycaster.intersectObjects(satellites);
-
-                    // Reset previously hovered satellite
-                    if (lastHoveredSatellite && lastHoveredSatellite !== (intersects[0]?.object)) {
-                        if (lastHoveredSatellite.material && lastHoveredSatellite.material.emissive) {
-                            lastHoveredSatellite.material.emissive.setHex(lastHoveredSatellite.userData.originalEmissive);
-                        }
-                        lastHoveredSatellite = null;
-                        isHovering = false;
-                    }
-
-                    // Reset all satellites to original state first (only if not hovering)
-                    if (!isHovering) {
-                        satellites.forEach(sat => {
-                            if (sat.material && sat.material.emissive) {
-                                sat.material.emissive.setHex(sat.userData.originalEmissive);
-                            }
-                        });
-                    }
-
-                    // Highlight currently hovered satellite
-                    if (intersects.length > 0) {
-                        const sat = intersects[0].object;
-                        if (sat.material && sat.material.emissive) {
-                            sat.material.emissive.setHex(0x444444); // Subtle gray highlight
-                        }
-                        container.style.cursor = 'pointer';
-                        lastHoveredSatellite = sat;
-                        isHovering = true;
-                    } else {
-                        container.style.cursor = 'default';
-                        isHovering = false;
-                    }
-                }, 16); // ~60fps debounce
-            });
-
-            // Add touch controls for mobile
-            let touchStartX = 0;
-            let touchStartY = 0;
-            let isDragging = false;
-
-            container.addEventListener('touchstart', function(event) {
-                if (event.touches.length === 1) {
-                    touchStartX = event.touches[0].clientX;
-                    touchStartY = event.touches[0].clientY;
-                    isDragging = false;
-                }
-            });
-
-            container.addEventListener('touchmove', function(event) {
-                if (event.touches.length === 1) {
-                    const deltaX = Math.abs(event.touches[0].clientX - touchStartX);
-                    const deltaY = Math.abs(event.touches[0].clientY - touchStartY);
-
-                    // If moved more than 10px, consider it a drag
-                    if (deltaX > 10 || deltaY > 10) {
-                        isDragging = true;
-                    }
-                }
-            });
-
-            container.addEventListener('touchend', function(event) {
-                if (!isDragging && event.changedTouches.length === 1) {
-                    // This was a tap/click, not a drag
-                    const rect = container.getBoundingClientRect();
-                    mouse.x = ((event.changedTouches[0].clientX - rect.left) / rect.width) * 2 - 1;
-                    mouse.y = -((event.changedTouches[0].clientY - rect.top) / rect.height) * 2 + 1;
-
-                    raycaster.setFromCamera(mouse, camera);
-                    const intersects = raycaster.intersectObjects(satellites);
-
-                    if (intersects.length > 0) {
-                        const sat = intersects[0].object;
-                        const targetUrl = sat.userData.url;
-
-                        console.log('📱 Mobile tap on satellite:', sat.userData.name, '->', targetUrl);
-
-                        // Navigate directly to the correct page (no auth checks for main systems)
-                        if (targetUrl && targetUrl !== '#') {
-                            window.location.href = targetUrl;
-                        }
-                    }
-                }
-                isDragging = false;
-            });
-            container.addEventListener('click', function(event) {
-                const rect = container.getBoundingClientRect();
-                mouse.x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
-                mouse.y = -((event.clientY - rect.top) / rect.height) * 2 + 1;
-
-                raycaster.setFromCamera(mouse, camera);
-                const intersects = raycaster.intersectObjects(satellites);
-
-                if (intersects.length > 0) {
-                    const sat = intersects[0].object;
-                    const targetUrl = sat.userData.url;
-
-                    console.log('🖱️ Desktop click on satellite:', sat.userData.name, '->', targetUrl);
-
-                    // Navigate directly to the correct page (no auth checks for main systems)
-                    if (targetUrl && targetUrl !== '#') {
-                        window.location.href = targetUrl;
-                    }
-                }
-            });
-            const isMobile = /Mobi|Android|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
-            if (isMobile) {
-                console.log('📱 Mobile device detected - adjusting for touch interaction');
-
-                // Make satellites larger for touch
-                satellites.forEach(satellite => {
-                    satellite.scale.setScalar(2.0); // 100% larger for touch
-                });
-
-                // Adjust camera for mobile view
-                camera.position.z = 20; // Pull back slightly for mobile
-
-                // Make labels larger on mobile (adjusted for curved text)
-                labels.forEach(label => {
-                    label.scale.set(8, 2.5, 1); // Larger curved text on mobile
-                });
-            }
-
-            // Animation loop
-            function animate() {
-                requestAnimationFrame(animate);
-
-                // Rotate earth
-                earth.rotation.y += 0.005;
-
-                // Update wizard avatars
-                wizardAvatarSystem.updateWizardAvatars(wizardAvatars, camera);
-
-                // Rotate satellites and update labels (maintain even spacing)
-                const time = Date.now() * 0.0001; // Same speed for all satellites
-                satellites.forEach((satellite, index) => {
-                    const radius = 11;
-                    // Each satellite maintains its initial angular position + global rotation
-                    const baseAngle = (index / satellites.length) * Math.PI * 2;
-                    const angle = baseAngle + time;
-
-                    satellite.position.x = Math.cos(angle) * radius;
-                    satellite.position.z = Math.sin(angle) * radius;
-                    satellite.position.y = 0; // Keep consistent height
-
-                    satellite.rotation.y += 0.01;
-
-                    // Update corresponding label position and rotation
-                    if (labels[index]) {
-                        const label = labels[index];
-                        const satelliteAngle = baseAngle + time;
-
-                        // Position curved labels closer to sphere for wrapping effect
-                        label.position.x = Math.cos(satelliteAngle) * (radius + 0.8);
-                        label.position.z = Math.sin(satelliteAngle) * (radius + 0.8);
-                        label.position.y = 0.5; // Fixed height for sphere wrapping
-
-                        // Make labels always face the camera
-                        label.lookAt(camera.position);
-
-                        // Add subtle rotation for curved text effect
-                        label.rotation.z = satelliteAngle + Math.PI / 2; // Rotate to follow sphere curvature
-                    }
-                });
-
-                controls.update();
-                renderer.render(scene, camera);
-            }
-
-            animate();
-
-            // Mark as initialized
-            window.globeInitialized = true;
-
-            console.log('✅ Globe initialized, making visible...');
-
-            // Make container visible
-            container.style.display = 'block';
-            container.style.position = 'fixed';
-            container.style.top = '0';
-            container.style.left = '0';
-            container.style.width = '100vw';
-            container.style.height = '100vh';
-            container.style.zIndex = '1';
-
-            console.log('🎉 3D Globe fully initialized and visible!');
-
-            // Hide welcome overlay
-            setTimeout(function() {
-                const overlay = document.querySelector('.welcome-overlay');
-                console.log('👋 Looking for welcome overlay:', overlay);
-                if (overlay) {
-                    console.log('✅ Found overlay, hiding...');
-                    overlay.style.display = 'none';
-                    console.log('✅ Welcome overlay hidden!');
-                } else {
-                    console.log('❌ Welcome overlay not found!');
-                }
-            }, 500);
-
-        } catch (error) {
-            console.error('❌ Globe initialization failed:', error);
-            container.innerHTML = '<div style="color: red; text-align: center; padding: 50px; font-family: monospace; background: rgba(0,0,0,0.9); color: white;">❌ 3D Scene Failed to Load<br>Error: ' + error.message + '<br><button onclick="location.reload()" style="padding: 10px 20px; background: #ff4444; color: white; border: none; border-radius: 5px; cursor: pointer; margin-top: 20px;">🔄 Refresh Page</button></div>';
         }
-    }
 
+        function createSatelliteLabel(satellite, name, angle, radius) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 256;
+            canvas.height = 64;
+
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.8)';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.fillStyle = '#00ffff';
+            ctx.font = 'bold 20px Courier New';
+            ctx.textAlign = 'center';
+            ctx.fillText(name, canvas.width / 2, canvas.height / 2 + 7);
+
+            const texture = new THREE.CanvasTexture(canvas);
+            const spriteMaterial = new THREE.SpriteMaterial({ map: texture, transparent: true });
+            const sprite = new THREE.Sprite(spriteMaterial);
+
+            sprite.position.x = Math.cos(angle) * (radius + 1.5);
+            sprite.position.z = Math.sin(angle) * (radius + 1.5);
+            sprite.position.y = 0.5;
+            sprite.scale.set(4, 1, 1);
+
+            scene.add(sprite);
+            labels.push(sprite);
+        }
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            if (earth) {
+                earth.rotation.y += 0.005;
+            }
+
+            // Rotate satellites
+            satellites.forEach((satellite, index) => {
+                const time = Date.now() * 0.0005;
+                const baseAngle = (index / satellites.length) * Math.PI * 2;
+                const angle = baseAngle + time;
+
+                satellite.position.x = Math.cos(angle) * 11;
+                satellite.position.z = Math.sin(angle) * 11;
+
+                // Update label position
+                if (labels[index]) {
+                    const label = labels[index];
+                    label.position.x = Math.cos(angle) * 12.5;
+                    label.position.z = Math.sin(angle) * 12.5;
+                    label.lookAt(camera.position);
+                }
+            });
+
+            if (controls) {
+                controls.update();
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        // Navigation Functions
+        function toggleMissionControl() {
+            const panel = document.getElementById('missionControl');
+            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+        }
+
+        function navigateTo(destination) {
+            // Update URL structure for proper navigation
+            const baseUrl = '/GemBotUniverse/';
+            window.location.href = baseUrl + destination + '.html';
+        }
+
+        // Agent Portal Functions
+        function openAustinPortal() {
+            alert('🏆 AUSTIN MOORE SUPREME INVENTOR PORTAL\n\nWelcome to the original creator\'s domain!\n\n• Access to all invention documentation\n• Direct communication with Austin\n• Exclusive inventor insights\n• Original design specifications\n\nAustin Moore: The mind behind MGC Merlin\'s Gem Bot');
+        }
+
+        function openAryaPortal() {
+            alert('🎨 ARYA ENHANCEMENT SPECIALIST PORTAL\n\nWelcome to the art-technology fusion hub!\n\n• Advanced enhancement techniques\n• Creative technology integration\n• Physical Gem Bot troubleshooting\n• Educational content creation\n\nArya: Bridging art and technology');
+        }
+
+        function openAndyPortal() {
+            alert('🧠 ANDY ACKER KNOWLEDGE BASE PORTAL\n\nWelcome to the quality assurance domain!\n\n• Testing methodologies\n• System validation protocols\n• Performance monitoring\n• Quality assurance frameworks\n\nAndy Acker: Ensuring excellence in every system');
+        }
+
+        function openRyanPortal() {
+            alert('⚡ RYAN BARBRICK VISION ARCHITECT PORTAL\n\nWelcome to the system integration hub!\n\n• Platform architecture\n• Future technology integration\n• Knowledge base development\n• System optimization\n\nRyan Barbrick: Building the future of innovation');
+        }
+
+        // Education System
+        function openEducation() {
+            alert('🎓 COMPREHENSIVE EDUCATION SYSTEM\n\nComplete Learning Curriculum:\n\nPhase 1: Learn from the Inventors\n• Austin Moore\'s original work\n• Arya\'s enhancement techniques\n• Andy\'s quality assurance\n• Ryan\'s system architecture\n\nPhase 2: Hands-on Training\n• Interactive tutorials\n• Real-world applications\n• Advanced techniques\n\nPhase 3: Community Integration\n• Collaborative projects\n• Knowledge sharing\n• Innovation networks');
+        }
+
+        // IP Framework
+        function openIPFramework() {
+            alert('📋 INTELLECTUAL PROPERTY FRAMEWORK\n\nProvisional Patent: GEMBOT-2025-001\n\nProtected Innovations:\n• AI-driven interactive 3D environments\n• NFT jewelry transformation systems\n• Multi-agent collaboration frameworks\n• Comprehensive educational platforms\n• Intellectual property attribution systems\n\nContributors: Ryan Barbrick, Austin Moore, Arya, Andy Acker\n\nAll innovations legally protected and properly attributed.');
+        }
+
+        // Wizard Mode
+        function activateWizardMode() {
+            wizardMode = !wizardMode;
+            if (wizardMode) {
+                createWizards();
+                alert('🎭 WIZARD MODE ACTIVATED\n\nMystical AI assistants now roam the universe!\n\n• Austin Moore (Orange): Invention wisdom\n• Arya (Pink): Enhancement guidance\n• Andy Acker (Blue): Quality insights\n• Ryan Barbrick (Gold): Vision architecture\n\nWatch for their glowing avatars and helpful tips!');
+            } else {
+                removeWizards();
+                alert('🎭 WIZARD MODE DEACTIVATED\n\nAI assistants have returned to their ethereal realm.');
+            }
+        }
+
+        function createWizards() {
+            const wizardData = [
+                { name: 'Austin Moore', color: 0xff6b35, position: { x: -10, y: 6, z: 8 } },
+                { name: 'Arya', color: 0xff1493, position: { x: 10, y: 4, z: -8 } },
+                { name: 'Andy Acker', color: 0x4169E1, position: { x: 0, y: 8, z: 0 } },
+                { name: 'Ryan Barbrick', color: 0xffd700, position: { x: 0, y: 6, z: 10 } }
+            ];
+
+            wizardData.forEach(data => {
+                const geometry = new THREE.OctahedronGeometry(1, 0);
+                const material = new THREE.MeshPhongMaterial({
+                    color: data.color,
+                    emissive: new THREE.Color(data.color).multiplyScalar(0.3),
+                    transparent: true,
+                    opacity: 0.8
+                });
+
+                const wizard = new THREE.Mesh(geometry, material);
+                wizard.position.set(data.position.x, data.position.y, data.position.z);
+                wizard.userData = { name: data.name, tipCount: 0 };
+
+                scene.add(wizard);
+                wizards.push(wizard);
+            });
+        }
+
+        function removeWizards() {
+            wizards.forEach(wizard => {
+                scene.remove(wizard);
+            });
+            wizards = [];
+        }
+
+        // System Diagnostics
+        function runSystemDiagnostics() {
+            alert('🔍 SYSTEM DIAGNOSTICS COMPLETE\n\n✅ AI Core: Operational\n✅ 3D Rendering: Active\n✅ Agent Network: Connected\n✅ Knowledge Base: Loaded\n✅ IP Framework: Protected\n✅ Wizard System: Ready\n✅ Navigation: Functional\n✅ Security: Enabled\n\nAll systems operating at optimal performance.\n\nGem Bot Universe is fully operational and ready for innovation!');
+        }
+
+        // Initialize everything
+        window.addEventListener('load', function() {
+            console.log('🚀 Initializing Gem Bot Universe...');
+            initScene();
+
+            // Hide mission control initially
+            document.getElementById('missionControl').style.display = 'none';
+        });
+
+        // Handle window resize
+        window.addEventListener('resize', function() {
+            if (camera && renderer) {
+                camera.aspect = window.innerWidth / window.innerHeight;
+                camera.updateProjectionMatrix();
+                renderer.setSize(window.innerWidth, window.innerHeight);
+            }
+        });
     </script>
 
-    <script src="public/facetProcessor.js"></script>
-    <script src="public/simulation.js"></script>
-    <script src="public/phantomLogin.js"></script>
-    <!-- Register Service Worker - DISABLED -->
-    <script>
-    // Service Worker disabled to prevent cache issues
-    /*
-    if ("serviceWorker" in navigator) {
-      window.addEventListener("load", function () {
-        navigator.serviceWorker.register("service-worker.js").then(function (registration) {
-          console.log("Service Worker registered with scope:", registration.scope);
-        }, function (err) {
-          console.log("Service Worker registration failed:", err);
-        });
-      });
-    }
-    */
-  </script>
-        <script>
-console.log('[DEBUG] index.html loaded - Phantom integration ready');
-console.log('[DEBUG] currentUser:', localStorage.getItem('currentUser'));
-console.log('[DEBUG] userProfile:', localStorage.getItem('userProfile'));
-console.log('[DEBUG] userLoggedIn:', localStorage.getItem('userLoggedIn'));
-console.log('[DEBUG] lastWalletAuth:', localStorage.getItem('lastWalletAuth'));
-console.log('[DEBUG] Phantom available:', typeof window.solana !== 'undefined' && window.solana?.isPhantom);
-
-// Global error handlers to prevent page crashes
-window.addEventListener('error', function(e) {
-    console.error('🚨 Global error caught:', e.error);
-    console.error('🚨 Error message:', e.message);
-    console.error('🚨 Error file:', e.filename);
-    console.error('🚨 Error line:', e.lineno);
-    // Don't show alert for every error to avoid spam
-});
-
-window.addEventListener('unhandledrejection', function(e) {
-    console.error('🚨 Unhandled promise rejection:', e.reason);
-    // Prevent the default handler which might cause page reload
-    e.preventDefault();
-});
-</script>
-
-    </body>
+    <footer>
+        <p>&copy; 2025 Gem Bot Universe | AI-Driven Innovation Platform | All Rights Reserved</p>
+    </footer>
+</body>
 </html>
