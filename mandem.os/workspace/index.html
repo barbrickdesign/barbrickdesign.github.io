@@ -1558,17 +1558,19 @@
             status += 'SORA EMBODIMENTS:\n';
             Object.keys(activeEmbodiments).forEach(agent => {
                 const statusIcon = activeEmbodiments[agent] ? '🟢 ACTIVE' : '🔴 INACTIVE';
-                status += `${agent.charAt(0).toUpperCase() + agent.slice(1)}: ${statusIcon}\n`;
+                const custom = agentCustomizations[agent];
+                status += `${agent.charAt(0).toUpperCase() + agent.slice(1)}: ${statusIcon} | Lv.${custom.level} (${custom.xp} XP)\n`;
             });
 
             status += '\n3D WIZARDS:\n';
             status += `Wizard Mode: ${wizardMode ? '🟢 ACTIVE' : '🔴 INACTIVE'}\n`;
             status += `Active Wizards: ${wizards.filter(w => w.visible).length}/4\n`;
 
-            status += '\nCUSTOMIZATIONS:\n';
+            status += '\nACHIEVEMENTS:\n';
             Object.keys(agentCustomizations).forEach(agent => {
                 const custom = agentCustomizations[agent];
-                status += `${agent}: ${custom.costume} (${custom.color})\n`;
+                const achievementCount = custom.achievements.length;
+                status += `${agent}: ${achievementCount} unlocked\n`;
             });
 
             statusDiv.textContent = status;
