@@ -663,7 +663,7 @@
                 <p>Grand Wizard Realm Control</p>
             </div>
 
-            <div class="nav-card" onclick="openEducation()">
+            <div class="nav-card" onclick="navigateTo('education')">
                 <h3>🎓 EDUCATION</h3>
                 <p>Comprehensive Training Programs</p>
             </div>
@@ -1197,10 +1197,12 @@
 
         function createSatellites() {
             const environments = [
-                { name: 'Laboratory', color: 0x00ff88, url: 'laboratory.html' },
-                { name: 'Warehouse', color: 0xffaa00, url: 'warehouse.html' },
-                { name: 'Explorer', color: 0x66ff99, url: 'outdoor.html' },
-                { name: 'Exchange', color: 0x3399ff, url: 'grand-exchange.html' }
+                { name: '🏭 LABORATORY', color: 0x00ff88, url: 'laboratory' },
+                { name: '🏗️ WAREHOUSE', color: 0xffaa00, url: 'warehouse' },
+                { name: '🗺️ EXPLORER', color: 0x66ff99, url: 'explorer' },
+                { name: '⚔️ GRAND EXCHANGE', color: 0x3399ff, url: 'grand-exchange' },
+                { name: '🧙‍♂️ AGENT HUB', color: 0xff1493, url: 'agent-hub' },
+                { name: '🎓 EDUCATION', color: 0xffd700, url: 'education' }
             ];
 
             environments.forEach((env, index) => {
@@ -1342,10 +1344,21 @@
                 return;
             }
 
+            if (destination === 'education') {
+                // Special handling for education - show modal with training programs
+                openEducation();
+                return;
+            }
+
             // Handle different project locations
             const urlMappings = {
-                'ember-terminal': '../ember-terminal/app.html',
+                'laboratory': '../laboratory.html',
+                'warehouse': '../warehouse.html',
+                'explorer': '../explorer.html',
                 'grand-exchange': '../grand-exchange.html',
+                'agent-hub': 'https://barbrickdesign.github.io/mandem.os/agent-hub.html',
+                'education': 'education', // Special case - handled below
+                'ember-terminal': '../ember-terminal/app.html',
                 'crypto-recovery-universal': '../crypto-recovery-universal.html',
                 'classified-contracts': '../classified-contracts.html',
                 'gembot-control-3d': '../gembot-control-3d.html',
