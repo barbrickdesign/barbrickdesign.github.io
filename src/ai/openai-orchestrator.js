@@ -210,13 +210,28 @@ class OpenAIOrchestrator {
 
         const response = await this.makeRequest(payload);
         // Convert new response format back to old format for compatibility
-        return {
+        const result = {
             choices: [{
                 message: {
                     content: response.output?.[0]?.text || 'No response generated'
                 }
             }]
         };
+
+        // Auto-save to content library
+        if (window.contentSharingManager && result.choices[0].message.content && result.choices[0].message.content !== 'No response generated') {
+            const userMessage = messages.find(m => m.role === 'user')?.content || '';
+            window.contentSharingManager.addContent('text', {
+                prompt: userMessage,
+                response: result.choices[0].message.content,
+                model,
+                tags: ['ai-response', 'chat', model],
+                project: 'gem-bot-universe',
+                category: 'ai-assistance'
+            }, 'openai-orchestrator');
+        }
+
+        return result;
     }
 
     /**
