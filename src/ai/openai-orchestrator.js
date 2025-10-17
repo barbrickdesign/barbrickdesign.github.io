@@ -71,13 +71,14 @@ class OpenAIOrchestrator {
      * @param {object} payload - Request payload
      * @returns {Promise} - API response or mock
      */
-    async makeRequest(endpoint, payload) {
+    async makeRequest(payload) {
         if (!this.apiKey) {
             console.warn('⚠️ No API key provided - using mock response for testing');
-            return this.getMockResponse(endpoint, payload);
+            return this.getMockResponse(payload);
         }
 
-        const response = await fetch(`${this.baseURL}${endpoint}`, {
+        // Use unified /responses endpoint for all requests
+        const response = await fetch(`${this.baseURL}/responses`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
