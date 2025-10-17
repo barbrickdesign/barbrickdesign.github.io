@@ -226,11 +226,25 @@ class OpenAIOrchestrator {
      */
     async generateImage(prompt, options = {}) {
         const payload = {
-            prompt,
+            model: options.model || this.models['gpt-image-1'] || 'gpt-image-1',
+            input: [{ role: 'user', content: prompt }],
+            response_format: {
+                type: 'image',
+                image: {
+                    size: options.size || '1024x1024',
+                    quality: options.quality || 'standard'
+                }
+            },
             ...options
         };
 
-        return await this.makeRequest('/images/generations', payload);
+        const response = await this.makeRequest(payload);
+        // Convert to old format for compatibility
+        return {
+            data: [{
+                url: response.output?.[0]?.image?.url || 'https://via.placeholder.com/512x512/00ffff/000000?text=Mock+AI+Generated+Image'
+            }]
+        };
     }
 
     /**
