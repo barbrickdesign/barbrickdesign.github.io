@@ -847,6 +847,8 @@
         </div>
 
     <script>
+        // Declare 3D scene variables globally
+        let scene, camera, renderer, controls;
         let earth, satellites = [], labels = [];
         let wizards = [], wizardMode = false;
 
@@ -1083,15 +1085,81 @@
                 closeup: { position: new THREE.Vector3(0, 8, 15), target: new THREE.Vector3(0, 0, 0) },
                 dramatic: { position: new THREE.Vector3(20, 15, 20), target: new THREE.Vector3(0, 0, 0) }
             };
+
+            // Add mouse click handling for satellite navigation
+            setupMouseClickHandling();
+        }
+
+        // MOUSE CLICK HANDLING FOR SATELLITE NAVIGATION
+        function setupMouseClickHandling() {
+            const raycaster = new THREE.Raycaster();
+            const mouse = new THREE.Vector2();
+            let hoveredObject = null;
+
+            function onMouseMove(event) {
+                // Calculate mouse position in normalized device coordinates
+                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+                // Update the raycaster
+                raycaster.setFromCamera(mouse, camera);
+
+                // Calculate objects intersecting the ray
+                const intersects = raycaster.intersectObjects(satellites);
+
+                // Reset previous hover effect
+                if (hoveredObject && hoveredObject !== intersects[0]?.object) {
+                    hoveredObject.scale.setScalar(1);
+                    hoveredObject.material.emissive.setHex(hoveredObject.userData.originalEmissive);
+                    hoveredObject = null;
+                }
+
+                // Apply hover effect to new object
+                if (intersects.length > 0) {
+                    const intersectedObject = intersects[0].object;
+                    if (intersectedObject.userData.clickable && !hoveredObject) {
+                        hoveredObject = intersectedObject;
+                        hoveredObject.userData.originalEmissive = hoveredObject.material.emissive.getHex();
+                        hoveredObject.scale.setScalar(1.2);
+                        hoveredObject.material.emissive.setHex(0xffffff);
+                        renderer.domElement.style.cursor = 'pointer';
+                    }
+                } else {
+                    renderer.domElement.style.cursor = 'default';
+                }
+            }
+
+            function onMouseClick(event) {
+                // Calculate mouse position in normalized device coordinates
+                mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+                mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+
+                // Update the raycaster
+                raycaster.setFromCamera(mouse, camera);
+
+                // Calculate objects intersecting the ray
+                const intersects = raycaster.intersectObjects(satellites);
+
+                if (intersects.length > 0) {
+                    const clickedObject = intersects[0].object;
+                    if (clickedObject.userData.clickable && clickedObject.onClick) {
+                        clickedObject.onClick();
+                    }
+                }
+            }
+
+            // Add event listeners
+            renderer.domElement.addEventListener('mousemove', onMouseMove);
+            renderer.domElement.addEventListener('click', onMouseClick);
         }
 
         // TRON-STYLE SATELLITES
         function createTronSatellites() {
             const environments = [
-                { name: 'Laboratory', color: 0x00ff88, icon: '🏭' },
-                { name: 'Warehouse', color: 0xffaa00, icon: '🏗️' },
-                { name: 'Explorer', color: 0x66ff99, icon: '🗺️' },
-                { name: 'Exchange', color: 0x3399ff, icon: '⚔️' }
+                { name: 'Laboratory', color: 0x00ff88, icon: '🏭', url: 'laboratory' },
+                { name: 'Warehouse', color: 0xffaa00, icon: '🏗️', url: 'warehouse' },
+                { name: 'Explorer', color: 0x66ff99, icon: '🗺️', url: 'outdoor' },
+                { name: 'Exchange', color: 0x3399ff, icon: '⚔️', url: 'grand-exchange' }
             ];
 
             environments.forEach((env, index) => {
@@ -1112,7 +1180,7 @@
                 satellite.position.x = Math.cos(angle) * radius;
                 satellite.position.z = Math.sin(angle) * radius;
                 satellite.position.y = Math.sin(Date.now() * 0.001 + angle) * 2; // Floating motion
-                satellite.userData = { name: env.name, color: env.color, angle, radius };
+                satellite.userData = { name: env.name, color: env.color, url: env.url, angle, radius, clickable: true };
 
                 // Add glowing ring
                 const ringGeometry = new THREE.RingGeometry(2, 2.2, 16);
@@ -1125,6 +1193,10 @@
                 const ring = new THREE.Mesh(ringGeometry, ringMaterial);
                 ring.rotation.x = Math.PI / 2;
                 satellite.add(ring);
+
+                // Make clickable
+                satellite.cursor = 'pointer';
+                satellite.onClick = () => navigateTo(env.url);
 
                 scene.add(satellite);
                 satellites.push(satellite);
