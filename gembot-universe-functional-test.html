@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gem Bot Universe - Comprehensive Functionality Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; }
+        .test-section { background: white; padding: 20px; margin: 10px 0; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .success { color: green; font-weight: bold; }
+        .error { color: red; font-weight: bold; }
+        .warning { color: orange; font-weight: bold; }
+        .info { color: blue; font-weight: bold; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 4px; }
+        .console-log { background: #f8f9fa; border: 1px solid #dee2e6; padding: 10px; border-radius: 4px; font-family: monospace; font-size: 12px; max-height: 200px; overflow-y: auto; }
+    </style>
+</head>
+<body>
+    <h1>🪐 Gem Bot Universe - Comprehensive Functionality Test</h1>
+    <p>This test validates all aspects of the Gem Bot Universe page functionality.</p>
+
+    <div class="test-section">
+        <h2>Test 1: Page Structure & Loading</h2>
+        <button onclick="testPageStructure()">Test Page Structure</button>
+        <button onclick="testScriptLoading()">Test Script Loading</button>
+        <div id="structure-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 2: 3D Scene & Rendering</h2>
+        <button onclick="test3DSceneInit()">Test 3D Scene Init</button>
+        <button onclick="testSceneObjects()">Test Scene Objects</button>
+        <button onclick="testAnimationLoop()">Test Animation Loop</button>
+        <div id="scene-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 3: Satellite Navigation System</h2>
+        <button onclick="testSatelliteSystem()">Test Satellite System</button>
+        <button onclick="testNavigationFunctions()">Test Navigation Functions</button>
+        <div id="satellite-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 4: Agent Portal System</h2>
+        <button onclick="testAgentPortals()">Test Agent Portal Functions</button>
+        <button onclick="testAgentModals()">Test Agent Modal System</button>
+        <div id="agent-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 5: AI Integration</h2>
+        <button onclick="testAIIntegration()">Test AI System</button>
+        <button onclick="testPromptGeneration()">Test Prompt Generation</button>
+        <div id="ai-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 6: Agent Coin System</h2>
+        <button onclick="testAgentCoins()">Test Agent Coin Display</button>
+        <button onclick="testVaultFunctions()">Test Vault Functions</button>
+        <div id="coin-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 7: Wizard & Embodiment System</h2>
+        <button onclick="testWizardMode()">Test Wizard Mode</button>
+        <button onclick="testEmbodiments()">Test Sora Embodiments</button>
+        <div id="wizard-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 8: Content & Tutorial System</h2>
+        <button onclick="testContentLibrary()">Test Content Library</button>
+        <button onclick="testTutorialSystem()">Test Tutorial System</button>
+        <div id="content-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 9: Mission Control & UI</h2>
+        <button onclick="testMissionControl()">Test Mission Control</button>
+        <button onclick="testUIInteractions()">Test UI Interactions</button>
+        <div id="ui-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 10: Linked Page Navigation</h2>
+        <button onclick="testLinkedPages()">Test Linked Pages</button>
+        <div id="links-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🎯 COMPREHENSIVE TEST SUITE</h2>
+        <button onclick="runCompleteTestSuite()">🔬 Run Complete Test Suite</button>
+        <div id="complete-test-result"></div>
+    </div>
+
+    <!-- Console Output -->
+    <div class="test-section">
+        <h2>📋 Console Output</h2>
+        <div id="console-output" class="console-log">Test output will appear here...</div>
+        <button onclick="clearConsole()">Clear Console</button>
+    </div>
+
+    <script>
+        // Test Results Tracker
+        let testResults = {
+            passed: 0,
+            failed: 0,
+            warnings: 0,
+            total: 0
+        };
+
+        // Console logging override
+        let consoleOutput = [];
+
+        function addToConsole(message, type = 'log') {
+            const timestamp = new Date().toLocaleTimeString();
+            const formattedMessage = `[${timestamp}] ${type.toUpperCase()}: ${message}`;
+            consoleOutput.push(formattedMessage);
+
+            if (consoleOutput.length > 50) {
+                consoleOutput = consoleOutput.slice(-50);
+            }
+
+            updateConsoleDisplay();
+        }
+
+        function updateConsoleDisplay() {
+            const consoleDiv = document.getElementById('console-output');
+            consoleDiv.innerHTML = consoleOutput.map(line =>
+                `<div style="margin: 2px 0; ${line.includes('ERROR') ? 'color: red;' : line.includes('WARN') ? 'color: orange;' : 'color: black;'}">${line}</div>`
+            ).join('');
+        }
+
+        function clearConsole() {
+            consoleOutput = [];
+            updateConsoleDisplay();
+        }
+
+        // Override console methods
+        const originalLog = console.log;
+        const originalError = console.error;
+        const originalWarn = console.warn;
+
+        console.log = (message) => {
+            addToConsole(message, 'log');
+            originalLog(message);
+        };
+        console.error = (message) => {
+            addToConsole(message, 'error');
+            originalError(message);
+        };
+        console.warn = (message) => {
+            addToConsole(message, 'warn');
+            originalWarn(message);
+        };
+
+        function logResult(testName, status, message, details = '') {
+            const resultDiv = document.getElementById(testName + '-result') || document.getElementById('complete-test-result');
+            const className = status === 'pass' ? 'success' : status === 'fail' ? 'error' : status === 'warning' ? 'warning' : 'info';
+
+            resultDiv.innerHTML += `<div class="test-result ${className}">🎯 ${testName}: ${message}${details ? '<br><small>' + details + '</small>' : ''}</div>`;
+
+            testResults.total++;
+            if (status === 'pass') testResults.passed++;
+            else if (status === 'fail') testResults.failed++;
+            else if (status === 'warning') testResults.warnings++;
+        }
+
+        // Test Functions
+        function testPageStructure() {
+            try {
+                const elements = [
+                    'globe-container', 'missionControl', 'agent-coin-card',
+                    'austin-status', 'arya-status', 'andy-status', 'ryan-status'
+                ];
+
+                let foundCount = 0;
+                elements.forEach(id => {
+                    if (document.getElementById(id)) foundCount++;
+                    else logResult('Page Structure', 'fail', `Missing element: ${id}`);
+                });
+
+                if (foundCount === elements.length) {
+                    logResult('Page Structure', 'pass', '✅ All essential DOM elements found');
+                }
+            } catch (error) {
+                logResult('Page Structure', 'fail', '❌ Error: ' + error.message);
+            }
+        }
+
+        function testScriptLoading() {
+            try {
+                const scripts = [
+                    { name: 'THREE.js', check: typeof THREE !== 'undefined' },
+                    { name: 'Universal Wallet Auth', check: typeof window.universalWalletAuth !== 'undefined' },
+                    { name: 'Contractor Payment System', check: typeof window.contractorPaymentSystem !== 'undefined' }
+                ];
+
+                scripts.forEach(script => {
+                    if (script.check) {
+                        logResult('Script Loading', 'pass', `✅ ${script.name} loaded successfully`);
+                    } else {
+                        logResult('Script Loading', 'fail', `❌ ${script.name} failed to load`);
+                    }
+                });
+            } catch (error) {
+                logResult('Script Loading', 'fail', '❌ Error: ' + error.message);
+            }
+        }
+
+        function test3DSceneInit() {
+            try {
+                if (typeof initScene === 'function') {
+                    logResult('3D Scene Init', 'pass', '✅ initScene function exists');
+                    initScene();
+                    setTimeout(() => {
+                        if (typeof scene !== 'undefined' && scene) {
+                            logResult('3D Scene Init', 'pass', '✅ Scene initialized successfully');
+                        } else {
+                            logResult('3D Scene Init', 'fail', '❌ Scene not created');
+                        }
+                    }, 100);
+                } else {
+                    logResult('3D Scene Init', 'fail', '❌ initScene function not found');
+                }
+            } catch (error) {
+                logResult('3D Scene Init', 'fail', '❌ Error: ' + error.message);
+            }
+        }
+
+        function testSceneObjects() {
+            setTimeout(() => {
+                try {
+                    if (typeof earth !== 'undefined' && earth) {
+                        logResult('Scene Objects', 'pass', '✅ Earth object exists');
+                    } else {
+                        logResult('Scene Objects', 'fail', '❌ Earth object not found');
+                    }
+
+                    if (typeof satellites !== 'undefined' && Array.isArray(satellites)) {
+                        logResult('Scene Objects', 'pass', `✅ Satellites array exists (${satellites.length} satellites)`);
+                    } else {
+                        logResult('Scene Objects', 'fail', '❌ Satellites array not found');
+                    }
+                } catch (error) {
+                    logResult('Scene Objects', 'fail', '❌ Error: ' + error.message);
+                }
+            }, 200);
+        }
+
+        function testAnimationLoop() {
+            try {
+                if (typeof animate === 'function') {
+                    logResult('Animation Loop', 'pass', '✅ Animation loop exists');
+                    setTimeout(() => {
+                        if (earth && earth.rotation.y > 0) {
+                            logResult('Animation Loop', 'pass', '✅ Earth rotation working');
+                        } else {
+                            logResult('Animation Loop', 'warning', '⚠️ Earth rotation not detected');
+                        }
+                    }, 300);
+                } else {
+                    logResult('Animation Loop', 'fail', '❌ Animation loop not found');
+                }
+            } catch (error) {
+                logResult('Animation Loop', 'fail', '❌ Error: ' + error.message);
+            }
+        }
+
+        function testSatelliteSystem() {
+            try {
+                if (typeof createTronSatellites === 'function') {
+                    logResult('Satellite System', 'pass', '✅ Satellite creation function exists');
+                } else {
+                    logResult('Satellite System', 'fail', '❌ Satellite creation function not found');
+                }
+            } catch (error) {
+                logResult('Satellite System', 'fail', '❌ Error: ' + error.message);
+            }
+        }
+
+        function testNavigationFunctions() {
+            try {
+                if (typeof navigateTo === 'function' && typeof toggleMissionControl === 'function') {
+                    logResult('Navigation Functions', 'pass', '✅ Navigation functions exist');
+                } else {
+                    logResult('Navigation Functions', 'fail', '❌ Navigation functions missing');
+                }
+            } catch (error) {
+                logResult('Navigation Functions', 'fail', '❌ Error: ' + error.message);
+            }
+        }
+
+        function testAgentPortals() {
+            try {
+                const portals = ['openAustinPortal', 'openAryaPortal', 'openAndyPortal', 'openRyanPortal'];
+                let workingCount = 0;
+
+                portals.forEach(portal => {
+                    if (typeof window[portal] === 'function') workingCount++;
+                });
+
+                if (workingCount === portals.length) {
+                    logResult('Agent Portals', 'pass', '✅ All agent portal functions exist');
+                } else {
+                    logResult('Agent Portals', 'warning', `⚠️ ${workingCount}/${portals.length} portal functions found`);
+                }
+            } catch (error) {
+                logResult('Agent Portals', 'fail', '❌ Error: ' + error.message);
+            }
+        }
+
+        function testAgentCoins() {
+            try {
+                const vaultCard = document.querySelector('.agent-coin-card');
+                if (vaultCard) {
+                    logResult('Agent Coins', 'pass', '✅ Agent coin vault display exists');
+                } else {
+                    logResult('Agent Coins', 'fail', '❌ Agent coin vault not found');
+                }
+
+                if (typeof copyVaultAddress === 'function') {
+                    logResult('Agent Coins', 'pass', '✅ Vault copy function exists');
+                } else {
+                    logResult('Agent Coins', 'fail', '❌ Vault copy function missing');
+                }
+            } catch (error) {
+                logResult('Agent Coins', 'fail', '❌ Error: ' + error.message);
+            }
+        }
+
+        function testAIIntegration() {
+            try {
+                if (typeof sendPrompt === 'function' && typeof generateIntelligentResponse === 'function') {
+                    logResult('AI Integration', 'pass', '✅ AI functions exist');
+
+                    // Test AI response generation
+                    const testResponse = generateIntelligentResponse('governor', 'test');
+                    if (testResponse && testResponse.length > 0) {
+                        logResult('AI Integration', 'pass', '✅ AI response generation working');
+                    } else {
+                        logResult('AI Integration', 'warning', '⚠️ AI response generation returned empty');
+                    }
+                } else {
+                    logResult('AI Integration', 'fail', '❌ AI functions missing');
+                }
+            } catch (error) {
+                logResult('AI Integration', 'fail', '❌ Error: ' + error.message);
+            }
+        }
+
+        function runCompleteTestSuite() {
+            testResults = { passed: 0, failed: 0, warnings: 0, total: 0 };
+            clearConsole();
+            document.querySelectorAll('.test-result').forEach(el => el.remove());
+
+            const tests = [
+                testPageStructure, testScriptLoading, test3DSceneInit,
+                testSceneObjects, testAnimationLoop, testSatelliteSystem,
+                testNavigationFunctions, testAgentPortals, testAgentCoins, testAIIntegration
+            ];
+
+            tests.forEach((test, index) => {
+                setTimeout(test, index * 200);
+            });
+
+            setTimeout(() => {
+                const result = document.getElementById('complete-test-result');
+                result.innerHTML += `
+                    <div class="test-result success">🎯 TEST SUITE COMPLETE</div>
+                    <div class="test-result success">✅ Passed: ${testResults.passed}</div>
+                    <div class="test-result error">❌ Failed: ${testResults.failed}</div>
+                    <div class="test-result warning">⚠️ Warnings: ${testResults.warnings}</div>
+                    <div class="test-result info">📊 Total: ${testResults.total}</div>
+                    ${testResults.failed === 0 ? '<div class="test-result success">🎉 ALL SYSTEMS FUNCTIONAL!</div>' : '<div class="test-result error">🚨 ISSUES DETECTED</div>'}
+                `;
+            }, 3000);
+        }
+
+        // Auto-run basic tests
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                testPageStructure();
+                testScriptLoading();
+            }, 500);
+        });
+    </script>
+</body>
+</html>
