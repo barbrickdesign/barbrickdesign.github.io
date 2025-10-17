@@ -665,51 +665,94 @@
 
         // Initialize 3D Scene - TRON CINEMA LEVEL
         function initScene() {
-            // Scene setup with cinematic atmosphere
-            scene = new THREE.Scene();
-            scene.fog = new THREE.Fog(0x000000, 50, 200); // Atmospheric fog
+            try {
+                // Check for WebGL support
+                if (!window.WebGLRenderingContext) {
+                    throw new Error('WebGL not supported by this browser');
+                }
 
-            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            renderer = new THREE.WebGLRenderer({
-                antialias: true,
-                alpha: true,
-                powerPreference: "high-performance"
-            });
-            renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Performance optimization
-            renderer.shadowMap.enabled = true;
-            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-            renderer.toneMapping = THREE.ACESFilmicToneMapping;
-            renderer.toneMappingExposure = 1.2;
+                // Check if container exists
+                const container = document.getElementById('globe-container');
+                if (!container) {
+                    throw new Error('Globe container not found in DOM');
+                }
 
+                console.log('🎬 Initializing TRON CINEMA LEVEL...');
+
+                // Scene setup with cinematic atmosphere
+                scene = new THREE.Scene();
+                scene.fog = new THREE.Fog(0x000000, 50, 200); // Atmospheric fog
+
+                camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+                renderer = new THREE.WebGLRenderer({
+                    antialias: true,
+                    alpha: true,
+                    powerPreference: "high-performance"
+                });
+
+                // Check if renderer was created successfully
+                if (!renderer) {
+                    throw new Error('Failed to create WebGL renderer');
+                }
+
+                renderer.setSize(window.innerWidth, window.innerHeight);
+                renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Performance optimization
+                renderer.shadowMap.enabled = true;
+                renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+                renderer.toneMapping = THREE.ACESFilmicToneMapping;
+                renderer.toneMappingExposure = 1.2;
+
+                container.appendChild(renderer.domElement);
+
+                // Cinematic lighting setup
+                setupTronLighting();
+
+                // Create the iconic TRON grid floor
+                createTronGrid();
+
+                // Create Earth with enhanced materials
+                createEnhancedEarth();
+
+                // Camera position with cinematic framing
+                camera.position.set(0, 15, 25);
+
+                // Advanced controls with cinematic presets
+                setupCinematicControls();
+
+                // Create orbital satellites with TRON aesthetics
+                createTronSatellites();
+
+                // Initialize particle systems
+                initParticleSystems();
+
+                // Start cinematic animation loop
+                animate();
+
+                console.log('🎬 TRON CINEMA LEVEL: Gem Bot Universe initialized with Disney-level visuals!');
+
+            } catch (error) {
+                console.error('❌ 3D Scene initialization failed:', error);
+                showGlobeFallback(error.message);
+            }
+        }
+
+        // Fallback display when WebGL is not available
+        function showGlobeFallback(errorMessage) {
             const container = document.getElementById('globe-container');
-            container.appendChild(renderer.domElement);
-
-            // Cinematic lighting setup
-            setupTronLighting();
-
-            // Create the iconic TRON grid floor
-            createTronGrid();
-
-            // Create Earth with enhanced materials
-            createEnhancedEarth();
-
-            // Camera position with cinematic framing
-            camera.position.set(0, 15, 25);
-
-            // Advanced controls with cinematic presets
-            setupCinematicControls();
-
-            // Create orbital satellites with TRON aesthetics
-            createTronSatellites();
-
-            // Initialize particle systems
-            initParticleSystems();
-
-            // Start cinematic animation loop
-            animate();
-
-            console.log('🎬 TRON CINEMA LEVEL: Gem Bot Universe initialized with Disney-level visuals!');
+            if (container) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 50px; color: var(--neon-blue); background: rgba(0,0,0,0.5); border-radius: 15px; border: 2px solid var(--neon-blue);">
+                        <div style="font-size: 4rem; margin-bottom: 20px;">🌍</div>
+                        <h3 style="color: var(--neon-orange); margin-bottom: 15px;">3D Globe Unavailable</h3>
+                        <p style="margin-bottom: 15px; line-height: 1.6;">${errorMessage || 'WebGL not supported in this browser'}</p>
+                        <p style="color: var(--neon-green); font-style: italic;">All other systems remain fully operational</p>
+                        <div style="margin-top: 20px; font-size: 0.9em; color: var(--neon-blue);">
+                            💡 Try updating your browser or enabling hardware acceleration
+                        </div>
+                    </div>
+                `;
+                console.log('🌍 Globe fallback displayed - continuing with other features');
+            }
         }
 
         // TRON CINEMA LIGHTING
