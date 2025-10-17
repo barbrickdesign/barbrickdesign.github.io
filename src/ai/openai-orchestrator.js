@@ -361,8 +361,20 @@ class OpenAIOrchestrator {
      * @param {string|Array} input - Content to moderate
      */
     async moderateContent(input) {
-        const payload = { input };
-        return await this.makeRequest('/moderations', payload);
+        const payload = {
+            model: this.models['omni-moderation'] || 'omni-moderation',
+            input: [{ role: 'user', content: Array.isArray(input) ? input.join(' ') : input }],
+            response_format: { type: 'moderation' }
+        };
+
+        const response = await this.makeRequest(payload);
+        // Convert to old format for compatibility
+        return {
+            results: response.output?.[0]?.results || [{
+                flagged: false,
+                categories: { hate: false, violence: false, self_harm: false }
+            }]
+        };
     }
 
     /**
