@@ -1305,13 +1305,62 @@
         // Navigation Functions
         function toggleMissionControl() {
             const panel = document.getElementById('missionControl');
-            panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+
+            if (panel.style.display === 'none' || panel.style.display === '') {
+                // Show with cinematic effect
+                panel.style.display = 'block';
+                panel.style.opacity = '0';
+                panel.style.transform = 'translateY(-20px)';
+
+                setTimeout(() => {
+                    panel.style.opacity = '1';
+                    panel.style.transform = 'translateY(0)';
+                }, 50);
+            } else {
+                // Hide with effect
+                panel.style.opacity = '0';
+                panel.style.transform = 'translateY(-20px)';
+
+                setTimeout(() => {
+                    panel.style.display = 'none';
+                }, 300);
+            }
         }
 
         function navigateTo(destination) {
-            // Update URL structure for proper navigation
-            const baseUrl = '/GemBotUniverse/';
-            window.location.href = baseUrl + destination + '.html';
+            // Add loading state
+            showLoadingOverlay('Navigating to ' + destination.charAt(0).toUpperCase() + destination.slice(1) + '...');
+
+            // Smooth transition with cinematic effect
+            document.body.style.opacity = '0.7';
+            document.body.style.transform = 'scale(0.98)';
+
+            setTimeout(() => {
+                // Update URL structure for proper navigation
+                const baseUrl = '/GemBotUniverse/';
+                window.location.href = baseUrl + destination + '.html';
+            }, 800);
+        }
+
+        function showLoadingOverlay(message) {
+            // Create loading overlay
+            const overlay = document.createElement('div');
+            overlay.className = 'modal-overlay active';
+            overlay.innerHTML = `
+                <div class="modal-content" style="text-align: center; padding: 3rem;">
+                    <div class="loading-spinner"></div>
+                    <h3 style="color: var(--neon-blue); margin-bottom: 1rem;">${message}</h3>
+                    <p style="color: var(--neon-green);">Initializing systems...</p>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+
+            // Auto-remove after navigation
+            setTimeout(() => {
+                if (overlay.parentNode) {
+                    overlay.parentNode.removeChild(overlay);
+                }
+            }, 1500);
         }
 
         // Agent Portal Functions
