@@ -1468,15 +1468,22 @@
             const costume = document.getElementById('costumeSelect').value;
             const color = document.getElementById('colorPicker').value;
 
-            agentCustomizations[agent] = { costume, color };
+            // Preserve existing level, xp, and achievements
+            const currentData = agentCustomizations[agent] || { level: 1, xp: 0, achievements: [] };
+            agentCustomizations[agent] = {
+                costume,
+                color,
+                level: currentData.level,
+                xp: currentData.xp,
+                achievements: currentData.achievements
+            };
 
-            // Save to localStorage
-            localStorage.setItem('agentCustomizations', JSON.stringify(agentCustomizations));
+            saveAgentCustomizations();
 
             // Update 3D wizard appearance if active
             updateWizardAppearance(agent, costume, color);
 
-            alert(`✅ ${agent.charAt(0).toUpperCase() + agent.slice(1)} appearance updated!\nCostume: ${costume}\nColor: ${color}`);
+            alert(`✅ ${agent.charAt(0).toUpperCase() + agent.slice(1)} appearance updated!\nCostume: ${costume}\nColor: ${color}\nLevel: ${currentData.level}\nXP: ${currentData.xp}`);
         }
 
         function updateWizardAppearance(agent, costume, color) {
