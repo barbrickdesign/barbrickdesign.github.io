@@ -925,27 +925,58 @@
 
         // CINEMATIC CONTROLS
         function setupCinematicControls() {
-            controls = new THREE.OrbitControls(camera, renderer.domElement);
-            controls.enableDamping = true;
-            controls.dampingFactor = 0.05;
-            controls.enablePan = false;
-            controls.minDistance = 10;
-            controls.maxDistance = 50;
-            controls.maxPolarAngle = Math.PI * 0.6;
+            try {
+                // Check if OrbitControls is available
+                if (!THREE.OrbitControls) {
+                    console.warn('⚠️ OrbitControls not available, skipping camera controls');
+                    return;
+                }
 
-            // Add cinematic presets
-            controls.userData.presets = {
-                overview: { position: new THREE.Vector3(0, 25, 0), target: new THREE.Vector3(0, 0, 0) },
-                closeup: { position: new THREE.Vector3(0, 8, 15), target: new THREE.Vector3(0, 0, 0) },
-                dramatic: { position: new THREE.Vector3(20, 15, 20), target: new THREE.Vector3(0, 0, 0) }
-            };
+                // Create controls with error handling
+                controls = new THREE.OrbitControls(camera, renderer.domElement);
 
-            // Add mouse click handling for satellite navigation
-            setupMouseClickHandling();
+                // Check if controls were created successfully
+                if (!controls) {
+                    console.warn('⚠️ Failed to create OrbitControls, skipping camera controls');
+                    return;
+                }
+
+                controls.enableDamping = true;
+                controls.dampingFactor = 0.05;
+                controls.enablePan = false;
+                controls.minDistance = 10;
+                controls.maxDistance = 50;
+                controls.maxPolarAngle = Math.PI * 0.6;
+
+                // Add cinematic presets only if controls.userData exists
+                if (controls.userData) {
+                    controls.userData.presets = {
+                        overview: { position: new THREE.Vector3(0, 25, 0), target: new THREE.Vector3(0, 0, 0) },
+                        closeup: { position: new THREE.Vector3(0, 8, 15), target: new THREE.Vector3(0, 0, 0) },
+                        dramatic: { position: new THREE.Vector3(20, 15, 20), target: new THREE.Vector3(0, 0, 0) }
+                    };
+                } else {
+                    console.warn('⚠️ controls.userData not available, skipping presets');
+                }
+
+                // Add mouse click handling for satellite navigation
+                setupMouseClickHandling();
+
+                console.log('✅ Cinematic controls initialized successfully');
+            } catch (error) {
+                console.error('❌ Failed to initialize cinematic controls:', error);
+                // Continue without controls - scene will still work
+            }
         }
 
         // MOUSE CLICK HANDLING FOR SATELLITE NAVIGATION
         function setupMouseClickHandling() {
+            // Only set up mouse handling if controls exist
+            if (!controls) {
+                console.warn('⚠️ Controls not available, skipping mouse click handling');
+                return;
+            }
+
             const raycaster = new THREE.Raycaster();
             const mouse = new THREE.Vector2();
             let hoveredObject = null;
@@ -1226,7 +1257,8 @@
                 }
             });
 
-            if (controls) {
+            // Safely update controls if available
+            if (controls && typeof controls.update === 'function') {
                 controls.update();
             }
 
