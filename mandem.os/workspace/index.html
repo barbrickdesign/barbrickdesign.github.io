@@ -569,7 +569,7 @@
                     const success = await connectWalletForMGC();
                     if (success) {
                         console.log('✅ Phantom connected successfully');
-                        alert('Phantom connected successfully! Welcome to Gem Bot Universe.');
+                        // Alert is now shown inside connectWalletForMGC after UI updates
                     }
                 } catch (error) {
                     console.error('❌ Login button error:', error);
