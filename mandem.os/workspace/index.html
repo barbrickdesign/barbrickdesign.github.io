@@ -565,10 +565,73 @@
                         <button class="cyber-btn cyber-btn-secondary" onclick="chatWithRyan()">💬 Chat</button>
                         <button class="cyber-btn cyber-btn-secondary" onclick="getRyanVision()">🔮 Get Vision</button>
                     </div>
+        <!-- Agent Customization Hub -->
+        <div style="margin-top: 2rem;">
+            <h3 style="color: var(--neon-purple); margin-bottom: 1rem;">🧙‍♂️ GRAND WIZARD REALM CONTROL</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                
+                <!-- Agent Appearance Customization -->
+                <div class="wizard-control-card">
+                    <h4>🎨 Agent Appearance Hub</h4>
+                    <p>Customize agent costumes, colors, and visual styles</p>
+                    <select id="agentSelector" style="width: 100%; padding: 8px; margin-bottom: 10px; background: var(--panel-bg); border: 1px solid var(--neon-blue); color: var(--neon-blue); border-radius: 5px;">
+                        <option value="austin">Austin Moore</option>
+                        <option value="arya">Arya</option>
+                        <option value="andy">Andy Acker</option>
+                        <option value="ryan">Ryan Barbrick</option>
+                    </select>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                        <div>
+                            <label style="font-size: 0.8rem; color: var(--neon-blue);">Costume:</label>
+                            <select id="costumeSelect" style="width: 100%; padding: 5px; background: var(--panel-bg); border: 1px solid var(--neon-blue); color: var(--neon-blue); border-radius: 3px;">
+                                <option value="wizard">Classic Wizard</option>
+                                <option value="cyberpunk">Cyberpunk Hacker</option>
+                                <option value="business">Business Professional</option>
+                                <option value="creative">Creative Artist</option>
+                                <option value="scientist">Mad Scientist</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="font-size: 0.8rem; color: var(--neon-blue);">Color Theme:</label>
+                            <input type="color" id="colorPicker" value="#ff6b35" style="width: 100%; height: 32px; border: 1px solid var(--neon-blue); border-radius: 3px;">
+                        </div>
+                    </div>
+                    <button class="cyber-btn" onclick="applyAgentCustomization()">✨ Apply Changes</button>
+                </div>
+
+                <!-- Realm Control Panel -->
+                <div class="wizard-control-card">
+                    <h4>⚡ Realm Mastery Control</h4>
+                    <p>Control all realms as Grand Wizard</p>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                        <button class="cyber-btn cyber-btn-secondary" onclick="activateAllEmbodiments()">🎬 Activate All</button>
+                        <button class="cyber-btn cyber-btn-secondary" onclick="deactivateAllEmbodiments()">⏹️ Deactivate All</button>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 10px;">
+                        <button class="cyber-btn cyber-btn-secondary" onclick="regenerateAllSoraVideos()">🔄 Regenerate Videos</button>
+                        <button class="cyber-btn cyber-btn-secondary" onclick="syncAllWizards()">🔗 Sync Wizards</button>
+                    </div>
+                    <button class="cyber-btn" onclick="enterGrandWizardMode()">👑 Enter Grand Wizard Mode</button>
+                </div>
+
+                <!-- Wizard Status Dashboard -->
+                <div class="wizard-control-card">
+                    <h4>📊 Wizard Status Dashboard</h4>
+                    <div id="wizardStatusDisplay" style="font-family: monospace; font-size: 0.8rem; color: var(--neon-green); margin-bottom: 10px;">
+                        Loading wizard status...
+                    </div>
+                    <button class="cyber-btn cyber-btn-secondary" onclick="refreshWizardStatus()">🔄 Refresh Status</button>
+                </div>
+
+                <!-- Sora Video Customization -->
+                <div class="wizard-control-card">
+                    <h4>🎬 Sora Video Customization</h4>
+                    <p>Customize Sora-generated video prompts</p>
+                    <textarea id="soraPromptInput" placeholder="Describe the video embodiment..." style="width: 100%; height: 60px; background: var(--panel-bg); border: 1px solid var(--neon-blue); color: var(--neon-blue); border-radius: 5px; padding: 8px; margin-bottom: 10px; resize: vertical;"></textarea>
+                    <button class="cyber-btn" onclick="generateCustomSoraVideo()">🎬 Generate Custom Video</button>
                 </div>
             </div>
         </div>
-    </div>
 
     <script>
         // Core System Variables
@@ -1000,13 +1063,145 @@
             await sendPrompt();
         }
 
-        // Initialize everything
+        // Wizard Embodiment Linking
+        function linkWizardToEmbodiment(agentName, embodimentActive) {
+            // Link 3D wizard visibility to Sora embodiment status
+            const wizardIndex = ['austin', 'arya', 'andy', 'ryan'].indexOf(agentName);
+            if (wizardIndex !== -1 && wizards[wizardIndex]) {
+                wizards[wizardIndex].visible = embodimentActive;
+                console.log(`${agentName} wizard ${embodimentActive ? 'activated' : 'deactivated'}`);
+            }
+        }
+
+        // Agent Customization
+        const agentCustomizations = {
+            austin: { costume: 'wizard', color: '#ff6b35' },
+            arya: { costume: 'creative', color: '#ff1493' },
+            andy: { costume: 'scientist', color: '#4169E1' },
+            ryan: { costume: 'business', color: '#00ff88' }
+        };
+
+        function applyAgentCustomization() {
+            const agent = document.getElementById('agentSelector').value;
+            const costume = document.getElementById('costumeSelect').value;
+            const color = document.getElementById('colorPicker').value;
+
+            agentCustomizations[agent] = { costume, color };
+
+            // Save to localStorage
+            localStorage.setItem('agentCustomizations', JSON.stringify(agentCustomizations));
+
+            // Update 3D wizard appearance if active
+            updateWizardAppearance(agent, costume, color);
+
+            alert(`✅ ${agent.charAt(0).toUpperCase() + agent.slice(1)} appearance updated!\nCostume: ${costume}\nColor: ${color}`);
+        }
+
+        function updateWizardAppearance(agent, costume, color) {
+            const agentIndex = ['austin', 'arya', 'andy', 'ryan'].indexOf(agent);
+            if (agentIndex !== -1 && wizards[agentIndex]) {
+                const wizard = wizards[agentIndex];
+                wizard.material.color.setStyle(color);
+                wizard.userData.costume = costume;
+                console.log(`Updated ${agent} wizard appearance: ${costume}, ${color}`);
+            }
+        }
+
+        // Grand Wizard Controls
+        function activateAllEmbodiments() {
+            Object.keys(activeEmbodiments).forEach(agent => {
+                activeEmbodiments[agent] = true;
+                activateSoraFeed(agent);
+                linkWizardToEmbodiment(agent, true);
+            });
+            updateEmbodimentIndicators();
+            alert('🎬 All Sora 2 embodiments activated!\nAll wizards are now live and interactive.');
+        }
+
+        function deactivateAllEmbodiments() {
+            Object.keys(activeEmbodiments).forEach(agent => {
+                activeEmbodiments[agent] = false;
+                const video = document.getElementById(`${agent}-sora-video`);
+                const placeholder = document.getElementById(`${agent}-video`);
+                if (video) video.style.display = 'none';
+                if (placeholder) placeholder.style.display = 'flex';
+                linkWizardToEmbodiment(agent, false);
+            });
+            updateEmbodimentIndicators();
+            alert('⏹️ All embodiments deactivated.\nWizards returned to ethereal realm.');
+        }
+
+        function regenerateAllSoraVideos() {
+            alert('🔄 Sora 2 Video Regeneration\n\nThis would generate new custom videos for all agents based on their current customizations.\n\nFeature: Coming with Sora 2 API integration');
+        }
+
+        function syncAllWizards() {
+            Object.keys(activeEmbodiments).forEach(agent => {
+                linkWizardToEmbodiment(agent, activeEmbodiments[agent]);
+            });
+            alert('🔗 All wizards synchronized with embodiment status!\n3D wizards now reflect Sora feed activation state.');
+        }
+
+        function enterGrandWizardMode() {
+            // Activate all systems as Grand Wizard
+            activateAllEmbodiments();
+            if (!wizardMode) activateWizardMode();
+            
+            // Enhanced permissions (would normally check wallet)
+            alert('👑 GRAND WIZARD MODE ACTIVATED!\n\nYou are now the supreme ruler of all realms!\n\n• Control all agent embodiments\n• Command the 3D wizard council\n• Access to all realm secrets\n• Unlimited customization power\n\nWelcome, Grand Wizard! ⚡🧙‍♂️');
+        }
+
+        // Status Dashboard
+        function refreshWizardStatus() {
+            const statusDiv = document.getElementById('wizardStatusDisplay');
+            let status = '🎭 WIZARD REALM STATUS\n\n';
+
+            status += 'SORA EMBODIMENTS:\n';
+            Object.keys(activeEmbodiments).forEach(agent => {
+                const statusIcon = activeEmbodiments[agent] ? '🟢 ACTIVE' : '🔴 INACTIVE';
+                status += `${agent.charAt(0).toUpperCase() + agent.slice(1)}: ${statusIcon}\n`;
+            });
+
+            status += '\n3D WIZARDS:\n';
+            status += `Wizard Mode: ${wizardMode ? '🟢 ACTIVE' : '🔴 INACTIVE'}\n`;
+            status += `Active Wizards: ${wizards.filter(w => w.visible).length}/4\n`;
+
+            status += '\nCUSTOMIZATIONS:\n';
+            Object.keys(agentCustomizations).forEach(agent => {
+                const custom = agentCustomizations[agent];
+                status += `${agent}: ${custom.costume} (${custom.color})\n`;
+            });
+
+            statusDiv.textContent = status;
+        }
+
+        // Sora Video Customization
+        function generateCustomSoraVideo() {
+            const prompt = document.getElementById('soraPromptInput').value;
+            const selectedAgent = document.getElementById('agentSelector').value;
+            
+            if (!prompt) {
+                alert('❌ Please enter a video description prompt');
+                return;
+            }
+
+            alert(`🎬 Custom Sora 2 Video Generation\n\nAgent: ${selectedAgent.charAt(0).toUpperCase() + selectedAgent.slice(1)}\n\nPrompt: "${prompt}"\n\nThis would generate a custom video embodiment using Sora 2 with your specified prompt.\n\nFeature: Ready for Sora 2 API integration`);
+        }
+
+        // Load customizations on page load
+        function loadAgentCustomizations() {
+            const saved = localStorage.getItem('agentCustomizations');
+            if (saved) {
+                Object.assign(agentCustomizations, JSON.parse(saved));
+            }
+        }
+
+        // Initialize wizard status on load
         window.addEventListener('load', function() {
             console.log('🚀 Initializing Gem Bot Universe...');
+            loadAgentCustomizations();
+            refreshWizardStatus();
             initScene();
-
-            // Hide mission control initially
-            document.getElementById('missionControl').style.display = 'none';
         });
 
         // Handle window resize
