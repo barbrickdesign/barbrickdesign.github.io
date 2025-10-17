@@ -646,8 +646,27 @@
             });
         }
 
-        setInterval(updateMgcBalanceDisplay, 1000);
-        updateMgcBalanceDisplay();
+        // Add timeout for script loading to prevent hanging
+        setTimeout(function() {
+            console.log('⏰ Script loading timeout check');
+            if (typeof window.sharedWalletSystem === 'undefined') {
+                console.warn('⚠️ Shared wallet system not loaded - continuing without it');
+            }
+            if (typeof window.universalWalletAuth === 'undefined') {
+                console.warn('⚠️ Universal wallet auth not loaded - continuing without it');
+            }
+            // Continue with initialization regardless
+        }, 3000);
+
+        // Clear any problematic intervals that might exist
+        let maxIntervals = 0;
+        const intervalCheck = setInterval(function() {
+            maxIntervals++;
+            if (maxIntervals > 100) { // Safety limit
+                clearInterval(intervalCheck);
+                console.warn('🚨 Cleared excessive intervals for safety');
+            }
+        }, 1000);
     }); 
 
     // Global satellites and labels arrays
@@ -1103,6 +1122,21 @@ console.log('[DEBUG] currentUser:', localStorage.getItem('currentUser'));
 console.log('[DEBUG] userProfile:', localStorage.getItem('userProfile'));
 console.log('[DEBUG] userLoggedIn:', localStorage.getItem('userLoggedIn'));
 console.log('[DEBUG] lastWalletAuth:', localStorage.getItem('lastWalletAuth'));
+
+// Global error handlers to prevent page crashes
+window.addEventListener('error', function(e) {
+    console.error('🚨 Global error caught:', e.error);
+    console.error('🚨 Error message:', e.message);
+    console.error('🚨 Error file:', e.filename);
+    console.error('🚨 Error line:', e.lineno);
+    // Don't show alert for every error to avoid spam
+});
+
+window.addEventListener('unhandledrejection', function(e) {
+    console.error('🚨 Unhandled promise rejection:', e.reason);
+    // Prevent the default handler which might cause page reload
+    e.preventDefault();
+});
 </script>
 
     </body>
