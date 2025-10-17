@@ -99,21 +99,28 @@
             // First, open a modal to test closing
             openUpdateLog();
 
-            // Wait a bit, then test closing
+            // Wait for modal to be created and event listener attached
             setTimeout(() => {
                 const modal = document.querySelector('.deployment-log-modal');
-                if (modal) {
+                const closeButton = modal ? modal.querySelector('#closeLogButton') : null;
+
+                if (modal && closeButton) {
                     // Simulate clicking the close button
-                    try {
-                        modal.remove();
-                        result.innerHTML = '<div class="test-result success">✅ Close button functionality working - modal removed</div>';
-                    } catch (error) {
-                        result.innerHTML = '<div class="test-result error">❌ Error removing modal: ' + error.message + '</div>';
-                    }
+                    closeButton.click();
+
+                    // Check if modal was removed
+                    setTimeout(() => {
+                        const modalStillExists = document.querySelector('.deployment-log-modal');
+                        if (!modalStillExists) {
+                            result.innerHTML = '<div class="test-result success">✅ Close button functionality working - modal removed</div>';
+                        } else {
+                            result.innerHTML = '<div class="test-result error">❌ Close button not working - modal still exists</div>';
+                        }
+                    }, 100);
                 } else {
-                    result.innerHTML = '<div class="test-result error">❌ Modal not found to test closing</div>';
+                    result.innerHTML = '<div class="test-result error">❌ Modal or close button not found</div>';
                 }
-            }, 500);
+            }, 100);
         }
 
         function testClassSelector() {
