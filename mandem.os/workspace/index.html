@@ -1214,6 +1214,12 @@
         }
 
         function navigateTo(destination) {
+            // Handle special cases
+            if (destination === 'agent-hub') {
+                window.location.href = '../agent-hub.html';
+                return;
+            }
+
             // Add loading state
             showLoadingOverlay('Navigating to ' + destination.charAt(0).toUpperCase() + destination.slice(1) + '...');
 
