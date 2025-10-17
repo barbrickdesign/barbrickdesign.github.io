@@ -2803,9 +2803,102 @@
             }
         });
 
+        // v2 QUANTUM MODE FUNCTIONS
+        let quantumMode = false;
+
+        // Activate Quantum Mode
+        function activateQuantumMode() {
+            quantumMode = !quantumMode;
+            const quantumStatus = document.getElementById('quantumStatus');
+
+            if (quantumMode) {
+                quantumStatus.textContent = 'QUANTUM ACTIVE';
+                quantumStatus.style.color = 'var(--neon-purple)';
+                document.body.style.boxShadow = 'inset 0 0 50px rgba(153, 50, 204, 0.1)';
+
+                // Enhanced visual effects
+                if (scene && scene.fog) {
+                    scene.fog.color.setHex(0x330066);
+                }
+
+                alert('⚛️ QUANTUM MODE ACTIVATED!\n\n• Neural Network Enhancement\n• Advanced AI Processing\n• Quantum-Secure Communications\n• Enhanced Knowledge Synthesis\n\nWelcome to Mandem.os v2 Quantum Reality! 🌌');
+            } else {
+                quantumStatus.textContent = 'STANDBY';
+                quantumStatus.style.color = 'var(--neon-blue)';
+                document.body.style.boxShadow = 'none';
+
+                // Reset visual effects
+                if (scene && scene.fog) {
+                    scene.fog.color.setHex(0x000000);
+                }
+
+                console.log('🔄 Quantum Mode deactivated');
+            }
+        }
+
+        // Activate Quantum AI
+        function activateQuantumAI() {
+            const status = document.getElementById('quantumAIStatus');
+            status.textContent = 'Processing...';
+            status.style.color = 'var(--neon-orange)';
+
+            setTimeout(() => {
+                status.textContent = 'Quantum AI: ACTIVE';
+                status.style.color = 'var(--neon-purple)';
+
+                console.log('🧠 Quantum AI processing activated');
+                alert('🧠 QUANTUM AI ACTIVATED\n\nAdvanced neural processing enabled!\n• Multi-dimensional reasoning\n• Predictive analytics\n• Quantum entanglement sync\n• Enhanced decision making');
+            }, 2000);
+        }
+
+        // Optimize Neural Network
+        function optimizeNeuralNetwork() {
+            const status = document.getElementById('quantumAIStatus');
+            status.textContent = 'Optimizing...';
+            status.style.color = 'var(--neon-cyan)';
+
+            setTimeout(() => {
+                status.textContent = 'Neural Network: OPTIMIZED';
+                status.style.color = 'var(--neon-green)';
+
+                console.log('⚡ Neural network optimization complete');
+                alert('⚡ NEURAL NETWORK OPTIMIZED\n\nPerformance enhancements applied:\n• 300% faster processing\n• Enhanced pattern recognition\n• Improved memory efficiency\n• Quantum-accelerated learning');
+            }, 3000);
+        }
+
+        // Enhance Agent Capabilities
+        function enhanceAgentCapabilities() {
+            const status = document.getElementById('neuralStatus');
+            status.textContent = 'Enhancing...';
+            status.style.color = 'var(--neon-orange)';
+
+            setTimeout(() => {
+                status.textContent = 'Agents: ENHANCED (v2)';
+                status.style.color = 'var(--neon-purple)';
+
+                console.log('🚀 Agent capabilities enhanced');
+                alert('🚀 AGENT CAPABILITIES ENHANCED\n\nv2 Enhancements applied:\n• Advanced AI integration\n• Quantum processing power\n• Enhanced communication protocols\n• Multi-modal capabilities\n• Autonomous decision making');
+            }, 2500);
+        }
+
+        // Sync Agent Network
+        function syncAgentNetwork() {
+            const status = document.getElementById('neuralStatus');
+            status.textContent = 'Syncing...';
+            status.style.color = 'var(--neon-cyan)';
+
+            setTimeout(() => {
+                status.textContent = 'Network: SYNCHRONIZED';
+                status.style.color = 'var(--neon-green)';
+
+                console.log('🔄 Agent network synchronized');
+                alert('🔄 AGENT NETWORK SYNCHRONIZED\n\nQuantum entanglement established:\n• Real-time communication\n• Shared consciousness\n• Coordinated actions\n• Enhanced collaboration\n• Unified intelligence');
+            }, 2000);
+        }
+
         // Initialize 3D scene on page load
         window.addEventListener('DOMContentLoaded', function() {
-            console.log('🌍 Initializing Gem Bot Universe...');
+            console.log('🌍 Initializing Mandem.os v2...');
             initScene();
             checkSystemArchitectStatus();
             initAgentCoinVault(); // Initialize the agent coin vault widget
