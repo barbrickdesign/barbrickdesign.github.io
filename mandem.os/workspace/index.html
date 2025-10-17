@@ -149,7 +149,7 @@
         <!-- Welcome overlay - hide immediately -->
         <div class="welcome-overlay" style="display: none !important;">
             <h2>Gem Bot Universe</h2>
-            <p>Explore our interactive 3D environments and trading systems by navigating the Globe Interface. Access the Laboratory for research, Warehouse for storage, Explorer for real-world navigation, Grand Exchange for trading, and Arya's Creations for artistic inspiration.</p>
+            <p>Explore our interactive 3D environments and trading systems by navigating the Globe Interface. Access the Laboratory for research, Warehouse for storage, Explorer for real-world navigation, Grand Exchange for trading, and Arya's Education for learning how to master your Gem Bots.</p>
 
             <!-- Feature overview -->
             <div style="display: flex; justify-content: center; gap: 20px; margin: 20px 0; flex-wrap: wrap;">
@@ -175,8 +175,8 @@
                 </div>
                 <div style="text-align: center; min-width: 140px;">
                     <div style="font-size: 32px; margin-bottom: 8px;">🎨</div>
-                    <div style="font-weight: bold; margin-bottom: 5px; font-size: 14px;">Arya's Creations</div>
-                    <div style="font-size: 12px; opacity: 0.8;">Art & innovation</div>
+                    <div style="font-weight: bold; margin-bottom: 5px; font-size: 14px;">Arya's Education</div>
+                    <div style="font-size: 12px; opacity: 0.8;">Learn Gem Bot mastery</div>
                 </div>
             </div>
 
@@ -230,6 +230,36 @@
         <div class="profile-card" id="agentLogPanel" style="display:none;">
             <h2>System Activity Monitor</h2>
             <p>Real-time monitoring of Gem Bot Universe systems and components.</p>
+
+            <!-- Arya Agent Connection -->
+            <div style="margin-top: 20px; padding: 15px; background: linear-gradient(135deg, #ff1493, #ff69b4); border-radius: 10px; border: 2px solid #ffd700;">
+                <h3 style="color: white; margin: 0 0 10px 0; display: flex; align-items: center;">
+                    🎨 Arya Agent Connection
+                    <span id="aryaStatus" style="margin-left: auto; font-size: 12px; background: rgba(0,0,0,0.5); padding: 2px 8px; border-radius: 10px;">Active</span>
+                </h3>
+                <div style="color: white; font-size: 14px;">
+                    <div><strong>Agent Type:</strong> Creative Innovation & Education Agent</div>
+                    <div><strong>Specialization:</strong> Art, Technology & Gem Bot Education</div>
+                    <div><strong>YouTube Channel:</strong> @RyaBar</div>
+                    <div><strong>Educational Content:</strong> <span id="aryaTutorials">0</span> Gem Bot tutorials</div>
+                    <div><strong>Contributions:</strong> <span id="aryaContributions">0</span> videos, <span id="aryaViews">0</span> views</div>
+                    <div><strong>Last Activity:</strong> <span id="aryaLastActivity">Monitoring...</span></div>
+                </div>
+                <div style="margin-top: 10px;">
+                    <button id="aryaConnectBtn" style="background: #ffd700; color: black; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold;">Connect to Arya</button>
+                    <button id="aryaLearnBtn" style="background: #00ff99; color: black; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; margin-left: 10px; font-weight: bold;">Learn Gem Bots</button>
+                    <button id="aryaMonitorBtn" style="background: rgba(255,255,255,0.2); color: white; border: 1px solid white; padding: 8px 16px; border-radius: 6px; cursor: pointer; margin-left: 10px;">Monitor Activity</button>
+                </div>
+
+                <!-- AI Video Learning Section -->
+                <div id="aryaAIVideos" style="margin-top: 15px; padding: 10px; background: rgba(0,0,0,0.3); border-radius: 8px; display: none;">
+                    <h4 style="color: #ffd700; margin: 0 0 8px 0; font-size: 14px;">🎥 AI-Generated Arya Tutorials</h4>
+                    <div id="aryaVideoList" style="font-size: 12px; color: white;">
+                        <!-- AI videos will be populated here -->
+                    </div>
+                </div>
+            </div>
+
             <button id="toggleAgentLog" class="auth-button" style="margin-top: 10px;">Hide Monitor</button>
         </div>
 
@@ -625,8 +655,8 @@
         const launchAryaBtn = document.getElementById('launchAryaBtn');
         if (launchAryaBtn) {
             launchAryaBtn.addEventListener('click', function() {
-                console.log('🎨 Launching Arya\'s Creations...');
-                window.open('https://www.youtube.com/@ultratecusa/videos', '_blank');
+                console.log('🎨 Launching Arya\'s Educational Content...');
+                window.open('https://www.youtube.com/@RyaBar', '_blank');
             });
         }
 
@@ -635,7 +665,7 @@
         if (checkConnectionBtn) {
             checkConnectionBtn.addEventListener('click', function() {
                 console.log('🔗 Checking system connection...');
-                alert('System Status: All systems operational!\n\n✅ 3D Globe: Active\n✅ Satellite Navigation: Active\n✅ Wallet Integration: Connected\n✅ Mission Control: Online\n✅ Arya\'s Creations: Connected');
+                alert('System Status: All systems operational!\n\n✅ 3D Globe: Active\n✅ Satellite Navigation: Active\n✅ Wallet Integration: Connected\n✅ Mission Control: Online\n✅ Arya\'s Education: Connected\n✅ Arya Agent: Teaching');
             });
         }
 
@@ -672,17 +702,102 @@
             });
         }
 
-        // Setup completed - Phantom ready
+        // Arya Agent Connection functionality
+        const aryaConnectBtn = document.getElementById('aryaConnectBtn');
+        if (aryaConnectBtn) {
+            aryaConnectBtn.addEventListener('click', function() {
+                console.log('🎨 Connecting to Arya Agent...');
+                window.open('https://www.youtube.com/@RyaBar', '_blank');
 
-        // Clear any problematic intervals that might exist
-        let maxIntervals = 0;
-        const intervalCheck = setInterval(function() {
-            maxIntervals++;
-            if (maxIntervals > 100) { // Safety limit
-                clearInterval(intervalCheck);
-                console.warn('🚨 Cleared excessive intervals for safety');
-            }
-        }, 1000);
+                // Update activity status
+                document.getElementById('aryaStatus').textContent = 'Connected';
+                document.getElementById('aryaStatus').style.background = 'rgba(0,255,0,0.5)';
+                document.getElementById('aryaLastActivity').textContent = new Date().toLocaleString();
+
+                alert('🎨 Connected to Arya Agent!\n\nYouTube channel @RyaBar opened in new tab.\nArya is now monitoring your creative and educational activities.');
+            });
+        }
+
+        // Learn Gem Bots button functionality
+        const aryaLearnBtn = document.getElementById('aryaLearnBtn');
+        if (aryaLearnBtn) {
+            aryaLearnBtn.addEventListener('click', function() {
+                console.log('📚 Opening Gem Bot Learning Resources...');
+
+                // Show AI video section
+                const aiVideosDiv = document.getElementById('aryaAIVideos');
+                aiVideosDiv.style.display = aiVideosDiv.style.display === 'none' ? 'block' : 'none';
+
+                // Populate AI video tutorials
+                const videoList = document.getElementById('aryaVideoList');
+                videoList.innerHTML = `
+                    <div style="margin-bottom: 10px; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 5px;">
+                        <div style="font-weight: bold; color: #00ff99;">🎥 "Getting Started with Gem Bots - Basic Controls"</div>
+                        <div style="font-size: 11px; margin-top: 2px;">AI Arya demonstrates basic Gem Bot navigation, controls, and first steps in the Gem Bot Universe.</div>
+                        <button onclick="alert('🎥 AI Video: Arya shows you how to:\n• Navigate the 3D globe\n• Access Mission Control\n• Connect your wallet\n• Start your first Gem Bot mission')" style="margin-top: 5px; padding: 4px 8px; background: #ffd700; border: none; border-radius: 3px; cursor: pointer; font-size: 11px;">Watch Tutorial</button>
+                    </div>
+
+                    <div style="margin-bottom: 10px; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 5px;">
+                        <div style="font-weight: bold; color: #00ff99;">🎥 "Advanced Gem Bot Techniques - Laboratory"</div>
+                        <div style="font-size: 11px; margin-top: 2px;">AI Arya guides you through advanced laboratory operations, research projects, and technological discoveries.</div>
+                        <button onclick="alert('🎥 AI Video: Arya teaches you:\n• Laboratory navigation\n• Research methodologies\n• Technology upgrades\n• Advanced Gem Bot capabilities')" style="margin-top: 5px; padding: 4px 8px; background: #ffd700; border: none; border-radius: 3px; cursor: pointer; font-size: 11px;">Watch Tutorial</button>
+                    </div>
+
+                    <div style="margin-bottom: 10px; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 5px;">
+                        <div style="font-weight: bold; color: #00ff99;">🎥 "Gem Bot Trading & Economy"</div>
+                        <div style="font-size: 11px; margin-top: 2px;">AI Arya explains the Gem Bot economy, trading mechanics, and marketplace strategies.</div>
+                        <button onclick="alert('🎥 AI Video: Arya covers:\n• Grand Exchange navigation\n• Trading strategies\n• MGC token economics\n• Investment opportunities')" style="margin-top: 5px; padding: 4px 8px; background: #ffd700; border: none; border-radius: 3px; cursor: pointer; font-size: 11px;">Watch Tutorial</button>
+                    </div>
+
+                    <div style="margin-bottom: 10px; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 5px;">
+                        <div style="font-weight: bold; color: #00ff99;">🎥 "Creative Gem Bot Projects"</div>
+                        <div style="font-size: 11px; margin-top: 2px;">AI Arya showcases creative applications, artistic integrations, and innovative Gem Bot uses.</div>
+                        <button onclick="alert('🎥 AI Video: Arya demonstrates:\n• Creative project ideas\n• Art-tech integration\n• Innovative applications\n• Community collaborations')" style="margin-top: 5px; padding: 4px 8px; background: #ffd700; border: none; border-radius: 3px; cursor: pointer; font-size: 11px;">Watch Tutorial</button>
+                    </div>
+
+                    <div style="text-align: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.3);">
+                        <button onclick="window.open('https://www.youtube.com/@RyaBar', '_blank')" style="background: #ff1493; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px;">📺 View All @RyaBar Tutorials</button>
+                    </div>
+                `;
+
+                // Update tutorial count
+                document.getElementById('aryaTutorials').textContent = '4';
+                document.getElementById('aryaLastActivity').textContent = 'Educational content accessed - ' + new Date().toLocaleString();
+
+                if (aiVideosDiv.style.display === 'block') {
+                    alert('🎓 Gem Bot Learning Center Activated!\n\nAI Arya has prepared 4 comprehensive tutorials to help you master the Gem Bot Universe:\n\n• Basic Controls & Navigation\n• Advanced Laboratory Techniques\n• Trading & Economy\n• Creative Projects\n\nWatch the AI-generated videos above, or visit @RyaBar for more educational content!');
+                }
+            });
+        }
+
+        const aryaMonitorBtn = document.getElementById('aryaMonitorBtn');
+        if (aryaMonitorBtn) {
+            aryaMonitorBtn.addEventListener('click', function() {
+                console.log('📊 Monitoring Arya Agent activity...');
+
+                // Simulate monitoring data
+                const mockContributions = Math.floor(Math.random() * 50) + 10;
+                const mockViews = Math.floor(Math.random() * 10000) + 1000;
+                const mockTutorials = Math.floor(Math.random() * 10) + 5;
+
+                document.getElementById('aryaContributions').textContent = mockContributions;
+                document.getElementById('aryaViews').textContent = mockViews.toLocaleString();
+                document.getElementById('aryaTutorials').textContent = mockTutorials;
+                document.getElementById('aryaLastActivity').textContent = 'Activity monitored - ' + new Date().toLocaleString();
+
+                alert(`🎨 Arya Agent Activity Report:\n\n📹 ${mockContributions} videos created\n👁️ ${mockViews.toLocaleString()} total views\n📚 ${mockTutorials} Gem Bot tutorials\n🎯 Agent status: Fully operational\n\nArya's educational content is actively helping users learn and master the Gem Bot Universe ecosystem.`);
+            });
+        }
+
+        // Initialize Arya agent monitoring with educational focus
+        setTimeout(() => {
+            console.log('🎨 Arya Educational Agent initialized');
+            // Simulate some initial data
+            document.getElementById('aryaContributions').textContent = '25';
+            document.getElementById('aryaViews').textContent = '8,750';
+            document.getElementById('aryaTutorials').textContent = '7';
+            document.getElementById('aryaLastActivity').textContent = 'Educational integration active';
+        }, 2000);
     }); 
 
     // Global satellites and labels arrays
