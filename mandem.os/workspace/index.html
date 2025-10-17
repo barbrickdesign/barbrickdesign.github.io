@@ -1252,6 +1252,10 @@
             try {
                 const result = await window.openAIOrchestrator.executeAgentAction(agent, 'reason', { prompt });
                 responseArea.textContent = result.choices[0].message.content;
+
+                // Award XP for successful interaction
+                addXP(agent, 5, 'firstInteraction');
+
             } catch (error) {
                 responseArea.textContent = `❌ Error: ${error.message}`;
             }
