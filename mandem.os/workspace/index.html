@@ -2750,6 +2750,17 @@
             }
         }
 
+        // Check if user is System Architect to show distribution controls
+        function checkSystemArchitectStatus() {
+            if (window.contractorPaymentSystem && window.universalWalletAuth) {
+                const userAddress = window.universalWalletAuth.getAddress();
+                if (userAddress && window.contractorPaymentSystem.isSystemArchitect(userAddress)) {
+                    document.getElementById('distributionControls').style.display = 'block';
+                    refreshDistributionHistory();
+                }
+            }
+        }
+
         // Handle window resize
         window.addEventListener('resize', function() {
             if (camera && renderer) {
