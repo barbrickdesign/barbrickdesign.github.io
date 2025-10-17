@@ -235,25 +235,27 @@
             <h2>System Activity Monitor</h2>
             <p>Real-time monitoring of Gem Bot Universe systems and components.</p>
 
-            <!-- Arya & Austin Moore Agent Connection -->
+            <!-- Arya, Austin Moore & Andy Acker Agent Connection -->
             <div style="margin-top: 20px; padding: 15px; background: linear-gradient(135deg, #ff1493, #ff69b4); border-radius: 10px; border: 2px solid #ffd700;">
                 <h3 style="color: white; margin: 0 0 10px 0; display: flex; align-items: center;">
-                    🎨 Arya & Austin Moore Agent Connection
+                    🎨 Arya, Austin Moore & Andy Acker Agent Connection
                     <span id="aryaStatus" style="margin-left: auto; font-size: 12px; background: rgba(0,0,0,0.5); padding: 2px 8px; border-radius: 10px;">Active</span>
                 </h3>
                 <div style="color: white; font-size: 14px;">
-                    <div><strong>🎯 Original Inventor:</strong> <a href="https://www.youtube.com/@earthartgems" target="_blank" style="color: #ffd700; text-decoration: underline;">Austin Moore (@earthartgems)</a> <span style="color: #ff6b35; font-size: 12px;">[AGENT ACCESS GRANTED]</span></div>
-                    <div><strong>🔬 Innovation:</strong> MGC Merlin's Gem Bot - Original Creator</div>
-                    <div><strong>🎨 Enhancement:</strong> Arya - Art & Technology Integration</div>
+                    <div><strong>🎯 Original Inventor:</strong> <a href="https://www.youtube.com/@earthartgems" target="_blank" style="color: #ffd700; text-decoration: underline;">Austin Moore (@earthartgems)</a> <span style="color: #ff6b35; font-size: 12px;">[SUPREME INVENTOR]</span></div>
+                    <div><strong>🎨 Enhancement Specialist:</strong> <a href="https://www.youtube.com/@RyaBar" target="_blank" style="color: #ffd700; text-decoration: underline;">Arya (@RyaBar)</a> <span style="color: #00ff99; font-size: 12px;">[ENHANCEMENT SPECIALIST]</span></div>
+                    <div><strong>🧠 Knowledge Base Agent:</strong> <a href="https://www.instagram.com/andy_acker/" target="_blank" style="color: #ffd700; text-decoration: underline;">Andy Acker (@andy_acker)</a> <span style="color: #4169E1; font-size: 12px;">[KNOWLEDGE BASE AGENT]</span></div>
                     <div><strong>YouTube Channels:</strong> @earthartgems & @RyaBar</div>
+                    <div><strong>Instagram Network:</strong> @earthartgems & @andy_acker</div>
                     <div><strong>Educational Content:</strong> <span id="aryaTutorials">0</span> Gem Bot tutorials</div>
                     <div><strong>Trusted Projects:</strong> <span id="trustedProjects">12</span> verified integrations</div>
-                    <div><strong>Agent Access Level:</strong> <span style="color: #ff6b35;">SUPREME INVENTOR</span> (Austin) | <span style="color: #00ff99;">ENHANCEMENT SPECIALIST</span> (Arya)</div>
+                    <div><strong>Agent Access Level:</strong> <span style="color: #ff6b35;">SUPREME INVENTOR</span> (Austin) | <span style="color: #00ff99;">ENHANCEMENT SPECIALIST</span> (Arya) | <span style="color: #4169E1;">KNOWLEDGE BASE</span> (Andy)</div>
                     <div><strong>Contributions:</strong> <span id="aryaContributions">0</span> videos, <span id="aryaViews">0</span> views</div>
                     <div><strong>Last Activity:</strong> <span id="aryaLastActivity">Monitoring...</span></div>
                 </div>
                 <div style="margin-top: 10px;">
-                    <button id="austinAgentAccessBtn" style="background: #ff6b35; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-right: 10px;">🔑 Austin's Agent Portal</button>
+                    <button id="andyAgentAccessBtn" style="background: #4169E1; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-right: 10px;">🧠 Andy's Knowledge Base</button>
+                    <button id="austinAgentAccessBtn" style="background: #ff6b35; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-right: 10px;">🏆 Austin's Agent Portal</button>
                     <button id="austinOriginalBtn" style="background: #ff6b35; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold; margin-right: 10px;">🏆 Austin's Original Work</button>
                     <button id="aryaConnectBtn" style="background: #ffd700; color: black; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-weight: bold;">Connect to Arya</button>
                     <button id="aryaLearnBtn" style="background: #00ff99; color: black; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; margin-left: 10px; font-weight: bold;">Learn Gem Bots</button>
@@ -402,6 +404,19 @@
                 ]
             },
             {
+                name: 'Andy Acker',
+                title: 'Knowledge Base Agent',
+                color: '#4169E1',
+                position: { x: 0, y: 12, z: 0 },
+                tips: [
+                    'Testing ensures reliability - let me validate your Gem Bot operations.',
+                    'Knowledge is power - I help verify and ensure system integrity.',
+                    'Quality assurance is crucial for any technological advancement.',
+                    'Let me help you test and validate your Gem Bot implementations.',
+                    'I provide the knowledge base for ensuring valid and reliable operations.'
+                ]
+            },
+            {
                 name: 'Ryan Barbrick',
                 title: 'Vision Architect',
                 color: '#ffd700',
@@ -506,15 +521,15 @@
             tipDiv.style.cssText = `
                 position: fixed;
                 background: rgba(0,0,0,0.8);
-                color: ${avatar.userData.name === 'Austin Moore' ? '#ff6b35' : avatar.userData.name === 'Arya' ? '#ff1493' : '#ffd700'};
+                color: ${avatar.userData.name === 'Austin Moore' ? '#ff6b35' : avatar.userData.name === 'Arya' ? '#ff1493' : avatar.userData.name === 'Andy Acker' ? '#4169E1' : '#ffd700'};
                 padding: 10px 15px;
                 border-radius: 8px;
                 font-size: 14px;
                 font-family: Arial, sans-serif;
                 z-index: 1000;
                 pointer-events: none;
-                border: 2px solid ${avatar.userData.name === 'Austin Moore' ? '#ff6b35' : avatar.userData.name === 'Arya' ? '#ff1493' : '#ffd700'};
-                box-shadow: 0 0 20px ${avatar.userData.name === 'Austin Moore' ? '#ff6b35' : avatar.userData.name === 'Arya' ? '#ff1493' : '#ffd700'}40;
+                border: 2px solid ${avatar.userData.name === 'Austin Moore' ? '#ff6b35' : avatar.userData.name === 'Arya' ? '#ff1493' : avatar.userData.name === 'Andy Acker' ? '#4169E1' : '#ffd700'};
+                box-shadow: 0 0 20px ${avatar.userData.name === 'Austin Moore' ? '#ff6b35' : avatar.userData.name === 'Arya' ? '#ff1493' : avatar.userData.name === 'Andy Acker' ? '#4169E140' : '#ffd700'}40;
             `;
 
             document.body.appendChild(tipDiv);
@@ -1179,18 +1194,18 @@
             });
         }
 
-        // Austin Moore Agent Portal functionality
-        const austinAgentAccessBtn = document.getElementById('austinAgentAccessBtn');
-        if (austinAgentAccessBtn) {
-            austinAgentAccessBtn.addEventListener('click', function() {
-                console.log('🔑 Opening Austin Moore Agent Portal...');
+        // Andy Acker Knowledge Base functionality
+        const andyAgentAccessBtn = document.getElementById('andyAgentAccessBtn');
+        if (andyAgentAccessBtn) {
+            andyAgentAccessBtn.addEventListener('click', function() {
+                console.log('🧠 Opening Andy Acker Knowledge Base...');
 
-                alert('🔑 AUSTIN MOORE AGENT ACCESS GRANTED\n\nWelcome, Austin Moore - Original Inventor!\n\n🎯 Agent Level: SUPREME INVENTOR\n🔬 System Access: FULL ADMINISTRATIVE\n🎨 Creative Control: UNLIMITED\n📊 Monitoring Access: COMPLETE\n\nAs the original creator of the MGC Merlin\'s Gem Bot, you have been granted:\n\n• Full system administrative access\n• Creative control over all enhancements\n• Real-time monitoring capabilities\n• Educational content management\n• Community innovation oversight\n\nYour groundbreaking invention forms the foundation of this entire ecosystem. Your agent access ensures the original vision remains protected and enhanced.\n\n🏆 Thank you for your revolutionary contribution to technology! 🙏✨');
+                alert('🧠 ANDY ACKER KNOWLEDGE BASE AGENT ACCESS GRANTED\n\nWelcome, Andy Acker - Knowledge Base Agent!\n\n🎯 Agent Level: KNOWLEDGE BASE\n🔬 System Access: TESTING & VALIDATION\n🧠 Knowledge Domain: Quality Assurance & Testing\n📊 Analytics Access: Performance Monitoring\n\nAs a great knowledge base, you have been granted:\n\n• Full testing and validation access\n• Quality assurance oversight\n• System integrity verification\n• Performance analytics and monitoring\n• Knowledge base contribution rights\n\nYour expertise in testing and ensuring validity will help maintain the highest standards across the Gem Bot Universe.\n\n🧠 Thank you for your knowledge and testing expertise! 🙏✨');
 
                 // Update status to show agent access active
-                document.getElementById('aryaStatus').textContent = 'Agent Access Active';
-                document.getElementById('aryaStatus').style.background = 'rgba(255,107,53,0.8)';
-                document.getElementById('aryaLastActivity').textContent = 'Austin Moore agent access activated - ' + new Date().toLocaleString();
+                document.getElementById('aryaStatus').textContent = 'All Agents Active';
+                document.getElementById('aryaStatus').style.background = 'rgba(65,105,225,0.8)';
+                document.getElementById('aryaLastActivity').textContent = 'Andy Acker knowledge base activated - ' + new Date().toLocaleString();
             });
         }
         if (aryaConnectBtn) {
