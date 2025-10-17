@@ -540,27 +540,22 @@
             });
         }
 
-        // Fix loginBtn to actually connect wallet with comprehensive error handling
+        // Simple MetaMask login button handler
         const loginBtn = document.getElementById('loginBtn');
         if (loginBtn) {
             loginBtn.addEventListener('click', async function(e) {
                 e.preventDefault();
-                console.log('🔘 Login button clicked');
+                console.log('🔘 MetaMask login button clicked');
 
                 try {
-                    console.log('🔐 Connecting wallet...');
                     const success = await connectWalletForMGC();
-
                     if (success) {
-                        console.log('✅ Wallet connected successfully');
-                        alert('Wallet connected successfully! You can now access all Gem Bot Universe features.');
-                    } else {
-                        console.log('❌ Wallet connection returned false');
-                        // Alert already shown in connectWalletForMGC
+                        console.log('✅ MetaMask connected successfully');
+                        alert('MetaMask connected successfully! Welcome to Gem Bot Universe.');
                     }
                 } catch (error) {
                     console.error('❌ Login button error:', error);
-                    alert('An error occurred while connecting your wallet. Please try again.');
+                    alert('Connection failed. Please try again.');
                 }
 
                 return false;
