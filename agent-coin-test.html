@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Agent Coin System Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; }
+        .test-section { background: white; padding: 20px; margin: 10px 0; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .success { color: green; font-weight: bold; }
+        .error { color: red; font-weight: bold; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+    </style>
+</head>
+<body>
+    <h1>🪙 Agent Coin System Test</h1>
+
+    <div class="test-section">
+        <h2>Test 1: System Initialization</h2>
+        <button onclick="testSystemInit()">Test System Initialization</button>
+        <div id="init-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 2: Agent Coin Configuration</h2>
+        <button onclick="testAgentCoinConfig()">Test Agent Coin Configuration</button>
+        <div id="config-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 3: Vault Address Copy</h2>
+        <button onclick="testVaultCopy()">Test Vault Address Copy</button>
+        <div id="copy-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 4: Coin Links</h2>
+        <button onclick="testCoinLinks()">Test Coin Links</button>
+        <div id="links-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 5: System Architect Check</h2>
+        <button onclick="testSystemArchitect()">Test System Architect Check</button>
+        <div id="architect-result"></div>
+    </div>
+
+    <!-- Load the required scripts -->
+    <script src="src/systems/contractor-payment-system.js"></script>
+    <script>
+        function testSystemInit() {
+            const result = document.getElementById('init-result');
+            try {
+                if (window.contractorPaymentSystem) {
+                    result.innerHTML = '<span class="success">✅ Contractor Payment System initialized successfully</span>';
+                } else {
+                    result.innerHTML = '<span class="error">❌ Contractor Payment System not initialized</span>';
+                }
+            } catch (error) {
+                result.innerHTML = '<span class="error">❌ Error: ' + error.message + '</span>';
+            }
+        }
+
+        function testAgentCoinConfig() {
+            const result = document.getElementById('config-result');
+            try {
+                const config = window.contractorPaymentSystem.getAgentCoinConfig();
+                result.innerHTML = `
+                    <span class="success">✅ Agent Coin Configuration Loaded:</span><br>
+                    <strong>Vault:</strong> ${config.vaultAddress}<br>
+                    <strong>Knowledge Base Coin:</strong> ${config.knowledgeBaseCoin}<br>
+                    <strong>Vision Architect Coin:</strong> ${config.visionArchitectCoin}<br>
+                    <strong>KB URL:</strong> <a href="${config.knowledgeBaseUrl}" target="_blank">${config.knowledgeBaseUrl}</a><br>
+                    <strong>VA URL:</strong> <a href="${config.visionArchitectUrl}" target="_blank">${config.visionArchitectUrl}</a>
+                `;
+            } catch (error) {
+                result.innerHTML = '<span class="error">❌ Error: ' + error.message + '</span>';
+            }
+        }
+
+        function testVaultCopy() {
+            const result = document.getElementById('copy-result');
+            try {
+                // Test the copy function exists
+                if (typeof copyVaultAddress === 'function') {
+                    result.innerHTML = '<span class="success">✅ Copy function exists and is callable</span>';
+                    // Note: We can't actually test clipboard in headless environment
+                } else {
+                    result.innerHTML = '<span class="error">❌ Copy function not found</span>';
+                }
+            } catch (error) {
+                result.innerHTML = '<span class="error">❌ Error: ' + error.message + '</span>';
+            }
+        }
+
+        function testCoinLinks() {
+            const result = document.getElementById('links-result');
+            try {
+                // Test the link functions exist
+                const kbExists = typeof openKnowledgeBaseCoin === 'function';
+                const vaExists = typeof openVisionArchitectCoin === 'function';
+
+                if (kbExists && vaExists) {
+                    result.innerHTML = '<span class="success">✅ Both coin link functions exist</span>';
+                } else {
+                    result.innerHTML = '<span class="error">❌ Missing functions: ' +
+                        (!kbExists ? 'openKnowledgeBaseCoin ' : '') +
+                        (!vaExists ? 'openVisionArchitectCoin' : '') + '</span>';
+                }
+            } catch (error) {
+                result.innerHTML = '<span class="error">❌ Error: ' + error.message + '</span>';
+            }
+        }
+
+        function testSystemArchitect() {
+            const result = document.getElementById('architect-result');
+            try {
+                // Test with a known System Architect wallet
+                const testWallet = '0xEFc6910e7624F164dAe9d0F799954aa69c943c8d';
+                const isArchitect = window.contractorPaymentSystem.isSystemArchitect(testWallet);
+
+                if (isArchitect) {
+                    result.innerHTML = '<span class="success">✅ System Architect check working - ' + testWallet + ' recognized</span>';
+                } else {
+                    result.innerHTML = '<span class="error">❌ System Architect check failed - ' + testWallet + ' not recognized</span>';
+                }
+            } catch (error) {
+                result.innerHTML = '<span class="error">❌ Error: ' + error.message + '</span>';
+            }
+        }
+
+        // Auto-run some basic tests on load
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                testSystemInit();
+                testAgentCoinConfig();
+                testSystemArchitect();
+            }, 500);
+        });
+    </script>
+</body>
+</html>
