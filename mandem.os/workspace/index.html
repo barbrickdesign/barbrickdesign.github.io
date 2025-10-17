@@ -1932,11 +1932,53 @@
         // Initialize content stats on load
         window.addEventListener('load', function() {
             console.log('🚀 Initializing Gem Bot Universe...');
+
+            // Maintain session state
+            restoreSessionState();
+
             loadAgentCustomizations();
             refreshWizardStatus();
-            refreshContentStats(); // Add this
+            refreshContentStats();
             initScene();
         });
+
+        // Session persistence across page transitions
+        function restoreSessionState() {
+            // Restore wallet connection
+            if (window.authIntegration) {
+                window.authIntegration.init({ showUI: false, requireAuth: false });
+            }
+
+            // Restore wizard mode
+            const savedWizardMode = localStorage.getItem('wizardMode');
+            if (savedWizardMode === 'true') {
+                wizardMode = true;
+                createWizards();
+            }
+
+            // Restore embodiments
+            const savedEmbodiments = localStorage.getItem('activeEmbodiments');
+            if (savedEmbodiments) {
+                Object.assign(activeEmbodiments, JSON.parse(savedEmbodiments));
+                updateEmbodimentIndicators();
+            }
+
+            // Restore mission control state
+            const savedMissionControl = localStorage.getItem('missionControlVisible');
+            if (savedMissionControl === 'true') {
+                const panel = document.getElementById('missionControl');
+                if (panel) panel.style.display = 'block';
+            }
+        }
+
+        function saveSessionState() {
+            localStorage.setItem('wizardMode', wizardMode);
+            localStorage.setItem('activeEmbodiments', JSON.stringify(activeEmbodiments));
+            localStorage.setItem('missionControlVisible', document.getElementById('missionControl').style.display === 'block');
+        }
+
+        // Auto-save session state
+        setInterval(saveSessionState, 5000); // Save every 5 seconds
 
         // Handle window resize
         window.addEventListener('resize', function() {
