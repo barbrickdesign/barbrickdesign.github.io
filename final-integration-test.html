@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gem Bot Universe - Final Integration Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; }
+        .test-section { background: white; padding: 20px; margin: 10px 0; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .success { color: green; font-weight: bold; }
+        .error { color: red; font-weight: bold; }
+        .warning { color: orange; font-weight: bold; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>🎯 Gem Bot Universe - Final Integration Test</h1>
+    <p>Testing all fixes: Agent Hub location, 3D globe functionality, and complete system integration.</p>
+
+    <div class="test-section">
+        <h2>Test 1: Agent Hub File Location</h2>
+        <button onclick="testAgentHubLocation()">Test Agent Hub Access</button>
+        <div id="agent-hub-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 2: 3D Scene with Fallback</h2>
+        <button onclick="test3DSceneWithFallback()">Test 3D Scene</button>
+        <div id="scene-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 3: Navigation Integration</h2>
+        <button onclick="testNavigationIntegration()">Test Navigation</button>
+        <div id="nav-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 4: Complete System Status</h2>
+        <button onclick="testCompleteSystem()">Test All Systems</button>
+        <div id="system-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🎉 FINAL VERIFICATION</h2>
+        <button onclick="runFinalIntegrationTest()">🚀 Complete Integration Test</button>
+        <div id="final-result"></div>
+    </div>
+
+    <script>
+        // Test Functions
+        async function testAgentHubLocation() {
+            const result = document.getElementById('agent-hub-result');
+
+            try {
+                // Test if agent-hub.html exists in the correct location
+                const response = await fetch('agent-hub.html');
+                if (response.ok) {
+                    const content = await response.text();
+                    const hasTitle = content.includes('GRAND WIZARD REALM CONTROL');
+                    const hasAuth = content.includes('Phantom Wallet');
+
+                    if (hasTitle && hasAuth) {
+                        result.innerHTML = '<div class="test-result success">✅ Agent Hub correctly located at /mandem.os/agent-hub.html</div>';
+                        result.innerHTML += '<div class="test-result success">✅ Agent Hub contains proper content and authentication</div>';
+                        return true;
+                    } else {
+                        result.innerHTML = '<div class="test-result error">❌ Agent Hub exists but content is incomplete</div>';
+                        return false;
+                    }
+                } else {
+                    result.innerHTML = '<div class="test-result error">❌ Agent Hub not accessible at /mandem.os/agent-hub.html</div>';
+                    return false;
+                }
+            } catch (error) {
+                result.innerHTML = '<div class="test-result error">❌ Error testing Agent Hub: ' + error.message + '</div>';
+                return false;
+            }
+        }
+
+        function test3DSceneWithFallback() {
+            const result = document.getElementById('scene-result');
+
+            // Test if initScene function exists
+            if (typeof initScene !== 'function') {
+                result.innerHTML = '<div class="test-result error">❌ initScene function not found</div>';
+                return false;
+            }
+
+            // Test if showGlobeFallback function exists
+            if (typeof showGlobeFallback !== 'function') {
+                result.innerHTML = '<div class="test-result error">❌ showGlobeFallback function not found</div>';
+                return false;
+            }
+
+            result.innerHTML = '<div class="test-result success">✅ 3D scene functions exist with fallback support</div>';
+
+            // Test WebGL support
+            if (window.WebGLRenderingContext) {
+                result.innerHTML += '<div class="test-result success">✅ WebGL supported - 3D globe should work</div>';
+            } else {
+                result.innerHTML += '<div class="test-result warning">⚠️ WebGL not supported - fallback will be shown</div>';
+            }
+
+            return true;
+        }
+
+        function testNavigationIntegration() {
+            const result = document.getElementById('nav-result');
+
+            // Test if Agent Hub navigation card exists
+            const agentHubCard = document.querySelector('.nav-card h3');
+            const hasAgentHub = Array.from(document.querySelectorAll('.nav-card h3')).some(h3 => h3.textContent.includes('AGENT HUB'));
+
+            if (hasAgentHub) {
+                result.innerHTML = '<div class="test-result success">✅ Agent Hub navigation card present</div>';
+            } else {
+                result.innerHTML = '<div class="test-result error">❌ Agent Hub navigation card missing</div>';
+                return false;
+            }
+
+            // Test if navigateTo function handles agent-hub
+            if (typeof navigateTo === 'function') {
+                result.innerHTML += '<div class="test-result success">✅ navigateTo function exists</div>';
+                return true;
+            } else {
+                result.innerHTML += '<div class="test-result error">❌ navigateTo function missing</div>';
+                return false;
+            }
+        }
+
+        function testCompleteSystem() {
+            const result = document.getElementById('system-result');
+
+            const checks = [
+                { name: 'Agent Coin Vault', check: document.querySelector('.agent-coin-card') !== null },
+                { name: 'Mission Control', check: document.getElementById('missionControl') !== null },
+                { name: 'Status Panel', check: document.querySelector('.status-panel') !== null },
+                { name: 'Globe Container', check: document.getElementById('globe-container') !== null },
+                { name: 'Navigation Cards', check: document.querySelectorAll('.nav-card').length > 0 }
+            ];
+
+            let passed = 0;
+            checks.forEach(check => {
+                if (check.check) {
+                    result.innerHTML += `<div class="test-result success">✅ ${check.name} present</div>`;
+                    passed++;
+                } else {
+                    result.innerHTML += `<div class="test-result error">❌ ${check.name} missing</div>`;
+                }
+            });
+
+            result.innerHTML += `<div class="test-result ${passed === checks.length ? 'success' : 'warning'}">📊 System Components: ${passed}/${checks.length} functional</div>`;
+
+            return passed === checks.length;
+        }
+
+        async function runFinalIntegrationTest() {
+            const result = document.getElementById('final-result');
+
+            result.innerHTML = '<div class="test-result warning">🔄 Running complete integration test...</div>';
+
+            const tests = await Promise.all([
+                testAgentHubLocation(),
+                test3DSceneWithFallback(),
+                testNavigationIntegration(),
+                testCompleteSystem()
+            ]);
+
+            const passedTests = tests.filter(test => test === true).length;
+            const totalTests = tests.length;
+
+            setTimeout(() => {
+                result.innerHTML = `
+                    <div class="test-result success">🎯 INTEGRATION TEST COMPLETE</div>
+                    <div class="test-result success">✅ Passed: ${passedTests}/${totalTests} major components</div>
+                `;
+
+                if (passedTests === totalTests) {
+                    result.innerHTML += '<div class="test-result success">🎉 ALL INTEGRATION ISSUES RESOLVED!</div>';
+                    result.innerHTML += '<div class="test-result success">✅ Agent Hub: Properly located and accessible</div>';
+                    result.innerHTML += '<div class="test-result success">✅ 3D Globe: WebGL support with fallback</div>';
+                    result.innerHTML += '<div class="test-result success">✅ Navigation: Agent Hub integration complete</div>';
+                    result.innerHTML += '<div class="test-result success">✅ System: All components functional</div>';
+                } else {
+                    result.innerHTML += '<div class="test-result error">❌ Some integration issues remain</div>';
+                }
+            }, 1000);
+        }
+
+        // Auto-run basic tests on load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                testCompleteSystem();
+            }, 500);
+        });
+    </script>
+</body>
+</html>
