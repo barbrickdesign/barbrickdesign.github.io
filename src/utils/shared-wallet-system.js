@@ -28,10 +28,16 @@ class SharedWalletSystem {
         // Detect available wallets (passive)
         await this.detectWallets();
 
-        // Only restore session if universal auth isn't handling it
-        if (!window.universalWalletAuth) {
-            await this.restoreSession();
+        // If universal auth is present, be completely passive and don't interfere
+        if (window.universalWalletAuth) {
+            console.log('🔄 Universal Auth detected - Shared Wallet System going passive mode');
+            this.passiveMode = true;
+            console.log('✅ Shared Wallet System ready (passive mode)');
+            return;
         }
+
+        // Only restore session if universal auth isn't handling it
+        await this.restoreSession();
 
         // Setup event listeners (coordinated)
         this.setupEventListeners();
