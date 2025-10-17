@@ -413,22 +413,43 @@ class UniversalWalletAuth {
      * Setup wallet event listeners
      */
     setupWalletListeners() {
+        // Prevent recursive reloading
+        this.isReloading = false;
+
         // Ethereum events
         if (window.ethereum) {
             window.ethereum.on('accountsChanged', (accounts) => {
+                // Prevent recursive calls during reload
+                if (this.isReloading) return;
+
                 if (accounts.length === 0) {
                     console.log('🔔 Wallet disconnected');
                     this.clearSession();
-                } else if (accounts[0].toLowerCase() !== this.address) {
-                    console.log('🔔 Account changed, re-authenticating...');
-                    this.clearSession();
-                    window.location.reload();
+                } else {
+                    const newAddress = accounts[0].toLowerCase();
+                    // Only reload if the account actually changed (not just session cleared)
+                    if (this.address && newAddress !== this.address.toLowerCase()) {
+                        console.log('🔔 Account changed, re-authenticating...');
+                        this.isReloading = true;
+                        this.clearSession();
+                        // Small delay to prevent immediate recursive call
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 100);
+                    } else if (!this.address) {
+                        // No stored address, this is initial connection
+                        console.log('🔔 Initial account detected, connecting...');
+                        this.connectEthereum();
+                    }
                 }
             });
 
             window.ethereum.on('chainChanged', () => {
                 console.log('🔔 Chain changed, reloading...');
-                window.location.reload();
+                this.isReloading = true;
+                setTimeout(() => {
+                    window.location.reload();
+                }, 100);
             });
         }
 
@@ -440,12 +461,27 @@ class UniversalWalletAuth {
             });
 
             window.solana.on('accountChanged', (publicKey) => {
+                // Prevent recursive calls during reload
+                if (this.isReloading) return;
+
                 if (!publicKey) {
                     this.clearSession();
-                } else if (publicKey.toString() !== this.address) {
-                    console.log('🔔 Account changed, re-authenticating...');
-                    this.clearSession();
-                    window.location.reload();
+                } else {
+                    const newAddress = publicKey.toString();
+                    // Only reload if the account actually changed
+                    if (this.address && newAddress !== this.address) {
+                        console.log('🔔 Account changed, re-authenticating...');
+                        this.isReloading = true;
+                        this.clearSession();
+                        // Small delay to prevent immediate recursive call
+                        setTimeout(() => {
+                            window.location.reload();
+                        }, 100);
+                    } else if (!this.address) {
+                        // No stored address, this is initial connection
+                        console.log('🔔 Initial account detected, connecting...');
+                        this.connectSolana();
+                    }
                 }
             });
         }
