@@ -1095,6 +1095,48 @@
             });
         }
 
+        // NFT Jewelry button functionality
+        const launchNFTJewelryBtn = document.getElementById('launchNFTJewelryBtn');
+        if (launchNFTJewelryBtn) {
+            launchNFTJewelryBtn.addEventListener('click', function() {
+                console.log('💎 Opening Austin\'s NFT Jewelry Collection...');
+                window.open('https://earthartgems.com/', '_blank');
+
+                // Show sample NFT creation
+                setTimeout(() => {
+                    const sampleJewelry = {
+                        type: 'diamond',
+                        metadata: {
+                            weight: 2.5, // carats
+                            quality: 'flawless',
+                            origin: 'natural',
+                            clarity: 'VVS1'
+                        },
+                        image: 'https://earthartgems.com/diamond-sample.jpg'
+                    };
+
+                    nftJewelrySystem.createNFT(sampleJewelry).then(result => {
+                        alert(`💎 NFT Created Successfully!\n\nGem Type: ${sampleJewelry.type.charAt(0).toUpperCase() + sampleJewelry.type.slice(1)}\nCalculated Value: $${result.calculatedValue}\n\nThis NFT preserves the true value of Austin's jewelry through blockchain metadata. Each gem's properties (weight, quality, origin) are permanently recorded and contribute to its market value.\n\nVisit https://earthartgems.com/ to transform your jewelry into NFTs!`);
+                    });
+                }, 1000);
+            });
+        }
+
+        // Wizard Tip button functionality
+        const wizardTipBtn = document.getElementById('wizardTipBtn');
+        if (wizardTipBtn) {
+            wizardTipBtn.addEventListener('click', function() {
+                console.log('🎭 Requesting wizard advice...');
+
+                // Trigger immediate wizard tips
+                if (window.wizardAvatarSystem && window.wizardAvatars) {
+                    window.wizardAvatarSystem.showWizardTip(window.wizardAvatars[Math.floor(Math.random() * window.wizardAvatars.length)]);
+                }
+
+                alert('🎭 Wizards Activated!\n\nThe mystical wizards are now floating throughout the Gem Bot Universe, offering their wisdom:\n\n• Austin Moore (Orange): Jewelry & NFT expertise\n• Arya (Pink): Art & technology guidance\n• Ryan Barbrick (Gold): Vision & innovation insights\n\nWatch for their glowing avatars and floating tip messages as you explore!');
+            });
+        }
+
         // Check Connection and Sync Settings buttons (just show alerts for now)
         const checkConnectionBtn = document.getElementById('checkConnectionBtn');
         if (checkConnectionBtn) {
