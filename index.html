@@ -681,6 +681,15 @@
         // Simple initialization
         window.addEventListener('DOMContentLoaded', () => {
             updatePageTimestamp();
+
+            // Initialize wallet button after a brief delay to avoid conflicts
+            setTimeout(() => {
+                if (typeof WalletButton !== 'undefined' && !window.walletButton) {
+                    window.walletButton = new WalletButton();
+                    console.log('🔌 Wallet button initialized successfully');
+                }
+            }, 500);
+
             console.log('🏠 BARBRICKDESIGN Hub loaded successfully - no service worker');
         });
     </script>

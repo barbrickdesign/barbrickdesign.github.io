@@ -263,6 +263,11 @@ class WalletButton {
 }
 
 // Auto-initialize when DOM is ready
+// DISABLED: Auto-initialization causes conflicts with other wallet systems
+// Users should manually initialize with: window.walletButton = new WalletButton();
+
+/*
+// Auto-initialize when DOM is ready
 if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', () => {
         window.walletButton = new WalletButton();
@@ -270,6 +275,7 @@ if (document.readyState === 'loading') {
 } else {
     window.walletButton = new WalletButton();
 }
+*/
 
 // Export
 if (typeof module !== 'undefined' && module.exports) {
