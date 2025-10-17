@@ -643,17 +643,7 @@
             });
         }
 
-        // Add timeout for script loading to prevent hanging
-        setTimeout(function() {
-            console.log('⏰ Script loading timeout check');
-            if (typeof window.sharedWalletSystem === 'undefined') {
-                console.warn('⚠️ Shared wallet system not loaded - continuing without it');
-            }
-            if (typeof window.universalWalletAuth === 'undefined') {
-                console.warn('⚠️ Universal wallet auth not loaded - continuing without it');
-            }
-            // Continue with initialization regardless
-        }, 3000);
+        // Setup completed - MetaMask ready
 
         // Clear any problematic intervals that might exist
         let maxIntervals = 0;
@@ -1114,11 +1104,12 @@
     */
   </script>
         <script>
-console.log('[DEBUG] index.html loaded');
+console.log('[DEBUG] index.html loaded - MetaMask integration ready');
 console.log('[DEBUG] currentUser:', localStorage.getItem('currentUser'));
 console.log('[DEBUG] userProfile:', localStorage.getItem('userProfile'));
 console.log('[DEBUG] userLoggedIn:', localStorage.getItem('userLoggedIn'));
 console.log('[DEBUG] lastWalletAuth:', localStorage.getItem('lastWalletAuth'));
+console.log('[DEBUG] MetaMask available:', typeof window.ethereum !== 'undefined' && window.ethereum?.isMetaMask);
 
 // Global error handlers to prevent page crashes
 window.addEventListener('error', function(e) {
