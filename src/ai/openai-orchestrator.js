@@ -303,12 +303,14 @@ class OpenAIOrchestrator {
      * @param {object} options - Transcribe options
      */
     async speechToText(audioBlob, options = {}) {
+        // For now, speech-to-text still uses legacy endpoint due to FormData requirement
+        // TODO: Update when responses API supports audio input
         const formData = new FormData();
         formData.append('file', audioBlob);
-        formData.append('model', 'whisper-1');
+        formData.append('model', options.model || 'whisper-1');
 
         Object.keys(options).forEach(key => {
-            formData.append(key, options[key]);
+            if (key !== 'model') formData.append(key, options[key]);
         });
 
         const response = await fetch(`${this.baseURL}/audio/transcriptions`, {
@@ -323,7 +325,14 @@ class OpenAIOrchestrator {
             throw new Error(`Speech-to-text API error: ${response.status}`);
         }
 
-        return await response.json();
+        const result = await response.json();
+        // Convert to new format for consistency
+        return {
+            output: [{
+                type: 'transcription',
+                text: result.text
+            }]
+        };
     }
 
     /**
