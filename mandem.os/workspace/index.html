@@ -3,8 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Gem Bot Universe - Future Knowledge Hub</title>
-    <meta name="description" content="Advanced AI-driven knowledge platform for creative professionals and innovators">
+    <title>Mandem.os v2 - Advanced AI Ecosystem</title>
+    <meta name="description" content="Next-generation AI platform with enhanced wallet integration, advanced agent systems, and revolutionary knowledge management - Mandem.os v2">
 
     <!-- Cyberpunk Theme CSS -->
     <style>
@@ -13,11 +13,17 @@
             --neon-pink: #ff1493;
             --neon-green: #00ff88;
             --neon-orange: #ff6b35;
+            --neon-purple: #9932cc;
+            --neon-cyan: #00ffff;
             --dark-bg: #0a0a0a;
             --darker-bg: #050505;
             --panel-bg: rgba(20, 20, 20, 0.95);
             --text-glow: 0 0 10px var(--neon-blue);
             --border-glow: 0 0 15px var(--neon-blue);
+            /* v2 Enhancements */
+            --ai-gradient: linear-gradient(45deg, var(--neon-blue), var(--neon-purple), var(--neon-pink));
+            --quantum-glow: 0 0 20px rgba(0, 255, 255, 0.8);
+            --hologram-bg: rgba(0, 255, 255, 0.1);
         }
 
         * {
@@ -487,10 +493,15 @@
 <body class="page-transition">
     <!-- Header -->
     <header>
-        <h1>GEM BOT UNIVERSE</h1>
-        <p class="header-desc">Advanced AI Knowledge Platform • Future Innovation Hub</p>
-        <div style="margin-top: 1rem;">
+        <h1>MANDEM.OS <span style="color: var(--neon-purple); font-size: 0.6em; vertical-align: super;">v2</span></h1>
+        <p class="header-desc">Advanced AI Ecosystem • Quantum Knowledge Platform • Next-Generation Intelligence</p>
+        <div style="margin-top: 1rem; display: flex; gap: 1rem; justify-content: center;">
             <button class="cyber-btn" onclick="toggleMissionControl()">MISSION CONTROL</button>
+            <button class="cyber-btn cyber-btn-secondary" onclick="activateQuantumMode()">⚛️ QUANTUM MODE</button>
+        </div>
+        <!-- v2 Status Indicator -->
+        <div style="position: absolute; top: 10px; right: 20px; background: var(--hologram-bg); border: 1px solid var(--neon-purple); border-radius: 20px; padding: 5px 15px; font-size: 0.8em; color: var(--neon-purple);">
+            🧠 AI CORE: ONLINE | 🔐 SECURE | ⚡ ENHANCED
         </div>
     </header>
 
