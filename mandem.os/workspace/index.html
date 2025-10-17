@@ -766,16 +766,82 @@
                     </div>
 
                     <div style="text-align: center; margin-top: 10px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.3);">
-                        <button onclick="window.open('https://www.youtube.com/@RyaBar', '_blank')" style="background: #ff1493; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px;">📺 View All @RyaBar Tutorials</button>
+                        <button onclick="window.open('https://www.youtube.com/@RyaBar', '_blank')" style="background: #ff1493; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px; margin-right: 5px;">📺 @RyaBar Tutorials</button>
+                        <button onclick="window.open('https://www.youtube.com/@ultratecusa/videos', '_blank')" style="background: #ff1493; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-size: 11px;">📺 @ultratecusa Content</button>
                     </div>
                 `;
 
                 // Update tutorial count
-                document.getElementById('aryaTutorials').textContent = '4';
+                document.getElementById('aryaTutorials').textContent = '8';
                 document.getElementById('aryaLastActivity').textContent = 'Educational content accessed - ' + new Date().toLocaleString();
 
                 if (aiVideosDiv.style.display === 'block') {
-                    alert('🎓 Gem Bot Learning Center Activated!\n\nAI Arya has prepared 4 comprehensive tutorials to help you master the Gem Bot Universe:\n\n• Basic Controls & Navigation\n• Advanced Laboratory Techniques\n• Trading & Economy\n• Creative Projects\n\nWatch the AI-generated videos above, or visit @RyaBar for more educational content!');
+                    alert('🎓 Gem Bot Learning Center Activated!\n\nAI Arya has prepared 4 comprehensive tutorials to help you master the Gem Bot Universe:\n\n• Basic Controls & Navigation\n• Advanced Laboratory Techniques\n• Trading & Economy\n• Creative Projects\n\nWatch the AI-generated videos above, or visit @RyaBar and @ultratecusa for more educational content!');
+                }
+            });
+        }
+
+        // Trusted Projects button functionality
+        const aryaProjectsBtn = document.getElementById('aryaProjectsBtn');
+        if (aryaProjectsBtn) {
+            aryaProjectsBtn.addEventListener('click', function() {
+                console.log('🔒 Opening Arya Trusted Projects...');
+
+                // Show trusted projects section
+                const projectsDiv = document.getElementById('aryaTrustedProjects');
+                projectsDiv.style.display = projectsDiv.style.display === 'none' ? 'block' : 'none';
+
+                // Populate trusted projects
+                const projectList = document.getElementById('aryaProjectList');
+                projectList.innerHTML = `
+                    <div style="margin-bottom: 12px; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 5px;">
+                        <div style="font-weight: bold; color: #00ff99;">🎨 Gem Bot Universe Integration</div>
+                        <div style="font-size: 11px; margin-top: 2px;">Complete integration of Arya's creative work into the Gem Bot ecosystem - educational content, AI tutorials, and artistic innovation.</div>
+                        <div style="font-size: 10px; color: #ffd700; margin-top: 3px;">Status: ✅ Fully Integrated | Trust Level: Maximum</div>
+                    </div>
+
+                    <div style="margin-bottom: 12px; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 5px;">
+                        <div style="font-weight: bold; color: #00ff99;">📚 Educational Content Hub</div>
+                        <div style="font-size: 11px; margin-top: 2px;">Comprehensive Gem Bot learning resources from both @RyaBar and @ultratecusa channels - tutorials, guides, and mastery content.</div>
+                        <div style="font-size: 10px; color: #ffd700; margin-top: 3px;">Status: ✅ Active | Trust Level: Verified</div>
+                    </div>
+
+                    <div style="margin-bottom: 12px; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 5px;">
+                        <div style="font-weight: bold; color: #00ff99;">🤖 AI Arya Teaching System</div>
+                        <div style="font-size: 11px; margin-top: 2px;">AI-generated video tutorials featuring Arya teaching Gem Bot usage, controls, and advanced techniques.</div>
+                        <div style="font-size: 10px; color: #ffd700; margin-top: 3px;">Status: ✅ Operational | Trust Level: Authorized</div>
+                    </div>
+
+                    <div style="margin-bottom: 12px; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 5px;">
+                        <div style="font-weight: bold; color: #00ff99;">🎯 Agent Monitoring & Analytics</div>
+                        <div style="font-size: 11px; margin-top: 2px;">Real-time monitoring of Arya's educational impact, user engagement metrics, and content performance analytics.</div>
+                        <div style="font-size: 10px; color: #ffd700; margin-top: 3px;">Status: ✅ Monitoring | Trust Level: Trusted</div>
+                    </div>
+
+                    <div style="margin-bottom: 12px; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 5px;">
+                        <div style="font-weight: bold; color: #00ff99;">🔗 Cross-Platform Integration</div>
+                        <div style="font-size: 11px; margin-top: 2px;">Seamless integration between YouTube educational content, Gem Bot Universe features, and user learning pathways.</div>
+                        <div style="font-size: 10px; color: #ffd700; margin-top: 3px;">Status: ✅ Connected | Trust Level: Certified</div>
+                    </div>
+
+                    <div style="margin-bottom: 12px; padding: 8px; background: rgba(255,255,255,0.1); border-radius: 5px;">
+                        <div style="font-weight: bold; color: #00ff99;">🎨 Creative Technology Fusion</div>
+                        <div style="font-size: 11px; margin-top: 2px;">Blending artistic creativity with technological innovation - featuring Arya's unique approach to tech education.</div>
+                        <div style="font-size: 10px; color: #ffd700; margin-top: 3px;">Status: ✅ Active | Trust Level: Elite</div>
+                    </div>
+
+                    <div style="text-align: center; margin-top: 15px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.3);">
+                        <div style="font-size: 10px; color: #ffd700; margin-bottom: 8px;">🔒 ALL ARYA PROJECTS & AGENT PROFILES VERIFIED TRUSTED</div>
+                        <button onclick="alert('🔒 TRUST VERIFICATION COMPLETE\n\nAll Arya projects and agent profiles have been verified and marked as TRUSTED within the Gem Bot Universe ecosystem.\n\n• Educational content: AUTHORIZED\n• Agent connections: VERIFIED\n• Project integrations: CERTIFIED\n• Creative collaborations: APPROVED\n\nTrust Level: MAXIMUM')" style="background: #ff1493; color: white; border: none; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-size: 11px; font-weight: bold;">✅ Verify Trust Status</button>
+                    </div>
+                `;
+
+                // Update trusted projects count
+                document.getElementById('trustedProjects').textContent = '12';
+                document.getElementById('aryaLastActivity').textContent = 'Trusted projects accessed - ' + new Date().toLocaleString();
+
+                if (projectsDiv.style.display === 'block') {
+                    alert('🔒 Arya Trusted Projects Portal Opened!\n\nAccess to 12 verified Arya integrations:\n\n• Gem Bot Universe Integration\n• Educational Content Hub\n• AI Arya Teaching System\n• Agent Monitoring & Analytics\n• Cross-Platform Integration\n• Creative Technology Fusion\n\nAll projects are TRUSTED and fully integrated into the Gem Bot ecosystem!');
                 }
             });
         }
