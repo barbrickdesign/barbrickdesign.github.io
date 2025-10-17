@@ -248,9 +248,13 @@ class WalletButton {
      * Setup event listeners for wallet state changes
      */
     setupListeners() {
-        // Re-render when wallet connects
+        // Only setup listeners if we haven't set them up before
+        if (this.listenersSetup) return;
+        this.listenersSetup = true;
+
+        // Re-render when wallet connects (but don't trigger reloads)
         window.addEventListener('authSuccess', () => {
-            console.log('🔔 Wallet connected, updating UI');
+            console.log('🔔 Wallet connected via auth system, updating UI');
             this.render();
         });
 
@@ -259,6 +263,19 @@ class WalletButton {
             console.log('🔔 Wallet disconnected, updating UI');
             this.render();
         });
+
+        // Listen for shared wallet system events
+        if (window.sharedWalletSystem) {
+            window.addEventListener('walletConnected', () => {
+                console.log('🔔 Wallet connected via shared system, updating UI');
+                this.render();
+            });
+
+            window.addEventListener('walletDisconnected', () => {
+                console.log('🔔 Wallet disconnected from shared system, updating UI');
+                this.render();
+            });
+        }
     }
 }
 
