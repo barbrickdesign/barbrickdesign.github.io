@@ -1535,11 +1535,96 @@
             }
         }
 
-        // Initialize wizard status on load
+        // Content Library Functions
+        function openContentLibrary() {
+            if (!window.contentSharingManager) {
+                alert('❌ Content sharing system not loaded');
+                return;
+            }
+
+            const content = window.contentSharingManager.getContent();
+            let libraryHTML = '📚 CONTENT LIBRARY\n\n';
+
+            if (content.length === 0) {
+                libraryHTML += 'No content available yet.\n\nGenerate some AI content or import existing items.';
+            } else {
+                content.forEach(item => {
+                    libraryHTML += `📄 ${item.type.toUpperCase()}: ${item.metadata.category || 'General'}\n`;
+                    libraryHTML += `   ID: ${item.id}\n`;
+                    libraryHTML += `   Created: ${new Date(item.createdAt).toLocaleDateString()}\n`;
+                    libraryHTML += `   By: ${item.creator}\n`;
+
+                    if (item.type === 'images' && item.data.url) {
+                        libraryHTML += `   Preview: ${item.data.url}\n`;
+                    } else if (item.type === 'text' && item.data.response) {
+                        libraryHTML += `   Response: ${item.data.response.substring(0, 100)}...\n`;
+                    }
+
+                    libraryHTML += '\n';
+                });
+            }
+
+            alert(libraryHTML);
+        }
+
+        function refreshContentStats() {
+            if (!window.contentSharingManager) {
+                document.getElementById('contentStats').textContent = 'System not loaded';
+                return;
+            }
+
+            const stats = window.contentSharingManager.getStats();
+            const statsText = `Total: ${stats.totalItems}\nImages: ${stats.byType.images || 0}\nVideos: ${stats.byType.videos || 0}\nTutorials: ${stats.byType.tutorials || 0}\nText: ${stats.byType.text || 0}\n\nLast Updated: ${new Date(stats.lastUpdated).toLocaleString()}`;
+            document.getElementById('contentStats').textContent = statsText;
+        }
+
+        function shareRecentContent() {
+            if (!window.contentSharingManager) {
+                alert('❌ Content sharing system not loaded');
+                return;
+            }
+
+            const userId = document.getElementById('shareUserSelect').value;
+            const recentContent = window.contentSharingManager.getContent().slice(0, 5); // Last 5 items
+
+            if (recentContent.length === 0) {
+                alert('No content available to share');
+                return;
+            }
+
+            recentContent.forEach(item => {
+                window.contentSharingManager.shareContent(item.id, [userId]);
+            });
+
+            alert(`✅ Shared ${recentContent.length} recent items with ${userId.charAt(0).toUpperCase() + userId.slice(1)}`);
+        }
+
+        function exportContentLibrary() {
+            if (!window.contentSharingManager) {
+                alert('❌ Content sharing system not loaded');
+                return;
+            }
+
+            const libraryData = window.contentSharingManager.exportLibrary();
+            const dataStr = JSON.stringify(libraryData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = 'gem-bot-content-library.json';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            alert('✅ Content library exported successfully!');
+        }
+
+        // Initialize content stats on load
         window.addEventListener('load', function() {
             console.log('🚀 Initializing Gem Bot Universe...');
             loadAgentCustomizations();
             refreshWizardStatus();
+            refreshContentStats(); // Add this
             initScene();
         });
 
