@@ -240,11 +240,27 @@ class OpenAIOrchestrator {
 
         const response = await this.makeRequest(payload);
         // Convert to old format for compatibility
-        return {
+        const result = {
             data: [{
                 url: response.output?.[0]?.image?.url || 'https://via.placeholder.com/512x512/00ffff/000000?text=Mock+AI+Generated+Image'
             }]
         };
+
+        // Auto-save to content library
+        if (window.contentSharingManager && result.data[0].url && !result.data[0].url.includes('placeholder')) {
+            window.contentSharingManager.addContent('images', {
+                prompt,
+                url: result.data[0].url,
+                model: payload.model,
+                size: options.size,
+                quality: options.quality,
+                tags: ['ai-generated', 'gem-bot', prompt.split(' ').slice(0, 3).join('-')],
+                project: 'gem-bot-universe',
+                category: 'ai-art'
+            }, 'openai-orchestrator');
+        }
+
+        return result;
     }
 
     /**
