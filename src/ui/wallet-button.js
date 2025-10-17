@@ -6,6 +6,8 @@
 class WalletButton {
     constructor(containerId = 'walletButtonContainer') {
         this.container = document.getElementById(containerId);
+        this.listenersSetup = false; // Track if listeners are already set up
+        
         if (!this.container) {
             console.error('Wallet button container not found');
             return;
