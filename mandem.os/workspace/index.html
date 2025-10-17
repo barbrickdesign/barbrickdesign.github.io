@@ -1407,31 +1407,30 @@
             document.body.style.opacity = '0.7';
             document.body.style.transform = 'scale(0.98)';
 
+            // Add error handling for failed navigation
+            const navigationTimeout = setTimeout(() => {
+                // If navigation hasn't completed in 3 seconds, assume failure
+                hideLoadingOverlay();
+                document.body.style.opacity = '1';
+                document.body.style.transform = 'scale(1)';
+                alert('❌ Navigation Error: Unable to load destination. Please check the URL and try again.');
+            }, 3000);
+
             setTimeout(() => {
                 // Navigate to local pages (no base URL needed)
                 window.location.href = destination + '.html';
+
+                // Clear the error timeout since we're navigating
+                clearTimeout(navigationTimeout);
             }, 800);
         }
 
-        function showLoadingOverlay(message) {
-            // Create loading overlay
-            const overlay = document.createElement('div');
-            overlay.className = 'modal-overlay active';
-            overlay.innerHTML = `
-                <div class="modal-content" style="text-align: center; padding: 3rem;">
-                    <div class="loading-spinner"></div>
-                    <h3 style="color: var(--neon-blue); margin-bottom: 1rem;">${message}</h3>
-                    <p style="color: var(--neon-green);">Initializing systems...</p>
-                </div>
-            `;
-            document.body.appendChild(overlay);
-
-            // Auto-remove after navigation
-            setTimeout(() => {
-                if (overlay.parentNode) {
-                    overlay.parentNode.removeChild(overlay);
-                }
-            }, 1500);
+        function hideLoadingOverlay() {
+            // Find and remove any existing loading overlay
+            const overlay = document.querySelector('.modal-overlay.active');
+            if (overlay && overlay.parentNode) {
+                overlay.parentNode.removeChild(overlay);
+            }
         }
 
         // Agent Portal Functions
