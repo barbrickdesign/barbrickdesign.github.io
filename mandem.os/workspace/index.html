@@ -674,7 +674,50 @@
             </div>
         </div>
 
-    <script>
+        <!-- Tutorial Video Studio -->
+        <div style="margin-top: 2rem;">
+            <h3 style="color: var(--neon-green); margin-bottom: 1rem;">🎬 TUTORIAL VIDEO STUDIO</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                
+                <!-- Assembly Tutorial -->
+                <div class="wizard-control-card">
+                    <h4>🔧 Assembly Tutorial</h4>
+                    <p>Step-by-step gem bot assembly guide</p>
+                    <div style="font-size: 0.8rem; color: var(--neon-blue); margin-bottom: 10px;">Duration: 5min</div>
+                    <button class="cyber-btn" onclick="generateAssemblyTutorial()">Generate Video</button>
+                </div>
+
+                <!-- Jewelry Tutorial -->
+                <div class="wizard-control-card">
+                    <h4>💎 Jewelry Tutorial</h4>
+                    <p>Creative jewelry design techniques</p>
+                    <div style="font-size: 0.8rem; color: var(--neon-blue); margin-bottom: 10px;">Duration: 8min</div>
+                    <button class="cyber-btn" onclick="generateJewelryTutorial()">Generate Video</button>
+                </div>
+
+                <!-- Sales Tutorial -->
+                <div class="wizard-control-card">
+                    <h4>💰 Sales Tutorial</h4>
+                    <p>Professional selling strategies</p>
+                    <div style="font-size: 0.8rem; color: var(--neon-blue); margin-bottom: 10px;">Duration: 6min</div>
+                    <button class="cyber-btn" onclick="generateSalesTutorial()">Generate Video</button>
+                </div>
+
+                <!-- Advanced Tutorial -->
+                <div class="wizard-control-card">
+                    <h4>🚀 Advanced Tutorial</h4>
+                    <p>Expert-level techniques</p>
+                    <div style="font-size: 0.8rem; color: var(--neon-blue); margin-bottom: 10px;">Duration: 10min</div>
+                    <button class="cyber-btn" onclick="generateAdvancedTutorial()">Generate Video</button>
+                </div>
+            </div>
+
+            <!-- Tutorial Controls -->
+            <div style="margin-top: 1rem; text-align: center;">
+                <button class="cyber-btn" onclick="generateAllTutorials()">🎬 Generate All Tutorials</button>
+                <button class="cyber-btn cyber-btn-secondary" onclick="createTutorialPlaylist()">📋 Create Learning Playlist</button>
+            </div>
+        </div>
         let scene, camera, renderer, controls;
         let earth, satellites = [], labels = [];
         let wizards = [], wizardMode = false;
