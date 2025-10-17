@@ -501,6 +501,77 @@
         </div>
     </div>
 
+    <!-- Agent Coin Vault Section -->
+    <div class="content-panel" style="margin-top: 2rem;">
+        <h2>🪙 AGENT COIN VAULT SYSTEM</h2>
+        <p style="color: var(--neon-blue); margin-bottom: 1rem; text-align: center;">
+            Cryptocurrency system to compensate developers for agent embodiments and contributions
+        </p>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem;">
+            <!-- Main Vault -->
+            <div class="agent-coin-card" style="background: var(--panel-bg); border: 2px solid var(--neon-green); border-radius: 10px; padding: 1.5rem; text-align: center;">
+                <h3 style="color: var(--neon-green); margin-bottom: 1rem;">🏦 MAIN VAULT</h3>
+                <div style="font-family: monospace; font-size: 0.9rem; color: var(--neon-green); margin-bottom: 1rem; word-break: break-all;">
+                    GJFCA8XxnGns9TqKsMLScyVSooyiNrNPpjp2CyQCz7z5
+                </div>
+                <p style="color: var(--neon-blue); margin-bottom: 1rem;">
+                    Central distribution vault for all agent compensation
+                </p>
+                <button class="cyber-btn" onclick="copyVaultAddress()">📋 Copy Vault Address</button>
+            </div>
+
+            <!-- Knowledge Base Agent Coin -->
+            <div class="agent-coin-card" style="background: var(--panel-bg); border: 2px solid var(--neon-blue); border-radius: 10px; padding: 1.5rem; text-align: center;">
+                <h3 style="color: var(--neon-blue); margin-bottom: 1rem;">🧠 KNOWLEDGE BASE AGENT</h3>
+                <div style="font-family: monospace; font-size: 0.9rem; color: var(--neon-blue); margin-bottom: 1rem; word-break: break-all;">
+                    Aj7H2e1PW8N8d1eVLL5k49oE3LzKeo8HMhjS6tv3trow
+                </div>
+                <p style="color: var(--neon-blue); margin-bottom: 1rem;">
+                    Coin for running Knowledge Base Agent operations
+                </p>
+                <button class="cyber-btn" onclick="openKnowledgeBaseCoin()">🌐 View on Pump.fun</button>
+            </div>
+
+            <!-- Vision Architect Coin -->
+            <div class="agent-coin-card" style="background: var(--panel-bg); border: 2px solid var(--neon-pink); border-radius: 10px; padding: 1.5rem; text-align: center;">
+                <h3 style="color: var(--neon-pink); margin-bottom: 1rem;">⚡ VISION ARCHITECT</h3>
+                <div style="font-family: monospace; font-size: 0.9rem; color: var(--neon-pink); margin-bottom: 1rem; word-break: break-all;">
+                    Axw9V2vXc6AH6jtqPJsWNC2o8knAtpqRJKXwJaSAcU7N
+                </div>
+                <p style="color: var(--neon-pink); margin-bottom: 1rem;">
+                    Coin for running Vision Architect agent operations
+                </p>
+                <button class="cyber-btn" onclick="openVisionArchitectCoin()">🌐 View on Pump.fun</button>
+            </div>
+        </div>
+
+        <!-- Distribution Controls (System Architect Only) -->
+        <div id="distributionControls" style="margin-top: 2rem; display: none;">
+            <h3 style="color: var(--neon-orange); margin-bottom: 1rem;">⚙️ AGENT COIN DISTRIBUTION</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem;">
+                <div class="wizard-control-card">
+                    <h4>💰 Distribute Coins</h4>
+                    <select id="distributionAgentType" style="width: 100%; padding: 8px; margin-bottom: 10px; background: var(--panel-bg); border: 1px solid var(--neon-blue); color: var(--neon-blue); border-radius: 5px;">
+                        <option value="knowledgeBase">Knowledge Base Agent</option>
+                        <option value="visionArchitect">Vision Architect</option>
+                    </select>
+                    <input type="text" id="distributionWallet" placeholder="Recipient Wallet Address" style="width: 100%; padding: 8px; margin-bottom: 10px; background: var(--panel-bg); border: 1px solid var(--neon-blue); color: var(--neon-blue); border-radius: 5px;">
+                    <input type="number" id="distributionAmount" placeholder="Amount" step="0.01" style="width: 100%; padding: 8px; margin-bottom: 10px; background: var(--panel-bg); border: 1px solid var(--neon-blue); color: var(--neon-blue); border-radius: 5px;">
+                    <button class="cyber-btn" onclick="distributeAgentCoins()">🚀 Distribute Coins</button>
+                </div>
+
+                <div class="wizard-control-card">
+                    <h4>📊 Distribution History</h4>
+                    <div id="distributionHistory" style="font-family: monospace; font-size: 0.8rem; color: var(--neon-green); max-height: 200px; overflow-y: auto; margin-bottom: 10px;">
+                        Loading history...
+                    </div>
+                    <button class="cyber-btn cyber-btn-secondary" onclick="refreshDistributionHistory()">🔄 Refresh</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Mission Control Panel -->
     <div id="missionControl" class="content-panel" style="display: none;">
         <h2>MISSION CONTROL</h2>
