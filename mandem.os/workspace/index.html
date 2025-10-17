@@ -639,8 +639,13 @@
                     }
                 }
             }
-            });
         }
+
+        // Call the function to update timestamp
+        updateLastCommitTime();
+
+        // Update timestamp every 5 minutes to reflect latest commits
+        setInterval(updateLastCommitTime, 5 * 60 * 1000);
 
         // Setup modal buttons
         const modalLoginBtn = document.getElementById('modalLoginBtn');
