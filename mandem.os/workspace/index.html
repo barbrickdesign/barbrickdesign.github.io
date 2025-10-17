@@ -1107,19 +1107,19 @@
                 satellites.push(satellite);
 
                 // Create enhanced label
-                createTronLabel(satellite, env.name, env.icon, angle, radius);
+                createTronLabel(satellite, env.name, env.icon, angle, radius, env.description);
             });
         }
 
         // TRON-STYLE LABELS
-        function createTronLabel(satellite, name, icon, angle, radius) {
+        function createTronLabel(satellite, name, icon, angle, radius, description) {
             const canvas = document.createElement('canvas');
             const ctx = canvas.getContext('2d');
-            canvas.width = 256;
-            canvas.height = 80;
+            canvas.width = 320;
+            canvas.height = 120;
 
-            // TRON-style background
-            const gradient = ctx.createLinearGradient(0, 0, 256, 0);
+            // TRON-style background with gradient
+            const gradient = ctx.createLinearGradient(0, 0, 320, 0);
             gradient.addColorStop(0, 'rgba(0, 255, 255, 0.9)');
             gradient.addColorStop(1, 'rgba(255, 20, 147, 0.9)');
 
@@ -1133,14 +1133,21 @@
 
             // Text with glow effect
             ctx.fillStyle = '#ffffff';
-            ctx.font = 'bold 16px monospace';
+            ctx.font = 'bold 18px monospace';
             ctx.textAlign = 'center';
 
-            // Icon
-            ctx.fillText(icon, canvas.width / 2, 25);
+            // Icon (larger)
+            ctx.font = 'bold 24px monospace';
+            ctx.fillText(icon, canvas.width / 2, 30);
 
             // Name
+            ctx.font = 'bold 14px monospace';
             ctx.fillText(name, canvas.width / 2, 55);
+
+            // Description (smaller)
+            ctx.font = '10px monospace';
+            ctx.fillStyle = '#cccccc';
+            ctx.fillText(description, canvas.width / 2, 75);
 
             const texture = new THREE.CanvasTexture(canvas);
             const spriteMaterial = new THREE.SpriteMaterial({
@@ -1149,10 +1156,10 @@
             });
             const sprite = new THREE.Sprite(spriteMaterial);
 
-            sprite.position.x = Math.cos(angle) * (radius + 2);
-            sprite.position.z = Math.sin(angle) * (radius + 2);
-            sprite.position.y = 2;
-            sprite.scale.set(6, 1.5, 1);
+            sprite.position.x = Math.cos(angle) * (radius + 3);
+            sprite.position.z = Math.sin(angle) * (radius + 3);
+            sprite.position.y = 3;
+            sprite.scale.set(8, 3, 1);
 
             scene.add(sprite);
             labels.push(sprite);
