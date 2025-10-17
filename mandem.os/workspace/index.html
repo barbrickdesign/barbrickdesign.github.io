@@ -1160,13 +1160,15 @@
                 earth.rotation.y += 0.005;
             }
 
-            // Rotate satellites (TRON style with radius 15)
+            // Animate satellites with orbital motion
             satellites.forEach((satellite, index) => {
                 if (satellite && satellite.userData) {
                     const time = Date.now() * 0.0005;
                     const baseAngle = (index / satellites.length) * Math.PI * 2;
                     const angle = baseAngle + time;
-                    const radius = satellite.userData.radius || 15; // Use stored radius or default to 15
+
+                    // Use the stored radius from satellite creation
+                    const radius = satellite.userData.radius || 15;
 
                     satellite.position.x = Math.cos(angle) * radius;
                     satellite.position.z = Math.sin(angle) * radius;
@@ -1183,6 +1185,23 @@
 
             if (controls) {
                 controls.update();
+            }
+
+            // Update grid animation if it exists
+            if (scene && scene.userData && scene.userData.gridMaterial) {
+                scene.userData.gridMaterial.uniforms.time.value = Date.now() * 0.001;
+            }
+
+            // Update particle systems
+            if (scene.userData && scene.userData.particles) {
+                const particles = scene.userData.particles;
+                const positions = particles.geometry.attributes.position.array;
+
+                for (let i = 0; i < positions.length; i += 3) {
+                    positions[i + 1] += Math.sin(Date.now() * 0.001 + i) * 0.01; // Floating motion
+                }
+
+                particles.geometry.attributes.position.needsUpdate = true;
             }
 
             renderer.render(scene, camera);
