@@ -2101,28 +2101,198 @@
             }
 
             const content = window.contentSharingManager.getContent();
-            let libraryHTML = '📚 CONTENT LIBRARY\n\n';
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay active';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 900px; max-height: 80vh; overflow-y: auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <h2 style="color: var(--neon-blue); margin: 0;">📚 CONTENT LIBRARY</h2>
+                        <button class="cyber-btn cyber-btn-secondary" onclick="this.closest('.modal-overlay').remove()">✕ Close</button>
+                    </div>
 
-            if (content.length === 0) {
-                libraryHTML += 'No content available yet.\n\nGenerate some AI content or import existing items.';
-            } else {
-                content.forEach(item => {
-                    libraryHTML += `📄 ${item.type.toUpperCase()}: ${item.metadata.category || 'General'}\n`;
-                    libraryHTML += `   ID: ${item.id}\n`;
-                    libraryHTML += `   Created: ${new Date(item.createdAt).toLocaleDateString()}\n`;
-                    libraryHTML += `   By: ${item.creator}\n`;
+                    <div class="content-filters" style="margin-bottom: 2rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <select id="contentTypeFilter" class="cyber-input" style="padding: 8px; background: var(--panel-bg); border: 1px solid var(--neon-blue); color: var(--neon-blue); border-radius: 5px;">
+                            <option value="">All Types</option>
+                            <option value="images">Images</option>
+                            <option value="videos">Videos</option>
+                            <option value="tutorials">Tutorials</option>
+                            <option value="text">Text</option>
+                        </select>
+                        <select id="contentCreatorFilter" class="cyber-input" style="padding: 8px; background: var(--panel-bg); border: 1px solid var(--neon-blue); color: var(--neon-blue); border-radius: 5px;">
+                            <option value="">All Creators</option>
+                            <option value="ai-assistant">AI Assistant</option>
+                            <option value="openai-orchestrator">OpenAI</option>
+                            <option value="tutorial-generator">Tutorial System</option>
+                        </select>
+                        <button class="cyber-btn" onclick="filterContentLibrary()">🔍 Filter</button>
+                        <button class="cyber-btn cyber-btn-secondary" onclick="refreshContentLibrary()">🔄 Refresh</button>
+                    </div>
 
-                    if (item.type === 'images' && item.data.url) {
-                        libraryHTML += `   Preview: ${item.data.url}\n`;
-                    } else if (item.type === 'text' && item.data.response) {
-                        libraryHTML += `   Response: ${item.data.response.substring(0, 100)}...\n`;
-                    }
+                    <div id="contentLibraryItems" class="content-items" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem;">
+                        ${generateContentItemsHTML(content)}
+                    </div>
 
-                    libraryHTML += '\n';
-                });
+                    ${content.length === 0 ? '<div style="text-align: center; color: var(--neon-orange); padding: 3rem;">No content available yet. Generate some AI responses or tutorials to populate the library!</div>' : ''}
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+
+            // Award XP for accessing library
+            addXP('ryan', 2, 'libraryCurator');
+        }
+
+        function generateContentItemsHTML(content) {
+            return content.slice(0, 20).map(item => {
+                const typeIcon = {
+                    images: '🖼️',
+                    videos: '🎥',
+                    tutorials: '📚',
+                    text: '📄'
+                }[item.type] || '📄';
+
+                const previewText = item.type === 'text' && item.data.response ?
+                    item.data.response.substring(0, 100) + '...' :
+                    item.type === 'images' && item.data.url ?
+                    `<img src="${item.data.url}" style="width: 100%; height: 120px; object-fit: cover; border-radius: 5px;" onerror="this.style.display='none'">` :
+                    'Content preview not available';
+
+                return `
+                    <div class="content-item" style="background: var(--panel-bg); border: 1px solid var(--neon-blue); border-radius: 8px; padding: 1rem; transition: all 0.3s ease;">
+                        <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.5rem;">
+                            <span style="color: var(--neon-green); font-size: 1.2rem;">${typeIcon}</span>
+                            <span style="color: var(--neon-orange); font-size: 0.8rem;">${new Date(item.createdAt).toLocaleDateString()}</span>
+                        </div>
+                        <h4 style="color: var(--neon-blue); margin-bottom: 0.5rem; font-size: 0.9rem;">${item.data.title || item.type.toUpperCase()}</h4>
+                        <div style="color: var(--neon-green); font-size: 0.8rem; margin-bottom: 1rem; min-height: 60px;">
+                            ${previewText}
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            ${item.tags.slice(0, 3).map(tag => `<span style="background: rgba(0,255,255,0.1); color: var(--neon-blue); padding: 2px 6px; border-radius: 10px; font-size: 0.7rem;">${tag}</span>`).join('')}
+                        </div>
+                        <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+                            <button class="cyber-btn cyber-btn-secondary" style="font-size: 0.8rem; padding: 4px 8px;" onclick="viewContentItem('${item.id}')">👁️ View</button>
+                            <button class="cyber-btn cyber-btn-secondary" style="font-size: 0.8rem; padding: 4px 8px;" onclick="shareContentItem('${item.id}')">📤 Share</button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterContentLibrary() {
+            const typeFilter = document.getElementById('contentTypeFilter').value;
+            const creatorFilter = document.getElementById('contentCreatorFilter').value;
+
+            if (!window.contentSharingManager) return;
+
+            let content = window.contentSharingManager.getContent();
+
+            if (typeFilter) {
+                content = content.filter(item => item.type === typeFilter);
             }
 
-            alert(libraryHTML);
+            if (creatorFilter) {
+                content = content.filter(item => item.creator === creatorFilter);
+            }
+
+            const itemsContainer = document.getElementById('contentLibraryItems');
+            if (itemsContainer) {
+                itemsContainer.innerHTML = generateContentItemsHTML(content);
+            }
+        }
+
+        function refreshContentLibrary() {
+            if (window.contentSharingManager) {
+                const content = window.contentSharingManager.getContent();
+                const itemsContainer = document.getElementById('contentLibraryItems');
+                if (itemsContainer) {
+                    itemsContainer.innerHTML = generateContentItemsHTML(content);
+                }
+            }
+        }
+
+        function viewContentItem(itemId) {
+            if (!window.contentSharingManager) return;
+
+            const item = window.contentSharingManager.getContentById(itemId);
+            if (!item) {
+                alert('❌ Content item not found');
+                return;
+            }
+
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay active';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 700px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <h2 style="color: var(--neon-blue); margin: 0;">📖 Content Details</h2>
+                        <button class="cyber-btn cyber-btn-secondary" onclick="this.closest('.modal-overlay').remove()">✕ Close</button>
+                    </div>
+
+                    <div style="margin-bottom: 2rem;">
+                        <h3 style="color: var(--neon-green); margin-bottom: 1rem;">${item.data.title || item.type.toUpperCase()}</h3>
+                        <div style="color: var(--neon-orange); margin-bottom: 1rem;">
+                            <strong>Type:</strong> ${item.type} |
+                            <strong>Creator:</strong> ${item.creator} |
+                            <strong>Created:</strong> ${new Date(item.createdAt).toLocaleString()}
+                        </div>
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem;">
+                            ${item.tags.map(tag => `<span style="background: rgba(0,255,255,0.1); color: var(--neon-blue); padding: 4px 8px; border-radius: 12px; font-size: 0.8rem;">${tag}</span>`).join('')}
+                        </div>
+                    </div>
+
+                    <div style="background: var(--panel-bg); border: 1px solid var(--neon-blue); border-radius: 8px; padding: 1.5rem; margin-bottom: 2rem;">
+                        ${item.type === 'text' ? `<div style="color: var(--neon-green); line-height: 1.6; white-space: pre-wrap;">${item.data.response || item.data.content || 'No content available'}</div>` :
+                          item.type === 'images' ? `<img src="${item.data.url}" style="max-width: 100%; border-radius: 5px;" onerror="this.style.display='none'"><p style="color: var(--neon-blue); margin-top: 1rem;">${item.data.prompt || 'Generated image'}</p>` :
+                          item.type === 'videos' ? `<p style="color: var(--neon-green);">Video: ${item.data.title || 'Generated video'}</p><p style="color: var(--neon-blue);">${item.data.prompt || 'No description available'}</p>` :
+                          `<p style="color: var(--neon-green);">Tutorial: ${item.data.title || 'Generated tutorial'}</p>`}
+                    </div>
+
+                    <div style="display: flex; gap: 1rem; justify-content: center;">
+                        <button class="cyber-btn" onclick="shareContentItem('${item.id}')">📤 Share This Item</button>
+                        <button class="cyber-btn cyber-btn-secondary" onclick="exportContentItem('${item.id}')">💾 Export</button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+        }
+
+        function shareContentItem(itemId) {
+            if (!window.contentSharingManager) return;
+
+            const userId = prompt('Enter recipient user ID (austin, arya, andy, or ryan):');
+            if (!userId || !['austin', 'arya', 'andy', 'ryan'].includes(userId.toLowerCase())) {
+                alert('❌ Invalid user ID. Please enter austin, arya, andy, or ryan.');
+                return;
+            }
+
+            window.contentSharingManager.shareContent(itemId, [userId.toLowerCase()]);
+            alert(`✅ Content shared with ${userId.charAt(0).toUpperCase() + userId.slice(1)}!`);
+
+            // Award XP for sharing
+            addXP('ryan', 1);
+        }
+
+        function exportContentItem(itemId) {
+            if (!window.contentSharingManager) return;
+
+            const item = window.contentSharingManager.getContentById(itemId);
+            if (!item) return;
+
+            const dataStr = JSON.stringify(item, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `content-${item.id}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            URL.revokeObjectURL(url);
+
+            alert('✅ Content exported successfully!');
         }
 
         function refreshContentStats() {
