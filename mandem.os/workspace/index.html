@@ -639,65 +639,365 @@
         let earth, satellites = [], labels = [];
         let wizards = [], wizardMode = false;
 
-        // Initialize 3D Scene
+        // Initialize 3D Scene - TRON CINEMA LEVEL
         function initScene() {
-            // Scene setup
+            // Scene setup with cinematic atmosphere
             scene = new THREE.Scene();
+            scene.fog = new THREE.Fog(0x000000, 50, 200); // Atmospheric fog
+
             camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-            renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+            renderer = new THREE.WebGLRenderer({
+                antialias: true,
+                alpha: true,
+                powerPreference: "high-performance"
+            });
             renderer.setSize(window.innerWidth, window.innerHeight);
-            renderer.setPixelRatio(window.devicePixelRatio);
+            renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2)); // Performance optimization
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.2;
 
             const container = document.getElementById('globe-container');
             container.appendChild(renderer.domElement);
 
-            // Lighting
-            const ambientLight = new THREE.AmbientLight(0xffffff, 0.4);
-            scene.add(ambientLight);
+            // Cinematic lighting setup
+            setupTronLighting();
 
-            const directionalLight = new THREE.DirectionalLight(0x00ffff, 1);
-            directionalLight.position.set(5, 3, 5);
+            // Create the iconic TRON grid floor
+            createTronGrid();
+
+            // Create Earth with enhanced materials
+            createEnhancedEarth();
+
+            // Camera position with cinematic framing
+            camera.position.set(0, 15, 25);
+
+            // Advanced controls with cinematic presets
+            setupCinematicControls();
+
+            // Create orbital satellites with TRON aesthetics
+            createTronSatellites();
+
+            // Initialize particle systems
+            initParticleSystems();
+
+            // Start cinematic animation loop
+            animate();
+
+            console.log('🎬 TRON CINEMA LEVEL: Gem Bot Universe initialized with Disney-level visuals!');
+        }
+
+        // TRON CINEMA LIGHTING
+        function setupTronLighting() {
+            // Primary directional light (blue-white, cinematic)
+            const directionalLight = new THREE.DirectionalLight(0x00ffff, 2);
+            directionalLight.position.set(10, 20, 5);
+            directionalLight.castShadow = true;
+            directionalLight.shadow.mapSize.width = 2048;
+            directionalLight.shadow.mapSize.height = 2048;
+            directionalLight.shadow.camera.near = 0.5;
+            directionalLight.shadow.camera.far = 50;
+            directionalLight.shadow.camera.left = -20;
+            directionalLight.shadow.camera.right = 20;
+            directionalLight.shadow.camera.top = 20;
+            directionalLight.shadow.camera.bottom = -20;
             scene.add(directionalLight);
 
-            // Create Earth
-            const earthGeometry = new THREE.SphereGeometry(5, 32, 32);
+            // Secondary orange accent light
+            const accentLight = new THREE.DirectionalLight(0xff6b35, 1);
+            accentLight.position.set(-10, 10, -5);
+            scene.add(accentLight);
+
+            // Pink fill light
+            const fillLight = new THREE.DirectionalLight(0xff1493, 0.8);
+            fillLight.position.set(0, -5, 10);
+            scene.add(fillLight);
+
+            // Ambient light with subtle blue tint
+            const ambientLight = new THREE.AmbientLight(0x001122, 0.3);
+            scene.add(ambientLight);
+
+            // Point lights for dramatic effect
+            const pointLight1 = new THREE.PointLight(0x00ffff, 2, 50);
+            pointLight1.position.set(15, 25, 0);
+            scene.add(pointLight1);
+
+            const pointLight2 = new THREE.PointLight(0xff1493, 2, 50);
+            pointLight2.position.set(-15, 25, 0);
+            scene.add(pointLight2);
+        }
+
+        // TRON GRID FLOOR - ICONIC VISUAL
+        function createTronGrid() {
+            const gridSize = 200;
+            const gridDivisions = 100;
+
+            // Main grid geometry
+            const gridGeometry = new THREE.PlaneGeometry(gridSize, gridSize, gridDivisions, gridDivisions);
+
+            // Custom shader material for TRON grid effect
+            const gridMaterial = new THREE.ShaderMaterial({
+                uniforms: {
+                    time: { value: 0 },
+                    color1: { value: new THREE.Color(0x00ffff) },
+                    color2: { value: new THREE.Color(0xff1493) },
+                    opacity: { value: 0.6 }
+                },
+                vertexShader: `
+                    varying vec2 vUv;
+                    varying vec3 vPosition;
+                    void main() {
+                        vUv = uv;
+                        vPosition = position;
+                        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+                    }
+                `,
+                fragmentShader: `
+                    uniform float time;
+                    uniform vec3 color1;
+                    uniform vec3 color2;
+                    uniform float opacity;
+                    varying vec2 vUv;
+                    varying vec3 vPosition;
+
+                    void main() {
+                        float grid = step(0.98, sin(vUv.x * 100.0)) + step(0.98, sin(vUv.y * 100.0));
+                        vec3 color = mix(color1, color2, sin(time + vPosition.x * 0.01 + vPosition.z * 0.01) * 0.5 + 0.5);
+                        gl_FragColor = vec4(color, grid * opacity);
+                    }
+                `,
+                transparent: true,
+                side: THREE.DoubleSide,
+                blending: THREE.AdditiveBlending
+            });
+
+            const grid = new THREE.Mesh(gridGeometry, gridMaterial);
+            grid.rotation.x = -Math.PI / 2;
+            grid.position.y = -5;
+            grid.receiveShadow = true;
+            scene.add(grid);
+
+            // Store reference for animation
+            grid.userData.material = gridMaterial;
+        }
+
+        // ENHANCED EARTH WITH TRON AESTHETICS
+        function createEnhancedEarth() {
+            const earthGeometry = new THREE.SphereGeometry(5, 64, 64);
+
+            // Multi-layered material for TRON effect
             const earthMaterial = new THREE.MeshPhongMaterial({
                 transparent: true,
-                opacity: 0.9
+                opacity: 0.8,
+                emissive: new THREE.Color(0x001122),
+                emissiveIntensity: 0.2
             });
 
             earth = new THREE.Mesh(earthGeometry, earthMaterial);
+            earth.castShadow = true;
+            earth.receiveShadow = true;
             scene.add(earth);
 
-            // Load Earth texture
+            // Add glowing wireframe overlay
+            const wireframeGeometry = new THREE.SphereGeometry(5.1, 32, 32);
+            const wireframeMaterial = new THREE.MeshBasicMaterial({
+                color: 0x00ffff,
+                wireframe: true,
+                transparent: true,
+                opacity: 0.3
+            });
+            const wireframe = new THREE.Mesh(wireframeGeometry, wireframeMaterial);
+            earth.add(wireframe);
+
+            // Load Earth texture with enhanced quality
             const textureLoader = new THREE.TextureLoader();
             textureLoader.load(
                 'https://threejs.org/examples/textures/land_ocean_ice_cloud_2048.jpg',
                 function(texture) {
+                    texture.wrapS = THREE.RepeatWrapping;
+                    texture.wrapT = THREE.RepeatWrapping;
                     earthMaterial.map = texture;
                     earthMaterial.needsUpdate = true;
                 },
                 undefined,
                 function(error) {
-                    earthMaterial.color.setHex(0x0066ff);
+                    // Fallback with procedural TRON-style material
+                    createTronEarthMaterial();
                 }
             );
+        }
 
-            // Camera position
-            camera.position.z = 15;
+        // Fallback TRON Earth material
+        function createTronEarthMaterial() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 256;
+            const ctx = canvas.getContext('2d');
 
-            // Controls
+            // Create procedural TRON-style texture
+            const imageData = ctx.createImageData(512, 256);
+            for (let i = 0; i < imageData.data.length; i += 4) {
+                const x = (i / 4) % 512;
+                const y = Math.floor((i / 4) / 512);
+
+                const noise = Math.sin(x * 0.01) * Math.cos(y * 0.01);
+                const value = (noise + 1) * 127;
+
+                imageData.data[i] = value * 0.5;     // R
+                imageData.data[i + 1] = value * 0.8; // G
+                imageData.data[i + 2] = value;       // B
+                imageData.data[i + 3] = 255;         // A
+            }
+
+            ctx.putImageData(imageData, 0, 0);
+            const texture = new THREE.CanvasTexture(canvas);
+            earth.material.map = texture;
+            earth.material.needsUpdate = true;
+        }
+
+        // CINEMATIC CONTROLS
+        function setupCinematicControls() {
             controls = new THREE.OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
             controls.dampingFactor = 0.05;
+            controls.enablePan = false;
+            controls.minDistance = 10;
+            controls.maxDistance = 50;
+            controls.maxPolarAngle = Math.PI * 0.6;
 
-            // Create orbital satellites
-            createSatellites();
+            // Add cinematic presets
+            controls.userData.presets = {
+                overview: { position: new THREE.Vector3(0, 25, 0), target: new THREE.Vector3(0, 0, 0) },
+                closeup: { position: new THREE.Vector3(0, 8, 15), target: new THREE.Vector3(0, 0, 0) },
+                dramatic: { position: new THREE.Vector3(20, 15, 20), target: new THREE.Vector3(0, 0, 0) }
+            };
+        }
 
-            // Start animation loop
-            animate();
+        // TRON-STYLE SATELLITES
+        function createTronSatellites() {
+            const environments = [
+                { name: 'Laboratory', color: 0x00ff88, icon: '🏭' },
+                { name: 'Warehouse', color: 0xffaa00, icon: '🏗️' },
+                { name: 'Explorer', color: 0x66ff99, icon: '🗺️' },
+                { name: 'Exchange', color: 0x3399ff, icon: '⚔️' }
+            ];
 
-            console.log('🚀 Gem Bot Universe initialized successfully');
+            environments.forEach((env, index) => {
+                const angle = (index / environments.length) * Math.PI * 2;
+                const radius = 15;
+
+                // TRON-style satellite with glowing effects
+                const geometry = new THREE.OctahedronGeometry(1.5, 0);
+                const material = new THREE.MeshPhongMaterial({
+                    color: env.color,
+                    emissive: new THREE.Color(env.color).multiplyScalar(0.3),
+                    transparent: true,
+                    opacity: 0.9,
+                    shininess: 100
+                });
+
+                const satellite = new THREE.Mesh(geometry, material);
+                satellite.position.x = Math.cos(angle) * radius;
+                satellite.position.z = Math.sin(angle) * radius;
+                satellite.position.y = Math.sin(Date.now() * 0.001 + angle) * 2; // Floating motion
+                satellite.userData = { name: env.name, color: env.color, angle, radius };
+
+                // Add glowing ring
+                const ringGeometry = new THREE.RingGeometry(2, 2.2, 16);
+                const ringMaterial = new THREE.MeshBasicMaterial({
+                    color: env.color,
+                    transparent: true,
+                    opacity: 0.5,
+                    side: THREE.DoubleSide
+                });
+                const ring = new THREE.Mesh(ringGeometry, ringMaterial);
+                ring.rotation.x = Math.PI / 2;
+                satellite.add(ring);
+
+                scene.add(satellite);
+                satellites.push(satellite);
+
+                // Create enhanced label
+                createTronLabel(satellite, env.name, env.icon, angle, radius);
+            });
+        }
+
+        // TRON-STYLE LABELS
+        function createTronLabel(satellite, name, icon, angle, radius) {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = 256;
+            canvas.height = 80;
+
+            // TRON-style background
+            const gradient = ctx.createLinearGradient(0, 0, 256, 0);
+            gradient.addColorStop(0, 'rgba(0, 255, 255, 0.9)');
+            gradient.addColorStop(1, 'rgba(255, 20, 147, 0.9)');
+
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Glowing border
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(2, 2, canvas.width - 4, canvas.height - 4);
+
+            // Text with glow effect
+            ctx.fillStyle = '#ffffff';
+            ctx.font = 'bold 16px monospace';
+            ctx.textAlign = 'center';
+
+            // Icon
+            ctx.fillText(icon, canvas.width / 2, 25);
+
+            // Name
+            ctx.fillText(name, canvas.width / 2, 55);
+
+            const texture = new THREE.CanvasTexture(canvas);
+            const spriteMaterial = new THREE.SpriteMaterial({
+                map: texture,
+                transparent: true
+            });
+            const sprite = new THREE.Sprite(spriteMaterial);
+
+            sprite.position.x = Math.cos(angle) * (radius + 2);
+            sprite.position.z = Math.sin(angle) * (radius + 2);
+            sprite.position.y = 2;
+            sprite.scale.set(6, 1.5, 1);
+
+            scene.add(sprite);
+            labels.push(sprite);
+        }
+
+        // PARTICLE SYSTEMS FOR CINEMATIC EFFECT
+        function initParticleSystems() {
+            // Floating data particles
+            const particleGeometry = new THREE.BufferGeometry();
+            const particleCount = 1000;
+            const positions = new Float32Array(particleCount * 3);
+
+            for (let i = 0; i < particleCount * 3; i += 3) {
+                positions[i] = (Math.random() - 0.5) * 100;     // x
+                positions[i + 1] = Math.random() * 30;          // y
+                positions[i + 2] = (Math.random() - 0.5) * 100; // z
+            }
+
+            particleGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+            const particleMaterial = new THREE.PointsMaterial({
+                color: 0x00ffff,
+                size: 0.5,
+                transparent: true,
+                opacity: 0.6,
+                blending: THREE.AdditiveBlending
+            });
+
+            const particles = new THREE.Points(particleGeometry, particleMaterial);
+            scene.add(particles);
+
+            // Store for animation
+            scene.userData.particles = particles;
         }
 
         function createSatellites() {
