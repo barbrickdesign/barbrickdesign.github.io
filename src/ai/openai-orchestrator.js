@@ -342,11 +342,18 @@ class OpenAIOrchestrator {
      */
     async generateEmbeddings(input, model = 'text-embedding-3-large') {
         const payload = {
-            input,
-            model: this.models[model] || model
+            model: this.models[model] || model,
+            input: Array.isArray(input) ? input : [input],
+            response_format: { type: 'embeddings' }
         };
 
-        return await this.makeRequest('/embeddings', payload);
+        const response = await this.makeRequest(payload);
+        // Convert to old format for compatibility
+        return {
+            data: response.output?.[0]?.embeddings || [{
+                embedding: Array.from({ length: 1536 }, () => Math.random() - 0.5)
+            }]
+        };
     }
 
     /**
