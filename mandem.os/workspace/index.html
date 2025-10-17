@@ -101,20 +101,27 @@
   }
 }
 
-/* Ensure 3D globe is always visible */
-#globe-container {
-  position: fixed !important;
-  top: 0 !important;
-  left: 0 !important;
-  width: 100vw !important;
-  height: 100vh !important;
-  z-index: 1 !important;
-  display: block !important;
+/* Prevent button flickering during transitions */
+#loginBtn, #profileBtn {
+    transition: none !important;
+    animation: none !important;
+    transform: none !important;
+}
+
+/* Ensure clean button state changes */
+#loginBtn, #profileBtn {
+    opacity: 1 !important;
+}
+
+/* Prevent any layout shifts during button changes */
+.auth-links-header {
+    min-height: 44px; /* Prevent layout shift */
 }
 </style>
     
-    <!-- MetaMask Wallet Integration for mandem.os -->
-    <script src="https://cdn.jsdelivr.net/npm/web3@1.8.0/dist/web3.min.js"></script>
+    <!-- Phantom Wallet Integration for mandem.os -->
+    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iife.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/tweetnacl@1.0.3/nacl.min.js"></script>
     </head>     
     <body> 
         <header>
@@ -296,26 +303,26 @@
       localStorage.setItem('visited', 'true');
     }
     
-    // Simplified MetaMask-only wallet connection for mandem.os
+    // Phantom wallet connection for mandem.os
     async function connectWalletForMGC() {
       try {
-        console.log('🔐 Connecting MetaMask wallet...');
+        console.log('🔐 Connecting Phantom wallet...');
 
-        // For mandem.os, use MetaMask only (Ethereum)
-        if (window.ethereum && window.ethereum.isMetaMask) {
-          console.log('✅ MetaMask detected');
+        // For mandem.os, use Phantom only (Solana)
+        if (window.solana && window.solana.isPhantom) {
+          console.log('✅ Phantom detected');
 
-          // Request account access
-          const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-          const address = accounts[0];
+          // Connect to Phantom
+          const resp = await window.solana.connect();
+          const publicKey = resp.publicKey.toBase58();
 
-          console.log('✅ MetaMask connected:', address);
+          console.log('✅ Phantom connected:', publicKey);
 
           // Store authentication info
           const user = {
-            walletAddress: address,
-            displayName: `${address.slice(0, 6)}...${address.slice(-4)}`,
-            walletType: 'metamask',
+            walletAddress: publicKey,
+            displayName: `${publicKey.slice(0, 6)}...${publicKey.slice(-4)}`,
+            walletType: 'phantom',
             joinDate: new Date().toISOString()
           };
 
@@ -329,15 +336,15 @@
 
           return true;
         } else {
-          console.warn('⚠️ MetaMask not detected');
-          alert('MetaMask wallet not found. Please install MetaMask browser extension to connect.');
-          window.open('https://metamask.io/download/', '_blank');
+          console.warn('⚠️ Phantom not detected');
+          alert('Phantom wallet not found. Please install Phantom browser extension to connect.');
+          window.open('https://phantom.com/', '_blank');
           return false;
         }
 
       } catch (error) {
-        console.error('❌ MetaMask connection failed:', error);
-        alert('MetaMask connection failed. Please try again or check if MetaMask is unlocked.');
+        console.error('❌ Phantom connection failed:', error);
+        alert('Phantom connection failed. Please try again or check if Phantom is unlocked.');
         return false;
       }
     }
@@ -348,7 +355,7 @@
         const provider = window.solana;
         if (!provider || !provider.isPhantom) {
           alert('Phantom wallet not found. Please install Phantom browser extension.');
-          window.open('https://phantom.app/', '_blank');
+          window.open('https://phantom.com/', '_blank');
           return false;
         }
         
@@ -540,18 +547,18 @@
             });
         }
 
-        // Simple MetaMask login button handler
+        // Phantom login button handler
         const loginBtn = document.getElementById('loginBtn');
         if (loginBtn) {
             loginBtn.addEventListener('click', async function(e) {
                 e.preventDefault();
-                console.log('🔘 MetaMask login button clicked');
+                console.log('🔘 Phantom login button clicked');
 
                 try {
                     const success = await connectWalletForMGC();
                     if (success) {
-                        console.log('✅ MetaMask connected successfully');
-                        alert('MetaMask connected successfully! Welcome to Gem Bot Universe.');
+                        console.log('✅ Phantom connected successfully');
+                        alert('Phantom connected successfully! Welcome to Gem Bot Universe.');
                     }
                 } catch (error) {
                     console.error('❌ Login button error:', error);
@@ -643,7 +650,7 @@
             });
         }
 
-        // Setup completed - MetaMask ready
+        // Setup completed - Phantom ready
 
         // Clear any problematic intervals that might exist
         let maxIntervals = 0;
@@ -1104,12 +1111,12 @@
     */
   </script>
         <script>
-console.log('[DEBUG] index.html loaded - MetaMask integration ready');
+console.log('[DEBUG] index.html loaded - Phantom integration ready');
 console.log('[DEBUG] currentUser:', localStorage.getItem('currentUser'));
 console.log('[DEBUG] userProfile:', localStorage.getItem('userProfile'));
 console.log('[DEBUG] userLoggedIn:', localStorage.getItem('userLoggedIn'));
 console.log('[DEBUG] lastWalletAuth:', localStorage.getItem('lastWalletAuth'));
-console.log('[DEBUG] MetaMask available:', typeof window.ethereum !== 'undefined' && window.ethereum?.isMetaMask);
+console.log('[DEBUG] Phantom available:', typeof window.solana !== 'undefined' && window.solana?.isPhantom);
 
 // Global error handlers to prevent page crashes
 window.addEventListener('error', function(e) {
