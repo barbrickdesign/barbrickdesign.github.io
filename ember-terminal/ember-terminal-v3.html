@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mandem.OS Ember Terminal V3 - Unified Gem Bot & Collaborative Platform</title>
+    <meta name="description" content="Mandem.OS Ember Terminal V3 - Dual Layer Wallet Authentication, Collaborative prompts, signed actions, live leaderboard, repo links, audit, Gem Bot integration" />
+    
+    <!-- Combined CSS from both versions -->
+    <style>
+        /* Root variables from app.html */
+        :root {
+            --bg: #020208;
+            --fg: #e6f7ff;
+            --accent: #6ee7b7;
+            --term-padding-desktop: 28px;
+            --term-padding-mobile: 12px;
+            --term-max-width: 1200px;
+            --term-min-font: 13px;
+            --term-max-font: 20px;
+            /* Additional from terminal */
+            --panel: #041022;
+            --muted: #9aa4b2;
+            --text: #cfe9ff;
+            --mono: ui-monospace, Menlo, Monaco, 'Roboto Mono', monospace;
+        }
+
+        /* Base styles from app.html */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            -webkit-font-smoothing: antialiased;
+        }
+        body {
+            background: var(--bg);
+            color: var(--fg);
+            font-family: var(--mono);
+            overflow-x: hidden;
+        }
+
+        /* Host container from app.html */
+        #ember-terminal-root {
+            min-height: 100vh;
+            box-sizing: border-box;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: clamp(var(--term-padding-mobile), 4vw, var(--term-padding-desktop));
+            overflow: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        /* Combined card styling */
+        .term-card {
+            width: 100%;
+            max-width: var(--term-max-width);
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 0.6rem;
+            background: linear-gradient(180deg, rgba(2,8,20,0.88), rgba(2,6,18,0.96));
+            border-radius: 14px;
+            padding: clamp(12px, 3.2vw, 32px);
+            margin: 0 auto;
+            box-shadow: 0 20px 80px rgba(2,6,23,0.7);
+            border: 1px solid rgba(255,255,255,0.03);
+            position: relative;
+            z-index: 3;
+        }
+
+        /* Text styling from app.html */
+        .term-text {
+            font-size: clamp(var(--term-min-font), 1.8vw, var(--term-max-font));
+            line-height: 1.15;
+            white-space: pre-wrap;
+            word-break: break-word;
+            overflow-wrap: anywhere;
+        }
+
+        /* Line layout from app.html */
+        .term-line {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.6ch;
+            align-items: center;
+        }
+
+        /* Tight mode from app.html */
+        @media (max-height: 420px) {
+            .term-card {
+                padding: 10px;
+                gap: 0.35rem;
+                border-radius: 8px;
+            }
+            .term-text { font-size: 12px; }
+        }
+
+        /* Mobile tweaks from app.html */
+        @media (max-width: 480px) {
+            :root { --term-max-width: 100%; }
+            .term-card {
+                padding: 12px;
+                border-radius: 10px;
+            }
+            .term-line { gap: 0.4ch; }
+            .term-line.stack-on-mobile {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+
+        /* Ultra-wide from app.html */
+        @media (min-width: 1600px) {
+            :root { --term-max-width: 1400px; }
+        }
+
+        /* Additional styles from terminal/index.html */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 8px;
+        }
+        h1 {
+            margin: 0;
+            font-size: 18px;
+        }
+        .small {
+            font-size: 12px;
+            color: var(--muted);
+        }
+        .terminal {
+            font-family: var(--mono);
+            background: linear-gradient(180deg, rgba(0,0,0,0.16), rgba(0,0,0,0.10));
+            border-radius: 10px;
+            padding: 12px;
+            color: var(--text);
+            min-height: 360px;
+            max-height: 72vh;
+            overflow: auto;
+            position: relative;
+            z-index: 4;
+        }
+        .controls {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        button {
+            cursor: pointer;
+            border: 0;
+            padding: 8px 12px;
+            border-radius: 8px;
+            background: linear-gradient(90deg, #7c5cff, #00d4ff);
+            color: #021024;
+            font-weight: 700;
+        }
+        .ghost {
+            background: transparent;
+            border: 1px solid rgba(255,255,255,0.04);
+            color: var(--muted);
+            padding: 8px 10px;
+            border-radius: 8px;
+        }
+        textarea.cmdInput {
+            flex: 1;
+            background: rgba(0,0,0,0.28);
+            border: 1px solid rgba(255,255,255,0.03);
+            padding: 10px;
+            border-radius: 8px;
+            color: var(--text);
+            font-family: var(--mono);
+            font-size: 13px;
+            min-height: 48px;
+            resize: vertical;
+        }
+        .contribs {
+            max-height: 180px;
+            overflow: auto;
+            margin-top: 8px;
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--muted);
+            z-index: 4;
+        }
+        .panel {
+            margin-left: 18px;
+            width: 360px;
+            max-width: 40vw;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            z-index: 4;
+        }
+        .box {
+            background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+            padding: 12px;
+            border-radius: 10px;
+        }
+        table {
+            width: 100%;
+            font-family: var(--mono);
+            font-size: 13px;
+            border-collapse: collapse;
+        }
+        th {
+            color: var(--muted);
+            text-align: left;
+            padding: 8px 6px;
+            font-weight: 600;
+            font-size: 12px;
+        }
+        td {
+            padding: 8px 6px;
+            border-top: 1px dashed rgba(255,255,255,0.02);
+            word-break: break-all;
+        }
+        .audit {
+            max-height: 180px;
+            overflow: auto;
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--muted);
+        }
+        pre {
+            white-space: pre-wrap;
+        }
+        .status {
+            display: inline-block;
+            padding: 6px 10px;
+            border-radius: 8px;
+            background: rgba(255,255,255,0.02);
+            color: var(--muted);
+            font-size: 12px;
+        }
+        @media (max-width: 1000px) {
+            .wrap {
+                flex-direction: column;
+            }
+            .panel {
+                width: 100%;
+                max-width: none;
+                margin-left: 0;
+            }
+            canvas#flameCanvas {
+                height: 60vh;
+            }
+        }
+
+        /* Gem Bot specific styling */
+        .gem-bot-section {
+            background: rgba(0,0,0,0.2);
+            border: 1px solid #ffd700;
+            border-radius: 8px;
+            padding: 12px;
+            margin: 12px 0;
+        }
+        .gem-bot-section h3 {
+            color: #ffd700;
+            margin: 0 0 8px 0;
+        }
+        .coin-link {
+            display: inline-block;
+            color: #2ecc71;
+            text-decoration: none;
+            background: rgba(0,0,0,0.5);
+            padding: 8px 12px;
+            border-radius: 6px;
+            margin-bottom: 12px;
+        }
+        .coin-link:hover {
+            color: #27ae60;
+        }
+    </style>
+</head>
+<body>
+
+<div id="ember-terminal-root">
+    <div class="term-card">
+
+        <!-- Navigation from terminal/index.html -->
+        <div style="position:absolute;top:10px;left:10px;z-index:9999;display:flex;gap:10px;">
+            <a href="https://pump.fun/coin/GK24fQQQKNF6JMsCd3rLfSr1n2tvr3bCJ7zAgNqxbA7r" class="coin-link" target="_blank">⊚.0$ Official Coin on S⊚L</a>
+        </div>
+
+        <!-- Header -->
+        <div class="header">
+            <div>
+                <h1>Mandem.OS Ember Terminal V3</h1>
+                <div class="small">Unified Gem Bot & Collaborative Platform - Dual Layer Wallet Authentication</div>
+            </div>
+            <div>
+                <span id="connectedStatus" class="status">Not connected</span>
+                <span id="relayStatus" class="status" style="margin-left:8px">Relay: unknown</span>
+            </div>
+        </div>
+
+        <!-- Gem Bot Section -->
+        <div class="gem-bot-section">
+            <h3>🔥 Gem Bot Universe Integration</h3>
+            <p class="term-text">
+                Welcome to the unified Ember Terminal V3. This platform combines collaborative development tools with advanced Gem Bot functionality, including automated faceting simulation, cryptocurrency trading interfaces, and AI-powered gem analysis.
+            </p>
+            <div class="term-text">
+                <strong>Key Features:</strong>
+                - Dual Layer Wallet Authentication
+                - Collaborative LLM Prompts
+                - Real-time Leaderboard
+                - GitHub Repository Integration
+                - Automated Gem Faceting Simulation
+                - Cryptocurrency Portfolio Management
+                - AI-Powered Trading Signals
+            </div>
+        </div>
+
+        <div style="display:flex;gap:18px">
+            <div style="flex:1">
+                <div class="terminal" id="terminal" aria-live="polite">
+                    <div id="welcome" class="small">Welcome — connect wallet (MetaMask or Phantom) to participate in the unified platform.</div>
+                    <div id="holderInfo" class="small" style="margin-top:8px"></div>
+                    <div id="log" class="small" style="margin-top:10px"></div>
+
+                    <div id="gatedArea" style="display:none;margin-top:12px">
+                        <div class="small" id="gatedNote">You are verified for Mandem.OS keys; sign to persist contributions or request relay actions.</div>
+
+                        <div style="margin-top:10px">
+                            <label class="small">Contribution</label>
+                            <div style="display:flex;gap:8px;margin-top:8px">
+                                <textarea id="cmdInput" class="cmdInput" placeholder="Type a message, idea, or quick summary..."></textarea>
+                                <div style="display:flex;flex-direction:column;gap:8px">
+                                    <button id="cmdSubmit" class="ghost">Submit</button>
+                                    <button id="deployRequestBtn" class="ghost">Request Deploy</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div style="margin-top:12px">
+                            <strong class="small">Contributions (local)</strong>
+                            <div id="contribList" class="contribs"></div>
+                        </div>
+
+                        <div style="margin-top:12px">
+                            <strong class="small">LLM Prompter (signed)</strong>
+                            <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
+                                <select id="llmModel" style="font-family:var(--mono);padding:6px;border-radius:6px">
+                                    <option value="gpt-4o-mini">gpt-4o-mini</option>
+                                    <option value="gpt-4o">gpt-4o</option>
+                                </select>
+                                <button id="llmSend" class="ghost">Send Prompt</button>
+                                <button id="llmStop" class="ghost" disabled>Stop</button>
+                                <div class="small" id="llmStatus">LLM: idle</div>
+                            </div>
+                            <div style="margin-top:8px">
+                                <textarea id="llmPrompt" placeholder="Enter collaborative prompt..." style="width:100%;min-height:88px;font-family:var(--mono);padding:8px;border-radius:8px"></textarea>
+                            </div>
+                            <pre id="llmOutput" style="margin-top:8px;background:rgba(0,0,0,0.06);padding:10px;border-radius:8px;font-family:var(--mono)"></pre>
+
+                            <div style="margin-top:8px" class="small">Prompt history (local)</div>
+                            <div id="promptHistory" class="contribs"></div>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="controls" style="margin-top:12px">
+                    <button id="connectBtn">Connect Wallet</button>
+                    <button id="linkGuide" class="ghost">Relay Guide</button>
+                    <button id="refreshBtn" class="ghost">Refresh Leaderboard</button>
+                    <button id="checkinBtn" class="ghost">Check-in</button>
+                    <button id="exportAuditBtn" class="ghost">Export Audit</button>
+                </div>
+            </div>
+
+            <div class="panel">
+                <div class="box">
+                    <h3 style="margin:0 0 8px 0">Identity</h3>
+                    <div class="small">Wallet: <div id="addr" style="font-family:var(--mono)"></div></div>
+                    <div class="small" style="margin-top:6px">Type: <span id="walletType">Not connected</span></div>
+                    <div class="small" style="margin-top:6px">Relay: <span id="relayBadge">Not configured</span></div>
+                </div>
+
+                <div class="box">
+                    <h3 style="margin:0 0 8px 0">Repositories (server)</h3>
+                    <div id="repos" style="display:flex;flex-direction:column;gap:6px"></div>
+                </div>
+
+                <div class="box">
+                    <h3 style="margin:0 0 8px 0">Leaderboard</h3>
+                    <table id="leaderboard"><thead><tr><th>#</th><th>Wallet</th><th>Keys</th><th style="text-align:right">Score</th></tr></thead><tbody id="leaderRows"><tr><td colspan="4" class="small">No data yet</td></tr></tbody></table>
+                </div>
+
+                <div class="box">
+                    <h3 style="margin:0 0 8px 0">Audit</h3>
+                    <div id="auditView" class="audit small">No audit entries yet</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r152/three.min.js" crossorigin="anonymous"></script>
+
+<script>
+/* Enhanced wallet connection with MetaMask + Phantom support */
+const RELAY_BASE = (window.__RELAY_BASE__ || '').replace(/\/$/, '') || '';
+const CONTRACT = '0x45a328572b2a06484e02EB5D4e4cb6004136eB16';
+const KEY_IDS = [45];
+const RPCS = ['https://cloudflare-eth.com','https://rpc.ankr.com/eth','https://eth.llamarpc.com'];
+const RELAY_RETRY_MS = 10_000;
+
+const connectBtn = document.getElementById('connectBtn');
+const linkGuide = document.getElementById('linkGuide');
+const refreshBtn = document.getElementById('refreshBtn');
+const checkinBtn = document.getElementById('checkinBtn');
+const exportAuditBtn = document.getElementById('exportAuditBtn');
+const connectedStatus = document.getElementById('connectedStatus');
+const addrEl = document.getElementById('addr');
+const walletTypeEl = document.getElementById('walletType');
+const holderInfo = document.getElementById('holderInfo');
+const gatedArea = document.getElementById('gatedArea');
+const cmdInput = document.getElementById('cmdInput');
+const cmdSubmit = document.getElementById('cmdSubmit');
+const deployRequestBtn = document.getElementById('deployRequestBtn');
+const contribList = document.getElementById('contribList');
+const relayBadge = document.getElementById('relayBadge');
+const relayStatus = document.getElementById('relayStatus');
+const llmModel = document.getElementById('llmModel');
+const llmSend = document.getElementById('llmSend');
+const llmStop = document.getElementById('llmStop');
+const llmStatus = document.getElementById('llmStatus');
+const llmPrompt = document.getElementById('llmPrompt');
+const llmOutput = document.getElementById('llmOutput');
+const promptHistoryEl = document.getElementById('promptHistory');
+const auditView = document.getElementById('auditView');
+
+let relayOnline = false;
+let relayRetryTimer = null;
+let auditLog = [];
+let promptHistory = [];
+let currentWalletType = null;
+let activeES = null;
+
+/* Wallet detection and connection */
+function detectWallets() {
+  const wallets = [];
+  if (window.ethereum) {
+    if (Array.isArray(window.ethereum.providers)) {
+      window.ethereum.providers.forEach(p => {
+        if (p.isMetaMask) wallets.push({ type: 'MetaMask', provider: p });
+        if (p.isPhantom) wallets.push({ type: 'Phantom', provider: p });
+      });
+    } else {
+      if (window.ethereum.isMetaMask) wallets.push({ type: 'MetaMask', provider: window.ethereum });
+      if (window.ethereum.isPhantom) wallets.push({ type: 'Phantom', provider: window.ethereum });
+    }
+  }
+  if (window.solana && window.solana.isPhantom) wallets.push({ type: 'Phantom', provider: window.solana });
+  return wallets;
+}
+
+function chooseEvmProvider() {
+  if (window.ethereum && Array.isArray(window.ethereum.providers)) {
+    return window.ethereum.providers.find(p => p.isMetaMask) || window.ethereum.providers[0];
+  }
+  if (window.ethereum && typeof window.ethereum.request === 'function') return window.ethereum;
+  return null;
+}
+
+async function signPayload(payload) {
+  const prov = chooseEvmProvider();
+  if (!prov) throw new Error('No EVM provider found');
+  const accounts = await prov.request({ method: 'eth_requestAccounts' });
+  const address = accounts && accounts[0];
+  if (!address) throw new Error('No account');
+  const payloadString = typeof payload === 'string' ? payload : JSON.stringify(payload);
+  let signature;
+  try {
+    signature = await prov.request({ method: 'personal_sign', params: [payloadString, address] });
+  } catch (e) {
+    signature = await prov.request({ method: 'eth_sign', params: [address, payloadString] });
+  }
+  return { address, signature, payloadString };
+}
+
+/* RPC helpers */
+function toHex32(n) { return "0x" + BigInt(n).toString(16).padStart(64, '0'); }
+function encodeAddress(a) { return a.toLowerCase().replace(/^0x/, '').padStart(64, '0'); }
+async function rpcCall(rpc, payload) {
+  const res = await fetch(rpc, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'eth_call', params: [payload, 'latest'] }) });
+  if (!res.ok) throw new Error(res.statusText);
+  const j = await res.json();
+  if (j.error) throw new Error(JSON.stringify(j.error));
+  return j.result;
+}
+async function readERC1155Balance(address, tokenId) {
+  const data = '0x00fdd58e' + encodeAddress(address) + toHex32(tokenId).slice(2);
+  let last;
+  for (const r of RPCS) {
+    try {
+      const v = await rpcCall(r, { to: CONTRACT, data });
+      return v ? BigInt(v) : 0n;
+    } catch (e) {
+      last = e;
+    }
+  }
+  throw last || new Error('no rpc');
+}
+
+/* Storage helpers */
+function loadAudit() { try { return JSON.parse(localStorage.getItem('mandem_audit') || '[]'); } catch { return []; } }
+function saveAudit(a) { localStorage.setItem('mandem_audit', JSON.stringify(a.slice(0, 2000))); }
+function loadPrompts() { try { return JSON.parse(localStorage.getItem('mandem_prompts') || '[]'); } catch { return []; } }
+function savePrompts(p) { localStorage.setItem('mandem_prompts', JSON.stringify(p.slice(0, 2000))); }
+
+/* UI renderers */
+function renderContribs() {
+  const arr = JSON.parse(localStorage.getItem('mandem_contribs') || '[]');
+  contribList.innerHTML = '';
+  arr.forEach(c => {
+    const d = document.createElement('div');
+    d.className = 'small';
+    d.textContent = `[${new Date(c.ts * 1000).toISOString()}] ${c.address}: ${c.text}`;
+    contribList.appendChild(d);
+  });
+}
+function renderPromptHistory() {
+  const arr = loadPrompts();
+  promptHistoryEl.innerHTML = '';
+  arr.forEach(p => {
+    const d = document.createElement('div');
+    d.className = 'small';
+    d.textContent = `[${new Date(p.ts).toISOString()}] ${p.address}: ${p.prompt}`;
+    promptHistoryEl.appendChild(d);
+  });
+}
+function renderAudit() {
+  const arr = auditLog.slice(0, 200);
+  auditView.innerHTML = '';
+  if (!arr.length) auditView.textContent = 'No audit entries yet';
+  else arr.forEach(a => {
+    const d = document.createElement('div');
+    d.className = 'small';
+    d.textContent = `[${new Date(a.ts).toISOString()}] ${a.type} ${a.address || ''} ${a.text || ''} ${a.jobId ? ' job:' + a.jobId : ''} ${a.success === false ? '[FAILED]' : ''}`;
+    auditView.appendChild(d);
+  });
+}
+
+async function fetchLeaderboard() {
+  try {
+    const resp = await fetch('holders.json', { cache: 'no-store' });
+    if (!resp.ok) {
+      appendLog('Leaderboard: holders.json not found (' + resp.status + ')');
+      renderLeaderboard([]);
+      return;
+    }
+    const txt = await resp.text();
+    try {
+      const holders = JSON.parse(txt);
+      const rows = Array.isArray(holders) ? holders.slice(0, 200).map((h, i) => typeof h === 'string' ? { address: h, keys: [], score: 10000 - i } : { address: h.address, keys: h.keys || [], score: h.score || 10000 - i }) : [];
+      renderLeaderboard(rows);
+    } catch (e) {
+      appendLog('holders.json parse failed; falling back');
+      renderLeaderboard([]);
+    }
+  } catch (e) {
+    appendLog('Leaderboard fetch error: ' + (e.message || e));
+    renderLeaderboard([]);
+  }
+}
+function renderLeaderboard(rows) {
+  const tbody = document.createElement('tbody');
+  let i = 1;
+  for (const r of rows) {
+    const tr = document.createElement('tr');
+    const keysCell = (r.keys && r.keys.length) ? r.keys.map(k => '#' + k).join(',') : '-';
+    tr.innerHTML = `<td>${i++}</td><td class="addr">${r.address}</td><td>${keysCell}</td><td style="text-align:right">${r.score}</td>`;
+    tbody.appendChild(tr);
+  }
+  const old = document.getElementById('leaderRows');
+  if (old && old.parentNode) old.parentNode.replaceChild(tbody, old);
+  else document.getElementById('leaderboard').appendChild(tbody);
+}
+
+function appendLog(text) {
+  const el = document.getElementById('log');
+  const d = document.createElement('div');
+  d.className = 'small';
+  d.textContent = text;
+  el.parentNode.insertBefore(d, el.nextSibling);
+  console.debug('[terminal]', text);
+}
+
+async function checkRelayOnce() {
+  if (!RELAY_BASE) {
+    relayStatus.textContent = 'Relay: not configured';
+    relayBadge.textContent = 'Not configured';
+    relayOnline = false;
+    return;
+  }
+  try {
+    const r = await fetch(RELAY_BASE + '/relay/health', { cache: 'no-store' });
+    if (!r.ok) throw new Error('status ' + r.status);
+    const j = await r.json();
+    relayStatus.textContent = `Relay: online (${j.llm || 'llm?'})`;
+    relayBadge.textContent = RELAY_BASE;
+    relayOnline = true;
+    if (relayRetryTimer) {
+      clearInterval(relayRetryTimer);
+      relayRetryTimer = null;
+    }
+  } catch (e) {
+    relayStatus.textContent = 'Relay: unreachable (retrying...)';
+    relayOnline = false;
+    relayBadge.textContent = 'Unreachable';
+    if (!relayRetryTimer) relayRetryTimer = setInterval(checkRelayOnce, RELAY_RETRY_MS);
+  }
+}
+
+async function connectWallet() {
+  try {
+    const prov = chooseEvmProvider();
+    if (!prov) {
+      alert('Install MetaMask or compatible EVM wallet');
+      return;
+    }
+    const accs = await prov.request({ method: 'eth_requestAccounts' }).catch(err => {
+      appendLog('Wallet request failed: ' + (err && err.message || err));
+      throw err;
+    });
+    const address = accs && accs[0];
+    if (!address) throw new Error('No account returned');
+    
+    currentWalletType = prov.isMetaMask ? 'MetaMask' : 'EVM Wallet';
+    connectedStatus.textContent = address;
+    addrEl.textContent = address;
+    walletTypeEl.textContent = currentWalletType;
+    appendLog('Connected: ' + address + ' (' + currentWalletType + ')');
+
+    try {
+      prov.on && prov.on('accountsChanged', (accs) => {
+        if (!accs || accs.length === 0) {
+          appendLog('Account disconnected');
+          connectedStatus.textContent = 'Not connected';
+          addrEl.textContent = '';
+          walletTypeEl.textContent = 'Not connected';
+          gatedArea.style.display = 'none';
+          return;
+        }
+        connectWallet().catch(() => {});
+      });
+      prov.on && prov.on('chainChanged', (c) => {
+        appendLog('Chain changed: ' + c);
+        setTimeout(() => connectWallet().catch(() => {}), 300);
+      });
+    } catch (e) {}
+
+    const found = [];
+    await Promise.all(KEY_IDS.map(async id => {
+      try {
+        const bal = await readERC1155Balance(address, id);
+        if (bal > 0n) found.push({ tokenId: id, balance: bal.toString() });
+      } catch (e) {}
+    }));
+    
+    if (found.length) {
+      holderInfo.textContent = `Holds keys: ${found.map(k => '#' + k.tokenId).join(', ')}`;
+      gatedArea.style.display = 'block';
+    } else {
+      holderInfo.textContent = 'No tracked keys found (client)';
+      gatedArea.style.display = 'none';
+    }
+
+    populateLeaderboardWithAddress(address, found);
+    renderPromptHistory();
+    renderContribs();
+
+    if (RELAY_BASE) {
+      await checkRelayOnce();
+      if (relayOnline) await refreshServerState();
+    }
+  } catch (e) {
+    appendLog('connectWallet error: ' + (e.message || e));
+  }
+}
+
+function populateLeaderboardWithAddress(address, foundKeys = []) {
+  try {
+    const contribs = JSON.parse(localStorage.getItem('mandem_contribs') || '[]').filter(c => c.address && c.address.toLowerCase() === address.toLowerCase());
+    const score = (contribs.length || 0) * 50 + (foundKeys.length || 0) * 200;
+    const row = { address, keys: foundKeys.map(k => k.tokenId || k), score };
+    renderLeaderboard([row]);
+    if (RELAY_BASE) {
+      fetch(RELAY_BASE + '/api/leaderboard').then(r => r.ok ? r.json() : null).then(j => {
+        if (j && j.rows && j.rows.length) {
+          const exists = j.rows.some(rw => rw.address && rw.address.toLowerCase() === address.toLowerCase());
+          if (!exists) j.rows.unshift(row);
+          renderLeaderboard(j.rows);
+        }
+      }).catch(() => {});
+    }
+  } catch (e) {
+    console.error(e);
+  }
+}
+
+async function refreshServerState() {
+  if (!RELAY_BASE) return;
+  try {
+    await checkRelayOnce();
+    if (!relayOnline) return;
+    try {
+      const who = await fetch(RELAY_BASE + '/api/whoami', { credentials: 'include' }).then(r => r.json()).catch(() => null);
+      if (who && who.github) appendLog('Server session GitHub: ' + who.github);
+      const rr = await fetch(RELAY_BASE + '/api/github/repos', { credentials: 'include' });
+      if (rr.ok) {
+        const repos = await rr.json();
+        renderRepos(repos);
+      } else appendLog('repos fetch returned ' + rr.status);
+    } catch (e) {
+      appendLog('repos fetch failed: ' + e.message);
+    }
+    try {
+      const lb = await fetch(RELAY_BASE + '/api/leaderboard').then(r => r.json()).catch(() => null);
+      if (lb && lb.rows) renderLeaderboard(lb.rows);
+    } catch (e) {
+      appendLog('server leaderboard failed');
+    }
+  } catch (e) {
+    appendLog('refreshServerState error: ' + (e.message || e));
+  }
+}
+
+function renderRepos(list) {
+  const container = document.getElementById('repos');
+  if (!container) return;
+  container.innerHTML = '';
+  if (!Array.isArray(list) || list.length === 0) {
+    container.innerHTML = '<div class="small">No repos available</div>';
+    return;
+  }
+  for (const r of list) {
+    const row = document.createElement('div');
+    row.className = 'small';
+    row.style.display = 'flex';
+    row.style.justifyContent = 'space-between';
+    row.style.alignItems = 'center';
+    row.style.gap = '8px';
+    row.innerHTML = `<div style="flex:1"><strong style="font-family:var(--mono)">${r.full_name}</strong><div class="small" style="color:var(--muted)">${r.description || ''}</div></div>
+      <div style="white-space:nowrap"><button class="ghost" data-repo="${r.full_name}">Open</button></div>`;
+    container.appendChild(row);
+  }
+  container.querySelectorAll('button[data-repo]').forEach(b => b.addEventListener('click', () => window.open('https://github.com/' + b.dataset.repo, '_blank')));
+}
+
+async function submitContribution() {
+  const text = cmdInput.value && cmdInput.value.trim();
+  if (!text) return alert('Type something to submit');
+  try {
+    const prov = chooseEvmProvider();
+    if (!prov) return alert('No EVM wallet');
+    const accs = await prov.request({ method: 'eth_requestAccounts' });
+    const addr = accs && accs[0];
+    const ts = Math.floor(Date.now() / 1000);
+    const payload = { type: 'cmd', address: addr, ts, text };
+    const { signature } = await signPayload(payload);
+    const arr = JSON.parse(localStorage.getItem('mandem_contribs') || '[]');
+    arr.unshift({ address: addr, ts, text, signature });
+    localStorage.setItem('mandem_contribs', JSON.stringify(arr.slice(0, 2000)));
+    renderContribs();
+    appendLog('Signed locally and stored.');
+    const auditEntry = { type: 'contribution', address: addr, ts: Date.now(), text, signature, success: null };
+    auditLog.unshift(auditEntry);
+    saveAudit(auditLog);
+    renderAudit();
+    if (RELAY_BASE && relayOnline) {
+      try {
+        const r = await fetch(RELAY_BASE + '/relay/contribution', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ payload: JSON.stringify(payload), signature, address: addr })
+        });
+        if (r.ok) {
+          appendLog('Relay accepted contribution');
+          auditEntry.success = true;
+          saveAudit(auditLog);
+          renderAudit();
+        } else {
+          const txt = await r.text();
+          appendLog('Relay contribution rejected: ' + txt);
+          auditEntry.success = false;
+          saveAudit(auditLog);
+          renderAudit();
+        }
+      } catch (e) {
+        appendLog('Relay contribution failed: ' + e.message);
+        auditEntry.success = false;
+        saveAudit(auditLog);
+        renderAudit();
+      }
+    }
+  } catch (e) {
+    appendLog('submitContribution error: ' + (e.message || e));
+  }
+}
+
+async function sendLLMPrompt() {
+  const prompt = llmPrompt.value && llmPrompt.value.trim();
+  if (!prompt) return alert('Enter a prompt');
+  const model = llmModel.value;
+  llmStatus.textContent = 'LLM: sending...';
+  llmSend.disabled = true;
+  llmStop.disabled = false;
+  try {
+    const prov = chooseEvmProvider();
+    if (!prov) return alert('No EVM wallet');
+    const accs = await prov.request({ method: 'eth_requestAccounts' });
+    const addr = accs && accs[0];
+    const ts = Date.now();
+    const payload = { type: 'llm', address: addr, ts, prompt, model };
+    const { signature } = await signPayload(payload);
+    const auditEntry = { type: 'llm_prompt', address: addr, ts, text: prompt, signature, success: null, jobId: null };
+    auditLog.unshift(auditEntry);
+    saveAudit(auditLog);
+    renderAudit();
+    if (!RELAY_BASE || !relayOnline) {
+      llmOutput.textContent = 'Relay not available for LLM requests';
+      auditEntry.success = false;
+      saveAudit(auditLog);
+      renderAudit();
+      return;
+    }
+    const r = await fetch(RELAY_BASE + '/relay/llm', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ payload: JSON.stringify(payload), signature, address: addr })
+    });
+    if (!r.ok) {
+      const txt = await r.text();
+      llmOutput.textContent = 'LLM request failed: ' + txt;
+      auditEntry.success = false;
+      saveAudit(auditLog);
+      renderAudit();
+      return;
+    }
+    const j = await r.json();
+    auditEntry.jobId = j.jobId;
+    auditEntry.success = true;
+    saveAudit(auditLog);
+    renderAudit();
+    activeES = new EventSource(RELAY_BASE + '/relay/llm/stream/' + j.jobId);
+    activeES.onmessage = (e) => {
+      const d = JSON.parse(e.data);
+      if (d.done) {
+        activeES.close();
+        activeES = null;
+        llmStatus.textContent = 'LLM: done';
+        llmSend.disabled = false;
+        llmStop.disabled = true;
+      } else {
+        llmOutput.textContent += d.chunk;
+      }
+    };
+    activeES.onerror = () => {
+      if (activeES) activeES.close();
+      activeES = null;
+      llmStatus.textContent = 'LLM: error';
+      llmSend.disabled = false;
+      llmStop.disabled = true;
+      auditEntry.success = false;
+      saveAudit(auditLog);
+      renderAudit();
+    };
+    llmStatus.textContent = 'LLM: streaming...';
+    const prompts = loadPrompts();
+    prompts.unshift({ address: addr, ts, prompt });
+    savePrompts(prompts);
+    renderPromptHistory();
+  } catch (e) {
+    llmOutput.textContent = 'Error: ' + (e.message || e);
+    llmStatus.textContent = 'LLM: error';
+    llmSend.disabled = false;
+    llmStop.disabled = true;
+  }
+}
+
+function stopLLM() {
+  if (activeES) {
+    activeES.close();
+    activeES = null;
+    llmStatus.textContent = 'LLM: stopped';
+    llmSend.disabled = false;
+    llmStop.disabled = true;
+  }
+}
+
+/* Event listeners */
+connectBtn.addEventListener('click', connectWallet);
+linkGuide.addEventListener('click', () => window.open('https://github.com/barbrick/barbrickdesign.github.io/blob/main/ember-terminal/README.md', '_blank'));
+refreshBtn.addEventListener('click', fetchLeaderboard);
+checkinBtn.addEventListener('click', () => appendLog('Check-in recorded'));
+exportAuditBtn.addEventListener('click', () => {
+  const data = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(auditLog, null, 2));
+  const a = document.createElement('a');
+  a.href = data;
+  a.download = 'audit-log.json';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+});
+cmdSubmit.addEventListener('click', submitContribution);
+cmdInput.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); submitContribution(); } });
+deployRequestBtn.addEventListener('click', () => appendLog('Deploy request logged'));
+llmSend.addEventListener('click', sendLLMPrompt);
+llmStop.addEventListener('click', stopLLM);
+llmPrompt.addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.ctrlKey) { e.preventDefault(); sendLLMPrompt(); } });
+
+/* Init */
+auditLog = loadAudit();
+renderAudit();
+fetchLeaderboard();
+checkRelayOnce();
+</script>
+
+</body>
+</html>
