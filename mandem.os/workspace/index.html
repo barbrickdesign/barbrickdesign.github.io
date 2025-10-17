@@ -338,11 +338,14 @@
           localStorage.setItem('userLoggedIn', 'true');
           localStorage.setItem('lastWalletAuth', new Date().toISOString());
 
-          // Update UI
+          // Update UI first
           updateAuthButton();
           updateMgcBalanceDisplay();
 
-          return true;
+          // Small delay to ensure UI updates before showing alert
+          setTimeout(() => {
+            alert('Phantom connected successfully! Welcome to Gem Bot Universe.');
+          }, 100);
         } else {
           console.warn('⚠️ Phantom not detected');
           alert('Phantom wallet not found. Please install Phantom browser extension to connect.');
