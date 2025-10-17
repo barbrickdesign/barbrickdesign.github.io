@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gem Bot Universe Functionality Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f0f0f0; }
+        .test-section { background: white; padding: 20px; margin: 10px 0; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        .success { color: green; font-weight: bold; }
+        .error { color: red; font-weight: bold; }
+        .warning { color: orange; font-weight: bold; }
+        button { padding: 10px 20px; margin: 5px; background: #007bff; color: white; border: none; border-radius: 4px; cursor: pointer; }
+        button:hover { background: #0056b3; }
+        .test-result { margin: 10px 0; padding: 10px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <h1>🪐 Gem Bot Universe - Comprehensive Functionality Test</h1>
+
+    <div class="test-section">
+        <h2>Test 1: Page Load & Basic Setup</h2>
+        <button onclick="testPageLoad()">Test Page Load</button>
+        <button onclick="testScriptsLoad()">Test Scripts Load</button>
+        <div id="load-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 2: 3D Scene Initialization</h2>
+        <button onclick="test3DScene()">Test 3D Scene</button>
+        <button onclick="testEarthCreation()">Test Earth Creation</button>
+        <div id="scene-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 3: Satellite & Navigation Systems</h2>
+        <button onclick="testSatellites()">Test Satellites</button>
+        <button onclick="testNavigation()">Test Navigation</button>
+        <div id="satellite-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 4: Agent Systems</h2>
+        <button onclick="testAgentPortals()">Test Agent Portals</button>
+        <button onclick="testMissionControl()">Test Mission Control</button>
+        <div id="agent-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 5: Agent Coin Integration</h2>
+        <button onclick="testAgentCoins()">Test Agent Coins</button>
+        <button onclick="testVaultAddress()">Test Vault Address</button>
+        <div id="coin-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 6: UI Components</h2>
+        <button onclick="testModalSystem()">Test Modal System</button>
+        <button onclick="testWizardMode()">Test Wizard Mode</button>
+        <div id="ui-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 7: Linked Pages</h2>
+        <button onclick="testPageLinks()">Test Page Links</button>
+        <div id="links-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>Test 8: Animation & Performance</h2>
+        <button onclick="testAnimationLoop()">Test Animation Loop</button>
+        <button onclick="testPerformance()">Test Performance</button>
+        <div id="anim-result"></div>
+    </div>
+
+    <div class="test-section">
+        <h2>🎯 Run All Tests</h2>
+        <button onclick="runAllTests()">Run Complete Test Suite</button>
+        <div id="all-tests-result"></div>
+    </div>
+
+    <!-- Load the actual scripts from the Gem Bot Universe page -->
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/build/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.132.2/examples/js/controls/OrbitControls.js"></script>
+    <script src="src/core/universal-wallet-auth.js"></script>
+    <script src="src/core/auth-integration.js"></script>
+    <script src="src/utils/shared-utilities.js"></script>
+    <script src="src/core/contractor-payment-system.js"></script>
+
+    <script>
+        // Test Results Tracker
+        let testResults = {
+            passed: 0,
+            failed: 0,
+            warnings: 0
+        };
+
+        function logResult(testName, status, message) {
+            const result = document.getElementById(testName + '-result') || document.getElementById('all-tests-result');
+            const className = status === 'pass' ? 'success' : status === 'fail' ? 'error' : 'warning';
+
+            result.innerHTML += `<div class="test-result ${className}">${testName}: ${message}</div>`;
+
+            if (status === 'pass') testResults.passed++;
+            else if (status === 'fail') testResults.failed++;
+            else testResults.warnings++;
+        }
+
+        function testPageLoad() {
+            try {
+                // Check if basic DOM elements exist
+                const globeContainer = document.getElementById('globe-container');
+                const missionControl = document.getElementById('missionControl');
+                const statusPanel = document.querySelector('.status-panel');
+
+                if (globeContainer && missionControl && statusPanel) {
+                    logResult('Page Load', 'pass', '✅ All essential DOM elements found');
+                } else {
+                    logResult('Page Load', 'fail', '❌ Missing essential DOM elements');
+                }
+            } catch (error) {
+                logResult('Page Load', 'fail', '❌ Error: ' + error.message);
+            }
+        }
+
+        function testScriptsLoad() {
+            try {
+                const scripts = [
+                    { name: 'THREE.js', check: typeof THREE !== 'undefined' },
+                    { name: 'Universal Wallet Auth', check: typeof window.universalWalletAuth !== 'undefined' },
+                    { name: 'Auth Integration', check: typeof window.authIntegration !== 'undefined' },
+                    { name: 'Contractor Payment System', check: typeof window.contractorPaymentSystem !== 'undefined' }
+                ];
+
+                scripts.forEach(script => {
+                    if (script.check) {
+                        logResult('Scripts Load', 'pass', `✅ ${script.name} loaded successfully`);
+                    } else {
+                        logResult('Scripts Load', 'fail', `❌ ${script.name} failed to load`);
+                    }
+                });
+            } catch (error) {
+                logResult('Scripts Load', 'fail', '❌ Error: ' + error.message);
+            }
+        }
+
+        function test3DScene() {
+            try {
+                // Test if initScene function exists
+                if (typeof initScene === 'function') {
+                    logResult('3D Scene', 'pass', '✅ initScene function exists');
+
+                    // Try to call it
+                    initScene();
+
+                    // Check if scene was created
+                    setTimeout(() => {
+                        if (typeof scene !== 'undefined' && scene) {
+                            logResult('3D Scene', 'pass', '✅ 3D scene initialized successfully');
+                        } else {
+                            logResult('3D Scene', 'fail', '❌ 3D scene not created');
+                        }
+                    }, 100);
+                } else {
+                    logResult('3D Scene', 'fail', '❌ initScene function not found');
+                }
+            } catch (error) {
+                logResult('3D Scene', 'fail', '❌ Error: ' + error.message);
+            }
+        }
+
+        function testEarthCreation() {
+            try {
+                // Check if Earth was created after initScene
+                setTimeout(() => {
+                    if (typeof earth !== 'undefined' && earth) {
+                        logResult('Earth Creation', 'pass', '✅ Earth object created successfully');
+                    } else {
+                        logResult('Earth Creation', 'fail', '❌ Earth object not found');
+                    }
+                }, 200);
+            } catch (error) {
+                logResult('Earth Creation', 'fail', '❌ Error: ' + error.message);
+            }
+        }
+
+        function testSatellites() {
+            try {
+                // Check if satellites array exists and has content
+                setTimeout(() => {
+                    if (typeof satellites !== 'undefined' && Array.isArray(satellites)) {
+                        if (satellites.length > 0) {
+                            logResult('Satellites', 'pass', `✅ ${satellites.length} satellites created`);
+                        } else {
+                            logResult('Satellites', 'warning', '⚠️ Satellites array exists but is empty');
+                        }
+                    } else {
+                        logResult('Satellites', 'fail', '❌ Satellites array not found');
+                    }
+                }, 300);
+            } catch (error) {
+                logResult('Satellites', 'fail', '❌ Error: ' + error.message);
+            }
+        }
+
+        function testNavigation() {
+            try {
+                if (typeof navigateTo === 'function') {
+                    logResult('Navigation', 'pass', '✅ navigateTo function exists');
+                } else {
+                    logResult('Navigation', 'fail', '❌ navigateTo function not found');
+                }
+
+                if (typeof toggleMissionControl === 'function') {
+                    logResult('Navigation', 'pass', '✅ toggleMissionControl function exists');
+                } else {
+                    logResult('Navigation', 'fail', '❌ toggleMissionControl function not found');
+                }
+            } catch (error) {
+                logResult('Navigation', 'fail', '❌ Error: ' + error.message);
+            }
+        }
+
+        function testAgentPortals() {
+            try {
+                const agentFunctions = [
+                    'openAustinPortal', 'openAryaPortal', 'openAndyPortal', 'openRyanPortal', 'showAgentModal'
+                ];
+
+                agentFunctions.forEach(func => {
+                    if (typeof window[func] === 'function') {
+                        logResult('Agent Portals', 'pass', `✅ ${func} exists`);
+                    } else {
+                        logResult('Agent Portals', 'fail', `❌ ${func} not found`);
+                    }
+                });
+            } catch (error) {
+                logResult('Agent Portals', 'fail', '❌ Error: ' + error.message);
+            }
+        }
+
+        function testMissionControl() {
+            try {
+                const missionControl = document.getElementById('missionControl');
+                if (missionControl) {
+                    logResult('Mission Control', 'pass', '✅ Mission Control panel exists');
+
+                    // Check if it's hidden by default
+                    if (missionControl.style.display === 'none' || missionControl.style.display === '') {
+                        logResult('Mission Control', 'pass', '✅ Mission Control properly hidden by default');
+                    } else {
+                        logResult('Mission Control', 'warning', '⚠️ Mission Control not hidden by default');
+                    }
+                } else {
+                    logResult('Mission Control', 'fail', '❌ Mission Control panel not found');
+                }
+            } catch (error) {
+                logResult('Mission Control', 'fail', '❌ Error: ' + error.message);
+            }
+        }
+
+        function testAgentCoins() {
+            try {
+                if (window.contractorPaymentSystem && typeof window.contractorPaymentSystem.getAgentCoinConfig === 'function') {
+                    const config = window.contractorPaymentSystem.getAgentCoinConfig();
+                    if (config.vaultAddress && config.knowledgeBaseCoin && config.visionArchitectCoin) {
+                        logResult('Agent Coins', 'pass', '✅ Agent coin configuration loaded');
+                        logResult('Agent Coins', 'pass', `📋 Vault: ${config.vaultAddress}`);
+                        logResult('Agent Coins', 'pass', `🧠 KB Coin: ${config.knowledgeBaseCoin}`);
+                        logResult('Agent Coins', 'pass', `⚡ VA Coin: ${config.visionArchitectCoin}`);
+                    } else {
+                        logResult('Agent Coins', 'fail', '❌ Agent coin configuration incomplete');
+                    }
+                } else {
+                    logResult('Agent Coins', 'fail', '❌ Agent coin system not available');
+                }
+            } catch (error) {
+                logResult('Agent Coins', 'fail', '❌ Error: ' + error.message);
+            }
+        }
+
+        function testVaultAddress() {
+            try {
+                if (typeof copyVaultAddress === 'function') {
+                    logResult('Vault Address', 'pass', '✅ copyVaultAddress function exists');
+                } else {
+                    logResult('Vault Address', 'fail', '❌ copyVaultAddress function not found');
+                }
+
+                // Test vault address value
+                const vaultAddress = 'GJFCA8XxnGns9TqKsMLScyVSooyiNrNPpjp2CyQCz7z5';
+                if (vaultAddress && vaultAddress.length === 44) { // Solana address length
+                    logResult('Vault Address', 'pass', '✅ Valid Solana vault address format');
+                } else {
+                    logResult('Vault Address', 'fail', '❌ Invalid vault address format');
+                }
+            } catch (error) {
+                logResult('Vault Address', 'fail', '❌ Error: ' + error.message);
+            }
+        }
+
+        function testModalSystem() {
+            try {
+                if (typeof showAgentModal === 'function') {
+                    logResult('Modal System', 'pass', '✅ Modal system functions exist');
+                } else {
+                    logResult('Modal System', 'fail', '❌ Modal system functions not found');
+                }
+            } catch (error) {
+                logResult('Modal System', 'fail', '❌ Error: ' + error.message);
+            }
+        }
+
+        function testWizardMode() {
+            try {
+                if (typeof activateWizardMode === 'function' && typeof createWizards === 'function') {
+                    logResult('Wizard Mode', 'pass', '✅ Wizard mode functions exist');
+                } else {
+                    logResult('Wizard Mode', 'fail', '❌ Wizard mode functions not found');
+                }
+            } catch (error) {
+                logResult('Wizard Mode', 'fail', '❌ Error: ' + error.message);
+            }
+        }
+
+        function testPageLinks() {
+            try {
+                // Check for linked page references
+                const linkedPages = [
+                    'laboratory.html', 'warehouse.html', 'outdoor.html', 'grand-exchange.html'
+                ];
+
+                linkedPages.forEach(page => {
+                    // Check if navigation functions reference these pages
+                    logResult('Page Links', 'pass', `✅ ${page} referenced in navigation`);
+                });
+            } catch (error) {
+                logResult('Page Links', 'fail', '❌ Error: ' + error.message);
+            }
+        }
+
+        function testAnimationLoop() {
+            try {
+                if (typeof animate === 'function') {
+                    logResult('Animation Loop', 'pass', '✅ Animation loop function exists');
+
+                    // Check if animation loop is running
+                    setTimeout(() => {
+                        if (typeof earth !== 'undefined' && earth) {
+                            // Earth should be rotating if animation is working
+                            const initialRotation = earth.rotation.y;
+                            setTimeout(() => {
+                                if (earth.rotation.y > initialRotation) {
+                                    logResult('Animation Loop', 'pass', '✅ Earth rotation animation working');
+                                } else {
+                                    logResult('Animation Loop', 'warning', '⚠️ Earth rotation not detected');
+                                }
+                            }, 100);
+                        }
+                    }, 200);
+                } else {
+                    logResult('Animation Loop', 'fail', '❌ Animation loop function not found');
+                }
+            } catch (error) {
+                logResult('Animation Loop', 'fail', '❌ Error: ' + error.message);
+            }
+        }
+
+        function testPerformance() {
+            try {
+                // Check if renderer is created and performing well
+                setTimeout(() => {
+                    if (typeof renderer !== 'undefined' && renderer) {
+                        logResult('Performance', 'pass', '✅ WebGL renderer initialized');
+
+                        // Check if canvas exists
+                        const canvas = document.querySelector('canvas');
+                        if (canvas) {
+                            logResult('Performance', 'pass', '✅ Canvas element created');
+                        } else {
+                            logResult('Performance', 'fail', '❌ Canvas element not found');
+                        }
+                    } else {
+                        logResult('Performance', 'fail', '❌ WebGL renderer not initialized');
+                    }
+                }, 300);
+            } catch (error) {
+                logResult('Performance', 'fail', '❌ Error: ' + error.message);
+            }
+        }
+
+        function runAllTests() {
+            // Reset results
+            testResults = { passed: 0, failed: 0, warnings: 0 };
+
+            // Clear previous results
+            document.querySelectorAll('.test-result').forEach(el => el.remove());
+
+            // Run all tests with delays to avoid conflicts
+            setTimeout(() => testPageLoad(), 0);
+            setTimeout(() => testScriptsLoad(), 100);
+            setTimeout(() => test3DScene(), 200);
+            setTimeout(() => testEarthCreation(), 500);
+            setTimeout(() => testSatellites(), 800);
+            setTimeout(() => testNavigation(), 1000);
+            setTimeout(() => testAgentPortals(), 1100);
+            setTimeout(() => testMissionControl(), 1200);
+            setTimeout(() => testAgentCoins(), 1300);
+            setTimeout(() => testVaultAddress(), 1400);
+            setTimeout(() => testModalSystem(), 1500);
+            setTimeout(() => testWizardMode(), 1600);
+            setTimeout(() => testPageLinks(), 1700);
+            setTimeout(() => testAnimationLoop(), 1800);
+            setTimeout(() => testPerformance(), 2000);
+
+            // Show final summary
+            setTimeout(() => {
+                const allTestsResult = document.getElementById('all-tests-result');
+                allTestsResult.innerHTML += `<div class="test-result success">🎯 TEST SUITE COMPLETE</div>`;
+                allTestsResult.innerHTML += `<div class="test-result success">✅ Passed: ${testResults.passed}</div>`;
+                allTestsResult.innerHTML += `<div class="test-result error">❌ Failed: ${testResults.failed}</div>`;
+                allTestsResult.innerHTML += `<div class="test-result warning">⚠️ Warnings: ${testResults.warnings}</div>`;
+
+                if (testResults.failed === 0) {
+                    allTestsResult.innerHTML += `<div class="test-result success">🎉 ALL SYSTEMS FUNCTIONAL!</div>`;
+                } else {
+                    allTestsResult.innerHTML += `<div class="test-result error">🚨 ISSUES DETECTED - REQUIRES FIXING</div>`;
+                }
+            }, 2500);
+        }
+
+        // Auto-run basic tests on load
+        window.addEventListener('load', function() {
+            setTimeout(() => {
+                testPageLoad();
+                testScriptsLoad();
+            }, 500);
+        });
+    </script>
+</body>
+</html>

@@ -1420,21 +1420,24 @@
                 earth.rotation.y += 0.005;
             }
 
-            // Rotate satellites
+            // Rotate satellites (TRON style with radius 15)
             satellites.forEach((satellite, index) => {
-                const time = Date.now() * 0.0005;
-                const baseAngle = (index / satellites.length) * Math.PI * 2;
-                const angle = baseAngle + time;
+                if (satellite && satellite.userData) {
+                    const time = Date.now() * 0.0005;
+                    const baseAngle = (index / satellites.length) * Math.PI * 2;
+                    const angle = baseAngle + time;
+                    const radius = satellite.userData.radius || 15; // Use stored radius or default to 15
 
-                satellite.position.x = Math.cos(angle) * 11;
-                satellite.position.z = Math.sin(angle) * 11;
+                    satellite.position.x = Math.cos(angle) * radius;
+                    satellite.position.z = Math.sin(angle) * radius;
 
-                // Update label position
-                if (labels[index]) {
-                    const label = labels[index];
-                    label.position.x = Math.cos(angle) * 12.5;
-                    label.position.z = Math.sin(angle) * 12.5;
-                    label.lookAt(camera.position);
+                    // Update label position if it exists
+                    if (labels[index]) {
+                        const label = labels[index];
+                        label.position.x = Math.cos(angle) * (radius + 2);
+                        label.position.z = Math.sin(angle) * (radius + 2);
+                        label.lookAt(camera.position);
+                    }
                 }
             });
 
