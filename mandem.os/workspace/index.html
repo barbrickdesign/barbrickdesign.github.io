@@ -1414,11 +1414,54 @@
 
         // Agent Customization
         const agentCustomizations = {
-            austin: { costume: 'wizard', color: '#ff6b35' },
-            arya: { costume: 'creative', color: '#ff1493' },
-            andy: { costume: 'scientist', color: '#4169E1' },
-            ryan: { costume: 'business', color: '#00ff88' }
+            austin: { costume: 'wizard', color: '#ff6b35', level: 1, xp: 0, achievements: [] },
+            arya: { costume: 'creative', color: '#ff1493', level: 1, xp: 0, achievements: [] },
+            andy: { costume: 'scientist', color: '#4169E1', level: 1, xp: 0, achievements: [] },
+            ryan: { costume: 'business', color: '#00ff88', level: 1, xp: 0, achievements: [] }
         };
+
+        // Achievement System
+        const achievements = {
+            firstInteraction: { name: 'First Contact', description: 'Interacted with an agent for the first time', xp: 10, icon: '👋' },
+            contentCreator: { name: 'Content Creator', description: 'Generated 5 pieces of AI content', xp: 50, icon: '🎨' },
+            wizardMaster: { name: 'Wizard Master', description: 'Activated wizard mode 10 times', xp: 25, icon: '🧙‍♂️' },
+            embodimentWatcher: { name: 'Embodiment Watcher', description: 'Watched all Sora embodiments', xp: 30, icon: '👁️' },
+            libraryCurator: { name: 'Library Curator', description: 'Organized 10 items in content library', xp: 40, icon: '📚' },
+            grandWizard: { name: 'Grand Wizard', description: 'Activated Grand Wizard Mode', xp: 100, icon: '👑' }
+        };
+
+        // XP and Level System
+        function addXP(agent, amount, achievement = null) {
+            if (!agentCustomizations[agent]) return;
+
+            agentCustomizations[agent].xp += amount;
+
+            // Check for level up
+            const newLevel = Math.floor(agentCustomizations[agent].xp / 100) + 1;
+            if (newLevel > agentCustomizations[agent].level) {
+                agentCustomizations[agent].level = newLevel;
+                showLevelUp(agent, newLevel);
+            }
+
+            // Add achievement if provided
+            if (achievement && !agentCustomizations[agent].achievements.includes(achievement)) {
+                agentCustomizations[agent].achievements.push(achievement);
+                showAchievement(agent, achievement);
+            }
+
+            saveAgentCustomizations();
+        }
+
+        function showLevelUp(agent, level) {
+            alert(`🎉 ${agent.charAt(0).toUpperCase() + agent.slice(1)} leveled up to Level ${level}!\n\nXP: ${agentCustomizations[agent].xp}\nNew powers unlocked!`);
+        }
+
+        function showAchievement(agent, achievementKey) {
+            const achievement = achievements[achievementKey];
+            if (achievement) {
+                alert(`🏆 ACHIEVEMENT UNLOCKED!\n\n${achievement.icon} ${achievement.name}\n${achievement.description}\n\n+${achievement.xp} XP awarded!`);
+            }
+        }
 
         function applyAgentCustomization() {
             const agent = document.getElementById('agentSelector').value;
