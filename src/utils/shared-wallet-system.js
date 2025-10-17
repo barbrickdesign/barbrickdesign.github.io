@@ -124,6 +124,12 @@ class SharedWalletSystem {
      * Connect to a specific wallet
      */
     async connect(walletType = null, silent = false) {
+        // Don't connect if in passive mode
+        if (this.passiveMode) {
+            console.log('🔄 Shared Wallet System in passive mode - not connecting');
+            return null;
+        }
+
         try {
             if (this.connected) {
                 console.log('✅ Already connected');
