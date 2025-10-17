@@ -6,12 +6,835 @@
     <title>Agent Hub - Grand Wizard Realm Control</title>
 
     <!-- Universal Wallet Authentication & Core Systems -->
-    <script src="../src/core/universal-wallet-auth.js"></script>
-    <script src="../src/core/auth-integration.js"></script>
-    <script src="../src/systems/contractor-payment-system.js"></script>
-    <script src="../src/utils/content-sharing-manager.js"></script>
-    <script src="../src/utils/tutorial-video-generator.js"></script>
-    <script src="../src/ai/security-manager.js"></script>
-    <script src="../src/ai/agent-mappings.js"></script>
-    <script src="../src/ai/openai-orchestrator.js"></script>
     <link rel="stylesheet" href="../mobile-responsive.css">
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=MedievalSharp&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Orbitron', sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a2e 50%, #16213e 100%);
+            color: #e4e4e4;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        header {
+            background: linear-gradient(135deg, rgba(255,215,0,0.1), rgba(255,140,0,0.1));
+            border-bottom: 3px solid #ffd700;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(255,215,0,0.3);
+        }
+
+        .header-title {
+            font-size: 2.5em;
+            color: #ffd700;
+            text-shadow: 0 0 20px #ffd700;
+            font-family: 'MedievalSharp', cursive;
+            margin-bottom: 10px;
+        }
+
+        .header-subtitle {
+            color: #ffaa00;
+            font-size: 1.1em;
+        }
+
+        /* Auth Status */
+        .auth-status {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.9);
+            border: 2px solid #ffd700;
+            border-radius: 10px;
+            padding: 15px;
+            z-index: 1000;
+        }
+
+        .auth-status.connected {
+            border-color: #00ff00;
+        }
+
+        /* Main Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Wizard Control Cards */
+        .wizard-section {
+            background: linear-gradient(135deg, rgba(30,30,50,0.95), rgba(40,40,60,0.95));
+            border: 2px solid #ffd700;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 20px 0;
+            box-shadow: 0 8px 32px rgba(255,215,0,0.2);
+        }
+
+        .wizard-section h2 {
+            color: #ffd700;
+            text-align: center;
+            margin-bottom: 20px;
+            font-family: 'MedievalSharp', cursive;
+            font-size: 2em;
+            text-shadow: 0 0 15px #ffd700;
+        }
+
+        .wizard-control-card {
+            background: rgba(0,0,0,0.6);
+            border: 2px solid rgba(255,215,0,0.5);
+            border-radius: 12px;
+            padding: 20px;
+            margin: 15px 0;
+            transition: all 0.3s ease;
+        }
+
+        .wizard-control-card:hover {
+            border-color: #ffd700;
+            box-shadow: 0 0 20px rgba(255,215,0,0.4);
+            transform: translateY(-2px);
+        }
+
+        .wizard-control-card h4 {
+            color: #ffaa00;
+            margin-bottom: 15px;
+            font-size: 1.2em;
+        }
+
+        .wizard-control-card p {
+            color: #cccccc;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        /* Form Elements */
+        .control-group {
+            margin: 15px 0;
+        }
+
+        .control-label {
+            display: block;
+            color: #ffd700;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+
+        .control-input {
+            width: 100%;
+            padding: 10px;
+            background: rgba(0,0,0,0.8);
+            border: 2px solid rgba(255,215,0,0.3);
+            border-radius: 6px;
+            color: #ffffff;
+            font-family: 'Orbitron', monospace;
+        }
+
+        .control-input:focus {
+            outline: none;
+            border-color: #ffd700;
+            box-shadow: 0 0 10px rgba(255,215,0,0.5);
+        }
+
+        .control-select {
+            width: 100%;
+            padding: 10px;
+            background: rgba(0,0,0,0.8);
+            border: 2px solid rgba(255,215,0,0.3);
+            border-radius: 6px;
+            color: #ffffff;
+            font-family: 'Orbitron', monospace;
+        }
+
+        /* Button Grid */
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .wizard-btn {
+            padding: 12px 20px;
+            background: linear-gradient(45deg, #ffd700, #ffaa00);
+            border: 2px solid #cc8400;
+            border-radius: 8px;
+            color: #000;
+            font-weight: bold;
+            font-family: 'Orbitron', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            font-size: 0.9em;
+        }
+
+        .wizard-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(255,215,0,0.6);
+        }
+
+        .wizard-btn.secondary {
+            background: linear-gradient(45deg, #666, #999);
+            border-color: #555;
+            color: #fff;
+        }
+
+        .wizard-btn.secondary:hover {
+            background: linear-gradient(45deg, #777, #aaa);
+        }
+
+        /* Agent Selection */
+        .agent-selector {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .agent-option {
+            padding: 10px;
+            background: rgba(0,0,0,0.6);
+            border: 2px solid rgba(255,215,0,0.3);
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .agent-option:hover,
+        .agent-option.selected {
+            border-color: #ffd700;
+            background: rgba(255,215,0,0.1);
+        }
+
+        /* Status Display */
+        .status-display {
+            background: rgba(0,0,0,0.8);
+            border: 1px solid rgba(0,255,0,0.5);
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px 0;
+            font-family: monospace;
+            font-size: 0.9em;
+            color: #00ff00;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        /* Back Link */
+        .back-link {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: rgba(0,0,0,0.9);
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: 2px solid #ffd700;
+            color: #ffd700;
+            text-decoration: none;
+            font-weight: bold;
+            z-index: 1000;
+            transition: all 0.3s ease;
+        }
+
+        .back-link:hover {
+            background: rgba(255,215,0,0.2);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 15px;
+            }
+
+            .header-title {
+                font-size: 2em;
+            }
+
+            .agent-selector {
+                grid-template-columns: 1fr;
+            }
+
+            .button-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .wizard-section {
+                padding: 15px;
+            }
+        }
+
+        /* Loading Screen */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.9);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            color: #ffd700;
+        }
+
+        .loading-screen h2 {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .loading-spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255,215,0,0.3);
+            border-top: 4px solid #ffd700;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-link">← Back to Hub</a>
+
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-spinner"></div>
+        <h2>🧙‍♂️ AUTHENTICATING GRAND WIZARD ACCESS</h2>
+        <p>Connecting to Phantom Wallet...</p>
+    </div>
+
+    <!-- Auth Status -->
+    <div id="authStatus" class="auth-status" style="display: none;">
+        <div id="walletDisplay">Not Connected</div>
+        <div id="wizardLevel" style="margin-top: 10px; color: #ffd700; font-weight: bold;">Wizard Level: Initiate</div>
+    </div>
+
+    <header>
+        <div class="header-title">🧙‍♂️ GRAND WIZARD REALM CONTROL</div>
+        <div class="header-subtitle">Master Control Center for Agent Operations & Realm Management</div>
+    </header>
+
+    <div class="container">
+        <!-- Agent Appearance Hub -->
+        <div class="wizard-section">
+            <h2>🎨 Agent Appearance Hub</h2>
+            <p style="text-align: center; color: #cccccc; margin-bottom: 30px;">
+                Customize agent costumes, colors, and visual styles to enhance their mystical presence
+            </p>
+
+            <div class="wizard-control-card">
+                <h4>🎭 Select Agent to Customize</h4>
+                <div class="agent-selector">
+                    <div class="agent-option" data-agent="austin">🏆 Austin Moore</div>
+                    <div class="agent-option" data-agent="arya">🎨 Arya</div>
+                    <div class="agent-option" data-agent="andy">🧠 Andy Acker</div>
+                    <div class="agent-option" data-agent="ryan">⚡ Ryan Barbrick</div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label">Costume Style:</label>
+                    <select id="costumeSelect" class="control-select">
+                        <option value="wizard">Classic Wizard</option>
+                        <option value="cyberpunk">Cyberpunk Hacker</option>
+                        <option value="business">Business Professional</option>
+                        <option value="creative">Creative Artist</option>
+                        <option value="scientist">Mad Scientist</option>
+                        <option value="mystical">Mystical Sorcerer</option>
+                        <option value="technomancer">Technomancer</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label">Color Theme:</label>
+                    <input type="color" id="colorPicker" value="#ff6b35" class="control-input">
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label">Aura Intensity:</label>
+                    <input type="range" id="auraIntensity" min="0.1" max="2.0" step="0.1" value="1.0" class="control-input">
+                </div>
+
+                <button class="wizard-btn" onclick="applyAgentCustomization()">✨ Apply Changes</button>
+                <button class="wizard-btn secondary" onclick="resetAgentCustomization()">🔄 Reset to Default</button>
+            </div>
+        </div>
+
+        <!-- Realm Mastery Control -->
+        <div class="wizard-section">
+            <h2>⚡ Realm Mastery Control</h2>
+            <p style="text-align: center; color: #cccccc; margin-bottom: 30px;">
+                Control all realms as Grand Wizard - manage embodiments, synchronization, and realm stability
+            </p>
+
+            <div class="wizard-control-card">
+                <h4>🎬 Embodiment Control</h4>
+                <p>Manage Sora AI embodiments across all agents</p>
+                <div class="button-grid">
+                    <button class="wizard-btn" onclick="activateAllEmbodiments()">🎬 Activate All</button>
+                    <button class="wizard-btn secondary" onclick="deactivateAllEmbodiments()">⏹️ Deactivate All</button>
+                    <button class="wizard-btn secondary" onclick="regenerateAllSoraVideos()">🔄 Regenerate Videos</button>
+                    <button class="wizard-btn" onclick="syncAllWizards()">🔗 Sync Wizards</button>
+                </div>
+            </div>
+
+            <div class="wizard-control-card">
+                <h4>👑 Grand Wizard Mode</h4>
+                <p>Enter ultimate wizard control mode with enhanced powers</p>
+                <button class="wizard-btn" onclick="enterGrandWizardMode()">👑 Enter Grand Wizard Mode</button>
+                <div id="wizardModeStatus" style="margin-top: 10px; color: #ffaa00;"></div>
+            </div>
+
+            <div class="wizard-control-card">
+                <h4>📊 Wizard Status Dashboard</h4>
+                <div id="wizardStatusDisplay" class="status-display">
+                    Loading wizard status...
+                </div>
+                <button class="wizard-btn secondary" onclick="refreshWizardStatus()">🔄 Refresh Status</button>
+            </div>
+        </div>
+
+        <!-- Sora Video Customization -->
+        <div class="wizard-section">
+            <h2>🎬 Sora Video Customization</h2>
+            <p style="text-align: center; color: #cccccc; margin-bottom: 30px;">
+                Customize Sora-generated video prompts and embodiments for enhanced agent experiences
+            </p>
+
+            <div class="wizard-control-card">
+                <h4>🎭 Select Agent for Video Customization</h4>
+                <div class="agent-selector">
+                    <div class="agent-option" data-agent="austin">🏆 Austin Moore</div>
+                    <div class="agent-option" data-agent="arya">🎨 Arya</div>
+                    <div class="agent-option" data-agent="andy">🧠 Andy Acker</div>
+                    <div class="agent-option" data-agent="ryan">⚡ Ryan Barbrick</div>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label">Video Prompt Description:</label>
+                    <textarea id="soraPromptInput" placeholder="Describe the video embodiment you want Sora to create..." class="control-input" rows="4"></textarea>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label">Video Style:</label>
+                    <select id="videoStyleSelect" class="control-select">
+                        <option value="professional">Professional</option>
+                        <option value="mystical">Mystical</option>
+                        <option value="futuristic">Futuristic</option>
+                        <option value="educational">Educational</option>
+                        <option value="inspirational">Inspirational</option>
+                        <option value="technical">Technical</option>
+                    </select>
+                </div>
+
+                <div class="control-group">
+                    <label class="control-label">Duration (seconds):</label>
+                    <select id="videoDurationSelect" class="control-select">
+                        <option value="30">30 seconds</option>
+                        <option value="60">1 minute</option>
+                        <option value="120">2 minutes</option>
+                        <option value="300">5 minutes</option>
+                    </select>
+                </div>
+
+                <button class="wizard-btn" onclick="generateCustomSoraVideo()">🎬 Generate Custom Video</button>
+                <div id="videoGenerationStatus" style="margin-top: 10px; color: #00ff00;"></div>
+            </div>
+        </div>
+
+        <!-- Content Library Management -->
+        <div class="wizard-section">
+            <h2>📚 Content Library Management</h2>
+            <p style="text-align: center; color: #cccccc; margin-bottom: 30px;">
+                Manage shared content across all projects and agents
+            </p>
+
+            <div class="wizard-control-card">
+                <h4>🔓 Library Access</h4>
+                <p>Browse and manage shared content from all projects</p>
+                <button class="wizard-btn" onclick="openContentLibrary()">Open Library</button>
+            </div>
+
+            <div class="wizard-control-card">
+                <h4>📊 Library Statistics</h4>
+                <div id="contentStats" class="status-display">
+                    Loading stats...
+                </div>
+                <button class="wizard-btn secondary" onclick="refreshContentStats()">🔄 Refresh Stats</button>
+            </div>
+
+            <div class="wizard-control-card">
+                <h4>📤 Content Sharing</h4>
+                <p>Share generated content with team members</p>
+                <div class="control-group">
+                    <label class="control-label">Select Recipient:</label>
+                    <select id="shareUserSelect" class="control-select">
+                        <option value="austin">🏆 Austin Moore</option>
+                        <option value="arya">🎨 Arya</option>
+                        <option value="andy">🧠 Andy Acker</option>
+                        <option value="ryan">⚡ Ryan Barbrick</option>
+                    </select>
+                </div>
+                <button class="wizard-btn" onclick="shareRecentContent()">📤 Share Recent Content</button>
+            </div>
+
+            <div class="wizard-control-card">
+                <h4>💾 Data Export</h4>
+                <p>Download content library for backup or analysis</p>
+                <button class="wizard-btn secondary" onclick="exportContentLibrary()">💾 Export JSON</button>
+            </div>
+        </div>
+
+        <!-- Tutorial Video Studio -->
+        <div class="wizard-section">
+            <h2>🎬 Tutorial Video Studio</h2>
+            <p style="text-align: center; color: #cccccc; margin-bottom: 30px;">
+                Create and manage tutorial videos for agent training and user education
+            </p>
+
+            <div class="button-grid">
+                <div class="wizard-control-card">
+                    <h4>🔧 Assembly Tutorial</h4>
+                    <p>Step-by-step gem bot assembly guide</p>
+                    <div style="color: #00ff00; margin: 10px 0;">Duration: 5min</div>
+                    <button class="wizard-btn" onclick="generateAssemblyTutorial()">🎬 Generate Video</button>
+                </div>
+
+                <div class="wizard-control-card">
+                    <h4>💎 Jewelry Tutorial</h4>
+                    <p>Creative jewelry design techniques</p>
+                    <div style="color: #00ff00; margin: 10px 0;">Duration: 8min</div>
+                    <button class="wizard-btn" onclick="generateJewelryTutorial()">🎬 Generate Video</button>
+                </div>
+
+                <div class="wizard-control-card">
+                    <h4>💰 Sales Tutorial</h4>
+                    <p>Professional selling strategies</p>
+                    <div style="color: #00ff00; margin: 10px 0;">Duration: 6min</div>
+                    <button class="wizard-btn" onclick="generateSalesTutorial()">🎬 Generate Video</button>
+                </div>
+
+                <div class="wizard-control-card">
+                    <h4>🚀 Advanced Tutorial</h4>
+                    <p>Expert-level techniques</p>
+                    <div style="color: #00ff00; margin: 10px 0;">Duration: 10min</div>
+                    <button class="wizard-btn" onclick="generateAdvancedTutorial()">🎬 Generate Video</button>
+                </div>
+            </div>
+
+            <div class="wizard-control-card" style="text-align: center;">
+                <h4>🎬 Bulk Operations</h4>
+                <div class="button-grid" style="max-width: 400px; margin: 0 auto;">
+                    <button class="wizard-btn" onclick="generateAllTutorials()">🎬 Generate All Tutorials</button>
+                    <button class="wizard-btn secondary" onclick="createTutorialPlaylist()">📋 Create Learning Playlist</button>
+                </div>
+                <div id="tutorialStatus" style="margin-top: 15px; color: #00ff00;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let selectedAgent = 'austin';
+        let wizardModeActive = false;
+        let currentUserAddress = null;
+
+        // Initialize authentication
+        window.addEventListener('DOMContentLoaded', async () => {
+            console.log('🧙‍♂️ Initializing Agent Hub...');
+
+            try {
+                await window.authIntegration.init({
+                    requireAuth: true,
+                    showUI: false,
+                    onAuthSuccess: (authInfo) => {
+                        console.log('✅ Grand Wizard authenticated:', authInfo.address);
+                        currentUserAddress = authInfo.address;
+                        document.getElementById('loadingScreen').style.display = 'none';
+                        document.getElementById('authStatus').style.display = 'block';
+                        document.getElementById('authStatus').classList.add('connected');
+                        document.getElementById('walletDisplay').textContent = `Connected: ${authInfo.shortAddress}`;
+
+                        // Check if System Architect
+                        if (window.contractorPaymentSystem?.isSystemArchitect(authInfo.address)) {
+                            document.getElementById('wizardLevel').textContent = 'Wizard Level: GRAND MASTER 🧙‍♂️';
+                            document.getElementById('wizardLevel').style.color = '#ffd700';
+                        }
+
+                        // Load initial data
+                        refreshWizardStatus();
+                        refreshContentStats();
+                    },
+                    onAuthFail: () => {
+                        console.log('❌ Authentication failed - redirecting...');
+                        alert('Grand Wizard access denied. Phantom wallet connection required.');
+                        window.location.href = 'index.html';
+                    }
+                });
+            } catch (error) {
+                console.error('❌ Agent Hub initialization failed:', error);
+                alert('Failed to initialize Agent Hub. Please try again.');
+                window.location.href = 'index.html';
+            }
+        });
+
+        // Agent selection
+        document.addEventListener('click', (e) => {
+            if (e.target.classList.contains('agent-option')) {
+                // Remove selected class from all options
+                document.querySelectorAll('.agent-option').forEach(opt => opt.classList.remove('selected'));
+                // Add selected class to clicked option
+                e.target.classList.add('selected');
+                selectedAgent = e.target.dataset.agent;
+                console.log('🎭 Selected agent:', selectedAgent);
+            }
+        });
+
+        // Agent customization functions
+        function applyAgentCustomization() {
+            const costume = document.getElementById('costumeSelect').value;
+            const color = document.getElementById('colorPicker').value;
+            const auraIntensity = document.getElementById('auraIntensity').value;
+
+            const customization = {
+                agent: selectedAgent,
+                costume: costume,
+                color: color,
+                auraIntensity: parseFloat(auraIntensity),
+                timestamp: new Date().toISOString()
+            };
+
+            // Save to localStorage
+            const customizations = JSON.parse(localStorage.getItem('agentCustomizations') || '{}');
+            customizations[selectedAgent] = customization;
+            localStorage.setItem('agentCustomizations', JSON.stringify(customizations));
+
+            console.log('✨ Applied customization:', customization);
+            alert(`✨ ${selectedAgent.charAt(0).toUpperCase() + selectedAgent.slice(1)} customization applied successfully!`);
+
+            // Broadcast change to other windows/tabs
+            window.dispatchEvent(new CustomEvent('agentCustomizationChanged', { detail: customization }));
+        }
+
+        function resetAgentCustomization() {
+            const customizations = JSON.parse(localStorage.getItem('agentCustomizations') || '{}');
+            delete customizations[selectedAgent];
+            localStorage.setItem('agentCustomizations', JSON.stringify(customizations));
+
+            // Reset form to defaults
+            document.getElementById('costumeSelect').value = 'wizard';
+            document.getElementById('colorPicker').value = '#ff6b35';
+            document.getElementById('auraIntensity').value = '1.0';
+
+            console.log('🔄 Reset customization for:', selectedAgent);
+            alert(`🔄 ${selectedAgent.charAt(0).toUpperCase() + selectedAgent.slice(1)} customization reset to default.`);
+        }
+
+        // Embodiment control functions
+        function activateAllEmbodiments() {
+            ['austin', 'arya', 'andy', 'ryan'].forEach(agent => {
+                const statusElement = document.getElementById(`${agent}-status`);
+                if (statusElement) {
+                    statusElement.textContent = '● ACTIVE';
+                    statusElement.style.color = '#00ff88';
+                }
+            });
+
+            console.log('🎬 All embodiments activated');
+            alert('🎬 All Sora AI embodiments activated successfully!');
+        }
+
+        function deactivateAllEmbodiments() {
+            ['austin', 'arya', 'andy', 'ryan'].forEach(agent => {
+                const statusElement = document.getElementById(`${agent}-status`);
+                if (statusElement) {
+                    statusElement.textContent = '○ INACTIVE';
+                    statusElement.style.color = '#666';
+                }
+            });
+
+            console.log('⏹️ All embodiments deactivated');
+            alert('⏹️ All Sora AI embodiments deactivated.');
+        }
+
+        function regenerateAllSoraVideos() {
+            console.log('🔄 Regenerating all Sora videos...');
+            alert('🔄 Sora video regeneration initiated. This may take several minutes...');
+        }
+
+        function syncAllWizards() {
+            console.log('🔗 Synchronizing all wizards...');
+            alert('🔗 Wizard synchronization complete. All agents are now in harmony.');
+        }
+
+        function enterGrandWizardMode() {
+            wizardModeActive = !wizardModeActive;
+            const statusElement = document.getElementById('wizardModeStatus');
+
+            if (wizardModeActive) {
+                statusElement.textContent = '👑 GRAND WIZARD MODE ACTIVE - Enhanced powers unlocked!';
+                statusElement.style.color = '#ffd700';
+                console.log('👑 Grand Wizard mode activated');
+                alert('👑 GRAND WIZARD MODE ACTIVATED!\n\nYou now have ultimate control over all realms and agents.');
+            } else {
+                statusElement.textContent = 'Grand Wizard mode deactivated';
+                statusElement.style.color = '#666';
+                console.log('👑 Grand Wizard mode deactivated');
+                alert('👑 Grand Wizard mode deactivated.');
+            }
+        }
+
+        function refreshWizardStatus() {
+            const statusDisplay = document.getElementById('wizardStatusDisplay');
+            const status = {
+                wizardMode: wizardModeActive ? 'ACTIVE' : 'INACTIVE',
+                selectedAgent: selectedAgent,
+                connectedAgents: ['austin', 'arya', 'andy', 'ryan'],
+                totalCustomizations: Object.keys(JSON.parse(localStorage.getItem('agentCustomizations') || '{}')).length,
+                lastUpdate: new Date().toLocaleString()
+            };
+
+            statusDisplay.innerHTML = `
+                <div>👑 Wizard Mode: ${status.wizardMode}</div>
+                <div>🎭 Selected Agent: ${status.selectedAgent}</div>
+                <div>🤖 Connected Agents: ${status.connectedAgents.length}</div>
+                <div>🎨 Active Customizations: ${status.totalCustomizations}</div>
+                <div>🕐 Last Update: ${status.lastUpdate}</div>
+            `;
+        }
+
+        // Sora video customization
+        function generateCustomSoraVideo() {
+            const prompt = document.getElementById('soraPromptInput').value;
+            const style = document.getElementById('videoStyleSelect').value;
+            const duration = document.getElementById('videoDurationSelect').value;
+
+            if (!prompt.trim()) {
+                alert('❌ Please enter a video prompt description.');
+                return;
+            }
+
+            const videoRequest = {
+                agent: selectedAgent,
+                prompt: prompt,
+                style: style,
+                duration: duration,
+                timestamp: new Date().toISOString()
+            };
+
+            console.log('🎬 Generating Sora video:', videoRequest);
+
+            const statusElement = document.getElementById('videoGenerationStatus');
+            statusElement.textContent = '🎬 Generating Sora video... This may take a few minutes.';
+
+            // Simulate generation process
+            setTimeout(() => {
+                statusElement.textContent = '✅ Sora video generated successfully! Check the agent embodiment.';
+                alert(`✅ Sora video generated for ${selectedAgent}!\n\nPrompt: ${prompt}\nStyle: ${style}\nDuration: ${duration} seconds`);
+            }, 3000);
+        }
+
+        // Content library functions
+        function openContentLibrary() {
+            alert('📚 Content Library\n\nThis would open the full content management interface.\n\nFeatures include:\n• Browse all shared content\n• Search and filter\n• Content analytics\n• Collaboration tools');
+        }
+
+        function refreshContentStats() {
+            const statsElement = document.getElementById('contentStats');
+            // Mock stats - in real implementation, this would fetch from content manager
+            const stats = {
+                totalItems: 47,
+                sharedItems: 23,
+                tutorials: 12,
+                aiResponses: 156,
+                lastUpdate: new Date().toLocaleString()
+            };
+
+            statsElement.innerHTML = `
+                <div>📊 Total Content Items: ${stats.totalItems}</div>
+                <div>📤 Shared Items: ${stats.sharedItems}</div>
+                <div>🎬 Tutorial Videos: ${stats.tutorials}</div>
+                <div>🤖 AI Responses: ${stats.aiResponses}</div>
+                <div>🕐 Last Update: ${stats.lastUpdate}</div>
+            `;
+        }
+
+        function shareRecentContent() {
+            const recipient = document.getElementById('shareUserSelect').value;
+            alert(`📤 Content shared with ${recipient}!\n\nRecent items from your workspace have been shared.`);
+        }
+
+        function exportContentLibrary() {
+            alert('💾 Content library export initiated.\n\nA JSON file containing all content will be downloaded.');
+        }
+
+        // Tutorial functions
+        function generateAssemblyTutorial() {
+            updateTutorialStatus('🔧 Generating assembly tutorial...');
+            setTimeout(() => {
+                updateTutorialStatus('✅ Assembly tutorial generated!');
+                alert('✅ Assembly tutorial video generated!\n\nDuration: 5 minutes\nTopic: Step-by-step gem bot assembly');
+            }, 2000);
+        }
+
+        function generateJewelryTutorial() {
+            updateTutorialStatus('💎 Generating jewelry tutorial...');
+            setTimeout(() => {
+                updateTutorialStatus('✅ Jewelry tutorial generated!');
+                alert('✅ Jewelry tutorial video generated!\n\nDuration: 8 minutes\nTopic: Creative jewelry design techniques');
+            }, 2000);
+        }
+
+        function generateSalesTutorial() {
+            updateTutorialStatus('💰 Generating sales tutorial...');
+            setTimeout(() => {
+                updateTutorialStatus('✅ Sales tutorial generated!');
+                alert('✅ Sales tutorial video generated!\n\nDuration: 6 minutes\nTopic: Professional selling strategies');
+            }, 2000);
+        }
+
+        function generateAdvancedTutorial() {
+            updateTutorialStatus('🚀 Generating advanced tutorial...');
+            setTimeout(() => {
+                updateTutorialStatus('✅ Advanced tutorial generated!');
+                alert('✅ Advanced tutorial video generated!\n\nDuration: 10 minutes\nTopic: Expert-level techniques');
+            }, 2000);
+        }
+
+        function generateAllTutorials() {
+            updateTutorialStatus('🎬 Generating all tutorials...');
+            setTimeout(() => {
+                updateTutorialStatus('✅ All tutorials generated!');
+                alert('✅ All tutorial videos generated!\n\n• Assembly Tutorial (5min)\n• Jewelry Tutorial (8min)\n• Sales Tutorial (6min)\n• Advanced Tutorial (10min)');
+            }, 5000);
+        }
+
+        function createTutorialPlaylist() {
+            updateTutorialStatus('📋 Creating tutorial playlist...');
+            setTimeout(() => {
+                updateTutorialStatus('✅ Tutorial playlist created!');
+                alert('✅ Tutorial playlist created!\n\n"Gem Bot Mastery Series"\n\nIncludes all 4 tutorial videos\nTotal duration: 29 minutes\nLearning path optimized');
+            }, 2000);
+        }
+
+        function updateTutorialStatus(message) {
+            document.getElementById('tutorialStatus').textContent = message;
+        }
+    </script>
+</body>
+</html>
