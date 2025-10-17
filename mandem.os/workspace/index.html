@@ -1743,6 +1743,16 @@
             alert('✅ Content library exported successfully!');
         }
 
+        function createTutorialPlaylist() {
+            if (!window.tutorialVideoGenerator) {
+                alert('❌ Tutorial generator not loaded');
+                return;
+            }
+
+            const playlist = window.tutorialVideoGenerator.createTutorialPlaylist(['assembly', 'jewelry', 'sales', 'advanced']);
+            alert(`✅ Tutorial Playlist Created!\n\n📋 ${playlist.title}\n\nIncludes:\n• ${playlist.tutorials.map(t => t.title).join('\n• ')}\n\nTotal Duration: ${playlist.totalDuration}\n\nPlaylist saved to content library!`);
+        }
+
         // Initialize content stats on load
         window.addEventListener('load', function() {
             console.log('🚀 Initializing Gem Bot Universe...');
