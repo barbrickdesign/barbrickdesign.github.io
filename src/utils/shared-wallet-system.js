@@ -399,10 +399,16 @@ class SharedWalletSystem {
     }
 
     /**
-     * Setup event listeners
+     * Setup event listeners - coordinated with universal auth system
      */
     setupEventListeners() {
-        // Ethereum events
+        // Don't setup listeners if universal auth is handling them
+        if (window.universalWalletAuth) {
+            console.log('🔄 Shared Wallet System coordinating with Universal Auth - skipping event listeners');
+            return;
+        }
+
+        // Ethereum events (only if universal auth isn't handling them)
         if (window.ethereum) {
             window.ethereum.on('accountsChanged', (accounts) => {
                 if (accounts.length === 0) {
@@ -420,7 +426,7 @@ class SharedWalletSystem {
             });
         }
 
-        // Solana events
+        // Solana events (only if universal auth isn't handling them)
         if (window.solana) {
             window.solana.on('disconnect', () => {
                 this.disconnect();
