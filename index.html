@@ -553,6 +553,38 @@
             }
         }
 
+        /* Mobile Layout Fixes - No Overlapping */
+        @media (max-width: 768px) {
+            /* Header Layout */
+            header {
+                position: relative;
+                padding: 1.5rem 1rem;
+                margin-bottom: 2rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+                margin-bottom: 0.5rem;
+                line-height: 1.2;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+                margin-bottom: 1.5rem;
+            }
+
+            /* Page Timestamp */
+            .page-timestamp {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                font-size: 0.7em;
+                background: rgba(0,0,0,0.7);
+                padding: 4px 8px;
+                border-radius: 8px;
+                z-index: 10;
+            }
+
             /* Grid Layout */
             .grid {
                 grid-template-columns: 1fr;
@@ -618,6 +650,63 @@
                 grid-template-columns: repeat(2, 1fr) !important;
                 gap: 0.5rem !important;
             }
+
+            /* Stats Section */
+            .stats-section {
+                padding: 4rem 1rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+            }
+
+            .stat-card {
+                padding: 1rem;
+            }
+
+            .stat-number {
+                font-size: 2rem;
+            }
+
+            /* CTA Buttons */
+            .cta-buttons {
+                flex-direction: column;
+                gap: 1rem;
+                align-items: center;
+            }
+
+            .btn-primary,
+            .btn-secondary {
+                width: 100%;
+                max-width: 300px;
+                text-align: center;
+            }
+
+            /* Leaderboard */
+            .leaderboard-filters {
+                flex-direction: column;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+            .cyber-btn {
+                width: 100%;
+                max-width: 200px;
+            }
+
+            #leaderboardContainer {
+                max-height: 400px;
+                padding: 10px;
+            }
+
+            /* MNDM Integration Section */
+            .content-panel .content-panel {
+                margin: 0;
+                margin-top: 1rem;
+                padding: 1rem;
+            }
+        }
 
             /* Stats Section */
             .stats-section {
