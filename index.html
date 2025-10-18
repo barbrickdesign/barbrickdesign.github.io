@@ -948,7 +948,11 @@
                         <p style="color: #8addff; margin-bottom: 15px; font-size: 0.9em;">
                             Connect your Phantom wallet to access MNDM token features and platform integrations.
                         </p>
-                        <div id="walletButtonContainer"></div>
+                        <div id="walletButtonContainer">
+                            <button onclick="connectWalletFromPanel()" style="padding: 12px 24px; background: linear-gradient(135deg, #66fcf1, #3be477); color: #0a0c11; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 1em;">
+                                🔗 Connect Phantom Wallet
+                            </button>
+                        </div>
                         <div id="walletInfo" style="margin-top: 10px; display: none;">
                             <div style="background: rgba(0,255,153,0.1); border: 2px solid #00ff99; padding: 10px; border-radius: 8px; margin-top: 10px;">
                                 <div style="color: #00ff99; font-weight: bold; margin-bottom: 5px;">✅ Connected</div>
@@ -1260,20 +1264,52 @@
 
             // Initialize universal wallet system
             if (window.UniversalWalletSystem) {
-                window.universalWallet = new window.UniversalWalletSystem({
-                    autoConnect: true,
-                    showUI: true,
-                    enableMNDM: true,
-                    onConnect: (walletInfo) => {
-                        console.log('🔗 Hub wallet connected:', walletInfo);
-                        updateWalletStatusIndicator(true, walletInfo.address, walletInfo.mndmBalance);
-                        updateMNDMBalanceDisplay(walletInfo.mndmBalance);
-                    },
-                    onDisconnect: () => {
-                        console.log('🔌 Hub wallet disconnected');
+                window.universalWallet = new window.UniversalWalletSystem();
+                
+                // Check if wallet is already connected on page load
+                if (window.solana && window.solana.isPhantom) {
+                    window.solana.on('connect', async (publicKey) => {
+                        console.log('🔗 Wallet auto-connected:', publicKey.toString());
+                        const address = publicKey.toString();
+                        
+                        // Fetch MNDM balance
+                        let mndmBalance = 0;
+                        try {
+                            mndmBalance = await window.universalWallet.loadMNDMBalance(address);
+                        } catch (error) {
+                            console.error('Failed to load MNDM balance on auto-connect:', error);
+                        }
+                        
+                        // Update UI with connection and balance
+                        updateWalletStatusIndicator(true, address, mndmBalance);
+                        updateMNDMBalanceDisplay(mndmBalance);
+                    });
+                    
+                    window.solana.on('disconnect', () => {
+                        console.log('🔌 Wallet auto-disconnected');
                         updateWalletStatusIndicator(false);
+                    });
+                    
+                    // Check current connection status
+                    if (window.solana.isConnected) {
+                        const address = window.solana.publicKey.toString();
+                        
+                        // Fetch MNDM balance for already connected wallet
+                        setTimeout(async () => {
+                            let mndmBalance = 0;
+                            try {
+                                mndmBalance = await window.universalWallet.loadMNDMBalance(address);
+                                console.log('💎 Auto-loaded MNDM balance:', mndmBalance);
+                            } catch (error) {
+                                console.error('Failed to auto-load MNDM balance:', error);
+                            }
+                            
+                            // Update UI with balance
+                            updateWalletStatusIndicator(true, address, mndmBalance);
+                            updateMNDMBalanceDisplay(mndmBalance);
+                        }, 1000);
                     }
-                });
+                }
             }
 
             console.log('🏠 BARBRICKDESIGN Hub loaded successfully');
@@ -1464,6 +1500,48 @@
                 if (addressDisplay) addressDisplay.textContent = '';
                 if (balanceDisplay) balanceDisplay.textContent = 'Loading...';
                 if (walletInfo) walletInfo.style.display = 'none';
+            }
+        }
+
+        // Handle wallet connection from toggle panel
+        async function connectWalletFromPanel() {
+            const connectBtn = document.querySelector('#walletButtonContainer button');
+            if (!connectBtn) return;
+            
+            try {
+                connectBtn.disabled = true;
+                connectBtn.textContent = '🔄 Connecting...';
+                
+                // Connect wallet
+                const walletInfo = await window.universalWallet.connect();
+                console.log('🔗 Wallet connected from panel:', walletInfo);
+                
+                // Fetch MNDM balance
+                let mndmBalance = 0;
+                try {
+                    mndmBalance = await window.universalWallet.loadMNDMBalance(walletInfo.address);
+                    console.log('💎 Loaded MNDM balance:', mndmBalance);
+                } catch (error) {
+                    console.error('Failed to load MNDM balance:', error);
+                }
+                
+                // Update UI
+                updateWalletStatusIndicator(true, walletInfo.address, mndmBalance);
+                updateMNDMBalanceDisplay(mndmBalance);
+                
+                // Reset button
+                connectBtn.disabled = false;
+                connectBtn.textContent = '🔗 Connect Phantom Wallet';
+                
+            } catch (error) {
+                console.error('Wallet connection failed:', error);
+                alert('Failed to connect wallet: ' + error.message);
+                
+                // Reset button
+                if (connectBtn) {
+                    connectBtn.disabled = false;
+                    connectBtn.textContent = '🔗 Connect Phantom Wallet';
+                }
             }
         }
 
