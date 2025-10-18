@@ -8,14 +8,14 @@ class PumpfunTokenConfig {
     constructor() {
         this.token = {
             address: 'GK24fQQQKNF6JMsCd3rLfSr1n2tvr3bCJ7zAgNqxbA7r',
-            name: 'Gem Bot Pump Token',
-            symbol: 'GBPT',
+            name: 'MANDEM.OS',
+            symbol: 'MNDM',
             decimals: 9,
             chain: 'solana',
             platform: 'pump.fun',
-            logo: '🔥',
-            color: '#FF6B35',
-            gradient: 'linear-gradient(135deg, #FF6B35 0%, #F7931A 100%)',
+            logo: '💎',
+            color: '#00FFFF',
+            gradient: 'linear-gradient(135deg, #00FFFF 0%, #FF00FF 100%)',
             pumpfunUrl: 'https://pump.fun/coin/GK24fQQQKNF6JMsCd3rLfSr1n2tvr3bCJ7zAgNqxbA7r'
         };
 
@@ -83,7 +83,7 @@ class PumpfunTokenConfig {
             }
 
             const mockBalance = (hash % 10000) / 100; // 0-100 tokens
-            console.log(`💎 Mock balance for ${walletAddress.slice(0, 8)}...: ${mockBalance} GBPT`);
+            console.log(`💎 Mock balance for ${walletAddress.slice(0, 8)}...: ${mockBalance} MNDM`);
 
             return mockBalance;
         } catch (error) {
