@@ -1108,9 +1108,80 @@
             addWalletConnectButton();
         }
 
-        // Marketing functions
-        function viewMarketingDashboard() {
-            alert('📊 Marketing Dashboard\n\nFeature coming soon! This will include:\n- Campaign analytics\n- Social media metrics\n- Audience insights\n- ROI tracking');
+        // Show detailed MNDM token information
+        function showTokenInfo() {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay active';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 700px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                        <h2 style="color: var(--neon-gold); margin: 0;">💎 MNDM Token Information</h2>
+                        <span onclick="this.closest('.modal-overlay').remove()" style="cursor: pointer; font-size: 24px; color: var(--neon-blue);">×</span>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; margin-bottom: 2rem;">
+
+                        <!-- Token Details -->
+                        <div style="background: rgba(255,215,0,0.1); border: 2px solid var(--neon-gold); border-radius: 12px; padding: 1.5rem;">
+                            <h3 style="color: var(--neon-gold); margin-bottom: 1rem;">Token Details</h3>
+                            <div style="display: grid; gap: 0.5rem; font-size: 0.9em;">
+                                <div><strong style="color: var(--neon-blue);">Token Name:</strong> <span style="color: var(--neon-pink);">MNDM</span></div>
+                                <div><strong style="color: var(--neon-blue);">Symbol:</strong> <span style="color: var(--neon-pink);">MNDM</span></div>
+                                <div><strong style="color: var(--neon-blue);">Network:</strong> <span style="color: var(--neon-pink);">Solana</span></div>
+                                <div><strong style="color: var(--neon-blue);">Platform:</strong> <span style="color: var(--neon-pink);">Pump.fun</span></div>
+                                <div><strong style="color: var(--neon-blue);">Contract:</strong> <br><code style="background: rgba(0,0,0,0.5); padding: 4px 8px; border-radius: 4px; color: var(--neon-pink); word-break: break-all; font-size: 0.8em;">GK24fQQQKNF6JMsCd3rLfSr1n2tvr3bCJ7zAgNqxbA7r</code></div>
+                            </div>
+                        </div>
+
+                        <!-- Earning Mechanics -->
+                        <div style="background: rgba(0,255,255,0.1); border: 2px solid var(--neon-blue); border-radius: 12px; padding: 1.5rem;">
+                            <h3 style="color: var(--neon-blue); margin-bottom: 1rem;">Earning Mechanics</h3>
+                            <div style="display: grid; gap: 0.5rem; font-size: 0.9em;">
+                                <div><strong style="color: var(--neon-green);">XP → MNDM:</strong> <span style="color: var(--neon-pink);">1,000 XP = 1 MNDM</span></div>
+                                <div><strong style="color: var(--neon-green);">Swag → MNDM:</strong> <span style="color: var(--neon-pink);">2,000 Swag = 1 MNDM</span></div>
+                                <div><strong style="color: var(--neon-green);">Level Bonus:</strong> <span style="color: var(--neon-pink);">+10% per level</span></div>
+                                <div><strong style="color: var(--neon-green);">Daily Limit:</strong> <span style="color: var(--neon-orange);">10 MNDM max/day</span></div>
+                                <div><strong style="color: var(--neon-green);">Claim Method:</strong> <span style="color: var(--neon-pink);">Phantom Wallet</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- How to Earn -->
+                    <div style="background: rgba(255,20,147,0.1); border: 2px solid var(--neon-pink); border-radius: 12px; padding: 1.5rem; margin-bottom: 2rem;">
+                        <h3 style="color: var(--neon-pink); margin-bottom: 1rem;">How to Earn MNDM Tokens</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                            <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px;">
+                                <h4 style="color: var(--neon-blue); margin-bottom: 0.5rem;">💻 Platform Activity</h4>
+                                <ul style="color: #8addff; font-size: 0.8em; margin: 0; padding-left: 1rem;">
+                                    <li>Access Mission Control (+5 XP)</li>
+                                    <li>Navigate realms (+3 XP)</li>
+                                    <li>Connect wallet (+15 XP)</li>
+                                    <li>Use platform features</li>
+                                </ul>
+                            </div>
+                            <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px;">
+                                <h4 style="color: var(--neon-blue); margin-bottom: 0.5rem;">👥 Agent Interaction</h4>
+                                <ul style="color: #8addff; font-size: 0.8em; margin: 0; padding-left: 1rem;">
+                                    <li>Access agent portals (+8 XP)</li>
+                                    <li>Complete quests (varies)</li>
+                                    <li>Achieve milestones</li>
+                                    <li>Level progression bonuses</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div style="text-align: center;">
+                        <a href="https://pump.fun/coin/GK24fQQQKNF6JMsCd3rLfSr1n2tvr3bCJ7zAgNqxbA7r" target="_blank" class="cyber-btn" style="background: linear-gradient(135deg, var(--neon-gold), var(--neon-orange)); color: #000; text-decoration: none; font-weight: bold; margin-right: 10px;">
+                            🌐 Trade MNDM on Pump.fun
+                        </a>
+                        <button onclick="this.closest('.modal-overlay').remove()" class="cyber-btn cyber-btn-secondary">Close</button>
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
         }
 
         function analyzeAudience() {
