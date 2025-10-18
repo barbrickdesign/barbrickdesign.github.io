@@ -458,6 +458,15 @@
             isWalletConnected = true;
             currentWalletAddress = authInfo.address;
             
+            // Reset connect button state
+            const connectBtn = document.getElementById('connectWalletBtn');
+            connectBtn.textContent = '🔗 Connect Wallet';
+            connectBtn.disabled = false;
+            connectBtn.style.opacity = '1';
+            
+            // Small delay to prevent rapid UI updates
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
             // Update UI
             document.getElementById('walletInfo').textContent = `${authInfo.shortAddress || authInfo.address.slice(0, 8) + '...' + authInfo.address.slice(-4)}`;
             document.getElementById('walletInfo').style.color = '#00ff99';
