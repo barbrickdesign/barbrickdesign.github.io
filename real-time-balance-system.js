@@ -36,18 +36,26 @@ class RealTimeBalanceSystem {
             }
         };
 
-        // RPC endpoints (fallback to public ones)
+        // Enhanced RPC endpoints with health monitoring
         this.rpcEndpoints = {
-            ethereum: 'https://eth-mainnet.g.alchemy.com/v2/demo', // Replace with real endpoint
+            ethereum: [
+                'https://eth-mainnet.g.alchemy.com/v2/demo',
+                'https://mainnet.infura.io/v3/demo',
+                'https://cloudflare-eth.com'
+            ],
             solana: [
                 'https://api.mainnet-beta.solana.com',
                 'https://solana-api.projectserum.com',
                 'https://rpc.ankr.com/solana',
-                'https://solana-mainnet.g.alchemy.com/v2/demo', // Demo endpoint
-                'https://ssc-dao.genesysgo.net'
+                'https://solana-mainnet.g.alchemy.com/v2/demo',
+                'https://ssc-dao.genesysgo.net',
+                'https://solana-mainnet.rpc.extrnode.com',
+                'https://mainnet.helius-rpc.com/?api-key=demo'
             ]
         };
-        this.currentRpcIndex = 0;
+        this.currentRpcIndex = { ethereum: 0, solana: 0 };
+        this.endpointHealth = { ethereum: {}, solana: {} };
+        this.healthCheckInterval = null;
 
         this.init();
     }
@@ -64,7 +72,93 @@ class RealTimeBalanceSystem {
         // Start balance updates
         this.startBalanceUpdates();
 
-        console.log('✅ Balance system ready');
+        // Start health monitoring
+        this.startHealthMonitoring();
+
+        console.log('✅ Balance system ready with health monitoring');
+    }
+
+    /**
+     * Start RPC endpoint health monitoring
+     */
+    startHealthMonitoring() {
+        // Check endpoint health every 5 minutes
+        this.healthCheckInterval = setInterval(() => {
+            this.checkEndpointHealth();
+        }, 5 * 60 * 1000);
+
+        // Initial health check
+        this.checkEndpointHealth();
+    }
+
+    /**
+     * Check health of all RPC endpoints
+     */
+    async checkEndpointHealth() {
+        console.log('🔍 Checking RPC endpoint health...');
+
+        // Test Ethereum endpoints
+        for (const endpoint of this.rpcEndpoints.ethereum) {
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        jsonrpc: '2.0',
+                        id: 'health-check',
+                        method: 'eth_blockNumber',
+                        params: []
+                    })
+                });
+
+                const isHealthy = response.ok;
+                this.endpointHealth.ethereum[endpoint] = {
+                    healthy: isHealthy,
+                    lastCheck: Date.now(),
+                    responseTime: Date.now() - Date.now() // Would need proper timing
+                };
+            } catch (error) {
+                this.endpointHealth.ethereum[endpoint] = {
+                    healthy: false,
+                    lastCheck: Date.now(),
+                    error: error.message
+                };
+            }
+        }
+
+        // Test Solana endpoints
+        for (const endpoint of this.rpcEndpoints.solana) {
+            try {
+                const response = await fetch(endpoint, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        jsonrpc: '2.0',
+                        id: 'health-check',
+                        method: 'getVersion',
+                        params: []
+                    })
+                });
+
+                const isHealthy = response.ok && response.status !== 403;
+                this.endpointHealth.solana[endpoint] = {
+                    healthy: isHealthy,
+                    lastCheck: Date.now()
+                };
+            } catch (error) {
+                this.endpointHealth.solana[endpoint] = {
+                    healthy: false,
+                    lastCheck: Date.now(),
+                    error: error.message
+                };
+            }
+        }
+
+        // Log health status
+        const healthySolana = Object.values(this.endpointHealth.solana).filter(h => h.healthy).length;
+        const totalSolana = this.rpcEndpoints.solana.length;
+        
+        console.log(`🏥 RPC Health: ${healthySolana}/${totalSolana} Solana endpoints healthy`);
     }
 
     async waitForGoogleIntegration() {
@@ -315,39 +409,65 @@ class RealTimeBalanceSystem {
     }
 
     /**
-     * Call Ethereum RPC
+     * Call Ethereum RPC with endpoint rotation and health monitoring
      */
-    async callEthereumRPC(method, params) {
-        const response = await fetch(this.rpcEndpoints.ethereum, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                jsonrpc: '2.0',
-                id: 1,
-                method: method,
-                params: params
-            })
-        });
-
-        const data = await response.json();
-        if (data.error) {
-            throw new Error(data.error.message);
+    async callEthereumRPC(method, params, retryCount = 0) {
+        const maxRetries = this.rpcEndpoints.ethereum.length;
+        
+        if (retryCount >= maxRetries) {
+            throw new Error(`All Ethereum RPC endpoints failed for method: ${method}`);
         }
 
-        return data.result;
+        const endpoint = this.rpcEndpoints.ethereum[this.currentRpcIndex.ethereum];
+        
+        try {
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    jsonrpc: '2.0',
+                    id: Date.now(),
+                    method: method,
+                    params: params
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            if (data.error) {
+                throw new Error(data.error.message);
+            }
+
+            // Mark endpoint as healthy
+            this.endpointHealth.ethereum[endpoint] = { healthy: true, lastSuccess: Date.now() };
+            return data.result;
+
+        } catch (error) {
+            console.warn(`Ethereum RPC call failed for ${endpoint}:`, error.message);
+            
+            // Mark endpoint as unhealthy
+            this.endpointHealth.ethereum[endpoint] = { healthy: false, lastFailure: Date.now(), error: error.message };
+            
+            // Rotate to next endpoint
+            this.currentRpcIndex.ethereum = (this.currentRpcIndex.ethereum + 1) % this.rpcEndpoints.ethereum.length;
+            return this.callEthereumRPC(method, params, retryCount + 1);
+        }
     }
 
     /**
-     * Call Solana RPC with endpoint rotation for rate limiting
+     * Call Solana RPC with enhanced endpoint rotation and health monitoring
      */
     async callSolanaRPC(method, params, retryCount = 0) {
         const maxRetries = this.rpcEndpoints.solana.length;
         
         if (retryCount >= maxRetries) {
-            throw new Error(`All RPC endpoints failed for method: ${method}`);
+            throw new Error(`All Solana RPC endpoints failed for method: ${method}`);
         }
 
-        const endpoint = this.rpcEndpoints.solana[this.currentRpcIndex];
+        const endpoint = this.rpcEndpoints.solana[this.currentRpcIndex.solana];
         
         try {
             const response = await fetch(endpoint, {
@@ -362,8 +482,9 @@ class RealTimeBalanceSystem {
             });
 
             if (response.status === 403) {
-                console.warn(`RPC endpoint ${endpoint} returned 403, trying next endpoint...`);
-                this.currentRpcIndex = (this.currentRpcIndex + 1) % this.rpcEndpoints.solana.length;
+                console.warn(`RPC endpoint ${endpoint} returned 403, rotating...`);
+                this.endpointHealth.solana[endpoint] = { healthy: false, lastFailure: Date.now(), error: '403 Forbidden' };
+                this.currentRpcIndex.solana = (this.currentRpcIndex.solana + 1) % this.rpcEndpoints.solana.length;
                 return this.callSolanaRPC(method, params, retryCount + 1);
             }
 
@@ -376,11 +497,18 @@ class RealTimeBalanceSystem {
                 throw new Error(data.error.message);
             }
 
+            // Mark endpoint as healthy
+            this.endpointHealth.solana[endpoint] = { healthy: true, lastSuccess: Date.now() };
             return data.result;
 
         } catch (error) {
-            console.warn(`RPC call failed for ${endpoint}:`, error.message);
-            this.currentRpcIndex = (this.currentRpcIndex + 1) % this.rpcEndpoints.solana.length;
+            console.warn(`Solana RPC call failed for ${endpoint}:`, error.message);
+            
+            // Mark endpoint as unhealthy
+            this.endpointHealth.solana[endpoint] = { healthy: false, lastFailure: Date.now(), error: error.message };
+            
+            // Rotate to next endpoint
+            this.currentRpcIndex.solana = (this.currentRpcIndex.solana + 1) % this.rpcEndpoints.solana.length;
             return this.callSolanaRPC(method, params, retryCount + 1);
         }
     }
