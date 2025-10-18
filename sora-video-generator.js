@@ -1,6 +1,7 @@
 /**
  * Sora2 Video Generation System for BarbrickDesign
- * Allows users to contribute API keys and generate wizard embodiment videos
+ * Enhanced with FREE alternatives and community API key sharing
+ * Supports multiple video generation methods for cost-free access
  */
 
 // Prevent redeclaration
@@ -9,24 +10,146 @@ if (typeof SoraVideoGenerator === 'undefined') {
 class SoraVideoGenerator {
     constructor() {
         this.apiKey = null;
+        this.communityApiKeys = JSON.parse(localStorage.getItem('community-api-keys') || '[]');
         this.generatedVideos = JSON.parse(localStorage.getItem('sora-generated-videos') || '[]');
         this.userApiKeys = JSON.parse(localStorage.getItem('user-api-keys') || '[]');
         this.wizardPrompts = this.getWizardPrompts();
+        this.freeAlternatives = this.getFreeAlternatives();
+        this.communityPool = new CommunityAPIPool();
     }
 
     /**
-     * Initialize the video generator
+     * Get free video generation alternatives
      */
-    init() {
-        this.loadUserApiKey();
-        this.setupUI();
-        this.updateVideoGallery();
+    getFreeAlternatives() {
+        return {
+            mockDemo: {
+                name: "Demo Preview",
+                description: "Free demo videos with placeholder content",
+                cost: 0,
+                quality: "preview",
+                supported: true
+            },
+            communityPool: {
+                name: "Community Pool",
+                description: "Use shared community API keys (limited usage)",
+                cost: 0,
+                quality: "full",
+                supported: true
+            },
+            stableDiffusion: {
+                name: "Stable Video Diffusion",
+                description: "Open-source video generation (free)",
+                cost: 0,
+                quality: "good",
+                supported: false // Not implemented yet
+            },
+            runwayML: {
+                name: "Runway ML Free",
+                description: "Free tier video generation",
+                cost: 0,
+                quality: "good",
+                supported: false // Requires API integration
+            }
+        };
+    }
+
+// Community API Key Pool for shared usage
+class CommunityAPIPool {
+    constructor() {
+        this.pool = JSON.parse(localStorage.getItem('community-api-pool') || '[]');
+        this.usageLimits = {}; // Track usage per key
+        this.maxUsagePerKey = 50; // Max video generations per key per day
+        this.cooldownPeriod = 24 * 60 * 60 * 1000; // 24 hours
     }
 
     /**
-     * Get predefined wizard embodiment prompts
+     * Add API key to community pool
      */
-    getWizardPrompts() {
+    addKey(apiKey, contributor) {
+        // Check if key already exists
+        if (this.pool.find(k => k.key === apiKey)) {
+            return false; // Already exists
+        }
+
+        const keyEntry = {
+            key: apiKey,
+            contributor: contributor,
+            added: new Date().toISOString(),
+            usageCount: 0,
+            lastUsed: null,
+            isActive: true
+        };
+
+        this.pool.push(keyEntry);
+        this.savePool();
+        return true;
+    }
+
+    /**
+     * Get available API key from pool
+     */
+    getAvailableKey() {
+        const now = new Date();
+
+        // Find keys that haven't exceeded daily limit
+        for (const keyEntry of this.pool) {
+            if (!keyEntry.isActive) continue;
+
+            // Reset usage if cooldown period passed
+            if (keyEntry.lastUsed) {
+                const lastUsed = new Date(keyEntry.lastUsed);
+                if (now - lastUsed > this.cooldownPeriod) {
+                    keyEntry.usageCount = 0;
+                }
+            }
+
+            // Check if under usage limit
+            if (keyEntry.usageCount < this.maxUsagePerKey) {
+                keyEntry.usageCount++;
+                keyEntry.lastUsed = now.toISOString();
+                this.savePool();
+                return keyEntry.key;
+            }
+        }
+
+        return null; // No available keys
+    }
+
+    /**
+     * Get pool statistics
+     */
+    getStats() {
+        const activeKeys = this.pool.filter(k => k.isActive).length;
+        const totalUsage = this.pool.reduce((sum, k) => sum + k.usageCount, 0);
+        const contributors = new Set(this.pool.map(k => k.contributor)).size;
+
+        return {
+            totalKeys: this.pool.length,
+            activeKeys: activeKeys,
+            totalUsage: totalUsage,
+            contributors: contributors
+        };
+    }
+
+    /**
+     * Save pool to localStorage
+     */
+    savePool() {
+        localStorage.setItem('community-api-pool', JSON.stringify(this.pool));
+    }
+}
+
+class SoraVideoGenerator {
+    constructor() {
+        this.apiKey = null;
+        this.communityApiKeys = JSON.parse(localStorage.getItem('community-api-keys') || '[]');
+        this.generatedVideos = JSON.parse(localStorage.getItem('sora-generated-videos') || '[]');
+        this.userApiKeys = JSON.parse(localStorage.getItem('user-api-keys') || '[]');
+        this.wizardPrompts = this.getWizardPrompts();
+        this.freeAlternatives = this.getFreeAlternatives();
+        this.communityPool = new CommunityAPIPool();
+    }
         return {
             gettingStarted: {
                 title: "Getting Started with Gem Bot Universe",
