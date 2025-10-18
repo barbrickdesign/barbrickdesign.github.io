@@ -16,6 +16,9 @@
     <script src="src/core/auth-integration.js"></script>
     <script src="src/core/security-clearance-auth.js"></script>
     
+    <!-- Google Data Integration System -->
+    <script src="google-data-integration.js"></script>
+    
     <!-- Shared Systems -->
     <script src="src/utils/shared-utilities.js"></script>
     <script src="src/utils/shared-wallet-system.js"></script>
@@ -692,7 +695,27 @@
                 </div>
 
                 <div id="compensationStatus" style="text-align: center; color: #ffcc99; font-size: 0.9em;"></div>
-                <div id="compensationResults" style="margin-top: 20px;"></div>
+            <div id="compensationResults" style="margin-top: 20px;"></div>
+            </div>
+            
+            <!-- Google Location-Based Filtering -->
+            <div id="locationFilterSection" style="background: linear-gradient(135deg, rgba(0,150,255,0.1), rgba(0,100,200,0.1)); border: 2px solid rgba(0,150,255,0.3); padding: 25px; border-radius: 15px; margin: 30px 0;">
+                <h3 style="color: #66ccff; margin-bottom: 20px; text-align: center;">📍 Location-Based Contract Discovery</h3>
+                <p style="color: #99ddff; text-align: center; margin-bottom: 20px;">
+                    Find government contracts near your location using Google Places integration.<br>
+                    Enter your location to see contracts with nearby performance requirements.
+                </p>
+
+                <div style="display: flex; justify-content: center; gap: 15px; flex-wrap: wrap; margin-bottom: 20px;">
+                    <input type="text" id="locationSearchInput" placeholder="Enter city, state, or zip code..." style="padding: 12px; background: rgba(0,0,0,0.6); border: 2px solid #0099ff; border-radius: 8px; color: #66ccff; font-family: 'Orbitron', sans-serif; width: 300px;">
+                    <button onclick="searchNearbyContracts()" style="padding: 12px 20px; background: rgba(0,150,255,0.2); border: 2px solid #0099ff; border-radius: 8px; color: #66ccff; font-family: 'Orbitron', sans-serif; cursor: pointer; font-weight: 700;">
+                        🔍 Find Nearby Contracts
+                    </button>
+                </div>
+
+                <div id="locationResults" style="margin-top: 20px;">
+                    <div id="locationStatus" style="text-align: center; color: #99ddff; font-size: 0.9em;">Enter a location above to discover contracts in your area</div>
+                </div>
             </div>
             
             <div class="contracts-grid" id="contractsGrid"></div>

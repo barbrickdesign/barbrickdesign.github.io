@@ -45,19 +45,47 @@ class RealTimeBalanceSystem {
         this.init();
     }
 
-    /**
-     * Initialize the balance system
-     */
-    init() {
+    async init() {
         console.log('💰 Real-Time Balance System initializing...');
 
+        // Wait for Google Data Integration to be ready
+        await this.waitForGoogleIntegration();
+
+        // Initialize price tracking
+        this.initializePriceTracking();
+
+        // Start balance updates
+        this.startBalanceUpdates();
+
+        console.log('✅ Balance system ready');
+    }
+
+    async waitForGoogleIntegration() {
+        // Wait for Google Data Integration to load
+        let attempts = 0;
+        while (!window.googleDataIntegration && attempts < 10) {
+            await new Promise(resolve => setTimeout(resolve, 500));
+            attempts++;
+        }
+
+        if (window.googleDataIntegration) {
+            console.log('🔍 Google Data Integration detected - enhancing balance system');
+        } else {
+            console.warn('⚠️ Google Data Integration not available - using fallback data');
+        }
+    }
+
+    initializePriceTracking() {
         // Listen for wallet authentication events
         this.setupWalletListeners();
 
         // Start price updates
         this.startPriceUpdates();
+    }
 
-        console.log('✅ Real-Time Balance System ready');
+    startBalanceUpdates() {
+        // Start real-time updates
+        this.startRealTimeUpdates();
     }
 
     /**
@@ -614,7 +642,7 @@ class RealTimeBalanceSystem {
     }
 
     /**
-     * Update balance display
+     * Update balance display with Google data enhancements
      */
     updateBalanceDisplay(balanceData) {
         const content = document.getElementById('balance-content');
@@ -676,6 +704,11 @@ class RealTimeBalanceSystem {
             `;
         }
 
+        // Add Google data insights if available
+        if (hasBalances && window.googleDataIntegration) {
+            html += this.generateGoogleInsights(balanceData);
+        }
+
         if (!hasBalances) {
             html = `
                 <div class="balance-loading">
@@ -706,6 +739,118 @@ class RealTimeBalanceSystem {
 
         if (timestamp) {
             timestamp.textContent = 'Never';
+        }
+    }
+
+    /**
+     * Generate Google data insights for portfolio
+     */
+    async generateGoogleInsights(balanceData) {
+        try {
+            const insights = await window.googleDataIntegration.enhanceBalanceSystem();
+            if (!insights) return '';
+
+            let insightsHTML = '<div class="balance-insights" style="margin-top: 20px; padding-top: 15px; border-top: 1px solid rgba(0,255,255,0.3);">';
+
+            // Price alerts
+            if (insights.priceAlerts && insights.priceAlerts.length > 0) {
+                insightsHTML += '<div class="insights-section" style="margin-bottom: 15px;">';
+                insightsHTML += '<div style="color: #ffd700; font-size: 0.9em; margin-bottom: 8px;">🚨 Price Alerts:</div>';
+
+                insights.priceAlerts.slice(0, 3).forEach(alert => {
+                    insightsHTML += `
+                        <div style="font-size: 0.8em; color: #ffaa00; margin-bottom: 5px; padding: 4px; background: rgba(255,170,0,0.1); border-radius: 3px;">
+                            ${alert.message}
+                        </div>
+                    `;
+                });
+
+                insightsHTML += '</div>';
+            }
+
+            // Portfolio insights
+            if (insights.portfolioInsights && insights.portfolioInsights.length > 0) {
+                insightsHTML += '<div class="insights-section">';
+                insightsHTML += '<div style="color: #00ff88; font-size: 0.9em; margin-bottom: 8px;">💡 Portfolio Insights:</div>';
+
+                insights.portfolioInsights.slice(0, 3).forEach(insight => {
+                    insightsHTML += `
+                        <div style="font-size: 0.8em; color: #8addff; margin-bottom: 5px; padding: 4px; background: rgba(0,255,255,0.1); border-radius: 3px;">
+                            ${insight.insight}
+                        </div>
+                    `;
+                });
+
+                insightsHTML += '</div>';
+            }
+
+            insightsHTML += '</div>';
+
+            return insightsHTML;
+        } catch (error) {
+            console.error('Failed to generate Google insights:', error);
+            return '';
+        }
+    }
+
+    /**
+     * Enhanced price data fetching with Google Finance
+     */
+    async fetchPriceData() {
+        try {
+            const symbols = ['ETH', 'SOL', 'USDC', 'USDT', 'WBTC', 'BONK', 'MNDM', 'CDR'];
+
+            // Try Google Finance first
+            if (window.googleDataIntegration) {
+                try {
+                    const googleFinance = await window.googleDataIntegration.getFinanceData(
+                        symbols.map(s => `${s}-USD`)
+                    );
+
+                    // Convert to our format
+                    this.priceData = {};
+                    Object.entries(googleFinance).forEach(([symbol, data]) => {
+                        const cleanSymbol = symbol.replace('-USD', '');
+                        this.priceData[cleanSymbol] = { usd: data.currentPrice };
+                    });
+
+                    console.log('💹 Price data updated from Google Finance:', this.priceData);
+                    return;
+                } catch (googleError) {
+                    console.warn('Google Finance failed, falling back to CoinGecko:', googleError);
+                }
+            }
+
+            // Fallback to CoinGecko
+            const ids = symbols.map(s => s.toLowerCase()).join(',');
+            const response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd`);
+            const data = await response.json();
+
+            // Map to our format
+            this.priceData = {};
+            for (const [id, priceInfo] of Object.entries(data)) {
+                const symbol = id.toUpperCase();
+                this.priceData[symbol] = { usd: priceInfo.usd };
+            }
+
+            console.log('💹 Price data updated from CoinGecko:', this.priceData);
+
+        } catch (error) {
+            console.error('Failed to fetch price data:', error);
+            // Fallback: keep existing price data or set defaults
+            if (Object.keys(this.priceData).length === 0) {
+                // Set some default prices for common tokens
+                this.priceData = {
+                    'ETH': { usd: 2000 },
+                    'SOL': { usd: 150 },
+                    'USDC': { usd: 1 },
+                    'USDT': { usd: 1 },
+                    'WBTC': { usd: 60000 },
+                    'BONK': { usd: 0.00002 },
+                    'MNDM': { usd: 0 }, // New token, no price data yet
+                    'CDR': { usd: 0 } // New token, no price data yet
+                };
+            }
         }
     }
 }
