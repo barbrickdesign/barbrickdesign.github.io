@@ -16,7 +16,7 @@ class UniversalWalletSystem {
         this.isConnected = false;
         this.connectionStatus = 'disconnected';
 
-        this.MNDM_TOKEN_ADDRESS = 'GJFCA8XxnGns9TqKsMLScyVSooyiNrNPpjp2CyQCz7z5';
+        this.MNDM_TOKEN_ADDRESS = 'GK24fQQQKNF6JMsCd3rLfSr1n2tvr3bCJ7zAgNqxbA7r';
 
         this.init();
     }
