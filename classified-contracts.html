@@ -509,22 +509,74 @@
                     <div class="setup-step" data-step="2" onclick="goToSetupStep(2)">
                         <div class="step-number">2</div>
                         <div class="step-title">GitHub Sync</div>
-                        <div class="step-desc">Connect your projects</div>
-                    </div>
-                    <div class="setup-step" data-step="3" onclick="goToSetupStep(3)">
-                        <div class="step-number">3</div>
-                        <div class="step-title">Contract Match</div>
-                        <div class="step-desc">Find matching opportunities</div>
-                    </div>
-                    <div class="setup-step" data-step="4" onclick="goToSetupStep(4)">
-                        <div class="step-number">4</div>
-                        <div class="step-title">Ready to Bid</div>
-                        <div class="step-desc">Start bidding on contracts</div>
-                    </div>
+                        <div id="authSection" style="display: block;">
+            <h2 style="color: #ff6666; margin-bottom: 20px; text-align: center;">🔐 AUTHENTICATION REQUIRED</h2>
+            
+            <!-- Authentication Method Selection -->
+            <div style="display: flex; justify-content: center; gap: 30px; flex-wrap: wrap; margin-bottom: 30px;">
+                <div class="auth-method-btn" id="walletAuthBtn" onclick="selectAuthMethod('wallet')">
+                    <div class="method-icon">🔑</div>
+                    <div class="method-title">Crypto Wallet + PIV/CAC</div>
+                    <div class="method-desc">Connect wallet with security clearance verification</div>
                 </div>
+                
+                <div class="auth-method-btn samgov-btn" id="samgovAuthBtn" onclick="selectAuthMethod('samgov')">
+                    <div class="method-icon">🏛️</div>
+                    <div class="method-title">SAM.gov SSO</div>
+                    <div class="method-desc">Government-standard authentication</div>
+                </div>
+            </div>
 
-                <div id="setupProgress" style="margin-top: 20px;">
-                    <div style="background: rgba(0,255,0,0.2); height: 8px; border-radius: 4px; overflow: hidden;">
+            <!-- Wallet Authentication Section -->
+            <div id="walletAuthSection" style="display: none;">
+                <div class="card-icon">🔑</div>
+                <p style="color: #ff9999; margin: 20px 0; text-align: center; line-height: 1.8;">
+                    🔐 <strong>CRYPTO WALLET + PIV/CAC AUTHENTICATION</strong><br>
+                    Connect your crypto wallet and provide PIV/CAC card credentials for classified contract access.<br>
+                    This method requires wallet connection + security clearance verification.
+                </p>
+                
+                <button id="authBtn" class="auth-btn" onclick="authenticateWallet()">
+                    🔓 CONNECT WALLET & VERIFY CLEARANCE
+                </button>
+                
+                <div style="margin-top: 20px; text-align: center;">
+                    <p style="color: #ff9999; font-size: 0.9em; line-height: 1.6;">
+                        ✅ Wallet signature verification<br>
+                        ✅ PIV/CAC credential validation<br>
+                        ✅ Clearance level assessment<br>
+                        ✅ Access level determination
+                    </p>
+                </div>
+            </div>
+
+            <!-- SAM.gov Authentication Section -->
+            <div id="samgovAuthSection" style="display: none;">
+                <div class="card-icon">🏛️</div>
+                <p style="color: #66ccff; margin: 20px 0; text-align: center; line-height: 1.8;">
+                    🏛️ <strong>SAM.GOV SINGLE SIGN-ON</strong><br>
+                    Authenticate using your SAM.gov government credentials.<br>
+                    This provides government-standard security with automatic profile sync.
+                </p>
+                
+                <button id="samgovAuthBtn" class="auth-btn samgov-btn" onclick="authenticateWithSAMGov()">
+                    🏛️ AUTHENTICATE WITH SAM.GOV
+                </button>
+                
+                <div id="samgovAuthStatus" style="margin-top: 20px; text-align: center; color: #66ccff;"></div>
+                
+                <div style="margin-top: 20px; text-align: center;">
+                    <p style="color: #99ddff; font-size: 0.9em; line-height: 1.6;">
+                        ✅ Government-standard security<br>
+                        ✅ Automatic profile synchronization<br>
+                        ✅ No wallet required<br>
+                        ✅ Enterprise-grade authentication
+                    </p>
+                </div>
+            </div>
+            
+            <p id="authStatus" style="margin-top: 20px; color: #ff9999;"></p>
+        </div> style="background: rgba(0,255,0,0.2); height: 8px; border-radius: 4px; overflow: hidden;">
                         <div id="progressBar" style="background: #00ff00; height: 100%; width: 25%; transition: width 0.3s;"></div>
                     </div>
                     <p id="setupStatus" style="color: #66ff66; margin-top: 10px; font-size: 0.9em;">Step 1 of 4: Setting up your profile</p>
