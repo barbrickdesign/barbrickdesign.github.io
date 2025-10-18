@@ -2760,7 +2760,9 @@
 
             // Token balances
             balanceData.tokens.forEach(token => {
-                const icon = token.symbol === 'USDC' ? '💵' : token.symbol === 'USDT' ? '💰' : '🪙';
+                const icon = token.symbol === 'USDC' ? '💵' :
+                            token.symbol === 'USDT' ? '💰' :
+                            token.symbol === 'MNDM' ? '⚡' : '🪙';
                 html += `<div style="margin-bottom: 5px;"><strong>${icon} ${token.name}:</strong> ${token.formatted} <span style="color: var(--neon-green);">($${window.realTimeBalanceSystem.formatUSD(token.usdValue)})</span></div>`;
             });
 
