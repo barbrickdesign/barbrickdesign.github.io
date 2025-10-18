@@ -2221,6 +2221,23 @@
         }
 
         // Status Dashboard
+        function refreshContentStats() {
+            // Check if content stats element exists before updating
+            const contentStats = document.getElementById('contentStatsDisplay');
+            if (!contentStats) {
+                console.warn('Content stats element not found');
+                return;
+            }
+            
+            // Update content stats display
+            const entries = xpLogData.entries;
+            const totalEntries = entries.length;
+            const wins = entries.filter(e => e.type === 'wins').length;
+            const quests = entries.filter(e => e.type === 'quest').length;
+            
+            contentStats.textContent = `Total: ${totalEntries} | Wins: ${wins} | Quests: ${quests}`;
+        }
+
         function refreshWizardStatus() {
             const statusDiv = document.getElementById('wizardStatusDisplay');
             if (!statusDiv) {
