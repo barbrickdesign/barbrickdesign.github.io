@@ -2622,6 +2622,9 @@
                 
                 // Refresh history
                 refreshDistributionHistory();
+
+                // Award XP for successful distribution
+                addXP(20, 'system_interaction');
             } catch (error) {
                 alert(`❌ Distribution failed: ${error.message}`);
             }
