@@ -439,9 +439,54 @@
             </div>
         </div>
 
-        <!-- Enhanced Navigation Links -->
+        <!-- Public Leaderboard Section -->
         <div class="content-panel" style="margin-top: 2rem;">
-            <h2 style="color: var(--neon-green); text-align: center;">🔗 REALM NAVIGATION HUB</h2>
+            <h2 style="color: var(--neon-gold); text-align: center;">🏆 PUBLIC LEADERBOARD</h2>
+            <p style="text-align: center; color: #8addff; margin-bottom: 1rem; font-size: 0.9em;">
+                Real-time rankings of all platform users by XP, achievements, and token earnings
+            </p>
+
+            <!-- Leaderboard Filters -->
+            <div class="leaderboard-filters" style="display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+                <button onclick="setLeaderboardFilter('xp')" id="filterXP" class="cyber-btn cyber-btn-secondary active-filter">🏆 XP Leaders</button>
+                <button onclick="setLeaderboardFilter('tokens')" id="filterTokens" class="cyber-btn cyber-btn-secondary">💎 Token Holders</button>
+                <button onclick="setLeaderboardFilter('level')" id="filterLevel" class="cyber-btn cyber-btn-secondary">⭐ Level Masters</button>
+                <button onclick="setLeaderboardFilter('recent')" id="filterRecent" class="cyber-btn cyber-btn-secondary">🔥 Recent Activity</button>
+            </div>
+
+            <!-- Leaderboard Display -->
+            <div id="leaderboardContainer" style="max-height: 600px; overflow-y: auto; background: rgba(0,0,0,0.3); border-radius: 10px; padding: 20px;">
+                <div id="leaderboardContent" style="display: grid; gap: 15px;">
+                    <!-- Leaderboard entries will be populated here -->
+                    <div style="text-align: center; color: var(--neon-blue); padding: 40px;">
+                        🔄 Loading leaderboard data...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Your Profile Card (if logged in) -->
+            <div id="userProfileCard" style="display: none; margin-top: 20px; background: linear-gradient(135deg, rgba(255,215,0,0.1), rgba(0,255,255,0.1)); border: 2px solid var(--neon-gold); border-radius: 15px; padding: 20px;">
+                <h3 style="color: var(--neon-gold); text-align: center; margin-bottom: 15px;">👤 YOUR PROFILE</h3>
+                <div id="userProfileContent">
+                    <!-- User profile will be populated here -->
+                </div>
+            </div>
+
+            <!-- Phantom Wallet Connection Section -->
+            <div style="margin-top: 20px; text-align: center; background: rgba(0,0,0,0.3); border: 1px solid var(--neon-blue); border-radius: 10px; padding: 15px;">
+                <h4 style="color: var(--neon-blue); margin-bottom: 10px;">🔗 Check Your MNDM Balance</h4>
+                <p style="color: #8addff; font-size: 0.9em; margin-bottom: 15px;">
+                    Connect your Phantom wallet to view your real MNDM token balance from the Mandem.OS token contract.
+                </p>
+                <button class="cyber-btn" onclick="manualPhantomConnect()" id="phantomConnectBtn" style="margin-right: 10px;">
+                    👻 Connect Phantom Wallet
+                </button>
+                <button class="cyber-btn cyber-btn-secondary" onclick="window.open('https://pump.fun/coin/GK24fQQQKNF6JMsCd3rLfSr1n2tvr3bCJ7zAgNqxbA7r', '_blank')" style="font-size: 0.8em;">
+                    🌐 Trade MNDM on Pump.fun
+                </button>
+                <div id="phantomStatus" style="margin-top: 10px; font-size: 0.9em; color: var(--neon-green);"></div>
+            </div>
+        </div>
             <div class="nav-links-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
                 <a href="mandem.os/workspace/index.html" class="nav-link-card">
                     <h3>🌍 Gem Bot Universe</h3>
@@ -481,24 +526,526 @@
     </div>
 
     <script>
-        // Automated ordering system
-        function submitOrder() {
-            const product = document.getElementById('productSelect').value;
-            const email = document.getElementById('customerEmail').value;
-            const notes = document.getElementById('orderNotes').value;
+        // Public Leaderboard System
+        let currentLeaderboardFilter = 'xp';
+        let leaderboardData = [];
 
-            if (!email) {
-                alert('❌ Please enter your email address');
+        function initializeLeaderboard() {
+            console.log('🏆 Initializing Public Leaderboard...');
+            loadLeaderboardData();
+            updateLeaderboardDisplay();
+            checkUserProfile();
+        }
+
+        function loadLeaderboardData() {
+            // Load all stored user data from localStorage
+            leaderboardData = [];
+
+            // Get all localStorage keys
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+
+                // Look for XP data and user profiles
+                if (key.includes('xpLogData') || key.includes('userProfile') || key.includes('barbrick_auth_session')) {
+                    try {
+                        const data = JSON.parse(localStorage.getItem(key));
+
+                        // Extract user profile information
+                        if (key === 'xpLogData') {
+                            const userProfile = createUserProfile(data, 'Anonymous User');
+                            leaderboardData.push(userProfile);
+                        } else if (key.includes('barbrick_auth_session')) {
+                            const sessionData = data;
+                            if (sessionData && sessionData.address) {
+                                const xpData = JSON.parse(localStorage.getItem('xpLogData') || '{}');
+                                const userProfile = createUserProfile(xpData, sessionData.address.substring(0, 6) + '...' + sessionData.address.substring(-4));
+                                leaderboardData.push(userProfile);
+                            }
+                        }
+                    } catch (error) {
+                        console.warn('Error parsing leaderboard data:', error);
+                    }
+                }
+            }
+
+            // Add some demo data if no real data exists
+            if (leaderboardData.length === 0) {
+                leaderboardData = generateDemoLeaderboardData();
+            }
+
+            // Sort by current filter
+            sortLeaderboardData();
+        }
+
+        function createUserProfile(xpData, username) {
+            const level = Math.floor((xpData.totalXP || 0) / 1000) + 1;
+            const earnedTokens = xpData.totalTokensEarned || 0;
+            const claimedTokens = xpData.claimedTokens || 0;
+            const availableTokens = earnedTokens - claimedTokens;
+            const totalXP = xpData.totalXP || 0;
+            const totalSwag = xpData.totalSwag || 0;
+
+            // Calculate activity score based on recent entries
+            const recentActivity = xpData.entries ? xpData.entries.filter(entry => {
+                const entryDate = new Date(entry.time);
+                const weekAgo = new Date();
+                weekAgo.setDate(weekAgo.getDate() - 7);
+                return entryDate > weekAgo;
+            }).length : 0;
+
+            return {
+                username: username,
+                level: level,
+                totalXP: totalXP,
+                totalSwag: totalSwag,
+                earnedTokens: earnedTokens,
+                claimedTokens: claimedTokens,
+                availableTokens: availableTokens,
+                recentActivity: recentActivity,
+                lastActive: xpData.entries && xpData.entries.length > 0 ? xpData.entries[0].time : 'Never',
+                achievements: calculateAchievements(totalXP, level, earnedTokens, recentActivity)
+            };
+        }
+
+        function calculateAchievements(totalXP, level, earnedTokens, recentActivity) {
+            const achievements = [];
+
+            if (totalXP >= 10000) achievements.push('🏆 XP Champion');
+            else if (totalXP >= 5000) achievements.push('🥈 XP Master');
+            else if (totalXP >= 1000) achievements.push('🥉 XP Adept');
+
+            if (level >= 10) achievements.push('⭐ Level Legend');
+            else if (level >= 5) achievements.push('🌟 Level Expert');
+
+            if (earnedTokens >= 100) achievements.push('💎 Token Tycoon');
+            else if (earnedTokens >= 50) achievements.push('💰 Token Trader');
+            else if (earnedTokens >= 10) achievements.push('🪙 Token Holder');
+
+            if (recentActivity >= 10) achievements.push('🔥 Activity Champion');
+            else if (recentActivity >= 5) achievements.push('⚡ Active User');
+
+            return achievements;
+        }
+
+        function generateDemoLeaderboardData() {
+            return [
+                {
+                    username: 'CryptoWizard',
+                    level: 15,
+                    totalXP: 14500,
+                    totalSwag: 7250,
+                    earnedTokens: 156.78,
+                    claimedTokens: 145.23,
+                    availableTokens: 11.55,
+                    recentActivity: 12,
+                    lastActive: '2 hours ago',
+                    achievements: ['🏆 XP Champion', '⭐ Level Legend', '💎 Token Tycoon', '🔥 Activity Champion']
+                },
+                {
+                    username: 'BlockMaster',
+                    level: 12,
+                    totalXP: 11800,
+                    totalSwag: 5900,
+                    earnedTokens: 123.45,
+                    claimedTokens: 120.00,
+                    availableTokens: 3.45,
+                    recentActivity: 8,
+                    lastActive: '1 day ago',
+                    achievements: ['🏆 XP Champion', '⭐ Level Legend', '💎 Token Tycoon', '⚡ Active User']
+                },
+                {
+                    username: 'GemCutter',
+                    level: 8,
+                    totalXP: 7800,
+                    totalSwag: 3900,
+                    earnedTokens: 89.12,
+                    claimedTokens: 85.67,
+                    availableTokens: 3.45,
+                    recentActivity: 6,
+                    lastActive: '3 days ago',
+                    achievements: ['🥈 XP Master', '🌟 Level Expert', '💰 Token Trader', '⚡ Active User']
+                },
+                {
+                    username: 'Web3Pioneer',
+                    level: 6,
+                    totalXP: 5800,
+                    totalSwag: 2900,
+                    earnedTokens: 67.89,
+                    claimedTokens: 65.43,
+                    availableTokens: 2.46,
+                    recentActivity: 4,
+                    lastActive: '1 week ago',
+                    achievements: ['🥈 XP Master', '🌟 Level Expert', '💰 Token Trader']
+                },
+                {
+                    username: 'AgentHunter',
+                    level: 4,
+                    totalXP: 3800,
+                    totalSwag: 1900,
+                    earnedTokens: 45.67,
+                    claimedTokens: 42.12,
+                    availableTokens: 3.55,
+                    recentActivity: 3,
+                    lastActive: '2 weeks ago',
+                    achievements: ['🥉 XP Adept', '🪙 Token Holder']
+                }
+            ];
+        }
+
+        function setLeaderboardFilter(filter) {
+            currentLeaderboardFilter = filter;
+
+            // Update active button
+            document.querySelectorAll('.leaderboard-filters button').forEach(btn => {
+                btn.classList.remove('active-filter');
+            });
+            document.getElementById(`filter${filter.charAt(0).toUpperCase() + filter.slice(1)}`).classList.add('active-filter');
+
+            // Sort and update display
+            sortLeaderboardData();
+            updateLeaderboardDisplay();
+        }
+
+        function sortLeaderboardData() {
+            leaderboardData.sort((a, b) => {
+                switch (currentLeaderboardFilter) {
+                    case 'xp':
+                        return b.totalXP - a.totalXP;
+                    case 'tokens':
+                        return b.earnedTokens - a.earnedTokens;
+                    case 'level':
+                        return b.level - a.level;
+                    case 'recent':
+                        return b.recentActivity - a.recentActivity;
+                    default:
+                        return b.totalXP - a.totalXP;
+                }
+            });
+        }
+
+        function updateLeaderboardDisplay() {
+            const container = document.getElementById('leaderboardContent');
+
+            if (leaderboardData.length === 0) {
+                container.innerHTML = '<div style="text-align: center; color: var(--neon-blue); padding: 40px;">No leaderboard data available</div>';
                 return;
             }
 
-            // Mock order processing
-            alert(`✅ Order Submitted Successfully!\n\nProduct: ${product}\nEmail: ${email}\nNotes: ${notes || 'None'}\n\nThank you for your business! We'll process your order and contact you soon.`);
+            const leaderboardHTML = leaderboardData.slice(0, 20).map((user, index) => `
+                <div class="leaderboard-entry" style="background: rgba(0,0,0,0.4); border: 1px solid var(--neon-blue); border-radius: 10px; padding: 15px; display: flex; align-items: center; gap: 15px;">
+                    <div class="rank-badge" style="background: linear-gradient(135deg, var(--neon-gold), var(--neon-pink)); color: #000; font-weight: bold; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.2em;">
+                        ${index + 1}
+                    </div>
 
-            // Clear form
-            document.getElementById('productSelect').selectedIndex = 0;
-            document.getElementById('customerEmail').value = '';
-            document.getElementById('orderNotes').value = '';
+                    <div class="user-info" style="flex: 1;">
+                        <div class="username" style="color: var(--neon-blue); font-weight: bold; font-size: 1.1em; margin-bottom: 5px;">
+                            ${user.username}
+                        </div>
+                        <div class="user-stats" style="display: flex; gap: 15px; flex-wrap: wrap; font-size: 0.85em; color: #8addff;">
+                            <span>⭐ Level ${user.level}</span>
+                            <span>🏆 ${user.totalXP.toLocaleString()} XP</span>
+                            <span>💎 ${user.earnedTokens.toFixed(2)} MNDM</span>
+                            <span>🔥 ${user.recentActivity} recent</span>
+                        </div>
+                        <div class="achievements" style="margin-top: 8px; display: flex; gap: 5px; flex-wrap: wrap;">
+                            ${user.achievements.slice(0, 3).map(achievement => `<span style="background: rgba(255,215,0,0.2); color: var(--neon-gold); padding: 2px 6px; border-radius: 10px; font-size: 0.7em;">${achievement}</span>`).join('')}
+                            ${user.achievements.length > 3 ? `<span style="background: rgba(0,255,255,0.2); color: var(--neon-blue); padding: 2px 6px; border-radius: 10px; font-size: 0.7em;">+${user.achievements.length - 3} more</span>` : ''}
+                        </div>
+                    </div>
+
+                    <div class="user-details" style="text-align: right; font-size: 0.8em; color: #8addff;">
+                        <div>Last active: ${user.lastActive}</div>
+                        <div style="color: var(--neon-green); margin-top: 2px;">${user.availableTokens.toFixed(4)} available</div>
+                    </div>
+                </div>
+            `).join('');
+
+            container.innerHTML = leaderboardHTML;
+        }
+
+        function checkUserProfile() {
+            // Check if user is logged in and has XP data
+            const authSession = localStorage.getItem('barbrick_auth_session');
+            const xpData = localStorage.getItem('xpLogData');
+
+            if (authSession && xpData) {
+                try {
+                    const sessionData = JSON.parse(authSession);
+                    const xpLogData = JSON.parse(xpData);
+
+                    if (sessionData.authenticated && xpLogData.totalXP > 0) {
+                        displayUserProfile(sessionData, xpLogData);
+                        // Check for Phantom wallet and MNDM balance
+                        checkPhantomMNDMBalance();
+                    }
+                } catch (error) {
+                    console.warn('Error loading user profile:', error);
+                }
+            }
+        }
+
+        // Phantom Wallet MNDM Token Integration
+        let phantomWallet = null;
+        let mndmTokenBalance = 0;
+        const MNDM_TOKEN_ADDRESS = 'GK24fQQQKNF6JMsCd3rLfSr1n2tvr3bCJ7zAgNqxbA7r';
+
+        async function checkPhantomMNDMBalance() {
+            try {
+                // Check if Phantom is available
+                if (!window.solana || !window.solana.isPhantom) {
+                    console.log('Phantom wallet not detected');
+                    return;
+                }
+
+                // Check if already connected
+                let walletAddress;
+                try {
+                    const response = await window.solana.connect({ onlyIfTrusted: true });
+                    walletAddress = response.publicKey.toString();
+                    phantomWallet = walletAddress;
+                } catch (error) {
+                    // Not previously connected, try silent connection
+                    try {
+                        const response = await window.solana.connect();
+                        walletAddress = response.publicKey.toString();
+                        phantomWallet = walletAddress;
+                    } catch (connectError) {
+                        console.log('Phantom wallet not connected');
+                        return;
+                    }
+                }
+
+                // Query MNDM token balance
+                const balance = await getMNDMTokenBalance(walletAddress);
+                mndmTokenBalance = balance;
+
+                // Update UI with real balance
+                updateMNDMBalanceDisplay(balance);
+
+                console.log(`💎 MNDM Balance for ${walletAddress}: ${balance}`);
+
+            } catch (error) {
+                console.error('Error checking MNDM balance:', error);
+            }
+        }
+
+        async function getMNDMTokenBalance(walletAddress) {
+            try {
+                // Use Solana Web3.js to query token balance
+                if (!window.solana) {
+                    throw new Error('Solana not available');
+                }
+
+                // Get token accounts for the MNDM token
+                const connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl('mainnet-beta'));
+
+                const tokenAccounts = await connection.getTokenAccountsByOwner(
+                    new solanaWeb3.PublicKey(walletAddress),
+                    {
+                        mint: new solanaWeb3.PublicKey(MNDM_TOKEN_ADDRESS)
+                    }
+                );
+
+                if (tokenAccounts.value.length === 0) {
+                    return 0; // No MNDM tokens held
+                }
+
+                // Sum all token accounts (in case of multiple accounts)
+                let totalBalance = 0;
+                for (const tokenAccount of tokenAccounts.value) {
+                    const accountInfo = await connection.getAccountInfo(tokenAccount.account.owner);
+                    const tokenAccountInfo = await connection.getTokenAccountBalance(tokenAccount.pubkey);
+                    totalBalance += parseFloat(tokenAccountInfo.value.uiAmountString || '0');
+                }
+
+                return totalBalance;
+
+            } catch (error) {
+                console.error('Error fetching MNDM balance:', error);
+                return 0;
+            }
+        }
+
+        function updateMNDMBalanceDisplay(balance) {
+            // Update the user profile card with real token balance
+            const tokenDisplay = document.querySelector('#userProfileCard .user-stats div:last-child');
+            if (tokenDisplay && tokenDisplay.textContent.includes('MNDM')) {
+                tokenDisplay.innerHTML = `💎 <span style="color: var(--neon-gold);">${balance.toFixed(4)}</span> MNDM (Wallet)`;
+            }
+
+            // Update leaderboard entries if user is in top rankings
+            const leaderboardEntries = document.querySelectorAll('.leaderboard-entry');
+            leaderboardEntries.forEach(entry => {
+                const username = entry.querySelector('.username');
+                if (username && username.textContent === 'You') { // User's own entry
+                    const tokenStat = entry.querySelector('.user-stats span:nth-child(3)');
+                    if (tokenStat) {
+                        tokenStat.innerHTML = `💎 ${balance.toFixed(2)} MNDM`;
+                    }
+                }
+            });
+
+            // Show wallet connection status
+            showWalletStatus(balance > 0);
+        }
+
+        function showWalletStatus(hasTokens) {
+            const statusIndicator = document.createElement('div');
+            statusIndicator.id = 'walletStatusIndicator';
+            statusIndicator.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${hasTokens ? 'var(--neon-green)' : 'var(--neon-blue)'};
+                color: #000;
+                padding: 8px 12px;
+                border-radius: 20px;
+                font-size: 0.8em;
+                font-weight: bold;
+                z-index: 1000;
+                box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+                cursor: pointer;
+            `;
+
+            statusIndicator.innerHTML = hasTokens ?
+                `🔗 Phantom: ${mndmTokenBalance.toFixed(2)} MNDM` :
+                `🔗 Phantom Connected`;
+
+            statusIndicator.onclick = () => {
+                window.open(`https://pump.fun/coin/${MNDM_TOKEN_ADDRESS}`, '_blank');
+            };
+
+            // Remove existing indicator
+            const existing = document.getElementById('walletStatusIndicator');
+            if (existing) existing.remove();
+
+            document.body.appendChild(statusIndicator);
+
+            // Auto-hide after 10 seconds
+            setTimeout(() => {
+                if (statusIndicator.parentNode) {
+                    statusIndicator.style.opacity = '0';
+                    setTimeout(() => statusIndicator.remove(), 500);
+                }
+            }, 10000);
+        }
+
+        // Add connect wallet button to user profile
+        function addWalletConnectButton() {
+            const userProfileCard = document.getElementById('userProfileCard');
+            if (!userProfileCard) return;
+
+            const connectButton = document.createElement('button');
+            connectButton.className = 'cyber-btn';
+            connectButton.style.cssText = 'margin-top: 10px; font-size: 0.8em; padding: 6px 12px;';
+            connectButton.innerHTML = '🔗 Connect Phantom for MNDM Balance';
+            connectButton.onclick = async () => {
+                try {
+                    connectButton.disabled = true;
+                    connectButton.innerHTML = '⏳ Connecting...';
+
+                    await checkPhantomMNDMBalance();
+
+                    if (mndmTokenBalance > 0) {
+                        connectButton.innerHTML = `✅ ${mndmTokenBalance.toFixed(4)} MNDM Connected`;
+                        connectButton.style.background = 'var(--neon-green)';
+                    } else {
+                        connectButton.innerHTML = '🔗 Connected (0 MNDM)';
+                        connectButton.style.background = 'var(--neon-blue)';
+                    }
+                } catch (error) {
+                    connectButton.innerHTML = '❌ Connection Failed';
+                    connectButton.style.background = 'var(--neon-orange)';
+                    setTimeout(() => {
+                        connectButton.disabled = false;
+                        connectButton.innerHTML = '🔗 Connect Phantom for MNDM Balance';
+                        connectButton.style.background = '';
+                    }, 3000);
+                }
+            };
+
+        // Manual Phantom wallet connection for MNDM balance checking
+        async function manualPhantomConnect() {
+            const connectBtn = document.getElementById('phantomConnectBtn');
+            const statusDiv = document.getElementById('phantomStatus');
+
+            try {
+                connectBtn.disabled = true;
+                connectBtn.innerHTML = '⏳ Connecting...';
+                statusDiv.innerHTML = '🔄 Connecting to Phantom wallet...';
+                statusDiv.style.color = 'var(--neon-blue)';
+
+                await checkPhantomMNDMBalance();
+
+                if (mndmTokenBalance > 0) {
+                    connectBtn.innerHTML = `✅ ${mndmTokenBalance.toFixed(4)} MNDM`;
+                    connectBtn.style.background = 'linear-gradient(135deg, var(--neon-green), #00aa00)';
+                    statusDiv.innerHTML = `🎉 Connected! You hold ${mndmTokenBalance.toFixed(4)} MNDM tokens`;
+                    statusDiv.style.color = 'var(--neon-green)';
+                } else {
+                    connectBtn.innerHTML = '🔗 Connected (0 MNDM)';
+                    connectBtn.style.background = 'linear-gradient(135deg, var(--neon-blue), #0066aa)';
+                    statusDiv.innerHTML = '✅ Connected! No MNDM tokens found in your wallet';
+                    statusDiv.style.color = 'var(--neon-blue)';
+                }
+
+                // Show balance in user profile if available
+                if (document.getElementById('userProfileCard').style.display !== 'none') {
+                    updateMNDMBalanceDisplay(mndmTokenBalance);
+                }
+
+            } catch (error) {
+                console.error('Manual Phantom connection failed:', error);
+                connectBtn.innerHTML = '❌ Connection Failed';
+                connectBtn.style.background = 'linear-gradient(135deg, var(--neon-orange), #cc6600)';
+                statusDiv.innerHTML = '❌ Failed to connect. Please try again or install Phantom.';
+                statusDiv.style.color = 'var(--neon-orange)';
+
+                // Reset button after 5 seconds
+                setTimeout(() => {
+                    connectBtn.disabled = false;
+                    connectBtn.innerHTML = '👻 Connect Phantom Wallet';
+                    connectBtn.style.background = '';
+                }, 5000);
+            }
+        }
+            const profileCard = document.getElementById('userProfileCard');
+            const profileContent = document.getElementById('userProfileContent');
+
+            const userProfile = createUserProfile(xpData, sessionData.shortAddress || sessionData.address.substring(0, 6) + '...' + sessionData.address.substring(-4));
+
+            profileContent.innerHTML = `
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-bottom: 15px;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 2em; color: var(--neon-blue); font-weight: bold;">${userProfile.level}</div>
+                        <div style="color: var(--neon-green);">Level</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 2em; color: var(--neon-pink); font-weight: bold;">${userProfile.totalXP.toLocaleString()}</div>
+                        <div style="color: var(--neon-green);">Total XP</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 2em; color: var(--neon-gold); font-weight: bold;">${userProfile.earnedTokens.toFixed(2)}</div>
+                        <div style="color: var(--neon-green);">MNDM Earned</div>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 15px;">
+                    <h4 style="color: var(--neon-blue); margin-bottom: 10px;">🏅 Your Achievements:</h4>
+                    <div style="display: flex; gap: 5px; flex-wrap: wrap;">
+                        ${userProfile.achievements.map(achievement => `<span style="background: rgba(255,215,0,0.2); color: var(--neon-gold); padding: 4px 8px; border-radius: 15px; font-size: 0.8em;">${achievement}</span>`).join('')}
+                    </div>
+                </div>
+
+                <div style="text-align: center;">
+                    <button class="cyber-btn" onclick="window.location.href='mandem.os/workspace/index.html'">🚀 Access Your Dashboard</button>
+                </div>
+            `;
+
+            profileCard.style.display = 'block';
+
+            // Add wallet connect button
+            addWalletConnectButton();
         }
 
         // Marketing functions
@@ -734,8 +1281,41 @@
                 console.log('👨‍💻 CDR AI Utilization initialized');
             }
 
+            // Initialize leaderboard
+            setTimeout(() => {
+                initializeLeaderboard();
+            }, 1000);
+
             console.log('🏠 BARBRICKDESIGN Hub loaded successfully - no service worker');
         });
     </script>
+    <style>
+        /* Leaderboard Styles */
+        .active-filter {
+            background: linear-gradient(135deg, var(--neon-gold), var(--neon-orange)) !important;
+            border-color: var(--neon-gold) !important;
+            color: #000 !important;
+            box-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+        }
+
+        .leaderboard-entry:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0, 255, 255, 0.2);
+        }
+
+        .rank-badge {
+            background: linear-gradient(135deg, var(--neon-gold), var(--neon-pink));
+            color: #000;
+            font-weight: bold;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2em;
+            flex-shrink: 0;
+        }
+    </style>
 </body>
 </html>

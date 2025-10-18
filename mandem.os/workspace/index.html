@@ -3090,83 +3090,6 @@
                     </div>
                 </div>
             `;
-            document.body.appendChild(modal);
-        }
-
-        function getRandomGlyph() {
-            const glyphs = ['∆', '⧫', '⊚', '☲', '⟟', '◎', '◊', '□', '◇', '◆'];
-            return glyphs[Math.floor(Math.random() * glyphs.length)];
-        }
-
-        function getXPTitle(type) {
-            const titles = {
-                'system_interaction': 'System Interaction',
-                'agent_access': 'Agent Portal Access',
-                'navigation': 'Realm Navigation',
-                'mission_complete': 'Mission Accomplished',
-                'knowledge_gain': 'Knowledge Acquired'
-            };
-            return titles[type] || 'System Activity';
-        }
-
-        function updateXPBar() {
-            const currentLevel = Math.floor(xpLogData.totalXP / 1000) + 1;
-            const currentLevelXP = xpLogData.totalXP % 1000;
-            const nextLevelXP = 1000;
-            const progressPercent = (currentLevelXP / nextLevelXP) * 100;
-
-            document.getElementById('currentLevel').textContent = currentLevel;
-            document.getElementById('currentXP').textContent = currentLevelXP;
-            document.getElementById('nextLevelXP').textContent = nextLevelXP;
-            document.getElementById('currentSwag').textContent = xpLogData.totalSwag;
-            document.getElementById('xpBarFill').style.width = progressPercent + '%';
-        }
-
-        function saveXPData() {
-            localStorage.setItem('xpLogData', JSON.stringify(xpLogData));
-        }
-
-        function showXPLog() {
-            const modal = document.createElement('div');
-            modal.className = 'modal-overlay active';
-            modal.innerHTML = `
-                <div class="modal-content" style="max-width: 800px; max-height: 600px; overflow-y: auto;">
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                        <h2 style="color: var(--neon-blue);">📊 XP Progression Log</h2>
-                        <span onclick="this.closest('.modal-overlay').remove()" style="cursor: pointer; font-size: 24px; color: var(--neon-blue);">×</span>
-                    </div>
-
-                    <div style="margin-bottom: 20px;">
-                        <div style="display: flex; gap: 20px; margin-bottom: 15px;">
-                            <div style="text-align: center;">
-                                <div style="font-size: 2em; color: var(--neon-blue); font-weight: bold;">${xpLogData.level}</div>
-                                <div style="color: var(--neon-green);">Level</div>
-                            </div>
-                            <div style="text-align: center;">
-                                <div style="font-size: 2em; color: var(--neon-pink); font-weight: bold;">${xpLogData.totalXP}</div>
-                                <div style="color: var(--neon-green);">Total XP</div>
-                            </div>
-                            <div style="text-align: center;">
-                                <div style="font-size: 2em; color: var(--neon-green); font-weight: bold;">${xpLogData.totalSwag}</div>
-                                <div style="color: var(--neon-green);">Swag Points</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div style="margin-bottom: 15px;">
-                        <div style="display: flex; gap: 10px;">
-                            <button onclick="filterXPLog('all')" class="cyber-btn cyber-btn-secondary" style="font-size: 0.8em;">All</button>
-                            <button onclick="filterXPLog('wins')" class="cyber-btn cyber-btn-secondary" style="font-size: 0.8em;">Wins</button>
-                            <button onclick="filterXPLog('system')" class="cyber-btn cyber-btn-secondary" style="font-size: 0.8em;">System</button>
-                            <button onclick="filterXPLog('agent')" class="cyber-btn cyber-btn-secondary" style="font-size: 0.8em;">Agent</button>
-                        </div>
-                    </div>
-
-                    <div id="xpLogEntries" style="max-height: 400px; overflow-y: auto;">
-                        ${generateXPLogHTML()}
-                    </div>
-                </div>
-            `;
 
             document.body.appendChild(modal);
         }
@@ -3204,6 +3127,39 @@
                     entry.style.display = 'none';
                 }
             });
+        }
+
+        function updateXPBar() {
+            const currentLevel = Math.floor(xpLogData.totalXP / 1000) + 1;
+            const currentLevelXP = xpLogData.totalXP % 1000;
+            const nextLevelXP = 1000;
+            const progressPercent = (currentLevelXP / nextLevelXP) * 100;
+
+            document.getElementById('currentLevel').textContent = currentLevel;
+            document.getElementById('currentXP').textContent = currentLevelXP;
+            document.getElementById('nextLevelXP').textContent = nextLevelXP;
+            document.getElementById('currentSwag').textContent = xpLogData.totalSwag;
+            document.getElementById('xpBarFill').style.width = progressPercent + '%';
+        }
+
+        function saveXPData() {
+            localStorage.setItem('xpLogData', JSON.stringify(xpLogData));
+        }
+
+        function getRandomGlyph() {
+            const glyphs = ['∆', '⧫', '⊚', '☲', '⟟', '◎', '◊', '□', '◇', '◆'];
+            return glyphs[Math.floor(Math.random() * glyphs.length)];
+        }
+
+        function getXPTitle(type) {
+            const titles = {
+                'system_interaction': 'System Interaction',
+                'agent_access': 'Agent Portal Access',
+                'navigation': 'Realm Navigation',
+                'mission_complete': 'Mission Accomplished',
+                'knowledge_gain': 'Knowledge Acquired'
+            };
+            return titles[type] || 'System Activity';
         }
 
         // Toast notification system
