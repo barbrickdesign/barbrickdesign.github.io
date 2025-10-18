@@ -40,37 +40,16 @@ class SoraVideoGenerator {
             stableDiffusion: {
                 name: "Stable Video Diffusion",
                 description: "Open-source video generation (free)",
-                cost: 0,
-                quality: "good",
-                supported: false // Not implemented yet
-            },
-            runwayML: {
-                name: "Runway ML Free",
-                description: "Free tier video generation",
-                cost: 0,
-                quality: "good",
-                supported: false // Requires API integration
-            }
-        };
-    }
-
 // Community API Key Pool for shared usage
 class CommunityAPIPool {
     constructor() {
         this.pool = JSON.parse(localStorage.getItem('community-api-pool') || '[]');
-        this.usageLimits = {}; // Track usage per key
         this.maxUsagePerKey = 50; // Max video generations per key per day
         this.cooldownPeriod = 24 * 60 * 60 * 1000; // 24 hours
     }
 
-    /**
-     * Add API key to community pool
-     */
     addKey(apiKey, contributor) {
-        // Check if key already exists
-        if (this.pool.find(k => k.key === apiKey)) {
-            return false; // Already exists
-        }
+        if (this.pool.find(k => k.key === apiKey)) return false;
 
         const keyEntry = {
             key: apiKey,
@@ -86,17 +65,12 @@ class CommunityAPIPool {
         return true;
     }
 
-    /**
-     * Get available API key from pool
-     */
     getAvailableKey() {
         const now = new Date();
 
-        // Find keys that haven't exceeded daily limit
         for (const keyEntry of this.pool) {
             if (!keyEntry.isActive) continue;
 
-            // Reset usage if cooldown period passed
             if (keyEntry.lastUsed) {
                 const lastUsed = new Date(keyEntry.lastUsed);
                 if (now - lastUsed > this.cooldownPeriod) {
@@ -104,7 +78,6 @@ class CommunityAPIPool {
                 }
             }
 
-            // Check if under usage limit
             if (keyEntry.usageCount < this.maxUsagePerKey) {
                 keyEntry.usageCount++;
                 keyEntry.lastUsed = now.toISOString();
@@ -113,12 +86,9 @@ class CommunityAPIPool {
             }
         }
 
-        return null; // No available keys
+        return null;
     }
 
-    /**
-     * Get pool statistics
-     */
     getStats() {
         const activeKeys = this.pool.filter(k => k.isActive).length;
         const totalUsage = this.pool.reduce((sum, k) => sum + k.usageCount, 0);
@@ -132,9 +102,6 @@ class CommunityAPIPool {
         };
     }
 
-    /**
-     * Save pool to localStorage
-     */
     savePool() {
         localStorage.setItem('community-api-pool', JSON.stringify(this.pool));
     }
@@ -150,6 +117,41 @@ class SoraVideoGenerator {
         this.freeAlternatives = this.getFreeAlternatives();
         this.communityPool = new CommunityAPIPool();
     }
+
+    getFreeAlternatives() {
+        return {
+            mockDemo: {
+                name: "Demo Preview",
+                description: "Free demo videos with placeholder content",
+                cost: 0,
+                quality: "preview",
+                supported: true
+            },
+            communityPool: {
+                name: "Community Pool",
+                description: "Use shared community API keys (limited usage)",
+                cost: 0,
+                quality: "full",
+                supported: true
+            },
+            stableDiffusion: {
+                name: "Stable Video Diffusion",
+                description: "Open-source video generation (free)",
+                cost: 0,
+                quality: "good",
+                supported: false
+            },
+            runwayML: {
+                name: "Runway ML Free",
+                description: "Free tier video generation",
+                cost: 0,
+                quality: "good",
+                supported: false
+            }
+        };
+    }
+
+    getWizardPrompts() {
         return {
             gettingStarted: {
                 title: "Getting Started with Gem Bot Universe",
@@ -184,13 +186,14 @@ class SoraVideoGenerator {
         };
     }
 
-    /**
-     * Set up the API key management UI
-     */
+    init() {
+        this.loadUserApiKey();
+        this.setupUI();
+        this.updateVideoGallery();
+    }
+
     setupUI() {
-        // Create API key modal
         this.createApiKeyModal();
-        // Add generate buttons to existing video cards
         this.addGenerationButtons();
     }
 
