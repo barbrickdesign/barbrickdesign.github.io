@@ -706,7 +706,6 @@
                 margin-top: 1rem;
                 padding: 1rem;
             }
-        }
 
             /* Stats Section */
             .stats-section {
@@ -852,6 +851,32 @@
             .cyber-btn {
                 font-size: 0.85em;
                 padding: 8px 12px;
+            }
+
+            .wallet-indicator {
+                min-width: 140px;
+                padding: 8px 12px;
+            }
+
+            .wallet-status-text {
+                font-size: 0.8em;
+            }
+
+            .wallet-panel {
+                min-width: 95vw;
+                padding: 0;
+            }
+
+            .wallet-panel-header {
+                padding: 12px 15px;
+            }
+
+            .wallet-panel-header h4 {
+                font-size: 1em;
+            }
+
+            #walletContent {
+                padding: 15px;
             }
         }
 
@@ -1383,6 +1408,66 @@
                 }
             });
         }
+
+        // Wallet toggle functionality
+        function toggleWalletPanel() {
+            const panel = document.getElementById('walletPanel');
+            const isVisible = panel.style.display !== 'none';
+            
+            if (isVisible) {
+                // Hide panel
+                panel.style.display = 'none';
+            } else {
+                // Show panel
+                panel.style.display = 'block';
+            }
+        }
+
+        // Update wallet status indicator
+        function updateWalletStatusIndicator(isConnected, address = null, balance = null) {
+            const icon = document.getElementById('walletStatusIcon');
+            const text = document.getElementById('walletStatusText');
+            const addressDisplay = document.getElementById('walletAddressDisplay');
+            const balanceDisplay = document.getElementById('mndmBalanceDisplay');
+            const walletInfo = document.getElementById('walletInfo');
+            
+            if (isConnected) {
+                icon.className = 'wallet-status-icon connected';
+                icon.textContent = '🟢';
+                text.textContent = 'Connected';
+                text.style.color = '#00ff99';
+                
+                if (address) {
+                    const shortAddress = `${address.slice(0, 6)}...${address.slice(-4)}`;
+                    if (addressDisplay) addressDisplay.textContent = shortAddress;
+                }
+                
+                if (balance !== null && balanceDisplay) {
+                    balanceDisplay.textContent = balance.toFixed(4);
+                }
+                
+                if (walletInfo) walletInfo.style.display = 'block';
+            } else {
+                icon.className = 'wallet-status-icon disconnected';
+                icon.textContent = '🔴';
+                text.textContent = 'Not Connected';
+                text.style.color = '#ff6666';
+                
+                if (addressDisplay) addressDisplay.textContent = '';
+                if (balanceDisplay) balanceDisplay.textContent = 'Loading...';
+                if (walletInfo) walletInfo.style.display = 'none';
+            }
+        }
+
+        // Close wallet panel when clicking outside
+        document.addEventListener('click', function(event) {
+            const toggle = document.getElementById('walletStatusToggle');
+            const panel = document.getElementById('walletPanel');
+            
+            if (!toggle.contains(event.target) && panel.style.display !== 'none') {
+                panel.style.display = 'none';
+            }
+        });
     </script>
 
     <style>
