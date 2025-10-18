@@ -17,8 +17,45 @@ class MNDMGovernance {
     init() {
         console.log('⚡ MNDM Governance System initializing...');
         this.loadProposals();
+
+        // Add sample proposal if none exist
+        if (this.governanceProposals.length === 0) {
+            this.createSampleProposal();
+        }
+
         this.setupGovernanceUI();
         console.log('✅ MNDM Governance ready');
+    }
+
+    /**
+     * Create a sample proposal for demonstration
+     */
+    createSampleProposal() {
+        const sampleProposal = {
+            id: 'sample-001',
+            title: 'Platform Development Fund Allocation',
+            description: 'How should we allocate the next 10,000 MNDM from platform fees? This proposal determines funding priorities for Q4 2025 development including new AI features, UI improvements, and community initiatives.',
+            options: ['AI Development (60%)', 'UI/UX Improvements (30%)', 'Community Initiatives (10%)', 'Balanced Allocation (25% each)'],
+            creator: '0x0000000000000000000000000000000000000000', // Sample address
+            createdAt: Date.now() - (2 * 24 * 60 * 60 * 1000), // 2 days ago
+            votes: {},
+            totalVotes: 0,
+            status: 'active',
+            endTime: Date.now() + (5 * 24 * 60 * 60 * 1000) // 5 days from now
+        };
+
+        // Add some sample votes
+        sampleProposal.votes = {
+            '0xefc6910e7624f164dae9d0f799954aa69c943c8d': { option: 0, power: 50000, timestamp: Date.now() - (1 * 24 * 60 * 60 * 1000) },
+            '0x4ccbefd7d3554bcbbc489b11af73a84d7baef4cb': { option: 3, power: 25000, timestamp: Date.now() - (12 * 60 * 60 * 1000) },
+            '0x45a328572b2a06484e02eb5d4e4cb6004136eb16': { option: 1, power: 15000, timestamp: Date.now() - (6 * 60 * 60 * 1000) }
+        };
+
+        // Calculate total votes
+        sampleProposal.totalVotes = Object.values(sampleProposal.votes).reduce((sum, vote) => sum + vote.power, 0);
+
+        this.governanceProposals.push(sampleProposal);
+        this.saveProposals();
     }
 
     /**
