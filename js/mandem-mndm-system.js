@@ -3,7 +3,7 @@
 
 class MandemMNDMSystem {
     constructor() {
-        this.MNDM_ADDRESS = 'GK24fQQQKNF6JMsCd3rLfSr1n2tvr3bCJ7zAgNqxbA7r';
+        this.MNDM_ADDRESS = 'GJFCA8XxnGns9TqKsMLScyVSooyiNrNPpjp2CyQCz7z5';
         this.walletSystem = null;
         this.xpData = { totalXP: 0, totalSwag: 0, level: 1 };
         this.conversionRates = {
