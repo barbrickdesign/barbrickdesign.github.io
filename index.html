@@ -236,6 +236,9 @@
 
     <!-- Real-Time Balance System -->
     <script src="real-time-balance-system.js"></script>
+
+    <!-- MNDM Governance System -->
+    <script src="mndm-governance.js"></script>
 <body>
     <div class="tron-grid"></div>
     
@@ -308,6 +311,13 @@
                 <div class="project-title">Universal Dev Compensation</div>
                 <div class="project-desc">REVOLUTIONARY: Paste ANY GitHub repo to calculate fair payment. Includes pioneer bonuses (10x for pre-2010!), lost fund recovery, and crypto payouts. Every developer deserves to be paid.</div>
                 <span class="status-active" style="background: rgba(255,0,255,0.3); border-color: #ff00ff;">● NEW!</span>
+            </div>
+
+            <div class="project-card" onclick="document.getElementById('governance-content').scrollIntoView({behavior: 'smooth'})">
+                <div class="project-icon">⚡</div>
+                <div class="project-title">MNDM Governance</div>
+                <div class="project-desc">Token-based governance system. Vote on platform decisions with your MNDM tokens.</div>
+                <span class="status-active">● ACTIVE</span>
             </div>
 
             <div class="project-card" onclick="window.location.href='gov-transparency-hub.html'">
@@ -700,6 +710,12 @@
             if (window.realTimeBalanceSystem) {
                 window.realTimeBalanceSystem.createBalanceDisplay('balance-display-container');
                 console.log('💰 Balance display initialized');
+            }
+
+            // Initialize governance system
+            if (window.mndmGovernance) {
+                window.mndmGovernance.refreshProposals();
+                console.log('⚡ MNDM Governance initialized');
             }
 
             console.log('🏠 BARBRICKDESIGN Hub loaded successfully - no service worker');
