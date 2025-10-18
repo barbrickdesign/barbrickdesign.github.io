@@ -29,93 +29,6 @@ class SoraVideoGenerator {
                 cost: 0,
                 quality: "preview",
                 supported: true
-            },
-            communityPool: {
-                name: "Community Pool",
-                description: "Use shared community API keys (limited usage)",
-                cost: 0,
-                quality: "full",
-                supported: true
-            },
-            stableDiffusion: {
-                name: "Stable Video Diffusion",
-                description: "Open-source video generation (free)",
-// Community API Key Pool for shared usage
-class CommunityAPIPool {
-    constructor() {
-        this.pool = JSON.parse(localStorage.getItem('community-api-pool') || '[]');
-        this.maxUsagePerKey = 50; // Max video generations per key per day
-        this.cooldownPeriod = 24 * 60 * 60 * 1000; // 24 hours
-    }
-
-    addKey(apiKey, contributor) {
-        if (this.pool.find(k => k.key === apiKey)) return false;
-
-        const keyEntry = {
-            key: apiKey,
-            contributor: contributor,
-            added: new Date().toISOString(),
-            usageCount: 0,
-            lastUsed: null,
-            isActive: true
-        };
-
-        this.pool.push(keyEntry);
-        this.savePool();
-        return true;
-    }
-
-    getAvailableKey() {
-        const now = new Date();
-
-        for (const keyEntry of this.pool) {
-            if (!keyEntry.isActive) continue;
-
-            if (keyEntry.lastUsed) {
-                const lastUsed = new Date(keyEntry.lastUsed);
-                if (now - lastUsed > this.cooldownPeriod) {
-                    keyEntry.usageCount = 0;
-                }
-            }
-
-            if (keyEntry.usageCount < this.maxUsagePerKey) {
-                keyEntry.usageCount++;
-                keyEntry.lastUsed = now.toISOString();
-                this.savePool();
-                return keyEntry.key;
-            }
-        }
-
-        return null;
-    }
-
-    getStats() {
-        const activeKeys = this.pool.filter(k => k.isActive).length;
-        const totalUsage = this.pool.reduce((sum, k) => sum + k.usageCount, 0);
-        const contributors = new Set(this.pool.map(k => k.contributor)).size;
-
-        return {
-            totalKeys: this.pool.length,
-            activeKeys: activeKeys,
-            totalUsage: totalUsage,
-            contributors: contributors
-        };
-    }
-
-    savePool() {
-        localStorage.setItem('community-api-pool', JSON.stringify(this.pool));
-    }
-}
-
-class SoraVideoGenerator {
-    constructor() {
-        this.apiKey = null;
-        this.communityApiKeys = JSON.parse(localStorage.getItem('community-api-keys') || '[]');
-        this.generatedVideos = JSON.parse(localStorage.getItem('sora-generated-videos') || '[]');
-        this.userApiKeys = JSON.parse(localStorage.getItem('user-api-keys') || '[]');
-        this.wizardPrompts = this.getWizardPrompts();
-        this.freeAlternatives = this.getFreeAlternatives();
-        this.communityPool = new CommunityAPIPool();
     }
 
     getFreeAlternatives() {
@@ -197,9 +110,6 @@ class SoraVideoGenerator {
         this.addGenerationButtons();
     }
 
-    /**
-     * Create the API key input modal
-     */
     createApiKeyModal() {
         const modal = document.createElement('div');
         modal.id = 'sora-api-modal';
@@ -211,170 +121,245 @@ class SoraVideoGenerator {
                 <div class="sora-modal-content" style="
                     background: linear-gradient(135deg, rgba(0,20,40,0.95), rgba(0,40,60,0.95));
                     border: 2px solid #ffd700; border-radius: 15px; padding: 30px;
-                    max-width: 500px; color: #e4e4e4; box-shadow: 0 0 50px rgba(0,255,255,0.3);">
-                    <h2 style="color: #ffd700; text-align: center; margin-bottom: 20px;">🔑 Sora2 API Key</h2>
-                    <p style="color: #8addff; margin-bottom: 20px; line-height: 1.6;">
-                        Contribute your OpenAI API key to help generate amazing wizard embodiment videos for the platform.
-                        Your key will be stored locally and used only for video generation.
-                    </p>
-                    <input type="password" id="sora-api-key-input" placeholder="sk-..." style="
-                        width: 100%; padding: 12px; margin-bottom: 20px; background: rgba(20,20,20,0.9);
-                        border: 1px solid #ffd700; color: #ffd700; border-radius: 8px; font-family: monospace;">
+                    max-width: 600px; color: #e4e4e4; box-shadow: 0 0 50px rgba(0,255,255,0.3);">
+                    <h2 style="color: #ffd700; text-align: center; margin-bottom: 20px;">🎬 Video Generation Options</h2>
+
+                    <div class="generation-options" style="margin-bottom: 20px;">
+                        <h3 style="color: #00ff88;">FREE Options:</h3>
+                        <div class="option-item" onclick="window.soraVideoGenerator.selectFreeOption('mockDemo')" style="cursor: pointer; padding: 10px; margin: 5px 0; border: 1px solid #8addff; border-radius: 5px;">
+                            <strong>🎭 Demo Preview</strong><br>
+                            <small>Free placeholder videos - no API costs</small>
+                        </div>
+                        <div class="option-item" onclick="window.soraVideoGenerator.selectFreeOption('communityPool')" style="cursor: pointer; padding: 10px; margin: 5px 0; border: 1px solid #8addff; border-radius: 5px;">
+                            <strong>🤝 Community Pool</strong><br>
+                            <small>Use shared API keys from community contributors</small>
+                        </div>
+                    </div>
+
+                    <div class="generation-options" style="margin-bottom: 20px;">
+                        <h3 style="color: #ffd700;">Premium Options:</h3>
+                        <div class="option-item" onclick="window.soraVideoGenerator.selectPersonalOption()" style="cursor: pointer; padding: 10px; margin: 5px 0; border: 1px solid #ffd700; border-radius: 5px;">
+                            <strong>🔑 Personal API Key</strong><br>
+                            <small>Use your own OpenAI API key (~$0.10-0.50 per second)</small>
+                        </div>
+                        <div class="option-item" onclick="window.soraVideoGenerator.contributeToPool()" style="cursor: pointer; padding: 10px; margin: 5px 0; border: 1px solid #ffaa00; border-radius: 5px;">
+                            <strong>🎁 Contribute to Community</strong><br>
+                            <small>Share your API key for community usage</small>
+                        </div>
+                    </div>
+
+                    <div class="cost-info" style="font-size: 0.8em; color: #cccccc; margin-bottom: 20px;">
+                        <strong>💰 Cost Information:</strong><br>
+                        • Sora-2: $0.10/sec ($6/minute)<br>
+                        • Sora-2-Pro 720p: $0.30/sec ($18/minute)<br>
+                        • Sora-2-Pro 1024p: $0.50/sec ($30/minute)<br>
+                        <strong style="color: #00ff88;">Community Pool: FREE (limited daily usage)</strong>
+                    </div>
+
                     <div style="display: flex; gap: 10px;">
-                        <button id="sora-save-key" style="
-                            flex: 1; background: linear-gradient(45deg, #ffd700, #ffaa00);
+                        <button id="sora-generate-free" style="
+                            flex: 1; background: linear-gradient(45deg, #00ff88, #00aa55);
                             border: none; color: #000; padding: 12px; border-radius: 8px;
-                            font-weight: bold; cursor: pointer;">Save Key</button>
-                        <button id="sora-cancel-key" style="
+                            font-weight: bold; cursor: pointer;">🎭 Generate FREE</button>
+                        <button id="sora-cancel-modal" style="
                             flex: 1; background: rgba(255,255,255,0.1); border: 1px solid #8addff;
                             color: #8addff; padding: 12px; border-radius: 8px; cursor: pointer;">Cancel</button>
-                    </div>
-                    <div style="margin-top: 15px; font-size: 0.8em; color: #cccccc; text-align: center;">
-                        Keys are stored locally only. Get your API key from <a href="https://platform.openai.com/api-keys" target="_blank" style="color: #ffd700;">platform.openai.com</a>
                     </div>
                 </div>
             </div>
         `;
         document.body.appendChild(modal);
 
-        // Event listeners
-        document.getElementById('sora-save-key').addEventListener('click', () => this.saveApiKey());
-        document.getElementById('sora-cancel-key').addEventListener('click', () => this.hideApiModal());
+        document.getElementById('sora-generate-free').addEventListener('click', () => this.generateFreeVideo());
+        document.getElementById('sora-cancel-modal').addEventListener('click', () => this.hideApiModal());
     }
 
-    /**
-     * Add generation buttons to video cards
-     */
+    selectFreeOption(option) {
+        this.selectedFreeOption = option;
+        const items = document.querySelectorAll('.option-item');
+        items.forEach(item => item.style.borderColor = '#8addff');
+        event.target.closest('.option-item').style.borderColor = '#00ff88';
+    }
+
+    selectPersonalOption() {
+        this.showPersonalApiInput();
+    }
+
+    contributeToPool() {
+        const key = prompt('Enter your OpenAI API key to contribute to the community pool (starts with sk-):');
+        if (key && key.startsWith('sk-')) {
+            const contributor = this.getCurrentAddress() || 'anonymous';
+            if (this.communityPool.addKey(key, contributor)) {
+                alert('✅ Thank you for contributing to the community!\n\nYour API key has been added to the shared pool. Other users can now generate free videos using community credits.');
+                this.updatePoolStats();
+            } else {
+                alert('❌ This API key is already in the community pool.');
+            }
+        }
+    }
+
+    showPersonalApiInput() {
+        const inputSection = document.createElement('div');
+        inputSection.innerHTML = `
+            <input type="password" id="personal-api-key" placeholder="sk-..." style="
+                width: 100%; padding: 10px; margin: 10px 0; background: rgba(20,20,20,0.9);
+                border: 1px solid #ffd700; color: #ffd700; border-radius: 5px;">
+            <button onclick="window.soraVideoGenerator.usePersonalKey()" style="
+                background: #ffd700; color: #000; border: none; padding: 8px 16px;
+                border-radius: 5px; cursor: pointer;">Use Personal Key</button>
+        `;
+
+        const options = document.querySelector('.generation-options');
+        options.appendChild(inputSection);
+    }
+
+    usePersonalKey() {
+        const key = document.getElementById('personal-api-key').value;
+        if (key.startsWith('sk-')) {
+            this.apiKey = key;
+            this.saveApiKey(key);
+            alert('✅ Personal API key saved! You can now generate premium videos.');
+            this.hideApiModal();
+        } else {
+            alert('❌ Invalid API key format. Must start with "sk-"');
+        }
+    }
+
+    generateFreeVideo() {
+        if (!this.selectedFreeOption) {
+            alert('❌ Please select a free generation option first.');
+            return;
+        }
+
+        const title = this.getCurrentVideoTitle();
+        if (!title) return;
+
+        if (this.selectedFreeOption === 'mockDemo') {
+            this.generateMockDemo(title);
+        } else if (this.selectedFreeOption === 'communityPool') {
+            this.generateWithCommunityPool(title);
+        }
+
+        this.hideApiModal();
+    }
+
+    getCurrentVideoTitle() {
+        const clickedCard = document.querySelector('.video-card:hover') ||
+                           document.querySelector('.video-card:last-child');
+        if (clickedCard) {
+            const titleEl = clickedCard.querySelector('h3');
+            return titleEl ? titleEl.textContent : null;
+        }
+        return null;
+    }
+
+    generateMockDemo(title) {
+        console.log('🎭 Generating mock demo for:', title);
+
+        const mockVideo = {
+            title: title,
+            data: this.createMockVideoData(),
+            generated: new Date().toISOString(),
+            id: Date.now().toString(),
+            type: 'demo'
+        };
+
+        this.generatedVideos.push(mockVideo);
+        localStorage.setItem('sora-generated-videos', JSON.stringify(this.generatedVideos));
+        this.updateVideoGallery();
+
+        alert(`✅ Demo video "${title}" generated!\n\nThis is a placeholder video. For real AI-generated content, use the Community Pool or contribute your API key.`);
+    }
+
+    generateWithCommunityPool(title) {
+        const communityKey = this.communityPool.getAvailableKey();
+
+        if (!communityKey) {
+            alert('❌ No community API keys available right now.\n\nPlease try again later or contribute your own API key to the pool!');
+            return;
+        }
+
+        console.log('🤝 Generating with community pool for:', title);
+
+        this.apiKey = communityKey;
+        const promptData = this.getPromptForTitle(title);
+
+        if (promptData) {
+            this.generateVideo(promptData.prompt, promptData.duration, promptData.size, title);
+        }
+    }
+
+    createMockVideoData() {
+        const canvas = document.createElement('canvas');
+        canvas.width = 640;
+        canvas.height = 360;
+        const ctx = canvas.getContext('2d');
+
+        ctx.fillStyle = '#000011';
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.fillStyle = '#00ff88';
+        ctx.font = '24px Orbitron';
+        ctx.textAlign = 'center';
+        ctx.fillText('🎬 AI Video Demo', canvas.width/2, canvas.height/2);
+        ctx.fillText('Contribute API Key for Real Videos', canvas.width/2, canvas.height/2 + 40);
+
+        return canvas.toDataURL('image/png');
+    }
+
+    getPromptForTitle(title) {
+        const promptKey = Object.keys(this.wizardPrompts).find(key =>
+            this.wizardPrompts[key].title === title
+        );
+        return promptKey ? this.wizardPrompts[promptKey] : null;
+    }
+
     addGenerationButtons() {
         const videoCards = document.querySelectorAll('.video-card');
         videoCards.forEach((card, index) => {
             const title = card.querySelector('h3').textContent;
             const button = document.createElement('button');
             button.className = 'cyber-btn sora-generate-btn';
-            button.textContent = '🎬 Generate with Sora2';
+            button.textContent = '🎬 Generate Video';
             button.style.cssText = `
                 margin-top: 10px; width: 100%; background: linear-gradient(45deg, #ff00ff, #00ffff);
                 border: none; color: white; padding: 8px; border-radius: 5px; cursor: pointer;
                 font-family: 'Orbitron', sans-serif; font-size: 0.8em;
             `;
-            button.addEventListener('click', () => this.generateVideoForCard(title));
+            button.addEventListener('click', () => this.showApiModal());
             card.appendChild(button);
         });
     }
 
-    /**
-     * Show the API key modal
-     */
     showApiModal() {
+        this.selectedFreeOption = null;
         document.getElementById('sora-api-modal').style.display = 'flex';
-        document.getElementById('sora-api-key-input').focus();
     }
 
-    /**
-     * Hide the API key modal
-     */
     hideApiModal() {
         document.getElementById('sora-api-modal').style.display = 'none';
-        document.getElementById('sora-api-key-input').value = '';
     }
 
-    /**
-     * Save the API key
-     */
-    saveApiKey() {
-        const key = document.getElementById('sora-api-key-input').value.trim();
-        if (!key.startsWith('sk-')) {
-            alert('❌ Invalid API key format. OpenAI keys start with "sk-"');
-            return;
-        }
-
-        this.apiKey = key;
+    saveApiKey(key) {
         this.userApiKeys.push({
             key: key,
-            added: new Date().toISOString(),
-            user: 'current-user' // Could be enhanced with user identification
+            added: new Date().toISOString()
         });
         localStorage.setItem('user-api-keys', JSON.stringify(this.userApiKeys));
-        this.hideApiModal();
-        alert('✅ API key saved! You can now generate videos.');
     }
 
-    /**
-     * Load saved API key
-     */
     loadUserApiKey() {
         if (this.userApiKeys.length > 0) {
             this.apiKey = this.userApiKeys[this.userApiKeys.length - 1].key;
         }
     }
 
-    /**
-     * Generate video for a specific card
-     */
-    async generateVideoForCard(title) {
-        // Check CDR access first
-        if (window.cdrAIUtilization) {
-            const address = this.getCurrentAddress();
-            const canAccess = await window.cdrAIUtilization.canAccessFeature(address, 'video-gen');
-            if (!canAccess) {
-                const accessLevel = await window.cdrAIUtilization.getUserAccessLevel(address);
-                const minLevel = accessLevel ? 'Platinum' : 'Gold';
-                alert(`🎬 Sora AI Video Generation requires CDR tokens!\n\nCurrent Access: ${accessLevel ? accessLevel.level : 'None'}\nRequired: ${minLevel} (${minLevel === 'Gold' ? '10,000+' : '50,000+'} CDR)\n\nUpgrade your CDR holdings to unlock AI video generation.`);
-                return;
-            }
-
-            // Use AI credits for video generation
-            try {
-                await window.cdrAIUtilization.useCredits(address, 500); // Video generation costs 500 credits
-            } catch (error) {
-                alert(`❌ ${error.message}`);
-                return;
-            }
-        }
-
-        if (!this.apiKey) {
-            this.showApiModal();
-            return;
-        }
-
-        // Find the prompt for this video
-        const promptKey = Object.keys(this.wizardPrompts).find(key =>
-            this.wizardPrompts[key].title === title
-        );
-
-        if (!promptKey) {
-            alert('❌ No prompt found for this video');
-            return;
-        }
-
-        const promptData = this.wizardPrompts[promptKey];
-        await this.generateVideo(promptData.prompt, promptData.duration, promptData.size, title);
-    }
-
-    /**
-     * Get current user address
-     */
-    getCurrentAddress() {
-        if (window.universalWalletAuth && window.universalWalletAuth.getAddress) {
-            return window.universalWalletAuth.getAddress();
-        }
-        if (window.sharedWalletSystem && window.sharedWalletSystem.address) {
-            return window.sharedWalletSystem.address;
-        }
-        return null;
-    }
-
-    /**
-     * Generate a video using Sora2 API
-     */
     async generateVideo(prompt, duration, size, title) {
         try {
             console.log('🎬 Generating video:', title);
 
-            // Show loading state
             this.showLoading(title);
 
-            // Make API call to Sora2
             const response = await fetch('https://api.openai.com/v1/videos', {
                 method: 'POST',
                 headers: {
@@ -397,7 +382,6 @@ class SoraVideoGenerator {
             const data = await response.json();
             console.log('Video creation started:', data.id);
 
-            // Poll for completion
             await this.pollVideoStatus(data.id, title);
 
         } catch (error) {
@@ -407,11 +391,8 @@ class SoraVideoGenerator {
         }
     }
 
-    /**
-     * Poll for video generation status
-     */
     async pollVideoStatus(videoId, title) {
-        const maxAttempts = 60; // 10 minutes max
+        const maxAttempts = 60;
         let attempts = 0;
 
         while (attempts < maxAttempts) {
@@ -431,7 +412,6 @@ class SoraVideoGenerator {
                     throw new Error('Video generation failed');
                 }
 
-                // Wait 10 seconds before next poll
                 await new Promise(resolve => setTimeout(resolve, 10000));
                 attempts++;
 
@@ -449,9 +429,6 @@ class SoraVideoGenerator {
         }
     }
 
-    /**
-     * Download and save the generated video
-     */
     async downloadAndSaveVideo(videoId, title) {
         try {
             const response = await fetch(`https://api.openai.com/v1/videos/${videoId}/content`, {
@@ -461,9 +438,8 @@ class SoraVideoGenerator {
             });
 
             const blob = await response.blob();
-
-            // Convert blob to base64 for localStorage (limited size)
             const reader = new FileReader();
+
             reader.onload = () => {
                 const base64 = reader.result;
                 this.saveGeneratedVideo(title, base64);
@@ -480,9 +456,6 @@ class SoraVideoGenerator {
         }
     }
 
-    /**
-     * Save generated video to localStorage
-     */
     saveGeneratedVideo(title, videoData) {
         const video = {
             title: title,
@@ -495,20 +468,15 @@ class SoraVideoGenerator {
         localStorage.setItem('sora-generated-videos', JSON.stringify(this.generatedVideos));
     }
 
-    /**
-     * Update the video gallery with generated videos
-     */
     updateVideoGallery() {
         const videoCards = document.querySelectorAll('.video-card');
 
         this.generatedVideos.forEach(video => {
-            // Find the corresponding card
             const card = Array.from(videoCards).find(card =>
                 card.querySelector('h3').textContent === video.title
             );
 
             if (card) {
-                // Replace iframe with generated video
                 const iframe = card.querySelector('iframe');
                 if (iframe) {
                     const videoElement = document.createElement('video');
@@ -519,19 +487,15 @@ class SoraVideoGenerator {
                     iframe.parentNode.replaceChild(videoElement, iframe);
                 }
 
-                // Update description to show it's generated
                 const desc = card.querySelector('p');
                 if (desc) {
-                    desc.textContent += ' (Generated with Sora2 AI)';
-                    desc.style.color = '#00ff00';
+                    desc.textContent += video.type === 'demo' ? ' (Demo Generated)' : ' (AI Generated)';
+                    desc.style.color = video.type === 'demo' ? '#ffa500' : '#00ff00';
                 }
             }
         });
     }
 
-    /**
-     * Show loading state
-     */
     showLoading(title) {
         const loading = document.createElement('div');
         loading.id = 'sora-loading';
@@ -557,39 +521,48 @@ class SoraVideoGenerator {
         document.body.appendChild(loading);
     }
 
-    /**
-     * Hide loading state
-     */
     hideLoading() {
         const loading = document.getElementById('sora-loading');
         if (loading) loading.remove();
     }
 
-    /**
-     * Get generated videos
-     */
-    getGeneratedVideos() {
-        return this.generatedVideos;
+    updatePoolStats() {
+        const stats = this.communityPool.getStats();
+        console.log('🤝 Community Pool Stats:', stats);
     }
 
-    /**
-     * Clear all generated videos
-     */
-    clearGeneratedVideos() {
-        this.generatedVideos = [];
-        localStorage.removeItem('sora-generated-videos');
-        this.updateVideoGallery();
+        }
+
+        hideLoading() {
+            const loading = document.getElementById('sora-loading');
+            if (loading) loading.remove();
+        }
+
+        updatePoolStats() {
+            const stats = this.communityPool.getStats();
+            console.log('🤝 Community Pool Stats:', stats);
+        }
+
+        getCurrentAddress() {
+            if (window.universalWalletAuth && window.universalWalletAuth.getAddress) {
+                return window.universalWalletAuth.getAddress();
+            }
+            if (window.sharedWalletSystem && window.sharedWalletSystem.address) {
+                return window.sharedWalletSystem.address;
+            }
+            return null;
+        }
     }
+
+    // Global instance
+    window.soraVideoGenerator = new SoraVideoGenerator();
+
+    // Initialize when DOM is ready
+    document.addEventListener('DOMContentLoaded', () => {
+        if (window.soraVideoGenerator) {
+            window.soraVideoGenerator.init();
+        }
+    });
+
+    console.log('🎬 Sora Video Generator loaded - FREE alternatives and community pool enabled');
 }
-
-// Global instance
-window.soraVideoGenerator = new SoraVideoGenerator();
-
-// Initialize when DOM is ready
-document.addEventListener('DOMContentLoaded', () => {
-    if (window.soraVideoGenerator) {
-        window.soraVideoGenerator.init();
-    }
-});
-
-} // End of redeclaration prevention
