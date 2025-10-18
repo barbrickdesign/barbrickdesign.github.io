@@ -3040,9 +3040,22 @@
             }, duration);
         }
 
-        // Initialize XP system on page load
-        document.addEventListener('DOMContentLoaded', function() {
-            initializeXPData();
+        // Initialize 3D scene on page load
+        window.addEventListener('DOMContentLoaded', function() {
+            console.log('🌍 Initializing Gem Bot Universe...');
+            initScene();
+            checkSystemArchitectStatus();
+            initAgentCoinVault(); // Initialize the agent coin vault widget
+            initializeXPData(); // Initialize XP progression system
+
+            // Initialize real-time balance system
+            if (window.realTimeBalanceSystem) {
+                console.log('💰 Initializing real-time balance system...');
+                // Balance display will be handled by the existing agent coin vault
+            }
+
+            // Award XP for accessing the system
+            setTimeout(() => addXP(10, 'system_interaction'), 2000);
         });
     </script>
 
