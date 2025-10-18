@@ -860,7 +860,105 @@
 
         // Placeholder functions for features that may be loaded dynamically
         function initializeLeaderboard() {
-            console.log('🏆 Leaderboard initialization placeholder');
+            console.log('🏆 Initializing leaderboard system...');
+            
+            // Create mock leaderboard data
+            const mockLeaderboardData = {
+                xp: [
+                    { rank: 1, name: 'CryptoWizard', xp: 15420, level: 15, tokens: 154.20, avatar: '🧙‍♂️' },
+                    { rank: 2, name: 'BlockChainMaster', xp: 12890, level: 12, tokens: 128.90, avatar: '🔗' },
+                    { rank: 3, name: 'DeFiDragon', xp: 11250, level: 11, tokens: 112.50, avatar: '🐉' },
+                    { rank: 4, name: 'NFTCollector', xp: 9870, level: 9, tokens: 98.70, avatar: '🎨' },
+                    { rank: 5, name: 'Web3Pioneer', xp: 8760, level: 8, tokens: 87.60, avatar: '🚀' },
+                    { rank: 6, name: 'TokenTrader', xp: 7430, level: 7, tokens: 74.30, avatar: '💎' },
+                    { rank: 7, name: 'SmartContractDev', xp: 6580, level: 6, tokens: 65.80, avatar: '👨‍💻' },
+                    { rank: 8, name: 'CryptoEnthusiast', xp: 5420, level: 5, tokens: 54.20, avatar: '📈' },
+                    { rank: 9, name: 'BlockchainBuilder', xp: 4210, level: 4, tokens: 42.10, avatar: '⚡' },
+                    { rank: 10, name: 'DigitalAssetHolder', xp: 3890, level: 3, tokens: 38.90, avatar: '💰' }
+                ],
+                tokens: [
+                    { rank: 1, name: 'TokenHoarder', xp: 8920, level: 8, tokens: 892.45, avatar: '🏦' },
+                    { rank: 2, name: 'MNDMCollector', xp: 7560, level: 7, tokens: 756.30, avatar: '💎' },
+                    { rank: 3, name: 'CryptoWealth', xp: 6890, level: 6, tokens: 689.12, avatar: '💰' },
+                    { rank: 4, name: 'TokenStacker', xp: 6120, level: 6, tokens: 612.89, avatar: '📊' },
+                    { rank: 5, name: 'DigitalFortune', xp: 5870, level: 5, tokens: 587.34, avatar: '🏆' }
+                ],
+                level: [
+                    { rank: 1, name: 'LevelMaster', xp: 25680, level: 25, tokens: 256.80, avatar: '⭐' },
+                    { rank: 2, name: 'ExperienceGuru', xp: 22140, level: 22, tokens: 221.40, avatar: '🎯' },
+                    { rank: 3, name: 'PlatformVeteran', xp: 19870, level: 19, tokens: 198.70, avatar: '🏅' },
+                    { rank: 4, name: 'AchievementHunter', xp: 17560, level: 17, tokens: 175.60, avatar: '🎖️' },
+                    { rank: 5, name: 'ProgressMaster', xp: 15230, level: 15, tokens: 152.30, avatar: '📈' }
+                ],
+                recent: [
+                    { rank: 1, name: 'NewExplorer', xp: 450, level: 4, tokens: 4.50, avatar: '🆕', activity: 'Just joined the platform!' },
+                    { rank: 2, name: 'ActiveUser', xp: 320, level: 3, tokens: 3.20, avatar: '⚡', activity: 'Completed 5 missions today' },
+                    { rank: 3, name: 'RisingStar', xp: 280, level: 2, tokens: 2.80, avatar: '🌟', activity: 'Reached level 2 milestone' },
+                    { rank: 4, name: 'EngagedMember', xp: 190, level: 1, tokens: 1.90, avatar: '🔥', activity: 'First token claim completed' },
+                    { rank: 5, name: 'FreshFace', xp: 120, level: 1, tokens: 1.20, avatar: '👋', activity: 'Welcome to the platform!' }
+                ]
+            };
+
+            // Store the data globally
+            window.leaderboardData = mockLeaderboardData;
+            
+            // Set initial filter to XP
+            setLeaderboardFilter('xp');
+            
+            console.log('✅ Leaderboard system initialized with mock data');
+        }
+
+        function setLeaderboardFilter(filterType) {
+            // Update button states
+            const buttons = document.querySelectorAll('.leaderboard-filters button');
+            buttons.forEach(btn => btn.classList.remove('active-filter'));
+            
+            const activeBtn = document.getElementById(`filter${filterType.charAt(0).toUpperCase() + filterType.slice(1)}`);
+            if (activeBtn) {
+                activeBtn.classList.add('active-filter');
+            }
+
+            // Load and display filtered data
+            displayLeaderboardData(filterType);
+        }
+
+        function displayLeaderboardData(filterType) {
+            if (!window.leaderboardData || !window.leaderboardData[filterType]) {
+                console.warn('Leaderboard data not available for filter:', filterType);
+                return;
+            }
+
+            const data = window.leaderboardData[filterType];
+            const container = document.getElementById('leaderboardContent');
+            
+            if (!container) return;
+
+            let html = '';
+
+            data.forEach(entry => {
+                const rankBadgeColor = entry.rank === 1 ? 'var(--neon-gold)' : 
+                                      entry.rank === 2 ? 'var(--neon-blue)' : 
+                                      entry.rank === 3 ? 'var(--neon-pink)' : 'var(--neon-green)';
+                
+                html += `
+                    <div class="leaderboard-entry" style="display: flex; align-items: center; gap: 15px; padding: 12px; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
+                        <div class="rank-badge" style="background: ${rankBadgeColor}; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: #000; font-size: 0.9em; flex-shrink: 0;">
+                            ${entry.rank}
+                        </div>
+                        <div style="font-size: 1.5em; flex-shrink: 0;">${entry.avatar}</div>
+                        <div style="flex: 1; min-width: 0;">
+                            <div class="username" style="color: var(--neon-blue); font-weight: bold; font-size: 0.9em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${entry.name}</div>
+                            <div class="user-stats" style="display: flex; gap: 10px; font-size: 0.7em; color: #8addff; margin-top: 2px;">
+                                <span>⭐ ${entry.level}</span>
+                                <span>💎 ${entry.tokens.toFixed(1)} MNDM</span>
+                                ${filterType === 'recent' ? `<span style="color: var(--neon-green);">🔥 ${entry.activity}</span>` : `<span>🏆 ${entry.xp.toLocaleString()} XP</span>`}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
         }
 
         function showTokenInfo() {
