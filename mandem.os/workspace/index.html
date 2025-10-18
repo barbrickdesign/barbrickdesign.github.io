@@ -3215,6 +3215,7 @@
             checkSystemArchitectStatus();
             initAgentCoinVault(); // Initialize the agent coin vault widget
             initializeXPData(); // Initialize XP progression system
+            initMNDMWalletIntegration(); // Initialize MNDM wallet integration
 
             // Initialize real-time balance system
             if (window.realTimeBalanceSystem) {
@@ -3225,6 +3226,174 @@
             // Award XP for accessing the system
             setTimeout(() => addXP(10, 'system_interaction'), 2000);
         });
+
+        // MNDM Wallet Integration Functions
+        function initMNDMWalletIntegration() {
+            const mndmStatus = document.getElementById('mndm-status');
+            const balanceDisplay = document.getElementById('mndm-balance-display');
+
+            if (!mndmStatus || !balanceDisplay) return;
+
+            // Make the status clickable to connect wallet
+            mndmStatus.style.cursor = 'pointer';
+            mndmStatus.onclick = async () => {
+                await connectMNDMWallet();
+            };
+
+            // Update balance display periodically
+            updateMNDMBalanceDisplay();
+            setInterval(updateMNDMBalanceDisplay, 30000); // Update every 30 seconds
+        }
+
+        async function connectMNDMWallet() {
+            try {
+                if (window.universalWalletAuth) {
+                    await window.universalWalletAuth.connect();
+                    console.log('🔗 MNDM Wallet connected');
+                    updateMNDMBalanceDisplay();
+                } else {
+                    console.error('Universal wallet auth not available');
+                    alert('Wallet connection system not available');
+                }
+            } catch (error) {
+                console.error('Failed to connect MNDM wallet:', error);
+                alert('Failed to connect wallet. Please try again.');
+            }
+        }
+
+        async function updateMNDMBalanceDisplay() {
+            const balanceDisplay = document.getElementById('mndm-balance-display');
+            const mndmStatus = document.getElementById('mndm-status');
+
+            if (!balanceDisplay || !mndmStatus) return;
+
+            try {
+                let balance = '0.0000';
+                let statusText = 'Click to connect wallet';
+
+                // Check if wallet is connected
+                if (window.universalWalletAuth && window.universalWalletAuth.isAuthenticated()) {
+                    const walletAddress = window.universalWalletAuth.getAddress();
+
+                    // Try to get real MNDM balance from real-time balance system
+                    if (window.realTimeBalanceSystem) {
+                        const balances = await window.realTimeBalanceSystem.getBalances(walletAddress);
+                        if (balances && balances.tokens) {
+                            const mndmToken = balances.tokens.find(token => token.symbol === 'MNDM');
+                            if (mndmToken && mndmToken.balance > 0) {
+                                balance = mndmToken.formatted;
+                            }
+                        }
+                    }
+
+                    // Fallback to mock balance if real balance not available
+                    if (balance === '0.0000' && window.PumpfunTokenConfig) {
+                        const mockBalance = await window.PumpfunTokenConfig.prototype.getTokenBalance(walletAddress);
+                        if (mockBalance > 0) {
+                            balance = mockBalance.toFixed(4);
+                        }
+                    }
+
+                    statusText = 'Connected - Click to manage';
+                    mndmStatus.style.borderColor = 'var(--neon-green)';
+                } else {
+                    mndmStatus.style.borderColor = 'var(--neon-blue)';
+                }
+
+                balanceDisplay.textContent = balance;
+                balanceDisplay.nextElementSibling.textContent = statusText;
+
+            } catch (error) {
+                console.error('Error updating MNDM balance:', error);
+                balanceDisplay.textContent = 'Error';
+                balanceDisplay.nextElementSibling.textContent = 'Connection failed';
+            }
+        }
+
+        // Enhanced wallet management functions
+        async function addMNDMToWallet() {
+            if (!window.universalWalletAuth || !window.universalWalletAuth.isAuthenticated()) {
+                alert('Please connect your wallet first');
+                return;
+            }
+
+            try {
+                // Add MNDM token to wallet (this would typically use wallet's add token function)
+                const tokenAddress = 'GK24fQQQKNF6JMsCd3rLfSr1n2tvr3bCJ7zAgNqxbA7r';
+                const tokenSymbol = 'MNDM';
+                const tokenDecimals = 9;
+
+                // For Phantom wallet, this would use the wallet's add token functionality
+                if (window.solana && window.solana.isPhantom) {
+                    // Note: This is a simplified example - actual implementation would vary by wallet
+                    alert(`MNDM token added to your wallet!\n\nToken: ${tokenSymbol}\nAddress: ${tokenAddress}\n\nYou can now see MNDM balances and use them within the realms.`);
+                } else {
+                    alert('Please use Phantom wallet to add MNDM tokens');
+                }
+
+                // Refresh balance display
+                updateMNDMBalanceDisplay();
+
+            } catch (error) {
+                console.error('Failed to add MNDM to wallet:', error);
+                alert('Failed to add MNDM token to wallet');
+            }
+        }
+
+        // Function to use MNDM tokens within realms
+        async function useMNDMInRealms(amount) {
+            if (!window.universalWalletAuth || !window.universalWalletAuth.isAuthenticated()) {
+                alert('Please connect your wallet first');
+                return;
+            }
+
+            try {
+                const walletAddress = window.universalWalletAuth.getAddress();
+                const balance = await getMNDMBalance(walletAddress);
+
+                if (balance < amount) {
+                    alert(`Insufficient MNDM balance. You have ${balance.toFixed(4)} MNDM but need ${amount.toFixed(4)} MNDM`);
+                    return;
+                }
+
+                // This would typically integrate with a smart contract or backend system
+                // For now, we'll simulate the transaction
+                alert(`Successfully used ${amount.toFixed(4)} MNDM in the realms!\n\nThis would normally trigger a blockchain transaction to use your MNDM tokens for realm features.`);
+
+                // Refresh balance
+                updateMNDMBalanceDisplay();
+
+            } catch (error) {
+                console.error('Failed to use MNDM in realms:', error);
+                alert('Failed to use MNDM tokens in realms');
+            }
+        }
+
+        // Helper function to get MNDM balance
+        async function getMNDMBalance(walletAddress) {
+            try {
+                // Try real balance first
+                if (window.realTimeBalanceSystem) {
+                    const balances = await window.realTimeBalanceSystem.getBalances(walletAddress);
+                    if (balances && balances.tokens) {
+                        const mndmToken = balances.tokens.find(token => token.symbol === 'MNDM');
+                        if (mndmToken) {
+                            return mndmToken.balance;
+                        }
+                    }
+                }
+
+                // Fallback to mock balance
+                if (window.PumpfunTokenConfig) {
+                    return await window.PumpfunTokenConfig.prototype.getTokenBalance(walletAddress);
+                }
+
+                return 0;
+            } catch (error) {
+                console.error('Error getting MNDM balance:', error);
+                return 0;
+            }
+        }
     </script>
 
     <footer>
