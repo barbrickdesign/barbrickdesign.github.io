@@ -401,17 +401,19 @@
         let isWalletConnected = false;
         let currentWalletAddress = null;
         let mndmBalance = 0;
+        let lastUIUpdate = 0;
+        const UI_UPDATE_DEBOUNCE = 500; // 500ms minimum between UI updates
 
         // Initialize wallet integration
         window.addEventListener('DOMContentLoaded', async function() {
             console.log('🏆 Initializing Contractor Leaderboard with Wallet Integration...');
             
-            // Initialize universal auth
+            // Initialize universal auth with debounced handlers
             if (window.authIntegration) {
                 await window.authIntegration.init({
                     showUI: false,
-                    onAuthSuccess: handleWalletConnected,
-                    onAuthFail: handleWalletDisconnected
+                    onAuthSuccess: (authInfo) => debouncedUpdate(handleWalletConnected, authInfo),
+                    onAuthFail: () => debouncedUpdate(handleWalletDisconnected)
                 });
             }
 
@@ -426,8 +428,32 @@
             console.log('✅ Contractor Leaderboard initialized');
         });
 
-        // Handle wallet connection
+        // Debounced UI update function
+        function debouncedUpdate(callback, ...args) {
+            const now = Date.now();
+            if (now - lastUIUpdate < UI_UPDATE_DEBOUNCE) {
+                // Schedule update after debounce period
+                setTimeout(() => {
+                    if (Date.now() - lastUIUpdate >= UI_UPDATE_DEBOUNCE) {
+                        callback(...args);
+                    }
+                }, UI_UPDATE_DEBOUNCE - (now - lastUIUpdate));
+                return;
+            }
+            
+            lastUIUpdate = now;
+            callback(...args);
+        }
+
+        // Handle wallet connection with stability checks
         async function handleWalletConnected(authInfo) {
+            if (!authInfo || !authInfo.address) return;
+            
+            // Prevent duplicate processing
+            if (isWalletConnected && currentWalletAddress === authInfo.address) {
+                return; // Already connected to this wallet
+            }
+            
             console.log('🔗 Wallet connected to leaderboard:', authInfo.address);
             isWalletConnected = true;
             currentWalletAddress = authInfo.address;
@@ -438,12 +464,22 @@
             document.getElementById('connectWalletBtn').style.display = 'none';
             document.getElementById('contributeAgentBtn').style.display = 'inline-block';
             
-            // Load MNDM balance
-            await loadMNDMBalance(authInfo.address);
+            // Load MNDM balance with error handling
+            try {
+                await loadMNDMBalance(authInfo.address);
+            } catch (error) {
+                console.error('Failed to load balance on connect:', error);
+                // Don't show error to user, just log it
+            }
         }
 
-        // Handle wallet disconnection
+        // Handle wallet disconnection with stability checks
         function handleWalletDisconnected() {
+            // Prevent duplicate processing
+            if (!isWalletConnected) {
+                return; // Already disconnected
+            }
+            
             console.log('🔌 Wallet disconnected from leaderboard');
             isWalletConnected = false;
             currentWalletAddress = null;
