@@ -3600,10 +3600,28 @@
             console.log('Navigating to:', destination);
             showLoadingOverlay();
             
-            // Simple navigation simulation
-            setTimeout(() => {
-                alert(`🚀 Navigating to ${destination.toUpperCase()}...\n\nThis would normally redirect to the ${destination} page.`);
-            }, 1000);
+            // Map destinations to actual URLs
+            const urlMap = {
+                'laboratory': '../laboratory.html',
+                'warehouse': '../warehouse.html', 
+                'explorer': '../explorer.html',
+                'grand-exchange': '../grand-exchange.html',
+                'agent-hub': '../agent-hub.html',
+                'education': '../guide-getting-started.html'
+            };
+            
+            const targetUrl = urlMap[destination];
+            if (targetUrl) {
+                console.log('Redirecting to:', targetUrl);
+                setTimeout(() => {
+                    window.location.href = targetUrl;
+                }, 1000);
+            } else {
+                console.warn('Unknown destination:', destination);
+                setTimeout(() => {
+                    alert(`🚀 Navigation to ${destination.toUpperCase()}...\n\nThis would normally redirect to the ${destination} page, but the destination is not configured yet.`);
+                }, 1000);
+            }
         }
 
         // Fix prompt variable scope issue
