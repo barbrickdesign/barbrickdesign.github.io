@@ -482,6 +482,7 @@
     <script src="/src/ui/wallet-button.js"></script>
     <script src="/src/utils/content-sharing-manager.js"></script>
     <script src="/src/utils/tutorial-video-generator.js"></script>
+    <script src="../../../real-time-balance-system.js"></script>
     <link rel="stylesheet" href="/src/ui/wallet-button.css">
 </head>
 <body class="page-transition">
@@ -2714,6 +2715,17 @@
             if (!isWalletConnected || !phantomWallet) return;
 
             const coinBalances = document.getElementById('coinBalances');
+
+            // Use real-time balance system if available
+            if (window.realTimeBalanceSystem && window.realTimeBalanceSystem.getBalances) {
+                const balanceData = window.realTimeBalanceSystem.getBalances(phantomWallet);
+                if (balanceData) {
+                    displayRealBalances(balanceData);
+                    return;
+                }
+            }
+
+            // Fallback to mock data if real-time system not available
             coinBalances.innerHTML = '<div style="text-align: center; color: var(--neon-blue);">Loading balances...</div>';
 
             try {
@@ -2730,24 +2742,34 @@
                     <div style="margin-bottom: 5px;"><strong>⚡ Vision Arch:</strong> ${mockBalances['Vision Architect']}</div>
                 `;
 
-                // In a real implementation, you would use the Solana Web3.js connection
-                // to fetch actual token balances from the connected wallet
-                /*
-                const connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl('mainnet-beta'));
-                const publicKey = new solanaWeb3.PublicKey(phantomWallet);
-
-                // Get SOL balance
-                const solBalance = await connection.getBalance(publicKey);
-                const solAmount = solBalance / solanaWeb3.LAMPORTS_PER_SOL;
-
-                // Get token balances (would need token program integration)
-                // ... token balance fetching logic
-                */
-
             } catch (error) {
                 console.error('Failed to load coin balances:', error);
                 coinBalances.innerHTML = '<div style="color: var(--neon-orange);">Failed to load balances</div>';
             }
+        }
+
+        // Display real balances from the balance system
+        function displayRealBalances(balanceData) {
+            const coinBalances = document.getElementById('coinBalances');
+            let html = '';
+
+            // Native SOL balance
+            if (balanceData.native) {
+                html += `<div style="margin-bottom: 5px;"><strong>SOL:</strong> ${balanceData.native.formatted} <span style="color: var(--neon-green);">($${window.realTimeBalanceSystem.formatUSD(balanceData.native.usdValue)})</span></div>`;
+            }
+
+            // Token balances
+            balanceData.tokens.forEach(token => {
+                const icon = token.symbol === 'USDC' ? '💵' : token.symbol === 'USDT' ? '💰' : '🪙';
+                html += `<div style="margin-bottom: 5px;"><strong>${icon} ${token.name}:</strong> ${token.formatted} <span style="color: var(--neon-green);">($${window.realTimeBalanceSystem.formatUSD(token.usdValue)})</span></div>`;
+            });
+
+            // Total portfolio value
+            if (balanceData.totalUSD > 0) {
+                html += `<div style="margin-top: 10px; padding-top: 5px; border-top: 1px solid var(--neon-blue);"><strong>💼 Total:</strong> <span style="color: var(--neon-green); font-weight: bold;">$${window.realTimeBalanceSystem.formatUSD(balanceData.totalUSD)}</span></div>`;
+            }
+
+            coinBalances.innerHTML = html;
         }
 
         // Handle window resize
@@ -2765,6 +2787,12 @@
             initScene();
             checkSystemArchitectStatus();
             initAgentCoinVault(); // Initialize the agent coin vault widget
+
+            // Initialize real-time balance system
+            if (window.realTimeBalanceSystem) {
+                console.log('💰 Initializing real-time balance system...');
+                // Balance display will be handled by the existing agent coin vault
+            }
         });
     </script>
 

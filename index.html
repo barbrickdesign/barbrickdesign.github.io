@@ -233,7 +233,9 @@
 
     <!-- Sora2 Video Generation System -->
     <script src="sora-video-generator.js"></script>
-</head>
+
+    <!-- Real-Time Balance System -->
+    <script src="real-time-balance-system.js"></script>
 <body>
     <div class="tron-grid"></div>
     
@@ -354,6 +356,15 @@
                     <p>A financial wizard conducts an orchestra of cryptocurrencies with real-time balance tracking.</p>
                 </div>
             </div>
+        </div>
+
+        <!-- Real-Time Balance Display -->
+        <div class="content-panel" style="margin-top: 2rem;">
+            <h2 style="color: var(--neon-green); text-align: center;">💰 REAL-TIME PORTFOLIO BALANCES</h2>
+            <p style="text-align: center; color: #8addff; margin-bottom: 1rem; font-size: 0.9em;">
+                🔄 Connect your wallet to view live balances across Ethereum, Solana, and major tokens
+            </p>
+            <div id="balance-display-container"></div>
         </div>
 
         <!-- Marketing Department -->
@@ -684,6 +695,12 @@
                     console.log('🔌 Wallet button initialized successfully');
                 }
             }, 500);
+
+            // Initialize balance display
+            if (window.realTimeBalanceSystem) {
+                window.realTimeBalanceSystem.createBalanceDisplay('balance-display-container');
+                console.log('💰 Balance display initialized');
+            }
 
             console.log('🏠 BARBRICKDESIGN Hub loaded successfully - no service worker');
         });
