@@ -29,7 +29,8 @@ class RealTimeBalanceSystem {
                 tokens: [
                     { symbol: 'USDC', address: 'EPjFWdd5AufqSSqeM2qN1xzybapC8G4wEGGkZwyTDt1v', decimals: 6, name: 'USD Coin' },
                     { symbol: 'USDT', address: 'Es9vMFrzaCERmJfrF4H2FYD4KCoNkY11McCe8BenwNYB', decimals: 6, name: 'Tether USD' },
-                    { symbol: 'BONK', address: 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263', decimals: 5, name: 'Bonk' }
+                    { symbol: 'BONK', address: 'DezXAZ8z7PnrnRJjz3wXBoRgixCa6xjnB7YaB1pPB263', decimals: 5, name: 'Bonk' },
+                    { symbol: 'MNDM', address: 'GK24fQQQKNF6JMsCd3rLfSr1n2tvr3bCJ7zAgNqxbA7r', decimals: 6, name: 'MANDEM.OS' }
                 ]
             }
         };
@@ -375,7 +376,7 @@ class RealTimeBalanceSystem {
      */
     async fetchPriceData() {
         try {
-            const symbols = ['ETH', 'SOL', 'USDC', 'USDT', 'WBTC', 'BONK'];
+            const symbols = ['ETH', 'SOL', 'USDC', 'USDT', 'WBTC', 'BONK', 'MNDM'];
             const ids = symbols.map(s => s.toLowerCase()).join(',');
 
             const response = await fetch(`https://api.coingecko.com/api/v3/simple/price?ids=${ids}&vs_currencies=usd`);
@@ -392,6 +393,19 @@ class RealTimeBalanceSystem {
 
         } catch (error) {
             console.error('Failed to fetch price data:', error);
+            // Fallback: keep existing price data or set defaults
+            if (Object.keys(this.priceData).length === 0) {
+                // Set some default prices for common tokens
+                this.priceData = {
+                    'ETH': { usd: 2000 },
+                    'SOL': { usd: 150 },
+                    'USDC': { usd: 1 },
+                    'USDT': { usd: 1 },
+                    'WBTC': { usd: 60000 },
+                    'BONK': { usd: 0.00002 },
+                    'MNDM': { usd: 0 } // New token, no price data yet
+                };
+            }
         }
     }
 
