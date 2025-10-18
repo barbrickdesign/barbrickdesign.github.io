@@ -166,16 +166,16 @@
             font-size: 0.9rem;
         }
 
-        /* Status Panel */
+        /* Status Panel - Repositioned to avoid overlap */
         .status-panel {
             position: fixed;
-            top: 20px;
+            top: 120px; /* Moved down to avoid MNDM status overlap */
             right: 20px;
             background: var(--panel-bg);
             border: 1px solid var(--neon-green);
             border-radius: 8px;
             padding: 1rem;
-            min-width: 250px;
+            min-width: 200px; /* Reduced width to prevent overlap */
             box-shadow: var(--border-glow);
             backdrop-filter: blur(10px);
             z-index: 1000;
@@ -567,8 +567,8 @@
         <h1>GEM BOT UNIVERSE</h1>
         <p class="header-desc">Advanced AI Knowledge Platform • Future Innovation Hub</p>
         
-        <!-- MNDM Token Status - Properly positioned -->
-        <div id="mndm-status" style="position: absolute; top: 20px; right: 20px; background: var(--panel-bg); border: 2px solid var(--neon-blue); border-radius: 10px; padding: 10px; min-width: 200px; box-shadow: 0 0 20px rgba(0,255,136,0.3); transition: all 0.3s ease;">
+        <!-- MNDM Token Status - Repositioned to avoid overlap -->
+        <div id="mndm-status" style="position: fixed; top: 20px; right: 20px; background: var(--panel-bg); border: 2px solid var(--neon-blue); border-radius: 10px; padding: 10px; min-width: 200px; box-shadow: 0 0 20px rgba(0,255,136,0.3); transition: all 0.3s ease; z-index: 1001;">
             <div style="font-size: 0.8em; color: var(--neon-blue); margin-bottom: 5px;">💎 MNDM BALANCE</div>
             <div id="mndm-balance-display" style="font-family: monospace; font-size: 1.2em; color: var(--neon-green); font-weight: bold;">0.0000</div>
             <div style="font-size: 0.6em; color: var(--neon-blue); margin-top: 3px;">Click to connect wallet</div>
