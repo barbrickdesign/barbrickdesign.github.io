@@ -334,42 +334,91 @@
             </div>
         </div>
 
-        <!-- How-To Videos Section -->
+        <!-- How-To Videos & Tutorials Section -->
         <div class="content-panel" style="margin-top: 2rem;">
             <h2 style="color: var(--neon-pink); text-align: center;">🎥 HOW-TO VIDEOS & TUTORIALS</h2>
-            <p style="text-align: center; color: #8addff; margin-bottom: 1rem; font-size: 0.9em;">
+            <p style="text-align: center; color: #ffaa00; margin-bottom: 1rem; font-size: 0.9em;">
                 ✨ Powered by Sora2 AI - Contribute your OpenAI API key to generate custom wizard embodiment videos!
-                <button onclick="window.soraVideoGenerator.showApiModal()" style="background: linear-gradient(45deg, #ffd700, #ffaa00); border: none; color: #000; padding: 5px 10px; border-radius: 3px; font-size: 0.8em; cursor: pointer; margin-left: 10px;">🔑 Add API Key</button>
             </p>
-            <div class="video-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin-top: 1rem;">
-                <div class="video-card">
-                    <h3>🚀 Getting Started with Gem Bot Universe</h3>
-                    <iframe width="100%" height="200" src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe>
-                    <p>Learn how to navigate the 3D universe and interact with AI agents.</p>
+
+            <!-- API Key Contribution Section -->
+            <div style="background: rgba(255,20,147,0.1); border: 2px solid var(--neon-pink); border-radius: 15px; padding: 1.5rem; margin-bottom: 2rem; text-align: center;">
+                <h3 style="color: var(--neon-pink); margin-bottom: 1rem;">🔑 Add API Key</h3>
+                <p style="color: #8addff; margin-bottom: 1rem; font-size: 0.9em;">
+                    Help generate custom AI-powered tutorial videos by contributing your OpenAI API key (securely stored)
+                </p>
+                <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                    <input type="password" id="openaiApiKey" placeholder="sk-..." style="padding: 10px; background: rgba(0,0,0,0.5); border: 1px solid var(--neon-pink); color: var(--neon-pink); border-radius: 8px; width: 300px;">
+                    <button onclick="saveOpenAIApiKey()" class="cyber-btn" style="background: linear-gradient(135deg, var(--neon-pink), #ff1493);">💾 Save API Key</button>
+                    <button onclick="generateCustomVideo()" class="cyber-btn cyber-btn-secondary">🎬 Generate Custom Video</button>
                 </div>
-                <div class="video-card">
-                    <h3>💰 Universal Crypto Recovery Guide</h3>
-                    <iframe width="100%" height="200" src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe>
-                    <p>Step-by-step guide to recovering lost crypto across multiple chains.</p>
+                <div id="apiKeyStatus" style="margin-top: 10px; font-size: 0.8em; color: var(--neon-green);"></div>
+            </div>
+
+            <!-- Pre-made Tutorial Videos -->
+            <div class="tutorials-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+
+                <!-- Getting Started Video -->
+                <div class="tutorial-card" style="background: rgba(0,0,0,0.4); border: 2px solid var(--neon-blue); border-radius: 15px; padding: 1.5rem; text-align: center;">
+                    <div style="font-size: 3em; margin-bottom: 1rem;">🚀</div>
+                    <h3 style="color: var(--neon-blue); margin-bottom: 0.5rem;">Getting Started with Gem Bot Universe</h3>
+                    <p style="color: #8addff; font-size: 0.9em; margin-bottom: 1rem;">
+                        Learn how to navigate the 3D universe and interact with AI agents.
+                    </p>
+                    <button onclick="playTutorial('getting-started')" class="cyber-btn" style="background: linear-gradient(135deg, var(--neon-blue), #00ffff);">▶️ Watch Tutorial</button>
                 </div>
-                <div class="video-card">
-                    <h3>⚔️ Grand Exchange Trading Tutorial</h3>
-                    <iframe width="100%" height="200" src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe>
-                    <p>Master the art of Web3 trading with our comprehensive guide.</p>
+
+                <!-- Crypto Recovery Video -->
+                <div class="tutorial-card" style="background: rgba(0,0,0,0.4); border: 2px solid var(--neon-green); border-radius: 15px; padding: 1.5rem; text-align: center;">
+                    <div style="font-size: 3em; margin-bottom: 1rem;">💰</div>
+                    <h3 style="color: var(--neon-green); margin-bottom: 0.5rem;">Universal Crypto Recovery Guide</h3>
+                    <p style="color: #8addff; font-size: 0.9em; margin-bottom: 1rem;">
+                        Step-by-step guide to recovering lost crypto across multiple chains.
+                    </p>
+                    <button onclick="playTutorial('crypto-recovery')" class="cyber-btn" style="background: linear-gradient(135deg, var(--neon-green), #00ff88);">▶️ Watch Tutorial</button>
                 </div>
-                <div class="video-card">
-                    <h3>🧙 The Wizard's Embodiment</h3>
-                    <div style="width: 100%; height: 200px; background: linear-gradient(135deg, rgba(0,20,40,0.8), rgba(0,40,60,0.8)); border: 2px solid rgba(0,255,255,0.3); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #8addff; font-style: italic;">
-                        Generate with Sora2 AI
+
+                <!-- Grand Exchange Video -->
+                <div class="tutorial-card" style="background: rgba(0,0,0,0.4); border: 2px solid var(--neon-orange); border-radius: 15px; padding: 1.5rem; text-align: center;">
+                    <div style="font-size: 3em; margin-bottom: 1rem;">⚔️</div>
+                    <h3 style="color: var(--neon-orange); margin-bottom: 0.5rem;">Grand Exchange Trading Tutorial</h3>
+                    <p style="color: #8addff; font-size: 0.9em; margin-bottom: 1rem;">
+                        Master the art of Web3 trading with our comprehensive guide.
+                    </p>
+                    <button onclick="playTutorial('grand-exchange')" class="cyber-btn" style="background: linear-gradient(135deg, var(--neon-orange), #ffaa00);">▶️ Watch Tutorial</button>
+                </div>
+
+                <!-- AI-Generated Wizard Video -->
+                <div class="tutorial-card" style="background: rgba(0,0,0,0.4); border: 2px solid var(--neon-purple); border-radius: 12px; padding: 1.5rem; text-align: center;">
+                    <div style="font-size: 3em; margin-bottom: 1rem;">🧙</div>
+                    <h3 style="color: var(--neon-purple); margin-bottom: 0.5rem;">The Wizard's Embodiment</h3>
+                    <p style="color: #ffaa00; font-size: 0.8em; margin-bottom: 0.5rem;">Generate with Sora2 AI</p>
+                    <p style="color: #8addff; font-size: 0.9em; margin-bottom: 1rem;">
+                        A transcendent wizard merges with digital consciousness in the Gem Bot Universe.
+                    </p>
+                    <button onclick="generateAIVideo('wizard-embodiment')" class="cyber-btn" style="background: linear-gradient(135deg, var(--neon-purple), #9932cc);">🎬 Generate Video</button>
+                </div>
+
+                <!-- Real-Time Balance Video -->
+                <div class="tutorial-card" style="background: rgba(0,0,0,0.4); border: 2px solid var(--neon-gold); border-radius: 12px; padding: 1.5rem; text-align: center;">
+                    <div style="font-size: 3em; margin-bottom: 1rem;">💎</div>
+                    <h3 style="color: var(--neon-gold); margin-bottom: 0.5rem;">Real-Time Balance Mastery</h3>
+                    <p style="color: #ffaa00; font-size: 0.8em; margin-bottom: 0.5rem;">Generate with Sora2 AI</p>
+                    <p style="color: #8addff; font-size: 0.9em; margin-bottom: 1rem;">
+                        A financial wizard conducts an orchestra of cryptocurrencies with real-time balance tracking.
+                    </p>
+                    <button onclick="generateAIVideo('balance-mastery')" class="cyber-btn" style="background: linear-gradient(135deg, var(--neon-gold), #ffd700);">🎬 Generate Video</button>
+                </div>
+            </div>
+
+            <!-- Video Generation Status -->
+            <div id="videoGenerationStatus" style="background: rgba(0,0,0,0.3); border: 2px solid var(--neon-pink); border-radius: 12px; padding: 1rem; text-align: center; display: none;">
+                <h4 style="color: var(--neon-pink); margin-bottom: 0.5rem;">🎬 Video Generation in Progress</h4>
+                <div id="generationProgress" style="color: #8addff;">Initializing AI video generation...</div>
+                <div style="margin-top: 1rem;">
+                    <div style="width: 100%; height: 8px; background: rgba(0,0,0,0.5); border-radius: 4px; overflow: hidden;">
+                        <div id="progressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--neon-pink), var(--neon-purple)); transition: width 0.3s ease;"></div>
                     </div>
-                    <p>A transcendent wizard merges with digital consciousness in the Gem Bot Universe.</p>
-                </div>
-                <div class="video-card">
-                    <h3>💎 Real-Time Balance Mastery</h3>
-                    <div style="width: 100%; height: 200px; background: linear-gradient(135deg, rgba(0,20,40,0.8), rgba(0,40,60,0.8)); border: 2px solid rgba(0,255,255,0.3); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #8addff; font-style: italic;">
-                        Generate with Sora2 AI
-                    </div>
-                    <p>A financial wizard conducts an orchestra of cryptocurrencies with real-time balance tracking.</p>
                 </div>
             </div>
         </div>
@@ -1177,6 +1226,7 @@
                             🌐 Trade MNDM on Pump.fun
                         </a>
                         <button onclick="this.closest('.modal-overlay').remove()" class="cyber-btn cyber-btn-secondary">Close</button>
+                        <button onclick="generateCustomVideo()" class="cyber-btn" style="background: linear-gradient(135deg, var(--neon-purple), #9932cc);">🎬 Generate Custom Video</button>
                     </div>
                 </div>
             `;
@@ -1186,17 +1236,6 @@
 
         function analyzeAudience() {
             alert('🎯 Audience Analysis\n\nAI-powered insights include:\n- Demographic data\n- Engagement patterns\n- Content preferences\n- Growth opportunities');
-        }
-
-        // Social media links (placeholders)
-        function openSocial(platform) {
-            const urls = {
-                twitter: 'https://twitter.com/barbrickdesign',
-                discord: 'https://discord.gg/barbrickdesign',
-                telegram: 'https://t.me/barbrickdesign',
-                linkedin: 'https://linkedin.com/company/barbrickdesign'
-            };
-            window.open(urls[platform] || '#', '_blank');
         }
 
         // Enhanced navigation with breadcrumbs
