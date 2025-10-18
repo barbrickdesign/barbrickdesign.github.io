@@ -2750,6 +2750,9 @@
                 updateWalletUI();
                 await loadCoinBalances();
 
+                // Award XP for wallet connection
+                addXP(15, 'system_interaction');
+
                 console.log('Phantom wallet connected:', phantomWallet);
             } catch (error) {
                 console.error('Failed to connect Phantom wallet:', error);
