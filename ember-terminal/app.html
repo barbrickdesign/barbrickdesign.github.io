@@ -4957,6 +4957,133 @@ a:visited { color: #1e9b55; }
     <!-- Pump.fun Token Integration -->
     <script src="../pumpfun-token-config.js"></script>
     
+    <!-- Ember Terminal Wallet Initialization -->
+    <script>
+        // Initialize wallet integration when DOM is loaded
+        window.addEventListener('DOMContentLoaded', async function() {
+            console.log('🔥 Initializing Ember Terminal wallet integration...');
+            
+            try {
+                // Initialize auth integration for Ember Terminal
+                if (window.authIntegration) {
+                    await window.authIntegration.init({
+                        showUI: true,
+                        onAuthSuccess: function(authInfo) {
+                            console.log('🔗 Ember Terminal wallet connected:', authInfo.address);
+                            updateEmberWalletUI(authInfo);
+                            
+                            // Award XP for connecting wallet
+                            if (typeof addXP === 'function') {
+                                addXP(25, 'wallet_connection');
+                            }
+                        },
+                        onAuthFail: function() {
+                            console.log('❌ Ember Terminal wallet connection failed');
+                            updateEmberWalletUI(null);
+                        }
+                    });
+                } else {
+                    console.error('❌ Auth integration not available in Ember Terminal');
+                }
+            } catch (error) {
+                console.error('❌ Failed to initialize Ember Terminal wallet:', error);
+            }
+        });
+
+        // Update Ember Terminal wallet UI
+        function updateEmberWalletUI(authInfo) {
+            const walletStatus = document.querySelector('.ember-wallet-status');
+            
+            if (!walletStatus) {
+                console.warn('Ember wallet status element not found');
+                return;
+            }
+            
+            if (authInfo && authInfo.authenticated) {
+                // Connected state
+                walletStatus.innerHTML = `
+                    <div style="background: linear-gradient(135deg, rgba(0,255,136,0.2), rgba(0,255,136,0.1)); border: 2px solid var(--neon-green); border-radius: 10px; padding: 15px; backdrop-filter: blur(10px);">
+                        <div style="color: var(--neon-green); font-weight: bold; margin-bottom: 8px;">🔗 CONNECTED</div>
+                        <div style="color: var(--neon-blue); font-family: monospace; font-size: 12px; margin-bottom: 8px;">
+                            ${authInfo.shortAddress || authInfo.address.slice(0, 8) + '...' + authInfo.address.slice(-4)}
+                        </div>
+                        <div style="color: var(--neon-blue); font-size: 12px; margin-bottom: 8px;">
+                            ⏱️ ${authInfo.workTimeMinutes || 0}h ${(authInfo.workTimeMinutes || 0) % 60}m worked
+                        </div>
+                        <div style="display: flex; gap: 8px;">
+                            <button onclick="disconnectEmberWallet()" style="background: var(--neon-orange); border: none; color: black; padding: 6px 12px; border-radius: 6px; cursor: pointer; font-size: 11px;">Disconnect</button>
+                        </div>
+                    </div>
+                `;
+                
+                // Add pulsing animation to connected status
+                walletStatus.style.animation = 'pulse-green 2s infinite';
+            } else {
+                // Disconnected state
+                walletStatus.innerHTML = `
+                    <div style="background: linear-gradient(135deg, rgba(255,0,0,0.2), rgba(255,0,0,0.1)); border: 2px solid var(--neon-pink); border-radius: 10px; padding: 15px; backdrop-filter: blur(10px);">
+                        <div style="color: var(--neon-pink); font-weight: bold; margin-bottom: 8px;">🔌 DISCONNECTED</div>
+                        <div style="color: var(--neon-blue); font-size: 12px; margin-bottom: 8px;">Click to connect wallet</div>
+                        <div style="display: flex; gap: 8px;">
+                            <button onclick="connectEmberWallet()" style="background: var(--neon-blue); border: none; color: white; padding: 8px 16px; border-radius: 6px; cursor: pointer; font-size: 12px;">🔗 Connect</button>
+                        </div>
+                    </div>
+                `;
+                
+                // Add pulsing animation to disconnected status
+                walletStatus.style.animation = 'pulse-red 2s infinite';
+            }
+        }
+
+        // Connect wallet function for Ember Terminal
+        async function connectEmberWallet() {
+            try {
+                if (window.authIntegration) {
+                    await window.authIntegration.requireAuth();
+                } else {
+                    console.error('Auth integration not available');
+                    alert('Wallet system not available. Please refresh the page.');
+                }
+            } catch (error) {
+                console.error('Failed to connect wallet:', error);
+                alert('Failed to connect wallet. Please try again.');
+            }
+        }
+
+        // Disconnect wallet function for Ember Terminal
+        async function disconnectEmberWallet() {
+            try {
+                if (window.universalWalletAuth) {
+                    await window.universalWalletAuth.disconnect();
+                    updateEmberWalletUI(null);
+                    console.log('🔌 Ember Terminal wallet disconnected');
+                }
+            } catch (error) {
+                console.error('Failed to disconnect wallet:', error);
+            }
+        }
+
+        // Add CSS animations for wallet status
+        const walletAnimationCSS = `
+            @keyframes pulse-green {
+                0%, 100% { box-shadow: 0 0 20px rgba(0, 255, 136, 0.3); }
+                50% { box-shadow: 0 0 30px rgba(0, 255, 136, 0.6); }
+            }
+            
+            @keyframes pulse-red {
+                0%, 100% { box-shadow: 0 0 20px rgba(255, 0, 0, 0.3); }
+                50% { box-shadow: 0 0 30px rgba(255, 0, 0, 0.6); }
+            }
+        `;
+        
+        // Inject the CSS
+        const style = document.createElement('style');
+        style.textContent = walletAnimationCSS;
+        document.head.appendChild(style);
+        
+        console.log('✅ Ember Terminal wallet integration initialized');
+    </script>
+    
     <!-- Ember Terminal specific wallet integration -->
     <style>
         .ember-wallet-status {
