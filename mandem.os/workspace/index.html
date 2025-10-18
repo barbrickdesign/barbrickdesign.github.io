@@ -1426,6 +1426,9 @@
         }
 
         function navigateTo(destination) {
+            // Award XP for navigation
+            addXP(3, 'navigation');
+
             // Handle special cases
             if (destination === 'agent-hub') {
                 // Use full GitHub Pages URL for agent hub
