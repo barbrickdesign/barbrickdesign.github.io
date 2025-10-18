@@ -404,7 +404,8 @@ class RealTimeBalanceSystem {
                     'USDT': { usd: 1 },
                     'WBTC': { usd: 60000 },
                     'BONK': { usd: 0.00002 },
-                    'MNDM': { usd: 0 } // New token, no price data yet
+                    'MNDM': { usd: 0 }, // New token, no price data yet
+                    'CDR': { usd: 0 } // New token, no price data yet
                 };
             }
         }
