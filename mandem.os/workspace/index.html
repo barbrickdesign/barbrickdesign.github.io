@@ -2875,21 +2875,38 @@
             }
         });
 
-        // XP Progression System from Mandemos-v2
+        // XP Progression System from Mandemos-v2 with MNDM Token Integration
         let xpLogData = {
             totalXP: 0,
             totalSwag: 0,
             totalMisspoints: 0,
             level: 1,
+            totalTokensEarned: 0,
+            claimedTokens: 0,
             entries: []
+        };
+
+        // MNDM Token Economics
+        const TOKEN_ECONOMICS = {
+            tokenAddress: 'GK24fQQQKNF6JMsCd3rLfSr1n2tvr3bCJ7zAgNqxbA7r',
+            tokenName: 'MNDM',
+            xpToTokenRatio: 1000, // 1000 XP = 1 MNDM token
+            swagToTokenRatio: 2000, // 2000 Swag = 1 MNDM token
+            levelBonusMultiplier: 1.1, // 10% bonus per level
+            maxDailyTokens: 10, // Max tokens earnable per day
+            pumpFunUrl: 'https://pump.fun/coin/GK24fQQQKNF6JMsCd3rLfSr1n2tvr3bCJ7zAgNqxbA7r'
         };
 
         function initializeXPData() {
             const savedXPData = localStorage.getItem('xpLogData');
             if (savedXPData) {
                 xpLogData = JSON.parse(savedXPData);
+                // Ensure new fields exist
+                xpLogData.totalTokensEarned = xpLogData.totalTokensEarned || 0;
+                xpLogData.claimedTokens = xpLogData.claimedTokens || 0;
             }
             updateXPBar();
+            updateTokenDisplay();
         }
 
         function addXP(xpAmount, type = 'system_interaction') {
@@ -2909,13 +2926,171 @@
             xpLogData.entries.unshift(entry);
             xpLogData.totalXP += entry.xp;
             xpLogData.totalSwag += entry.swag;
+
+            // Calculate token earnings
+            const levelBonus = Math.pow(TOKEN_ECONOMICS.levelBonusMultiplier, xpLogData.level - 1);
+            const xpTokens = (entry.xp / TOKEN_ECONOMICS.xpToTokenRatio) * levelBonus;
+            const swagTokens = (entry.swag / TOKEN_ECONOMICS.swagToTokenRatio) * levelBonus;
+
+            const totalTokens = xpTokens + swagTokens;
+            xpLogData.totalTokensEarned += totalTokens;
+
+            // Update level
             xpLogData.level = Math.floor(xpLogData.totalXP / 1000) + 1;
 
             saveXPData();
             updateXPBar();
+            updateTokenDisplay();
 
-            // Show toast notification
-            showToast(`🎉 +${xpAmount} XP earned!`, 3000);
+            // Show enhanced toast notification
+            showToast(`🎉 +${xpAmount} XP (+${totalTokens.toFixed(4)} MNDM)`, 3000);
+        }
+
+        function updateTokenDisplay() {
+            const unclaimedTokens = xpLogData.totalTokensEarned - xpLogData.claimedTokens;
+            document.getElementById('earnedTokens').textContent = unclaimedTokens.toFixed(4);
+
+            // Update display color based on available tokens
+            const tokenDisplay = document.getElementById('earnedTokens').parentElement;
+            if (unclaimedTokens > 0) {
+                tokenDisplay.style.color = 'var(--neon-green)';
+            } else {
+                tokenDisplay.style.color = 'var(--neon-blue)';
+            }
+        }
+
+        function claimTokenRewards() {
+            const unclaimedTokens = xpLogData.totalTokensEarned - xpLogData.claimedTokens;
+
+            if (unclaimedTokens <= 0) {
+                showToast('❌ No tokens available to claim', 3000);
+                return;
+            }
+
+            // Check daily limit
+            const today = new Date().toDateString();
+            const lastClaimDate = localStorage.getItem('lastTokenClaimDate');
+
+            if (lastClaimDate === today) {
+                const todayClaimed = parseFloat(localStorage.getItem('todayClaimedTokens') || 0);
+                if (todayClaimed >= TOKEN_ECONOMICS.maxDailyTokens) {
+                    showToast(`❌ Daily limit reached (${TOKEN_ECONOMICS.maxDailyTokens} MNDM/day)`, 5000);
+                    return;
+                }
+            }
+
+            // Simulate claiming (in production, this would interact with smart contract)
+            const claimAmount = Math.min(unclaimedTokens, TOKEN_ECONOMICS.maxDailyTokens);
+
+            xpLogData.claimedTokens += claimAmount;
+
+            // Update daily tracking
+            if (lastClaimDate !== today) {
+                localStorage.setItem('lastTokenClaimDate', today);
+                localStorage.setItem('todayClaimedTokens', claimAmount.toString());
+            } else {
+                const todayClaimed = parseFloat(localStorage.getItem('todayClaimedTokens') || 0);
+                localStorage.setItem('todayClaimedTokens', (todayClaimed + claimAmount).toString());
+            }
+
+            saveXPData();
+            updateTokenDisplay();
+
+            // Show success message with link to Pump.fun
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay active';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 500px; text-align: center;">
+                    <h2 style="color: var(--neon-green); margin-bottom: 1rem;">🎉 Tokens Claimed Successfully!</h2>
+                    <div style="font-size: 1.2em; color: var(--neon-blue); margin-bottom: 1rem;">
+                        💎 ${claimAmount.toFixed(4)} MNDM Tokens
+                    </div>
+                    <p style="color: var(--neon-green); margin-bottom: 2rem;">
+                        Your tokens have been added to your wallet. Visit Pump.fun to view and trade your MNDM tokens!
+                    </p>
+                    <div style="display: flex; gap: 10px; justify-content: center;">
+                        <a href="${TOKEN_ECONOMICS.pumpFunUrl}" target="_blank" class="cyber-btn" style="text-decoration: none;">🌐 View on Pump.fun</a>
+                        <button onclick="this.closest('.modal-overlay').remove()" class="cyber-btn cyber-btn-secondary">Close</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
+
+            showToast(`✅ Claimed ${claimAmount.toFixed(4)} MNDM tokens!`, 5000);
+        }
+
+        function viewTokenomics() {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay active';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 600px;">
+                    <h2 style="color: var(--neon-blue); margin-bottom: 1rem;">💎 MNDM Tokenomics</h2>
+
+                    <div style="margin-bottom: 2rem;">
+                        <h3 style="color: var(--neon-green); margin-bottom: 1rem;">Token Information</h3>
+                        <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span style="color: var(--neon-blue);">Token Name:</span>
+                                <span style="color: var(--neon-pink);">${TOKEN_ECONOMICS.tokenName}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span style="color: var(--neon-blue);">Contract:</span>
+                                <span style="color: var(--neon-green); font-family: monospace; font-size: 0.8em;">${TOKEN_ECONOMICS.tokenAddress}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: var(--neon-blue);">Platform:</span>
+                                <a href="${TOKEN_ECONOMICS.pumpFunUrl}" target="_blank" style="color: var(--neon-pink); text-decoration: none;">Pump.fun</a>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 2rem;">
+                        <h3 style="color: var(--neon-green); margin-bottom: 1rem;">Earning Rates</h3>
+                        <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span style="color: var(--neon-blue);">XP → MNDM:</span>
+                                <span style="color: var(--neon-pink);">1,000 XP = 1 MNDM</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span style="color: var(--neon-blue);">Swag → MNDM:</span>
+                                <span style="color: var(--neon-pink);">2,000 Swag = 1 MNDM</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span style="color: var(--neon-blue);">Level Bonus:</span>
+                                <span style="color: var(--neon-pink);">+10% per level</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: var(--neon-blue);">Daily Limit:</span>
+                                <span style="color: var(--neon-orange);">${TOKEN_ECONOMICS.maxDailyTokens} MNDM/day</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 2rem;">
+                        <h3 style="color: var(--neon-green); margin-bottom: 1rem;">Your Stats</h3>
+                        <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px;">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span style="color: var(--neon-blue);">Total Earned:</span>
+                                <span style="color: var(--neon-green);">${xpLogData.totalTokensEarned.toFixed(4)} MNDM</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
+                                <span style="color: var(--neon-blue);">Claimed:</span>
+                                <span style="color: var(--neon-pink);">${xpLogData.claimedTokens.toFixed(4)} MNDM</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between;">
+                                <span style="color: var(--neon-blue);">Available:</span>
+                                <span style="color: var(--neon-orange);">${(xpLogData.totalTokensEarned - xpLogData.claimedTokens).toFixed(4)} MNDM</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="text-align: center;">
+                        <a href="${TOKEN_ECONOMICS.pumpFunUrl}" target="_blank" class="cyber-btn" style="text-decoration: none; margin-right: 10px;">🌐 Trade on Pump.fun</a>
+                        <button onclick="this.closest('.modal-overlay').remove()" class="cyber-btn cyber-btn-secondary">Close</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(modal);
         }
 
         function getRandomGlyph() {
