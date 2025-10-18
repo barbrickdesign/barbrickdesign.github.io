@@ -93,7 +93,6 @@
             50% { transform: translateY(-20px) rotate(180deg); opacity: 0.3; }
             100% { transform: translateY(0px) rotate(360deg); opacity: 0.1; }
         }
-        }
 
         @keyframes backgroundShift {
             0% { transform: scale(1) rotate(0deg); }
@@ -531,6 +530,15 @@
     <link rel="stylesheet" href="/src/ui/wallet-button.css">
 </head>
 <body class="page-transition">
+    <!-- Floating Glyphs from Mandemos-v2 -->
+    <div class="floating-glyphs">
+        <div class="glyph" style="font-size: 18px;">∆</div>
+        <div class="glyph" style="font-size: 22px;">⧫</div>
+        <div class="glyph" style="font-size: 20px;">⊚</div>
+        <div class="glyph" style="font-size: 16px;">☲</div>
+        <div class="glyph" style="font-size: 19px;">⟟</div>
+    </div>
+
     <!-- Header -->
     <header>
         <h1>GEM BOT UNIVERSE</h1>
@@ -654,6 +662,20 @@
                         Loading wizard status...
                     </div>
                     <button class="cyber-btn" onclick="refreshWizardStatus()">🔄 Refresh Status</button>
+                </div>
+
+                <!-- XP Progression System from Mandemos-v2 -->
+                <div class="wizard-control-card">
+                    <h4>XP Progression</h4>
+                    <div id="xpDisplay" style="font-family: monospace; font-size: 0.8rem; color: var(--neon-blue); background: rgba(0,0,0,0.5); padding: 1rem; border-radius: 8px; border: 1px solid var(--neon-blue);">
+                        <div style="margin-bottom: 0.5rem;">Level: <span id="currentLevel">1</span></div>
+                        <div style="margin-bottom: 0.5rem;">XP: <span id="currentXP">0</span> / <span id="nextLevelXP">1000</span></div>
+                        <div class="xp-bar-container" style="height: 8px; background: #333; border-radius: 4px; overflow: hidden; margin-bottom: 0.5rem;">
+                            <div id="xpBarFill" class="xp-bar-fill" style="height: 100%; background: linear-gradient(90deg, var(--neon-blue), var(--neon-pink)); width: 0%; transition: width 0.5s ease;"></div>
+                        </div>
+                        <div style="font-size: 0.7rem; color: var(--neon-green);">Swag: <span id="currentSwag">0</span></div>
+                    </div>
+                    <button class="cyber-btn" onclick="showXPLog()">📊 View XP Log</button>
                 </div>
             </div>
         </div>
@@ -2831,18 +2853,196 @@
             }
         });
 
-        // Initialize 3D scene on page load
-        window.addEventListener('DOMContentLoaded', function() {
-            console.log('🌍 Initializing Gem Bot Universe...');
-            initScene();
-            checkSystemArchitectStatus();
-            initAgentCoinVault(); // Initialize the agent coin vault widget
+        // XP Progression System from Mandemos-v2
+        let xpLogData = {
+            totalXP: 0,
+            totalSwag: 0,
+            totalMisspoints: 0,
+            level: 1,
+            entries: []
+        };
 
-            // Initialize real-time balance system
-            if (window.realTimeBalanceSystem) {
-                console.log('💰 Initializing real-time balance system...');
-                // Balance display will be handled by the existing agent coin vault
+        function initializeXPData() {
+            const savedXPData = localStorage.getItem('xpLogData');
+            if (savedXPData) {
+                xpLogData = JSON.parse(savedXPData);
             }
+            updateXPBar();
+        }
+
+        function addXP(xpAmount, type = 'system_interaction') {
+            const entry = {
+                id: Date.now(),
+                glyph: getRandomGlyph(),
+                title: getXPTitle(type),
+                description: `Earned ${xpAmount} XP for ${type.replace('_', ' ')}`,
+                xp: xpAmount,
+                swag: Math.floor(xpAmount / 2),
+                mispoints: 0,
+                time: new Date().toLocaleTimeString(),
+                type: 'wins',
+                universe: 'MANDALOS'
+            };
+
+            xpLogData.entries.unshift(entry);
+            xpLogData.totalXP += entry.xp;
+            xpLogData.totalSwag += entry.swag;
+            xpLogData.level = Math.floor(xpLogData.totalXP / 1000) + 1;
+
+            saveXPData();
+            updateXPBar();
+
+            // Show toast notification
+            showToast(`🎉 +${xpAmount} XP earned!`, 3000);
+        }
+
+        function getRandomGlyph() {
+            const glyphs = ['∆', '⧫', '⊚', '☲', '⟟', '◎', '◊', '□', '◇', '◆'];
+            return glyphs[Math.floor(Math.random() * glyphs.length)];
+        }
+
+        function getXPTitle(type) {
+            const titles = {
+                'system_interaction': 'System Interaction',
+                'agent_access': 'Agent Portal Access',
+                'navigation': 'Realm Navigation',
+                'mission_complete': 'Mission Accomplished',
+                'knowledge_gain': 'Knowledge Acquired'
+            };
+            return titles[type] || 'System Activity';
+        }
+
+        function updateXPBar() {
+            const currentLevel = Math.floor(xpLogData.totalXP / 1000) + 1;
+            const currentLevelXP = xpLogData.totalXP % 1000;
+            const nextLevelXP = 1000;
+            const progressPercent = (currentLevelXP / nextLevelXP) * 100;
+
+            document.getElementById('currentLevel').textContent = currentLevel;
+            document.getElementById('currentXP').textContent = currentLevelXP;
+            document.getElementById('nextLevelXP').textContent = nextLevelXP;
+            document.getElementById('currentSwag').textContent = xpLogData.totalSwag;
+            document.getElementById('xpBarFill').style.width = progressPercent + '%';
+        }
+
+        function saveXPData() {
+            localStorage.setItem('xpLogData', JSON.stringify(xpLogData));
+        }
+
+        function showXPLog() {
+            const modal = document.createElement('div');
+            modal.className = 'modal-overlay active';
+            modal.innerHTML = `
+                <div class="modal-content" style="max-width: 800px; max-height: 600px; overflow-y: auto;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h2 style="color: var(--neon-blue);">📊 XP Progression Log</h2>
+                        <span onclick="this.closest('.modal-overlay').remove()" style="cursor: pointer; font-size: 24px; color: var(--neon-blue);">×</span>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
+                        <div style="display: flex; gap: 20px; margin-bottom: 15px;">
+                            <div style="text-align: center;">
+                                <div style="font-size: 2em; color: var(--neon-blue); font-weight: bold;">${xpLogData.level}</div>
+                                <div style="color: var(--neon-green);">Level</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 2em; color: var(--neon-pink); font-weight: bold;">${xpLogData.totalXP}</div>
+                                <div style="color: var(--neon-green);">Total XP</div>
+                            </div>
+                            <div style="text-align: center;">
+                                <div style="font-size: 2em; color: var(--neon-green); font-weight: bold;">${xpLogData.totalSwag}</div>
+                                <div style="color: var(--neon-green);">Swag Points</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 15px;">
+                        <div style="display: flex; gap: 10px;">
+                            <button onclick="filterXPLog('all')" class="cyber-btn cyber-btn-secondary" style="font-size: 0.8em;">All</button>
+                            <button onclick="filterXPLog('wins')" class="cyber-btn cyber-btn-secondary" style="font-size: 0.8em;">Wins</button>
+                            <button onclick="filterXPLog('system')" class="cyber-btn cyber-btn-secondary" style="font-size: 0.8em;">System</button>
+                            <button onclick="filterXPLog('agent')" class="cyber-btn cyber-btn-secondary" style="font-size: 0.8em;">Agent</button>
+                        </div>
+                    </div>
+
+                    <div id="xpLogEntries" style="max-height: 400px; overflow-y: auto;">
+                        ${generateXPLogHTML()}
+                    </div>
+                </div>
+            `;
+
+            document.body.appendChild(modal);
+        }
+
+        function generateXPLogHTML() {
+            return xpLogData.entries.slice(0, 50).map(entry => `
+                <div class="xp-log-entry entry-${entry.type}" style="border-left: 4px solid var(--neon-blue); padding: 12px; margin-bottom: 8px; background: rgba(0,0,0,0.3); border-radius: 4px;">
+                    <div class="entry-header" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <div style="display: flex; align-items: center; gap: 8px;">
+                            <span class="entry-glyph" style="font-size: 1.2em; color: var(--neon-pink);">${entry.glyph}</span>
+                            <span class="entry-title" style="color: var(--neon-blue); font-weight: bold;">${entry.title}</span>
+                        </div>
+                        <span class="entry-universe" style="color: var(--neon-green); font-size: 0.8em;">[${entry.universe}]</span>
+                    </div>
+                    <div class="entry-description" style="color: var(--neon-blue); margin-bottom: 8px;">${entry.description}</div>
+                    <div class="entry-stats" style="display: flex; gap: 15px; font-size: 0.8em;">
+                        ${entry.xp > 0 ? `<span class="entry-stat"><span style="color: var(--neon-blue);">XP:</span> <span style="color: var(--neon-green);">+${entry.xp}</span></span>` : ''}
+                        ${entry.swag > 0 ? `<span class="entry-stat"><span style="color: var(--neon-pink);">SWAG:</span> <span style="color: var(--neon-pink);">+${entry.swag}</span></span>` : ''}
+                        ${entry.misspoints > 0 ? `<span class="entry-stat"><span style="color: var(--neon-orange);">MISS:</span> <span style="color: var(--neon-orange);">+${entry.misspoints}</span></span>` : ''}
+                    </div>
+                    <div class="entry-time" style="color: var(--neon-green); font-size: 0.7em; margin-top: 5px;">${entry.time}</div>
+                </div>
+            `).join('');
+        }
+
+        function filterXPLog(filterType) {
+            const entries = document.querySelectorAll('.xp-log-entry');
+            entries.forEach(entry => {
+                const entryType = Array.from(entry.classList).find(cls => cls.startsWith('entry-')).replace('entry-', '');
+                if (filterType === 'all' ||
+                    (filterType === 'wins' && ['quest', 'relic', 'bond'].includes(entryType)) ||
+                    filterType === entryType) {
+                    entry.style.display = 'block';
+                } else {
+                    entry.style.display = 'none';
+                }
+            });
+        }
+
+        // Toast notification system
+        function showToast(message, duration = 3000) {
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: var(--panel-bg);
+                border: 2px solid var(--neon-blue);
+                border-radius: 8px;
+                padding: 15px 20px;
+                color: var(--neon-blue);
+                font-family: 'Orbitron', sans-serif;
+                font-size: 0.9em;
+                z-index: 10000;
+                animation: slideInRight 0.3s ease-out;
+                box-shadow: 0 4px 15px rgba(0, 255, 255, 0.3);
+            `;
+            toast.textContent = message;
+            document.body.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.animation = 'slideOutRight 0.3s ease-in';
+                setTimeout(() => {
+                    if (toast.parentNode) {
+                        toast.parentNode.removeChild(toast);
+                    }
+                }, 300);
+            }, duration);
+        }
+
+        // Initialize XP system on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeXPData();
         });
     </script>
 
