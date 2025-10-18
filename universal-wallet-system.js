@@ -10,12 +10,20 @@ class UniversalWalletSystem {
         this.currentNetwork = 'solana';
         this.mndmBalance = 0;
         
-        // Initialize Solana connection
+        // Initialize Solana connection with a more permissive RPC endpoint
         if (typeof window !== 'undefined' && window.solanaWeb3) {
-            this.connection = new window.solanaWeb3.Connection(
-                window.solanaWeb3.clusterApiUrl('mainnet-beta'),
-                'confirmed'
-            );
+            // Try multiple RPC endpoints for better reliability
+            const rpcEndpoints = [
+                'https://solana-mainnet.rpc.extrnode.com/',
+                'https://ssc-dao.genesysgo.net/',
+                'https://rpc.ankr.com/solana',
+                'https://solana-api.projectserum.com/',
+                'https://api.mainnet-beta.solana.com/'
+            ];
+            
+            // Use the first available endpoint
+            this.connection = new window.solanaWeb3.Connection(rpcEndpoints[0], 'confirmed');
+            console.log('🔗 Using Solana RPC endpoint:', rpcEndpoints[0]);
         }
         
         console.log('🔗 Universal Wallet System initialized');
