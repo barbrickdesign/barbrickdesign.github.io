@@ -372,46 +372,186 @@
             border-top: 2px solid rgba(0,255,255,0.3);
         }
         
-        /* Mobile Layout Fixes - No Overlapping */
+        /* Compact Wallet Status Toggle */
+        .wallet-status-toggle {
+            position: relative;
+            display: inline-block;
+            cursor: pointer;
+            user-select: none;
+            z-index: 100;
+        }
+
+        .wallet-indicator {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: linear-gradient(135deg, rgba(102,252,241,0.1), rgba(59,228,119,0.1));
+            border: 2px solid rgba(102,252,241,0.3);
+            border-radius: 25px;
+            transition: all 0.3s ease;
+            min-width: 140px;
+            justify-content: center;
+        }
+
+        .wallet-indicator:hover {
+            background: linear-gradient(135deg, rgba(102,252,241,0.2), rgba(59,228,119,0.2));
+            transform: scale(1.02);
+        }
+
+        .wallet-status-icon {
+            font-size: 1.2em;
+            transition: all 0.3s ease;
+        }
+
+        .wallet-status-icon.connected {
+            color: #00ff99;
+            text-shadow: 0 0 10px rgba(0, 255, 153, 0.5);
+        }
+
+        .wallet-status-icon.disconnected {
+            color: #ff6666;
+            text-shadow: 0 0 10px rgba(255, 102, 102, 0.5);
+        }
+
+        .wallet-status-text {
+            color: #66fcf1;
+            font-size: 0.85em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .wallet-panel {
+            position: absolute;
+            top: 100%;
+            right: 0;
+            margin-top: 10px;
+            background: linear-gradient(135deg, rgba(15, 19, 26, 0.95), rgba(25, 30, 40, 0.95));
+            border: 2px solid rgba(102, 252, 241, 0.3);
+            border-radius: 15px;
+            padding: 0;
+            min-width: 300px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px) scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+        }
+
+        .wallet-panel-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(102, 252, 241, 0.2);
+            background: rgba(102, 252, 241, 0.05);
+            border-radius: 12px 12px 0 0;
+        }
+
+        .wallet-panel-header h4 {
+            color: #66fcf1;
+            margin: 0;
+            font-size: 1.1em;
+        }
+
+        .wallet-close-btn {
+            background: none;
+            border: none;
+            color: #66fcf1;
+            font-size: 1.5em;
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+        }
+
+        .wallet-close-btn:hover {
+            background: rgba(102, 252, 241, 0.1);
+        }
+
+        #walletContent {
+            padding: 20px;
+        }
+
+        /* Mobile-specific wallet styles */
         @media (max-width: 768px) {
-            /* Header Layout */
-            header {
-                position: relative;
-                padding: 1.5rem 1rem;
-                margin-bottom: 2rem;
-            }
-
-            h1 {
-                font-size: 2rem;
-                margin-bottom: 0.5rem;
-                line-height: 1.2;
-            }
-
-            .subtitle {
-                font-size: 1rem;
-                margin-bottom: 1.5rem;
-            }
-
-            /* Wallet Button Container - Prevent Overlap */
-            #walletButtonContainer {
-                position: static !important;
+            .wallet-status-toggle {
                 margin-top: 1rem;
+                width: 100%;
                 display: flex;
                 justify-content: center;
-                width: 100%;
             }
 
-            /* Page Timestamp */
-            .page-timestamp {
-                position: absolute;
-                top: 10px;
-                right: 10px;
-                font-size: 0.7em;
-                background: rgba(0,0,0,0.7);
-                padding: 4px 8px;
-                border-radius: 8px;
-                z-index: 10;
+            .wallet-indicator {
+                min-width: 160px;
+                padding: 10px 15px;
             }
+
+            .wallet-panel {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                transform: translate(-50%, -50%);
+                margin: 0;
+                min-width: 90vw;
+                max-width: 400px;
+                animation: modalSlideIn 0.3s ease-out;
+            }
+
+            @keyframes modalSlideIn {
+                from {
+                    opacity: 0;
+                    transform: translate(-50%, -60%) scale(0.9);
+                }
+                to {
+                    opacity: 1;
+                    transform: translate(-50%, -50%) scale(1);
+                }
+            }
+        }
+
+        @media (max-width: 480px) {
+            .wallet-indicator {
+                min-width: 140px;
+                padding: 8px 12px;
+            }
+
+            .wallet-status-text {
+                font-size: 0.8em;
+            }
+
+            .wallet-panel {
+                min-width: 95vw;
+                padding: 0;
+            }
+
+            .wallet-panel-header {
+                padding: 12px 15px;
+            }
+
+            .wallet-panel-header h4 {
+                font-size: 1em;
+            }
+
+            #walletContent {
+                padding: 15px;
+            }
+        }
 
             /* Grid Layout */
             .grid {
@@ -679,8 +819,35 @@
             <h1>BARBRICKDESIGN</h1>
             <p class="subtitle">⚡ ELITE WEB3 HUB ⚡</p>
             
-            <!-- Pump.fun Style Wallet Button -->
-            <div id="walletButtonContainer"></div>
+            <!-- Compact Wallet Status Toggle -->
+            <div id="walletStatusToggle" class="wallet-status-toggle" onclick="toggleWalletPanel()">
+                <div class="wallet-indicator">
+                    <div id="walletStatusIcon" class="wallet-status-icon disconnected">🔴</div>
+                    <span id="walletStatusText" class="wallet-status-text">Not Connected</span>
+                </div>
+                <div id="walletPanel" class="wallet-panel" style="display: none;">
+                    <div class="wallet-panel-header">
+                        <h4>🔗 Phantom Wallet</h4>
+                        <button onclick="toggleWalletPanel()" class="wallet-close-btn">&times;</button>
+                    </div>
+                    <div id="walletContent">
+                        <p style="color: #8addff; margin-bottom: 15px; font-size: 0.9em;">
+                            Connect your Phantom wallet to access MNDM token features and platform integrations.
+                        </p>
+                        <div id="walletButtonContainer"></div>
+                        <div id="walletInfo" style="margin-top: 10px; display: none;">
+                            <div style="background: rgba(0,255,153,0.1); border: 2px solid #00ff99; padding: 10px; border-radius: 8px; margin-top: 10px;">
+                                <div style="color: #00ff99; font-weight: bold; margin-bottom: 5px;">✅ Connected</div>
+                                <div id="walletAddressDisplay" style="font-family: monospace; color: #66fcf1; font-size: 0.8em;"></div>
+                                <div style="margin-top: 8px;">
+                                    <div style="color: #ffd700; font-size: 0.9em;">💎 MNDM Balance:</div>
+                                    <div id="mndmBalanceDisplay" style="color: #00ff99; font-weight: bold;">Loading...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </header>
 
         <h2 class="section-title">🔥 CORE SYSTEMS</h2>
