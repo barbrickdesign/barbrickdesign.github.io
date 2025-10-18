@@ -17,6 +17,8 @@
     <script src="src/ui/wallet-button.js"></script>
     <link rel="stylesheet" href="src/ui/wallet-button.css">
     
+    <!-- Sora2 Video Generation System -->
+    <script src="sora-video-generator.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -228,6 +230,9 @@
             .grid { grid-template-columns: 1fr; }
         }
     </style>
+
+    <!-- Sora2 Video Generation System -->
+    <script src="sora-video-generator.js"></script>
 </head>
 <body>
     <div class="tron-grid"></div>
@@ -314,6 +319,10 @@
         <!-- How-To Videos Section -->
         <div class="content-panel" style="margin-top: 2rem;">
             <h2 style="color: var(--neon-pink); text-align: center;">🎥 HOW-TO VIDEOS & TUTORIALS</h2>
+            <p style="text-align: center; color: #8addff; margin-bottom: 1rem; font-size: 0.9em;">
+                ✨ Powered by Sora2 AI - Contribute your OpenAI API key to generate custom wizard embodiment videos!
+                <button onclick="window.soraVideoGenerator.showApiModal()" style="background: linear-gradient(45deg, #ffd700, #ffaa00); border: none; color: #000; padding: 5px 10px; border-radius: 3px; font-size: 0.8em; cursor: pointer; margin-left: 10px;">🔑 Add API Key</button>
+            </p>
             <div class="video-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1rem; margin-top: 1rem;">
                 <div class="video-card">
                     <h3>🚀 Getting Started with Gem Bot Universe</h3>
@@ -329,6 +338,20 @@
                     <h3>⚔️ Grand Exchange Trading Tutorial</h3>
                     <iframe width="100%" height="200" src="https://www.youtube.com/embed/dQw4w9WgXcQ" frameborder="0" allowfullscreen></iframe>
                     <p>Master the art of Web3 trading with our comprehensive guide.</p>
+                </div>
+                <div class="video-card">
+                    <h3>🧙 The Wizard's Embodiment</h3>
+                    <div style="width: 100%; height: 200px; background: linear-gradient(135deg, rgba(0,20,40,0.8), rgba(0,40,60,0.8)); border: 2px solid rgba(0,255,255,0.3); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #8addff; font-style: italic;">
+                        Generate with Sora2 AI
+                    </div>
+                    <p>A transcendent wizard merges with digital consciousness in the Gem Bot Universe.</p>
+                </div>
+                <div class="video-card">
+                    <h3>💎 Real-Time Balance Mastery</h3>
+                    <div style="width: 100%; height: 200px; background: linear-gradient(135deg, rgba(0,20,40,0.8), rgba(0,40,60,0.8)); border: 2px solid rgba(0,255,255,0.3); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #8addff; font-style: italic;">
+                        Generate with Sora2 AI
+                    </div>
+                    <p>A financial wizard conducts an orchestra of cryptocurrencies with real-time balance tracking.</p>
                 </div>
             </div>
         </div>
