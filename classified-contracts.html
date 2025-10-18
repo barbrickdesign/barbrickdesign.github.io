@@ -942,6 +942,10 @@
         }
 
         async function authenticateWithSAMGov() {
+            // Prevent multiple concurrent auth attempts
+            if (window.authenticatingSAMGov) return;
+            window.authenticatingSAMGov = true;
+            
             const btn = document.getElementById('samgovAuthBtn');
             const status = document.getElementById('samgovAuthStatus');
             
@@ -964,6 +968,8 @@
                 status.textContent = '❌ ' + error.message;
                 status.style.color = '#ff6666';
                 btn.disabled = false;
+            } finally {
+                window.authenticatingSAMGov = false;
             }
         }
     
