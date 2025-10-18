@@ -334,6 +334,57 @@
             </div>
         </div>
 
+        </div>
+
+        <!-- Public Leaderboard Section -->
+        <div class="content-panel" style="margin-top: 2rem;">
+            <h2 style="color: var(--neon-gold); text-align: center;">🏆 PUBLIC LEADERBOARD</h2>
+            <p style="text-align: center; color: #8addff; margin-bottom: 1rem; font-size: 0.9em;">
+                Real-time rankings of all platform users by XP, achievements, and token earnings
+            </p>
+
+            <!-- Leaderboard Filters -->
+            <div class="leaderboard-filters" style="display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
+                <button onclick="setLeaderboardFilter('xp')" id="filterXP" class="cyber-btn cyber-btn-secondary active-filter">🏆 XP Leaders</button>
+                <button onclick="setLeaderboardFilter('tokens')" id="filterTokens" class="cyber-btn cyber-btn-secondary">💎 Token Holders</button>
+                <button onclick="setLeaderboardFilter('level')" id="filterLevel" class="cyber-btn cyber-btn-secondary">⭐ Level Masters</button>
+                <button onclick="setLeaderboardFilter('recent')" id="filterRecent" class="cyber-btn cyber-btn-secondary">🔥 Recent Activity</button>
+            </div>
+
+            <!-- Leaderboard Display -->
+            <div id="leaderboardContainer" style="max-height: 600px; overflow-y: auto; background: rgba(0,0,0,0.3); border-radius: 10px; padding: 20px;">
+                <div id="leaderboardContent" style="display: grid; gap: 15px;">
+                    <!-- Leaderboard entries will be populated here -->
+                    <div style="text-align: center; color: var(--neon-blue); padding: 40px;">
+                        🔄 Loading leaderboard data...
+                    </div>
+                </div>
+            </div>
+
+            <!-- Your Profile Card (if logged in) -->
+            <div id="userProfileCard" style="display: none; margin-top: 20px; background: linear-gradient(135deg, rgba(255,215,0,0.1), rgba(0,255,255,0.1)); border: 2px solid var(--neon-gold); border-radius: 15px; padding: 20px;">
+                <h3 style="color: var(--neon-gold); text-align: center; margin-bottom: 15px;">👤 YOUR PROFILE</h3>
+                <div id="userProfileContent">
+                    <!-- User profile will be populated here -->
+                </div>
+            </div>
+
+            <!-- Phantom Wallet Connection Section -->
+            <div style="margin-top: 20px; text-align: center; background: rgba(0,0,0,0.3); border: 1px solid var(--neon-blue); border-radius: 10px; padding: 15px;">
+                <h4 style="color: var(--neon-blue); margin-bottom: 10px;">🔗 Check Your MNDM Balance</h4>
+                <p style="color: #8addff; font-size: 0.9em; margin-bottom: 15px;">
+                    Connect your Phantom wallet to view your real MNDM token balance from the Mandem.OS token contract.
+                </p>
+                <button class="cyber-btn" onclick="manualPhantomConnect()" id="phantomConnectBtn" style="margin-right: 10px;">
+                    👻 Connect Phantom Wallet
+                </button>
+                <button class="cyber-btn cyber-btn-secondary" onclick="window.open('https://pump.fun/coin/GK24fQQQKNF6JMsCd3rLfSr1n2tvr3bCJ7zAgNqxbA7r', '_blank')" style="font-size: 0.8em;">
+                    🌐 Trade MNDM on Pump.fun
+                </button>
+                <div id="phantomStatus" style="margin-top: 10px; font-size: 0.9em; color: var(--neon-green);"></div>
+            </div>
+        </div>
+
         <!-- How-To Videos & Tutorials Section -->
         <div class="content-panel" style="margin-top: 2rem;">
             <h2 style="color: var(--neon-pink); text-align: center;">🎥 HOW-TO VIDEOS & TUTORIALS</h2>
@@ -422,151 +473,7 @@
                 </div>
             </div>
         </div>
-
-        <!-- Real-Time Balance Display -->
-        <div class="content-panel" style="margin-top: 2rem;">
-            <h2 style="color: var(--neon-green); text-align: center;">💰 REAL-TIME PORTFOLIO BALANCES</h2>
-            <p style="text-align: center; color: #8addff; margin-bottom: 1rem; font-size: 0.9em;">
-                🔄 Connect your wallet to view live balances across Ethereum, Solana, and major tokens
-            </p>
-            <div id="balance-display-container"></div>
-        </div>
-
-        <!-- CDR AI Utilization Status -->
-        <div class="content-panel" style="margin-top: 2rem;">
-            <div id="cdr-ai-status-widget"></div>
-        </div>
-
-        <!-- Marketing Department -->
-        <div class="content-panel" style="margin-top: 2rem;">
-            <h2 style="color: var(--neon-green); text-align: center;">📈 MARKETING DEPARTMENT</h2>
-            <div class="marketing-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; margin-top: 1rem;">
-                <div class="marketing-card">
-                    <h3>📱 Social Media Hub</h3>
-                    <div class="social-links">
-                        <a href="#" onclick="openSocial('twitter')" class="social-btn twitter">🐦 Twitter</a>
-                        <a href="#" onclick="openSocial('discord')" class="social-btn discord">💬 Discord</a>
-                        <a href="#" onclick="openSocial('telegram')" class="social-btn telegram">📢 Telegram</a>
-                        <a href="#" onclick="openSocial('linkedin')" class="social-btn linkedin">💼 LinkedIn</a>
-                    </div>
-                </div>
-                <div class="marketing-card">
-                    <h3>📊 Campaign Dashboard</h3>
-                    <p>Track marketing campaigns and engagement metrics.</p>
-                    <button class="cyber-btn" onclick="viewMarketingDashboard()">View Dashboard</button>
-                </div>
-                <div class="marketing-card">
-                    <h3>🎯 Target Audience Insights</h3>
-                    <p>AI-powered audience analysis and targeting.</p>
-                    <button class="cyber-btn" onclick="analyzeAudience()">Analyze Audience</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Automated Ordering System -->
-        <div class="content-panel" style="margin-top: 2rem;">
-            <h2 style="color: var(--neon-orange); text-align: center;">🛒 AUTOMATED ORDERING SYSTEM</h2>
-            <div class="order-form" style="max-width: 600px; margin: 0 auto;">
-                <div class="form-group" style="margin-bottom: 1rem;">
-                    <label for="productSelect" style="color: var(--neon-blue);">Select Product/Service:</label>
-                    <select id="productSelect" class="cyber-input" style="width: 100%; padding: 10px; background: rgba(20,20,20,0.95); border: 1px solid var(--neon-blue); color: var(--neon-blue); border-radius: 5px;">
-                        <option value="consultation">AI Consultation ($500)</option>
-                        <option value="development">Custom Development ($2000)</option>
-                        <option value="marketing">Marketing Campaign ($1000)</option>
-                        <option value="training">Training Session ($300)</option>
-                    </select>
-                </div>
-                <div class="form-group" style="margin-bottom: 1rem;">
-                    <label for="customerEmail" style="color: var(--neon-blue);">Email:</label>
-                    <input type="email" id="customerEmail" class="cyber-input" placeholder="your@email.com" style="width: 100%; padding: 10px; background: rgba(20,20,20,0.95); border: 1px solid var(--neon-blue); color: var(--neon-blue); border-radius: 5px;">
-                </div>
-                <div class="form-group" style="margin-bottom: 1rem;">
-                    <label for="orderNotes" style="color: var(--neon-blue);">Special Instructions:</label>
-                    <textarea id="orderNotes" class="cyber-input" placeholder="Any specific requirements..." style="width: 100%; padding: 10px; background: rgba(20,20,20,0.95); border: 1px solid var(--neon-blue); color: var(--neon-blue); border-radius: 5px; min-height: 80px;"></textarea>
-                </div>
-                <button class="cyber-btn" onclick="submitOrder()" style="width: 100%;">🚀 Place Order</button>
-            </div>
-        </div>
-
-        <!-- Public Leaderboard Section -->
-        <div class="content-panel" style="margin-top: 2rem;">
-            <h2 style="color: var(--neon-gold); text-align: center;">🏆 PUBLIC LEADERBOARD</h2>
-            <p style="text-align: center; color: #8addff; margin-bottom: 1rem; font-size: 0.9em;">
-                Real-time rankings of all platform users by XP, achievements, and token earnings
-            </p>
-
-            <!-- Leaderboard Filters -->
-            <div class="leaderboard-filters" style="display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; flex-wrap: wrap;">
-                <button onclick="setLeaderboardFilter('xp')" id="filterXP" class="cyber-btn cyber-btn-secondary active-filter">🏆 XP Leaders</button>
-                <button onclick="setLeaderboardFilter('tokens')" id="filterTokens" class="cyber-btn cyber-btn-secondary">💎 Token Holders</button>
-                <button onclick="setLeaderboardFilter('level')" id="filterLevel" class="cyber-btn cyber-btn-secondary">⭐ Level Masters</button>
-                <button onclick="setLeaderboardFilter('recent')" id="filterRecent" class="cyber-btn cyber-btn-secondary">🔥 Recent Activity</button>
-            </div>
-
-            <!-- Leaderboard Display -->
-            <div id="leaderboardContainer" style="max-height: 600px; overflow-y: auto; background: rgba(0,0,0,0.3); border-radius: 10px; padding: 20px;">
-                <div id="leaderboardContent" style="display: grid; gap: 15px;">
-                    <!-- Leaderboard entries will be populated here -->
-                    <div style="text-align: center; color: var(--neon-blue); padding: 40px;">
-                        🔄 Loading leaderboard data...
-                    </div>
-                </div>
-            </div>
-
-            <!-- Your Profile Card (if logged in) -->
-            <div id="userProfileCard" style="display: none; margin-top: 20px; background: linear-gradient(135deg, rgba(255,215,0,0.1), rgba(0,255,255,0.1)); border: 2px solid var(--neon-gold); border-radius: 15px; padding: 20px;">
-                <h3 style="color: var(--neon-gold); text-align: center; margin-bottom: 15px;">👤 YOUR PROFILE</h3>
-                <div id="userProfileContent">
-                    <!-- User profile will be populated here -->
-                </div>
-            </div>
-
-            <!-- Phantom Wallet Connection Section -->
-            <div style="margin-top: 20px; text-align: center; background: rgba(0,0,0,0.3); border: 1px solid var(--neon-blue); border-radius: 10px; padding: 15px;">
-                <h4 style="color: var(--neon-blue); margin-bottom: 10px;">🔗 Check Your MNDM Balance</h4>
-                <p style="color: #8addff; font-size: 0.9em; margin-bottom: 15px;">
-                    Connect your Phantom wallet to view your real MNDM token balance from the Mandem.OS token contract.
-                </p>
-                <button class="cyber-btn" onclick="manualPhantomConnect()" id="phantomConnectBtn" style="margin-right: 10px;">
-                    👻 Connect Phantom Wallet
-                </button>
-                <button class="cyber-btn cyber-btn-secondary" onclick="window.open('https://pump.fun/coin/GK24fQQQKNF6JMsCd3rLfSr1n2tvr3bCJ7zAgNqxbA7r', '_blank')" style="font-size: 0.8em;">
-                    🌐 Trade MNDM on Pump.fun
-                </button>
-                <div id="phantomStatus" style="margin-top: 10px; font-size: 0.9em; color: var(--neon-green);"></div>
-            </div>
-        </div>
             <div class="nav-links-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; margin-top: 1rem;">
-                <a href="mandem.os/workspace/index.html" class="nav-link-card">
-                    <h3>🌍 Gem Bot Universe</h3>
-                    <p>3D AI Hub</p>
-                </a>
-                <a href="ember-terminal/index.html" class="nav-link-card">
-                    <h3>🔥 Mandem.OS V3</h3>
-                    <p>Advanced Interface</p>
-                </a>
-                <a href="grand-exchange.html" class="nav-link-card">
-                    <h3>⚔️ Grand Exchange</h3>
-                    <p>Trading Platform</p>
-                </a>
-                <a href="classified-contracts.html" class="nav-link-card">
-                    <h3>🔒 Gov Contracts</h3>
-                    <p>Secure Access</p>
-                </a>
-                <a href="crypto-recovery-universal.html" class="nav-link-card">
-                    <h3>💰 Crypto Recovery</h3>
-                    <p>Multi-Chain Tools</p>
-                </a>
-                <a href="universal-dev-tracker.html" class="nav-link-card">
-                    <h3>🚀 Dev Tracker</h3>
-                    <p>Compensation Tool</p>
-                </a>
-                <a href="gov-transparency-hub.html" class="nav-link-card">
-                    <h3>🏛️ Transparency</h3>
-                    <p>Government Hub</p>
-                </a>
-            </div>
-        </div>
 
         <!-- Clean Footer with MNDM Token Integration -->
         <footer style="margin-top: 3rem; background: linear-gradient(135deg, rgba(0,0,0,0.9), rgba(20,20,20,0.9)); border: 2px solid var(--neon-gold); border-radius: 15px; padding: 2rem; margin-bottom: 2rem;">
