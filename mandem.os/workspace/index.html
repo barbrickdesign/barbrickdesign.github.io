@@ -3388,8 +3388,57 @@
                 if (window.universalWalletAuth && window.universalWalletAuth.isAuthenticated()) {
                     const walletAddress = window.universalWalletAuth.getAddress();
 
-                    // Try to get real MNDM balance from real-time balance system
-                    if (window.realTimeBalanceSystem) {
+                    // Try multiple RPC endpoints for better reliability
+                    const rpcEndpoints = [
+                        'https://solana-mainnet.rpc.extrnode.com/',
+                        'https://ssc-dao.genesysgo.net/',
+                        'https://rpc.ankr.com/solana',
+                        'https://solana-api.projectserum.com/',
+                        'https://api.mainnet-beta.solana.com/'
+                    ];
+
+                    for (let i = 0; i < rpcEndpoints.length; i++) {
+                        try {
+                            const endpoint = rpcEndpoints[i];
+                            const tempConnection = new window.solanaWeb3.Connection(endpoint, 'confirmed');
+
+                            const publicKey = new window.solanaWeb3.PublicKey(walletAddress);
+                            const mndmMint = new window.solanaWeb3.PublicKey('GK24fQQQKNF6JMsCd3rLfSr1n2tvr3bCJ7zAgNqxbA7r');
+
+                            // Get associated token account
+                            const ata = await window.solanaWeb3.Token.getAssociatedTokenAddress(
+                                window.solanaWeb3.ASSOCIATED_TOKEN_PROGRAM_ID,
+                                window.solanaWeb3.TOKEN_PROGRAM_ID,
+                                mndmMint,
+                                publicKey
+                            );
+
+                            // Get account info
+                            const accountInfo = await tempConnection.getAccountInfo(ata);
+                            if (!accountInfo) continue; // Try next endpoint
+
+                            // Parse token account data
+                            const tokenAccount = window.solanaWeb3.TokenAccountLayout.decode(accountInfo.data);
+                            const tokenBalance = Number(tokenAccount.amount) / Math.pow(10, 6); // MNDM has 6 decimals
+
+                            if (tokenBalance > 0) {
+                                balance = tokenBalance.toFixed(4);
+                                console.log(`💎 MNDM Balance loaded using ${endpoint}: ${balance}`);
+                                break; // Found balance, stop trying other endpoints
+                            }
+
+                        } catch (error) {
+                            console.log(`❌ RPC endpoint ${rpcEndpoints[i]} failed:`, error.message);
+                            if (i === rpcEndpoints.length - 1) {
+                                // All endpoints failed, try fallback methods
+                                console.log('🔄 All RPC endpoints failed, trying fallback methods...');
+                            }
+                            continue;
+                        }
+                    }
+
+                    // Fallback to real-time balance system if RPC failed
+                    if (balance === '0.0000' && window.realTimeBalanceSystem) {
                         const balances = await window.realTimeBalanceSystem.getBalances(walletAddress);
                         if (balances && balances.tokens) {
                             const mndmToken = balances.tokens.find(token => token.symbol === 'MNDM');
@@ -3399,7 +3448,7 @@
                         }
                     }
 
-                    // Fallback to mock balance if real balance not available
+                    // Final fallback to mock balance
                     if (balance === '0.0000' && window.PumpfunTokenConfig) {
                         const mockBalance = await window.PumpfunTokenConfig.prototype.getTokenBalance(walletAddress);
                         if (mockBalance > 0) {
