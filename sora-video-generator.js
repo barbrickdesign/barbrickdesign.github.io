@@ -7,6 +7,73 @@
 // Prevent redeclaration
 if (typeof SoraVideoGenerator === 'undefined') {
 
+// Community API Key Pool for shared usage
+class CommunityAPIPool {
+    constructor() {
+        this.pool = JSON.parse(localStorage.getItem('community-api-pool') || '[]');
+        this.maxUsagePerKey = 50; // Max video generations per key per day
+        this.cooldownPeriod = 24 * 60 * 60 * 1000; // 24 hours
+    }
+
+    addKey(apiKey, contributor) {
+        if (this.pool.find(k => k.key === apiKey)) return false;
+
+        const keyEntry = {
+            key: apiKey,
+            contributor: contributor,
+            added: new Date().toISOString(),
+            usageCount: 0,
+            lastUsed: null,
+            isActive: true
+        };
+
+        this.pool.push(keyEntry);
+        this.savePool();
+        return true;
+    }
+
+    getAvailableKey() {
+        const now = new Date();
+
+        for (const keyEntry of this.pool) {
+            if (!keyEntry.isActive) continue;
+
+            if (keyEntry.lastUsed) {
+                const lastUsed = new Date(keyEntry.lastUsed);
+                if (now - lastUsed > this.cooldownPeriod) {
+                    keyEntry.usageCount = 0;
+                }
+            }
+
+            if (keyEntry.usageCount < this.maxUsagePerKey) {
+                keyEntry.usageCount++;
+                keyEntry.lastUsed = now.toISOString();
+                this.savePool();
+                return keyEntry.key;
+            }
+        }
+
+        return null;
+    }
+
+    getStats() {
+        const activeKeys = this.pool.filter(k => k.isActive).length;
+        const totalUsage = this.pool.reduce((sum, k) => sum + k.usageCount, 0);
+        const contributors = new Set(this.pool.map(k => k.contributor)).size;
+
+        return {
+            totalKeys: this.pool.length,
+            activeKeys: activeKeys,
+            totalUsage: totalUsage,
+            contributors: contributors
+        };
+    }
+
+    savePool() {
+        localStorage.setItem('community-api-pool', JSON.stringify(this.pool));
+    }
+}
+
 class SoraVideoGenerator {
     constructor() {
         this.apiKey = null;
@@ -16,19 +83,7 @@ class SoraVideoGenerator {
         this.wizardPrompts = this.getWizardPrompts();
         this.freeAlternatives = this.getFreeAlternatives();
         this.communityPool = new CommunityAPIPool();
-    }
-
-    /**
-     * Get free video generation alternatives
-     */
-    getFreeAlternatives() {
-        return {
-            mockDemo: {
-                name: "Demo Preview",
-                description: "Free demo videos with placeholder content",
-                cost: 0,
-                quality: "preview",
-                supported: true
+        this.selectedFreeOption = null;
     }
 
     getFreeAlternatives() {
@@ -531,38 +586,51 @@ class SoraVideoGenerator {
         console.log('🤝 Community Pool Stats:', stats);
     }
 
+    getCurrentAddress() {
+        if (window.universalWalletAuth && window.universalWalletAuth.getAddress) {
+            return window.universalWalletAuth.getAddress();
         }
-
-        hideLoading() {
-            const loading = document.getElementById('sora-loading');
-            if (loading) loading.remove();
+        if (window.sharedWalletSystem && window.sharedWalletSystem.address) {
+            return window.sharedWalletSystem.address;
         }
-
-        updatePoolStats() {
-            const stats = this.communityPool.getStats();
-            console.log('🤝 Community Pool Stats:', stats);
-        }
-
-        getCurrentAddress() {
-            if (window.universalWalletAuth && window.universalWalletAuth.getAddress) {
-                return window.universalWalletAuth.getAddress();
-            }
-            if (window.sharedWalletSystem && window.sharedWalletSystem.address) {
-                return window.sharedWalletSystem.address;
-            }
-            return null;
-        }
+        return null;
     }
 
-    // Global instance
-    window.soraVideoGenerator = new SoraVideoGenerator();
+    async generateVideoForCard(title) {
+        // Check CDR access first
+        if (window.cdrAIUtilization) {
+            const address = this.getCurrentAddress();
+            const canAccess = await window.cdrAIUtilization.canAccessFeature(address, 'video-gen');
+            if (!canAccess) {
+                const accessLevel = await window.cdrAIUtilization.getUserAccessLevel(address);
+                const minLevel = accessLevel ? 'Platinum' : 'Gold';
+                alert(`🎬 Sora AI Video Generation requires CDR tokens!\n\nCurrent Access: ${accessLevel ? accessLevel.level : 'None'}\nRequired: ${minLevel} (${minLevel === 'Gold' ? '10,000+' : '50,000+'} CDR)\n\nUpgrade your CDR holdings to unlock AI video generation.`);
+                return;
+            }
 
-    // Initialize when DOM is ready
-    document.addEventListener('DOMContentLoaded', () => {
-        if (window.soraVideoGenerator) {
-            window.soraVideoGenerator.init();
+            // Use AI credits for video generation
+            try {
+                await window.cdrAIUtilization.useCredits(address, 500); // Video generation costs 500 credits
+            } catch (error) {
+                alert(`❌ ${error.message}`);
+                return;
+            }
         }
-    });
 
-    console.log('🎬 Sora Video Generator loaded - FREE alternatives and community pool enabled');
+        this.showApiModal();
+    }
 }
+
+} // End of redeclaration prevention
+
+// Global instance
+window.soraVideoGenerator = new SoraVideoGenerator();
+
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+    if (window.soraVideoGenerator) {
+        window.soraVideoGenerator.init();
+    }
+});
+
+console.log('🎬 Sora Video Generator loaded - FREE alternatives and community pool enabled');
