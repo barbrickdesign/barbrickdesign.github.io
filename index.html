@@ -1248,6 +1248,9 @@
             // Update page timestamp on load
             updatePageTimestamp();
             
+            // Initialize wallet status indicator as disconnected
+            updateWalletStatusIndicator(false);
+            
             // Initialize leaderboard after a short delay
             setTimeout(() => {
                 if (typeof initializeLeaderboard === 'function') {
