@@ -508,46 +508,70 @@
             }
         }
 
-        // Load MNDM balance
+        // Load MNDM balance with improved error handling and no flicker
+        let balanceLoading = false;
         async function loadMNDMBalance(walletAddress) {
+            if (balanceLoading) return; // Prevent concurrent requests
+            balanceLoading = true;
+            
             try {
+                // Show loading state
+                document.getElementById('mndmBalance').textContent = 'Loading...';
+                document.getElementById('mndmBalance').style.color = '#ffff00';
+                
                 let balance = '0.0000';
                 
-                // Try to get real MNDM balance
-                if (window.realTimeBalanceSystem) {
-                    const balances = await window.realTimeBalanceSystem.getBalances(walletAddress);
-                    if (balances && balances.tokens) {
-                        const mndmToken = balances.tokens.find(token => token.symbol === 'MNDM');
-                        if (mndmToken && mndmToken.balance > 0) {
-                            balance = mndmToken.formatted;
-                            mndmBalance = mndmToken.balance;
+                // Try to get real MNDM balance with timeout
+                const balancePromise = (async () => {
+                    // Try real-time balance system first
+                    if (window.realTimeBalanceSystem) {
+                        const balances = await window.realTimeBalanceSystem.getBalances(walletAddress);
+                        if (balances && balances.tokens) {
+                            const mndmToken = balances.tokens.find(token => token.symbol === 'MNDM');
+                            if (mndmToken && mndmToken.balance > 0) {
+                                return mndmToken.formatted;
+                            }
                         }
                     }
-                }
-                
-                // Fallback to universal wallet system
-                if (balance === '0.0000' && window.universalWalletSystem) {
-                    const mndmBal = await window.universalWalletSystem.loadMNDMBalance(walletAddress);
-                    if (mndmBal > 0) {
-                        balance = mndmBal.toFixed(4);
-                        mndmBalance = mndmBal;
+                    
+                    // Fallback to universal wallet system
+                    if (window.universalWalletSystem) {
+                        const mndmBal = await window.universalWalletSystem.loadMNDMBalance(walletAddress);
+                        if (mndmBal > 0) {
+                            return mndmBal.toFixed(4);
+                        }
                     }
-                }
-                
-                // Fallback to mock balance
-                if (balance === '0.0000' && window.PumpfunTokenConfig) {
-                    const mockBalance = await window.PumpfunTokenConfig.prototype.getTokenBalance(walletAddress);
-                    if (mockBalance > 0) {
-                        balance = mockBalance.toFixed(4);
-                        mndmBalance = mockBalance;
+                    
+                    // Fallback to mock balance
+                    if (window.PumpfunTokenConfig) {
+                        const mockBalance = await window.PumpfunTokenConfig.prototype.getTokenBalance(walletAddress);
+                        if (mockBalance > 0) {
+                            return mockBalance.toFixed(4);
+                        }
                     }
-                }
+                    
+                    return '0.0000';
+                })();
                 
+                // Add timeout to prevent hanging
+                const timeoutPromise = new Promise((_, reject) => {
+                    setTimeout(() => reject(new Error('Balance loading timeout')), 10000);
+                });
+                
+                balance = await Promise.race([balancePromise, timeoutPromise]);
+                
+                // Update balance display
                 document.getElementById('mndmBalance').textContent = `${balance} MNDM`;
+                document.getElementById('mndmBalance').style.color = '#00ff99';
+                mndmBalance = parseFloat(balance) || 0;
                 
             } catch (error) {
                 console.error('Error loading MNDM balance:', error);
-                document.getElementById('mndmBalance').textContent = 'Error loading';
+                document.getElementById('mndmBalance').textContent = '0.0000 MNDM';
+                document.getElementById('mndmBalance').style.color = '#a8b3c7';
+                mndmBalance = 0;
+            } finally {
+                balanceLoading = false;
             }
         }
 
