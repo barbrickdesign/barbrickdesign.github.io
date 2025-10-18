@@ -39,8 +39,15 @@ class RealTimeBalanceSystem {
         // RPC endpoints (fallback to public ones)
         this.rpcEndpoints = {
             ethereum: 'https://eth-mainnet.g.alchemy.com/v2/demo', // Replace with real endpoint
-            solana: 'https://api.mainnet-beta.solana.com'
+            solana: [
+                'https://api.mainnet-beta.solana.com',
+                'https://solana-api.projectserum.com',
+                'https://rpc.ankr.com/solana',
+                'https://solana-mainnet.g.alchemy.com/v2/demo', // Demo endpoint
+                'https://ssc-dao.genesysgo.net'
+            ]
         };
+        this.currentRpcIndex = 0;
 
         this.init();
     }
