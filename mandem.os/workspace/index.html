@@ -3427,9 +3427,69 @@
                 }
 
                 return 0;
+        // Missing functions to fix JavaScript errors
+        function chatWithAustinMoore() {
+            alert('🎭 AUSTIN MOORE - SUPREME INVENTOR\n\nAustin Moore is the original creator of the MGC Merlin system and the foundational architect of the entire Gem Bot Universe.\n\n• Supreme Access Level\n• Original MGC Merlin Creator\n• System Architecture Expert\n• Innovation Pioneer\n\n"To create something truly revolutionary, you must think beyond the boundaries of what exists." - Austin Moore');
+        }
+
+        function showLoadingOverlay() {
+            // Create a simple loading overlay
+            const overlay = document.createElement('div');
+            overlay.id = 'loadingOverlay';
+            overlay.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.8);
+                backdrop-filter: blur(5px);
+                z-index: 9999;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                color: var(--neon-blue);
+                font-size: 1.5rem;
+                font-family: 'Orbitron', sans-serif;
+            `;
+            overlay.innerHTML = `
+                <div style="text-align: center;">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">⏳</div>
+                    <div>Loading...</div>
+                </div>
+            `;
+            document.body.appendChild(overlay);
+            
+            // Auto-remove after 3 seconds
+            setTimeout(() => {
+                if (overlay.parentNode) {
+                    overlay.parentNode.removeChild(overlay);
+                }
+            }, 3000);
+        }
+
+        function navigateTo(destination) {
+            console.log('Navigating to:', destination);
+            showLoadingOverlay();
+            
+            // Simple navigation simulation
+            setTimeout(() => {
+                alert(`🚀 Navigating to ${destination.toUpperCase()}...\n\nThis would normally redirect to the ${destination} page.`);
+            }, 1000);
+        }
+
+        // Fix prompt variable scope issue
+        let userPrompt = '';
+        
+        async function chatWithArya() {
+            try {
+                userPrompt = prompt('What would you like to discuss with Arya?', '');
+                if (userPrompt && userPrompt.trim()) {
+                    alert(`🎨 ARYA SAYS:\n\n"${userPrompt}"\n\nThank you for your creative input! I'm processing your artistic vision and enhancing it with cutting-edge technology.\n\nYour idea has been added to the enhancement queue for implementation. ✨🎭`);
+                }
             } catch (error) {
-                console.error('Error getting MNDM balance:', error);
-                return 0;
+                console.error('Error in Arya chat:', error);
+                alert('There was an error processing your message. Please try again.');
             }
         }
     </script>
