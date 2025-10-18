@@ -6,7 +6,8 @@
     <title>BARBRICKDESIGN - Elite Web3 Hub</title>
     
     <!-- Core Authentication System -->
-    <script src="src/core/universal-wallet-auth.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@solana/web3.js@1.95.8/lib/index.iife.min.js"></script>
+    <script src="js/universal-wallet-system.js"></script>
     <script src="src/core/auth-integration.js"></script>
 
     <!-- Shared Systems -->
@@ -371,17 +372,13 @@
 
             <!-- Phantom Wallet Connection Section -->
             <div style="margin-top: 20px; text-align: center; background: rgba(0,0,0,0.3); border: 1px solid var(--neon-blue); border-radius: 10px; padding: 15px;">
-                <h4 style="color: var(--neon-blue); margin-bottom: 10px;">🔗 Check Your MNDM Balance</h4>
+                <h4 style="color: var(--neon-blue); margin-bottom: 10px;">🔗 MNDM Token Integration</h4>
                 <p style="color: #8addff; font-size: 0.9em; margin-bottom: 15px;">
-                    Connect your Phantom wallet to view your real MNDM token balance from the Mandem.OS token contract.
+                    Connect your Phantom wallet using the widget in the top-right corner to view your real MNDM token balance.
                 </p>
-                <button class="cyber-btn" onclick="manualPhantomConnect()" id="phantomConnectBtn" style="margin-right: 10px;">
-                    👻 Connect Phantom Wallet
-                </button>
-                <button class="cyber-btn cyber-btn-secondary" onclick="window.open('https://pump.fun/coin/GK24fQQQKNF6JMsCd3rLfSr1n2tvr3bCJ7zAgNqxbA7r', '_blank')" style="font-size: 0.8em;">
+                <button onclick="window.open('https://pump.fun/coin/GK24fQQQKNF6JMsCd3rLfSr1n2tvr3bCJ7zAgNqxbA7r', '_blank')" class="cyber-btn cyber-btn-secondary" style="font-size: 0.8em;">
                     🌐 Trade MNDM on Pump.fun
                 </button>
-                <div id="phantomStatus" style="margin-top: 10px; font-size: 0.9em; color: var(--neon-green);"></div>
             </div>
         </div>
 
@@ -549,6 +546,19 @@
                 }
             }, 1000);
 
+            // Initialize universal wallet system
+            if (window.UniversalWalletSystem) {
+                window.universalWallet = new window.UniversalWalletSystem({
+                    autoConnect: true,
+                    showUI: true,
+                    enableMNDM: true,
+                    onConnect: (walletInfo) => {
+                        console.log('🔗 Hub wallet connected:', walletInfo);
+                        updateMNDMBalanceDisplay(walletInfo.mndmBalance);
+                    }
+                });
+            }
+
             console.log('🏠 BARBRICKDESIGN Hub loaded successfully');
         });
 
@@ -561,135 +571,19 @@
             alert('💎 MNDM Token Information\n\nToken: MNDM\nContract: GK24fQQQKNF6JMsCd3rLfSr1n2tvr3bCJ7zAgNqxbA7r\nPlatform: Pump.fun\n\nVisit: https://pump.fun/coin/GK24fQQQKNF6JMsCd3rLfSr1n2tvr3bCJ7zAgNqxbA7r');
         }
 
-        // Essential Phantom Wallet Connection for Hub Page
-        let phantomWallet = null;
-        let mndmTokenBalance = 0;
-        const MNDM_TOKEN_ADDRESS = 'GK24fQQQKNF6JMsCd3rLfSr1n2tvr3bCJ7zAgNqxbA7r';
-
-        async function manualPhantomConnect() {
-            const connectBtn = document.getElementById('phantomConnectBtn');
-            const statusDiv = document.getElementById('phantomStatus');
-
-            if (!window.solana || !window.solana.isPhantom) {
-                statusDiv.innerHTML = '❌ Phantom wallet not detected. Please install Phantom wallet.';
-                statusDiv.style.color = 'var(--neon-orange)';
-                return;
-            }
-
-            try {
-                connectBtn.disabled = true;
-                connectBtn.innerHTML = '⏳ Connecting...';
-                statusDiv.innerHTML = '🔄 Connecting to Phantom wallet...';
-                statusDiv.style.color = 'var(--neon-blue)';
-
-                // Try to connect to Phantom
-                let walletAddress;
-                try {
-                    const response = await window.solana.connect({ onlyIfTrusted: true });
-                    walletAddress = response.publicKey.toString();
-                } catch (error) {
-                    // If not previously connected, request connection
-                    const response = await window.solana.connect();
-                    walletAddress = response.publicKey.toString();
+        // Update MNDM balance display for hub page
+        function updateMNDMBalanceDisplay(balance) {
+            // Update leaderboard entries if user is in top rankings
+            const leaderboardEntries = document.querySelectorAll('.leaderboard-entry');
+            leaderboardEntries.forEach(entry => {
+                const username = entry.querySelector('.username');
+                if (username && username.textContent === 'You') { // User's own entry
+                    const tokenStat = entry.querySelector('.user-stats span:nth-child(3)');
+                    if (tokenStat) {
+                        tokenStat.innerHTML = `💎 ${balance.toFixed(2)} MNDM`;
+                    }
                 }
-
-                phantomWallet = walletAddress;
-
-                // Query MNDM token balance
-                const balance = await getMNDMTokenBalance(walletAddress);
-
-                if (balance > 0) {
-                    connectBtn.innerHTML = `✅ ${balance.toFixed(4)} MNDM`;
-                    connectBtn.style.background = 'linear-gradient(135deg, var(--neon-green), #00aa00)';
-                    statusDiv.innerHTML = `🎉 Connected! You hold ${balance.toFixed(4)} MNDM tokens`;
-                    statusDiv.style.color = 'var(--neon-green)';
-                } else {
-                    connectBtn.innerHTML = '🔗 Connected (0 MNDM)';
-                    connectBtn.style.background = 'linear-gradient(135deg, var(--neon-blue), #0066aa)';
-                    statusDiv.innerHTML = '✅ Connected! No MNDM tokens found in your wallet';
-                    statusDiv.style.color = 'var(--neon-blue)';
-                }
-
-                // Show wallet status indicator
-                showWalletStatus(balance > 0);
-
-            } catch (error) {
-                console.error('Phantom connection failed:', error);
-                connectBtn.innerHTML = '❌ Connection Failed';
-                connectBtn.style.background = 'linear-gradient(135deg, var(--neon-orange), #cc6600)';
-                statusDiv.innerHTML = '❌ Failed to connect. Please try again.';
-                statusDiv.style.color = 'var(--neon-orange)';
-
-                setTimeout(() => {
-                    connectBtn.disabled = false;
-                    connectBtn.innerHTML = '👻 Connect Phantom Wallet';
-                    connectBtn.style.background = '';
-                }, 5000);
-            }
-        }
-
-        async function getMNDMTokenBalance(walletAddress) {
-            try {
-                const connection = new solanaWeb3.Connection(solanaWeb3.clusterApiUrl('mainnet-beta'));
-
-                const tokenAccounts = await connection.getTokenAccountsByOwner(
-                    new solanaWeb3.PublicKey(walletAddress),
-                    { mint: new solanaWeb3.PublicKey(MNDM_TOKEN_ADDRESS) }
-                );
-
-                if (tokenAccounts.value.length === 0) return 0;
-
-                let totalBalance = 0;
-                for (const tokenAccount of tokenAccounts.value) {
-                    const tokenAccountInfo = await connection.getTokenAccountBalance(tokenAccount.pubkey);
-                    totalBalance += parseFloat(tokenAccountInfo.value.uiAmountString || '0');
-                }
-
-                return totalBalance;
-            } catch (error) {
-                console.error('Error fetching MNDM balance:', error);
-                return 0;
-            }
-        }
-
-        function showWalletStatus(hasTokens) {
-            // Remove existing indicator
-            const existing = document.getElementById('walletStatusIndicator');
-            if (existing) existing.remove();
-
-            const statusIndicator = document.createElement('div');
-            statusIndicator.id = 'walletStatusIndicator';
-            statusIndicator.style.cssText = `
-                position: fixed;
-                top: 20px;
-                right: 20px;
-                background: ${hasTokens ? 'var(--neon-green)' : 'var(--neon-blue)'};
-                color: #000;
-                padding: 8px 12px;
-                border-radius: 20px;
-                font-size: 0.8em;
-                font-weight: bold;
-                z-index: 1000;
-                box-shadow: 0 2px 10px rgba(0,0,0,0.3);
-                cursor: pointer;
-            `;
-
-            statusIndicator.innerHTML = hasTokens ?
-                `🔗 Phantom: ${mndmTokenBalance.toFixed(2)} MNDM` :
-                `🔗 Phantom Connected`;
-
-            statusIndicator.onclick = () => {
-                window.open(`https://pump.fun/coin/${MNDM_TOKEN_ADDRESS}`, '_blank');
-            };
-
-            document.body.appendChild(statusIndicator);
-
-            setTimeout(() => {
-                if (statusIndicator.parentNode) {
-                    statusIndicator.style.opacity = '0';
-                    setTimeout(() => statusIndicator.remove(), 500);
-                }
-            }, 10000);
+            });
         }
     </script>
 
