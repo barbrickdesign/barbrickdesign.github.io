@@ -2934,14 +2934,14 @@
             entries: []
         };
 
-        // MNDM Token Economics
+        // MNDM Token Economics - Updated for balance
         const TOKEN_ECONOMICS = {
             tokenAddress: 'GK24fQQQKNF6JMsCd3rLfSr1n2tvr3bCJ7zAgNqxbA7r',
             tokenName: 'MNDM',
-            xpToTokenRatio: 1000, // 1000 XP = 1 MNDM token
-            swagToTokenRatio: 2000, // 2000 Swag = 1 MNDM token
-            levelBonusMultiplier: 1.1, // 10% bonus per level
-            maxDailyTokens: 10, // Max tokens earnable per day
+            xpToTokenRatio: 100, // 100 XP = 1 MNDM token (easier to earn)
+            swagToTokenRatio: 50, // 50 Swag = 1 MNDM token (premium currency)
+            levelBonusMultiplier: 1.05, // 5% bonus per level (reduced from 10%)
+            maxDailyTokens: 50, // Max tokens earnable per day (increased from 10)
             pumpFunUrl: 'https://pump.fun/coin/GK24fQQQKNF6JMsCd3rLfSr1n2tvr3bCJ7zAgNqxbA7r'
         };
 
@@ -3102,15 +3102,15 @@
                         <div style="background: rgba(0,0,0,0.3); padding: 1rem; border-radius: 8px;">
                             <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
                                 <span style="color: var(--neon-blue);">XP → MNDM:</span>
-                                <span style="color: var(--neon-pink);">1,000 XP = 1 MNDM</span>
+                                <span style="color: var(--neon-pink);">100 XP = 1 MNDM</span>
                             </div>
                             <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
                                 <span style="color: var(--neon-blue);">Swag → MNDM:</span>
-                                <span style="color: var(--neon-pink);">2,000 Swag = 1 MNDM</span>
+                                <span style="color: var(--neon-pink);">50 Swag = 1 MNDM</span>
                             </div>
                             <div style="display: flex; justify-content: space-between; margin-bottom: 0.5rem;">
                                 <span style="color: var(--neon-blue);">Level Bonus:</span>
-                                <span style="color: var(--neon-pink);">+10% per level</span>
+                                <span style="color: var(--neon-pink);">+5% per level</span>
                             </div>
                             <div style="display: flex; justify-content: space-between;">
                                 <span style="color: var(--neon-blue);">Daily Limit:</span>
