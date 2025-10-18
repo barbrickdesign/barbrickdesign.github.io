@@ -75,38 +75,57 @@ class UniversalWalletSystem {
     }
 
     /**
-     * Load MNDM balance from Solana
+     * Load MNDM balance from Solana with fallback endpoints
      */
     async loadMNDMBalance(walletAddress) {
         if (!walletAddress) return 0;
 
-        try {
-            const publicKey = new window.solanaWeb3.PublicKey(walletAddress);
-            const mndmMint = new window.solanaWeb3.PublicKey('GK24fQQQKNF6JMsCd3rLfSr1n2tvr3bCJ7zAgNqxbA7r');
+        const rpcEndpoints = [
+            'https://solana-mainnet.rpc.extrnode.com/',
+            'https://ssc-dao.genesysgo.net/',
+            'https://rpc.ankr.com/solana',
+            'https://solana-api.projectserum.com/',
+            'https://api.mainnet-beta.solana.com/'
+        ];
 
-            // Get associated token account
-            const ata = await window.solanaWeb3.Token.getAssociatedTokenAddress(
-                window.solanaWeb3.ASSOCIATED_TOKEN_PROGRAM_ID,
-                window.solanaWeb3.TOKEN_PROGRAM_ID,
-                mndmMint,
-                publicKey
-            );
+        for (let i = 0; i < rpcEndpoints.length; i++) {
+            try {
+                const endpoint = rpcEndpoints[i];
+                const tempConnection = new window.solanaWeb3.Connection(endpoint, 'confirmed');
+                
+                const publicKey = new window.solanaWeb3.PublicKey(walletAddress);
+                const mndmMint = new window.solanaWeb3.PublicKey('GK24fQQQKNF6JMsCd3rLfSr1n2tvr3bCJ7zAgNqxbA7r');
 
-            // Get account info
-            const accountInfo = await this.connection.getAccountInfo(ata);
-            if (!accountInfo) return 0;
+                // Get associated token account
+                const ata = await window.solanaWeb3.Token.getAssociatedTokenAddress(
+                    window.solanaWeb3.ASSOCIATED_TOKEN_PROGRAM_ID,
+                    window.solanaWeb3.TOKEN_PROGRAM_ID,
+                    mndmMint,
+                    publicKey
+                );
 
-            // Parse token account data
-            const tokenAccount = window.solanaWeb3.TokenAccountLayout.decode(accountInfo.data);
-            const balance = Number(tokenAccount.amount) / Math.pow(10, 6); // MNDM has 6 decimals
+                // Get account info
+                const accountInfo = await tempConnection.getAccountInfo(ata);
+                if (!accountInfo) return 0;
 
-            console.log(`💎 MNDM Balance for ${walletAddress}: ${balance}`);
-            this.mndmBalance = balance;
-            return balance;
+                // Parse token account data
+                const tokenAccount = window.solanaWeb3.TokenAccountLayout.decode(accountInfo.data);
+                const balance = Number(tokenAccount.amount) / Math.pow(10, 6); // MNDM has 6 decimals
 
-        } catch (error) {
-            console.error('Failed to load MNDM balance:', error);
-            return 0;
+                console.log(`💎 MNDM Balance loaded using ${endpoint}: ${balance}`);
+                this.mndmBalance = balance;
+                return balance;
+
+            } catch (error) {
+                console.log(`❌ RPC endpoint ${rpcEndpoints[i]} failed:`, error.message);
+                if (i === rpcEndpoints.length - 1) {
+                    // All endpoints failed
+                    console.error('❌ All RPC endpoints failed to load MNDM balance');
+                    return 0;
+                }
+                // Try next endpoint
+                continue;
+            }
         }
     }
 
