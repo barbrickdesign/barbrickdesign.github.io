@@ -186,6 +186,26 @@ class SoraVideoGenerator {
      * Generate video for a specific card
      */
     async generateVideoForCard(title) {
+        // Check CDR access first
+        if (window.cdrAIUtilization) {
+            const address = this.getCurrentAddress();
+            const canAccess = await window.cdrAIUtilization.canAccessFeature(address, 'video-gen');
+            if (!canAccess) {
+                const accessLevel = await window.cdrAIUtilization.getUserAccessLevel(address);
+                const minLevel = accessLevel ? 'Platinum' : 'Gold';
+                alert(`🎬 Sora AI Video Generation requires CDR tokens!\n\nCurrent Access: ${accessLevel ? accessLevel.level : 'None'}\nRequired: ${minLevel} (${minLevel === 'Gold' ? '10,000+' : '50,000+'} CDR)\n\nUpgrade your CDR holdings to unlock AI video generation.`);
+                return;
+            }
+
+            // Use AI credits for video generation
+            try {
+                await window.cdrAIUtilization.useCredits(address, 500); // Video generation costs 500 credits
+            } catch (error) {
+                alert(`❌ ${error.message}`);
+                return;
+            }
+        }
+
         if (!this.apiKey) {
             this.showApiModal();
             return;
@@ -203,6 +223,19 @@ class SoraVideoGenerator {
 
         const promptData = this.wizardPrompts[promptKey];
         await this.generateVideo(promptData.prompt, promptData.duration, promptData.size, title);
+    }
+
+    /**
+     * Get current user address
+     */
+    getCurrentAddress() {
+        if (window.universalWalletAuth && window.universalWalletAuth.getAddress) {
+            return window.universalWalletAuth.getAddress();
+        }
+        if (window.sharedWalletSystem && window.sharedWalletSystem.address) {
+            return window.sharedWalletSystem.address;
+        }
+        return null;
     }
 
     /**
