@@ -974,6 +974,10 @@
         }
     
         async function authenticateCard() {
+            // Prevent multiple concurrent card auth attempts
+            if (window.authenticatingCard) return;
+            window.authenticatingCard = true;
+            
             const btn = document.getElementById('authBtn');
             const status = document.getElementById('authStatus');
             
@@ -1010,6 +1014,8 @@
                 status.textContent = '❌ ' + error.message;
                 status.style.color = '#ff0000';
                 btn.disabled = false;
+            } finally {
+                window.authenticatingCard = false;
             }
         }
 
