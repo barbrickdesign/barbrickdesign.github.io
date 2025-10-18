@@ -318,6 +318,284 @@
                 font-size: 0.9em !important;
                 padding: 8px 16px !important;
             }
+
+            /* Header Layout */
+            header {
+                padding: 20px 15px;
+                margin-bottom: 20px;
+            }
+
+            /* Stats Grid */
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+                padding: 0 15px;
+            }
+
+            .stat-card {
+                padding: 1rem;
+            }
+
+            .stat-value {
+                font-size: 1.5em;
+            }
+
+            /* Tabs */
+            .tabs {
+                flex-direction: column;
+                align-items: center;
+                gap: 0.5rem;
+                padding: 0 15px;
+            }
+
+            .tab {
+                width: 100%;
+                max-width: 250px;
+                text-align: center;
+                padding: 10px 15px;
+                font-size: 0.9em;
+            }
+
+            /* Leaderboard */
+            .leaderboard {
+                padding: 20px 15px;
+            }
+
+            .leaderboard-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 1rem;
+            }
+
+            .leaderboard-header h2 {
+                font-size: 1.5em;
+            }
+
+            /* Contractor Cards */
+            .contractor-card {
+                padding: 15px;
+                margin: 10px 0;
+            }
+
+            .contractor-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .contractor-info {
+                margin: 0;
+                width: 100%;
+            }
+
+            .contractor-name {
+                font-size: 1.2em;
+            }
+
+            .contractor-wallet {
+                font-size: 0.8em;
+            }
+
+            .contractor-stats {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .mini-stat {
+                padding: 8px;
+                text-align: center;
+            }
+
+            .mini-stat-value {
+                font-size: 1em;
+            }
+
+            .mini-stat-label {
+                font-size: 0.8em;
+            }
+
+            /* Trust Badge */
+            .trust-badge {
+                font-size: 0.8em;
+                padding: 4px 8px;
+            }
+
+            /* Drip Indicator */
+            .drip-indicator {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+                padding: 10px;
+                margin-top: 10px;
+            }
+
+            .drip-value {
+                font-size: 1.2em;
+            }
+
+            /* Buttons */
+            .bid-button {
+                width: 100%;
+                padding: 10px;
+                font-size: 0.9em;
+                margin-top: 10px;
+            }
+
+            /* Modal */
+            .modal-content {
+                padding: 30px 20px;
+                max-width: 95vw;
+                width: 95vw;
+            }
+
+            /* Back Link */
+            .container > div:last-child {
+                text-align: center;
+                padding: 20px 15px;
+            }
+
+            /* Team Members */
+            .team-members {
+                justify-content: center;
+                flex-wrap: wrap;
+                gap: 5px;
+            }
+
+            .team-member {
+                font-size: 0.8em;
+                padding: 3px 8px;
+            }
+        }
+
+        /* Extra Small Mobile */
+        @media (max-width: 480px) {
+            h1 { font-size: 1.5em; }
+
+            header {
+                padding: 15px 10px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 0.8rem;
+            }
+
+            .stat-card {
+                padding: 0.8rem;
+            }
+
+            .stat-value {
+                font-size: 1.3em;
+            }
+
+            .tab {
+                max-width: 200px;
+                padding: 8px 12px;
+                font-size: 0.85em;
+            }
+
+            .leaderboard {
+                padding: 15px 10px;
+            }
+
+            .leaderboard-header h2 {
+                font-size: 1.3em;
+            }
+
+            .contractor-card {
+                padding: 12px;
+                margin: 8px 0;
+            }
+
+            .contractor-name {
+                font-size: 1.1em;
+            }
+
+            .contractor-wallet {
+                font-size: 0.75em;
+            }
+
+            .rank {
+                font-size: 1.5em;
+                min-width: 50px;
+            }
+
+            .contractor-stats {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .mini-stat {
+                padding: 6px;
+            }
+
+            .mini-stat-value {
+                font-size: 0.9em;
+            }
+
+            .mini-stat-label {
+                font-size: 0.75em;
+            }
+
+            .drip-indicator {
+                padding: 8px;
+            }
+
+            .drip-value {
+                font-size: 1em;
+            }
+
+            .bid-button {
+                padding: 8px;
+                font-size: 0.85em;
+            }
+
+            .modal-content {
+                padding: 20px 15px;
+            }
+
+            .close-modal {
+                font-size: 1.8em;
+            }
+
+            /* Wallet section */
+            .wallet-section-mobile {
+                padding: 15px !important;
+            }
+
+            .wallet-info-mobile {
+                padding: 8px 0;
+            }
+
+            .wallet-buttons-mobile {
+                gap: 8px !important;
+            }
+
+            .wallet-buttons-mobile button {
+                font-size: 0.8em !important;
+                padding: 6px 12px !important;
+            }
+        }
+
+        /* Tablet Layout */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 1.5rem;
+            }
+
+            .contractor-stats {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .tabs {
+                justify-content: center;
+            }
+
+            .tab {
+                flex: 0 1 auto;
+                min-width: 150px;
+            }
         }
     </style>
 </head>

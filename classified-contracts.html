@@ -431,6 +431,372 @@
         @media (max-width: 768px) {
             h1 { font-size: 1.8em; }
             .contracts-grid { grid-template-columns: 1fr; }
+
+            /* Header Layout */
+            header {
+                padding: 20px 15px;
+                margin-bottom: 20px;
+            }
+
+            .warning-banner {
+                padding: 15px;
+                margin: 15px 0;
+            }
+
+            .warning-text {
+                font-size: 0.85em;
+            }
+
+            /* Auth Section */
+            .auth-section {
+                padding: 25px 20px;
+            }
+
+            .card-icon {
+                font-size: 3.5em;
+            }
+
+            .auth-btn {
+                padding: 15px 30px;
+                font-size: 1em;
+            }
+
+            /* Auth Method Buttons */
+            .auth-method-btn {
+                min-width: 120px;
+                padding: 15px;
+            }
+
+            .method-icon {
+                font-size: 2em;
+            }
+
+            .method-title {
+                font-size: 1em;
+            }
+
+            .method-desc {
+                font-size: 0.8em;
+            }
+
+            /* User Info */
+            .user-info {
+                padding: 15px;
+            }
+
+            .info-row {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 5px;
+            }
+
+            /* Stats Grid */
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1rem;
+                padding: 0 15px;
+            }
+
+            .stat-card {
+                padding: 1rem;
+            }
+
+            .stat-value {
+                font-size: 1.8em;
+            }
+
+            /* Contract Cards */
+            .contract-card {
+                padding: 20px;
+            }
+
+            .contract-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .contract-title {
+                font-size: 1.1em;
+            }
+
+            .contract-value {
+                font-size: 1.2em;
+                margin: 10px 0;
+            }
+
+            .contract-details {
+                font-size: 0.9em;
+                line-height: 1.6;
+            }
+
+            .contract-meta {
+                gap: 8px;
+                flex-wrap: wrap;
+            }
+
+            .meta-tag {
+                font-size: 0.8em;
+                padding: 4px 10px;
+            }
+
+            /* Clearance Badge */
+            .clearance-badge {
+                padding: 8px 15px;
+                font-size: 0.9em;
+                margin: 8px;
+            }
+
+            /* Match Indicator */
+            .match-indicator {
+                padding: 12px;
+                margin: 12px 0;
+            }
+
+            .match-score {
+                font-size: 1.5em;
+            }
+
+            .match-reasons {
+                font-size: 0.8em;
+            }
+
+            /* Access Denied */
+            .access-denied {
+                padding: 20px;
+            }
+
+            /* Compensation Section */
+            #compensationSection {
+                padding: 20px 15px;
+                margin: 20px 15px;
+            }
+
+            /* Location Filter */
+            #locationFilterSection {
+                padding: 20px 15px;
+                margin: 20px 15px;
+            }
+
+            #locationSearchInput {
+                width: 100%;
+                max-width: 280px;
+            }
+
+            /* Setup Steps */
+            #setupSteps {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            .setup-step {
+                min-width: 100%;
+                padding: 12px;
+            }
+
+            .step-number {
+                font-size: 1.2em;
+            }
+
+            .step-title {
+                font-size: 0.9em;
+            }
+
+            .step-desc {
+                font-size: 0.75em;
+            }
+
+            /* Footer Links */
+            .container > div:last-child {
+                padding: 20px 15px;
+            }
+
+            /* Modals */
+            .modal-content {
+                padding: 25px 15px;
+                max-width: 95vw;
+                width: 95vw;
+            }
+
+            /* SAM.gov Input */
+            #samGovApiKeyInput {
+                width: 100%;
+                max-width: 250px;
+                margin: 8px 0;
+            }
+
+            /* Bid Modal */
+            #bidModal {
+                padding: 15px;
+            }
+
+            #bidModal .modal-content {
+                padding: 20px 15px;
+            }
+
+            /* Buttons */
+            button {
+                font-size: 0.9em;
+            }
+        }
+
+        /* Extra Small Mobile */
+        @media (max-width: 480px) {
+            h1 { font-size: 1.5em; }
+
+            header {
+                padding: 15px 10px;
+            }
+
+            .auth-section {
+                padding: 20px 15px;
+            }
+
+            .card-icon {
+                font-size: 3em;
+            }
+
+            .auth-btn {
+                padding: 12px 25px;
+                font-size: 0.9em;
+            }
+
+            .auth-method-btn {
+                min-width: 100px;
+                padding: 12px;
+            }
+
+            .method-icon {
+                font-size: 1.8em;
+            }
+
+            .method-title {
+                font-size: 0.9em;
+            }
+
+            .method-desc {
+                font-size: 0.75em;
+            }
+
+            .warning-banner {
+                padding: 12px;
+                margin: 10px 0;
+            }
+
+            .warning-text {
+                font-size: 0.8em;
+            }
+
+            .user-info {
+                padding: 12px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 0.8rem;
+            }
+
+            .stat-card {
+                padding: 0.8rem;
+            }
+
+            .stat-value {
+                font-size: 1.5em;
+            }
+
+            .contract-card {
+                padding: 15px;
+            }
+
+            .contract-title {
+                font-size: 1em;
+            }
+
+            .contract-value {
+                font-size: 1.1em;
+            }
+
+            .contract-details {
+                font-size: 0.85em;
+            }
+
+            .meta-tag {
+                font-size: 0.75em;
+                padding: 3px 8px;
+            }
+
+            .clearance-badge {
+                padding: 6px 12px;
+                font-size: 0.8em;
+                margin: 6px;
+            }
+
+            .match-indicator {
+                padding: 10px;
+                margin: 10px 0;
+            }
+
+            .match-score {
+                font-size: 1.3em;
+            }
+
+            .match-reasons {
+                font-size: 0.75em;
+            }
+
+            #compensationSection {
+                padding: 15px 10px;
+                margin: 15px 10px;
+            }
+
+            #locationFilterSection {
+                padding: 15px 10px;
+                margin: 15px 10px;
+            }
+
+            #samGovApiKeyInput {
+                max-width: 200px;
+            }
+
+            .setup-step {
+                padding: 10px;
+            }
+
+            .step-number {
+                font-size: 1.1em;
+            }
+
+            .modal-content {
+                padding: 15px 10px;
+            }
+
+            .container > div:last-child {
+                padding: 15px 10px;
+            }
+        }
+
+        /* Tablet Layout */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            .contracts-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 20px;
+            }
+
+            .stats-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .contract-card {
+                padding: 20px;
+            }
+
+            #setupSteps {
+                justify-content: space-around;
+            }
+
+            .setup-step {
+                min-width: 100px;
+            }
         }
     </style>
 </head>
