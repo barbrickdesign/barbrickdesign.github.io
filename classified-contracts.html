@@ -896,6 +896,10 @@
         }
 
         async function authenticateWallet() {
+            // Prevent multiple concurrent connection attempts
+            if (window.authenticatingWallet) return;
+            window.authenticatingWallet = true;
+            
             const btn = document.getElementById('authBtn');
             const status = document.getElementById('authStatus');
             
@@ -932,6 +936,8 @@
                 status.textContent = '❌ ' + error.message;
                 status.style.color = '#ff0000';
                 btn.disabled = false;
+            } finally {
+                window.authenticatingWallet = false;
             }
         }
 
