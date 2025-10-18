@@ -1263,7 +1263,12 @@
                     enableMNDM: true,
                     onConnect: (walletInfo) => {
                         console.log('🔗 Hub wallet connected:', walletInfo);
+                        updateWalletStatusIndicator(true, walletInfo.address, walletInfo.mndmBalance);
                         updateMNDMBalanceDisplay(walletInfo.mndmBalance);
+                    },
+                    onDisconnect: () => {
+                        console.log('🔌 Hub wallet disconnected');
+                        updateWalletStatusIndicator(false);
                     }
                 });
             }
