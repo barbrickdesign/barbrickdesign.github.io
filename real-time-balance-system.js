@@ -628,9 +628,10 @@ class RealTimeBalanceSystem {
 
         // Build balance HTML
         let html = '';
+        let hasBalances = false;
 
-        // Native token
-        if (balanceData.native) {
+        // Native token (only if balance > 0)
+        if (balanceData.native && balanceData.native.balance > 0) {
             html += `
                 <div class="balance-item">
                     <span class="balance-symbol">${balanceData.native.symbol}</span>
@@ -640,28 +641,49 @@ class RealTimeBalanceSystem {
                     </div>
                 </div>
             `;
+            hasBalances = true;
         }
 
-        // Token balances
+        // Token balances (only show tokens with actual balances)
         balanceData.tokens.forEach(token => {
-            html += `
-                <div class="balance-item">
-                    <span class="balance-symbol">${token.symbol}</span>
-                    <div>
-                        <div class="balance-amount">${token.formatted}</div>
-                        <div class="balance-usd">${this.formatUSD(token.usdValue)}</div>
+            if (token.balance > 0) {
+                const icon = token.symbol === 'USDC' ? '💵' :
+                            token.symbol === 'USDT' ? '💰' :
+                            token.symbol === 'MNDM' ? '⚡' :
+                            token.symbol === 'CDR' ? '👨‍💻' : '';
+                const symbol = icon ? `${icon} ${token.symbol}` : token.symbol;
+
+                html += `
+                    <div class="balance-item">
+                        <span class="balance-symbol">${symbol}</span>
+                        <div>
+                            <div class="balance-amount">${token.formatted}</div>
+                            <div class="balance-usd">${this.formatUSD(token.usdValue)}</div>
+                        </div>
                     </div>
-                </div>
-            `;
+                `;
+                hasBalances = true;
+            }
         });
 
-        // Total
-        html += `
-            <div class="balance-item balance-total">
-                <span class="balance-symbol">TOTAL</span>
-                <div class="balance-usd">${this.formatUSD(balanceData.totalUSD)}</div>
-            </div>
-        `;
+        // Total (only show if there are balances)
+        if (hasBalances && balanceData.totalUSD > 0) {
+            html += `
+                <div class="balance-item balance-total">
+                    <span class="balance-symbol">💼 TOTAL</span>
+                    <div class="balance-usd">${this.formatUSD(balanceData.totalUSD)}</div>
+                </div>
+            `;
+        }
+
+        if (!hasBalances) {
+            html = `
+                <div class="balance-loading">
+                    <div class="balance-spinner"></div>
+                    <p>No token balances found</p>
+                </div>
+            `;
+        }
 
         content.innerHTML = html;
     }
