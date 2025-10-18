@@ -1411,6 +1411,9 @@
                     panel.style.opacity = '1';
                     panel.style.transform = 'translateY(0)';
                 }, 50);
+
+                // Award XP for mission control access
+                addXP(5, 'system_interaction');
             } else {
                 // Hide with effect
                 panel.style.opacity = '0';
