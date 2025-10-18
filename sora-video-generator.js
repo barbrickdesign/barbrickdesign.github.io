@@ -3,6 +3,9 @@
  * Allows users to contribute API keys and generate wizard embodiment videos
  */
 
+// Prevent redeclaration
+if (typeof SoraVideoGenerator === 'undefined') {
+
 class SoraVideoGenerator {
     constructor() {
         this.apiKey = null;
@@ -429,3 +432,5 @@ document.addEventListener('DOMContentLoaded', () => {
         window.soraVideoGenerator.init();
     }
 });
+
+} // End of redeclaration prevention
