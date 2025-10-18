@@ -10,6 +10,16 @@
     <script src="src/core/security-clearance-auth.js"></script>
     <script src="src/systems/contractor-payment-system.js"></script>
     
+    <!-- Universal Wallet Authentication System -->
+    <script src="src/core/universal-wallet-auth.js"></script>
+    <script src="src/core/auth-integration.js"></script>
+    <script src="src/core/contractor-registry.js"></script>
+    
+    <!-- MNDM Token System -->
+    <script src="universal-wallet-system.js"></script>
+    <script src="mandem-mndm-system.js"></script>
+    <script src="pumpfun-token-config.js"></script>
+    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
@@ -299,6 +309,31 @@
             <p style="color: #a8b3c7; margin-top: 10px;">
                 Find the best contractors, check their reputation, and bid on projects
             </p>
+            
+            <!-- Wallet Connection & MNDM Status -->
+            <div style="margin-top: 20px; padding: 20px; background: linear-gradient(135deg, rgba(102,252,241,0.1), rgba(59,228,119,0.1)); border: 2px solid rgba(102,252,241,0.3); border-radius: 15px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
+                    <div id="walletStatus" style="flex: 1;">
+                        <div style="color: #66fcf1; font-weight: bold; margin-bottom: 5px;">🔗 Wallet Connection</div>
+                        <div id="walletInfo" style="color: #a8b3c7; font-size: 0.9em;">Not connected - Click to connect Phantom wallet</div>
+                    </div>
+                    
+                    <div id="mndmStatus" style="flex: 1;">
+                        <div style="color: #00ff99; font-weight: bold; margin-bottom: 5px;">💎 MNDM Balance</div>
+                        <div id="mndmBalance" style="color: #a8b3c7; font-size: 0.9em;">0.0000 MNDM</div>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <button id="connectWalletBtn" onclick="connectPhantomWallet()" style="padding: 10px 20px; background: linear-gradient(135deg, #66fcf1, #3be477); color: #0a0c11; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s;">
+                            🔗 Connect Wallet
+                        </button>
+                        
+                        <button id="contributeAgentBtn" onclick="contributeAgent()" style="padding: 10px 20px; background: linear-gradient(135deg, #ffd700, #ff6b35); color: #000; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s; display: none;">
+                            🤖 Contribute Agent (MNDM)
+                        </button>
+                    </div>
+                </div>
+            </div>
         </header>
 
         <!-- System Stats -->
