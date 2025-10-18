@@ -338,26 +338,51 @@ class RealTimeBalanceSystem {
     }
 
     /**
-     * Call Solana RPC
+     * Call Solana RPC with endpoint rotation for rate limiting
      */
-    async callSolanaRPC(method, params) {
-        const response = await fetch(this.rpcEndpoints.solana, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                jsonrpc: '2.0',
-                id: 1,
-                method: method,
-                params: params
-            })
-        });
-
-        const data = await response.json();
-        if (data.error) {
-            throw new Error(data.error.message);
+    async callSolanaRPC(method, params, retryCount = 0) {
+        const maxRetries = this.rpcEndpoints.solana.length;
+        
+        if (retryCount >= maxRetries) {
+            throw new Error(`All RPC endpoints failed for method: ${method}`);
         }
 
-        return data.result;
+        const endpoint = this.rpcEndpoints.solana[this.currentRpcIndex];
+        
+        try {
+            const response = await fetch(endpoint, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    jsonrpc: '2.0',
+                    id: Date.now(),
+                    method: method,
+                    params: params
+                })
+            });
+
+            if (response.status === 403) {
+                console.warn(`RPC endpoint ${endpoint} returned 403, trying next endpoint...`);
+                this.currentRpcIndex = (this.currentRpcIndex + 1) % this.rpcEndpoints.solana.length;
+                return this.callSolanaRPC(method, params, retryCount + 1);
+            }
+
+            if (!response.ok) {
+                throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            }
+
+            const data = await response.json();
+            if (data.error) {
+                throw new Error(data.error.message);
+            }
+
+            return data.result;
+
+        } catch (error) {
+            console.warn(`RPC call failed for ${endpoint}:`, error.message);
+            this.currentRpcIndex = (this.currentRpcIndex + 1) % this.rpcEndpoints.solana.length;
+            return this.callSolanaRPC(method, params, retryCount + 1);
+        }
     }
 
     /**
