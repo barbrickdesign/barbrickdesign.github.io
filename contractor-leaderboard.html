@@ -330,19 +330,19 @@
             </p>
             
             <!-- Wallet Connection & MNDM Status -->
-            <div style="margin-top: 20px; padding: 20px; background: linear-gradient(135deg, rgba(102,252,241,0.1), rgba(59,228,119,0.1)); border: 2px solid rgba(102,252,241,0.3); border-radius: 15px;">
+            <div class="wallet-section-mobile" style="margin-top: 20px; padding: 20px; background: linear-gradient(135deg, rgba(102,252,241,0.1), rgba(59,228,119,0.1)); border: 2px solid rgba(102,252,241,0.3); border-radius: 15px;">
                 <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px;">
-                    <div id="walletStatus" style="flex: 1;">
+                    <div class="wallet-info-mobile" id="walletStatus" style="flex: 1;">
                         <div style="color: #66fcf1; font-weight: bold; margin-bottom: 5px;">🔗 Wallet Connection</div>
                         <div id="walletInfo" style="color: #a8b3c7; font-size: 0.9em;">Not connected - Click to connect Phantom wallet</div>
                     </div>
                     
-                    <div id="mndmStatus" style="flex: 1;">
+                    <div class="wallet-info-mobile" id="mndmStatus" style="flex: 1;">
                         <div style="color: #00ff99; font-weight: bold; margin-bottom: 5px;">💎 MNDM Balance</div>
                         <div id="mndmBalance" style="color: #a8b3c7; font-size: 0.9em;">0.0000 MNDM</div>
                     </div>
                     
-                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                    <div class="wallet-buttons-mobile" style="display: flex; gap: 10px; flex-wrap: wrap;">
                         <button id="connectWalletBtn" onclick="connectPhantomWallet()" style="padding: 10px 20px; background: linear-gradient(135deg, #66fcf1, #3be477); color: #0a0c11; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: all 0.3s;">
                             🔗 Connect Wallet
                         </button>
