@@ -3427,7 +3427,11 @@
                 }
 
                 return 0;
-        // Missing functions to fix JavaScript errors
+            } catch (error) {
+                console.error('Error getting MNDM balance:', error);
+                return 0;
+            }
+        }
         function chatWithAustinMoore() {
             alert('🎭 AUSTIN MOORE - SUPREME INVENTOR\n\nAustin Moore is the original creator of the MGC Merlin system and the foundational architect of the entire Gem Bot Universe.\n\n• Supreme Access Level\n• Original MGC Merlin Creator\n• System Architecture Expert\n• Innovation Pioneer\n\n"To create something truly revolutionary, you must think beyond the boundaries of what exists." - Austin Moore');
         }
