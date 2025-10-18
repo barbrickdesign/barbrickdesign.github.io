@@ -795,36 +795,87 @@
     </div>
 
     <script>
+        // Anti-flicker wallet state management
+        let isWalletConnected = false;
+        let currentWalletAddress = null;
+        let lastUIUpdate = 0;
+        const UI_UPDATE_DEBOUNCE = 500; // 500ms minimum between UI updates
+
         // Initialize Universal Auth System
         window.addEventListener('DOMContentLoaded', async () => {
+            console.log('🔒 Initializing Classified Contracts with Wallet Integration...');
+            
             try {
-                // Initialize with custom handlers
+                // Initialize with custom handlers and debouncing
                 await window.authIntegration.init({
                     requireAuth: false,  // Don't force redirect yet
                     showUI: false,  // We have custom UI
-                    onAuthSuccess: async (authInfo) => {
-                        console.log('✅ Universal auth successful:', authInfo.address);
-                        
-                        // Use security-clearance-auth for contract access logic
-                        const result = await window.securityClearanceAuth.autoAuthenticate();
-                        
-                        if (result && result.success) {
-                            document.getElementById('authSection').style.display = 'none';
-                            document.getElementById('authenticatedSection').style.display = 'block';
-                            displayUserInfo(result.user);
-                            loadClassifiedContracts();
-                        }
-                    },
-                    onAuthFail: () => {
-                        console.log('⚠️ Please connect your wallet');
-                        document.getElementById('authSection').style.display = 'block';
-                        document.getElementById('authenticatedSection').style.display = 'none';
-                    }
+                    onAuthSuccess: (authInfo) => debouncedUpdate(handleWalletConnected, authInfo),
+                    onAuthFail: () => debouncedUpdate(handleWalletDisconnected)
                 });
             } catch (error) {
                 console.error('❌ Universal auth initialization failed:', error);
             }
         });
+
+        // Debounced UI update function
+        function debouncedUpdate(callback, ...args) {
+            const now = Date.now();
+            if (now - lastUIUpdate < UI_UPDATE_DEBOUNCE) {
+                // Schedule update after debounce period
+                setTimeout(() => {
+                    if (Date.now() - lastUIUpdate >= UI_UPDATE_DEBOUNCE) {
+                        callback(...args);
+                    }
+                }, UI_UPDATE_DEBOUNCE - (now - lastUIUpdate));
+                return;
+            }
+            
+            lastUIUpdate = now;
+            callback(...args);
+        }
+
+        // Handle wallet connection with stability checks
+        async function handleWalletConnected(authInfo) {
+            if (!authInfo || !authInfo.address) return;
+            
+            // Prevent duplicate processing
+            if (isWalletConnected && currentWalletAddress === authInfo.address) {
+                return; // Already connected to this wallet
+            }
+            
+            console.log('🔗 Classified contracts wallet connected:', authInfo.address);
+            isWalletConnected = true;
+            currentWalletAddress = authInfo.address;
+            
+            // Small delay to prevent rapid UI updates
+            await new Promise(resolve => setTimeout(resolve, 100));
+            
+            // Use security-clearance-auth for contract access logic
+            const result = await window.securityClearanceAuth.autoAuthenticate();
+            
+            if (result && result.success) {
+                document.getElementById('authSection').style.display = 'none';
+                document.getElementById('authenticatedSection').style.display = 'block';
+                displayUserInfo(result.user);
+                loadClassifiedContracts();
+            }
+        }
+
+        // Handle wallet disconnection with stability checks
+        function handleWalletDisconnected() {
+            // Prevent duplicate processing
+            if (!isWalletConnected) {
+                return; // Already disconnected
+            }
+            
+            console.log('🔌 Classified contracts wallet disconnected');
+            isWalletConnected = false;
+            currentWalletAddress = null;
+            
+            document.getElementById('authSection').style.display = 'block';
+            document.getElementById('authenticatedSection').style.display = 'none';
+        }
     
         function selectAuthMethod(method) {
             // Remove selected class from all buttons
