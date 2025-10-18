@@ -2712,64 +2712,66 @@
 
         // Load coin balances from connected wallet
         async function loadCoinBalances() {
-            if (!isWalletConnected || !phantomWallet) return;
+            if (!isWalletConnected || !phantomWallet) {
+                const coinBalances = document.getElementById('coinBalances');
+                coinBalances.innerHTML = '<div style="text-align: center; color: var(--neon-blue);">Connect wallet to view balances</div>';
+                return;
+            }
 
             const coinBalances = document.getElementById('coinBalances');
+            coinBalances.innerHTML = '<div style="text-align: center; color: var(--neon-blue);">Loading balances...</div>';
 
-            // Use real-time balance system if available
+            // Use real-time balance system
             if (window.realTimeBalanceSystem && window.realTimeBalanceSystem.getBalances) {
-                const balanceData = window.realTimeBalanceSystem.getBalances(phantomWallet);
-                if (balanceData) {
-                    displayRealBalances(balanceData);
-                    return;
+                try {
+                    // Fetch fresh balances from the blockchain
+                    await window.realTimeBalanceSystem.fetchBalances(phantomWallet, 'solana');
+
+                    const balanceData = window.realTimeBalanceSystem.getBalances(phantomWallet);
+                    if (balanceData) {
+                        displayRealBalances(balanceData);
+                        return;
+                    }
+                } catch (error) {
+                    console.error('Failed to fetch balances:', error);
                 }
             }
 
-            // Fallback to mock data if real-time system not available
-            coinBalances.innerHTML = '<div style="text-align: center; color: var(--neon-blue);">Loading balances...</div>';
-
-            try {
-                // Mock balances for demonstration (replace with real API calls)
-                const mockBalances = {
-                    SOL: '2.45',
-                    'Knowledge Base': '1,250.00',
-                    'Vision Architect': '850.50'
-                };
-
-                coinBalances.innerHTML = `
-                    <div style="margin-bottom: 5px;"><strong>SOL:</strong> ${mockBalances.SOL}</div>
-                    <div style="margin-bottom: 5px;"><strong>🧠 KB Agent:</strong> ${mockBalances['Knowledge Base']}</div>
-                    <div style="margin-bottom: 5px;"><strong>⚡ Vision Arch:</strong> ${mockBalances['Vision Architect']}</div>
-                `;
-
-            } catch (error) {
-                console.error('Failed to load coin balances:', error);
-                coinBalances.innerHTML = '<div style="color: var(--neon-orange);">Failed to load balances</div>';
-            }
+            // No balances found
+            coinBalances.innerHTML = '<div style="text-align: center; color: var(--neon-blue);">No token balances found</div>';
         }
 
         // Display real balances from the balance system
         function displayRealBalances(balanceData) {
             const coinBalances = document.getElementById('coinBalances');
             let html = '';
+            let hasBalances = false;
 
             // Native SOL balance
-            if (balanceData.native) {
+            if (balanceData.native && balanceData.native.balance > 0) {
                 html += `<div style="margin-bottom: 5px;"><strong>SOL:</strong> ${balanceData.native.formatted} <span style="color: var(--neon-green);">($${window.realTimeBalanceSystem.formatUSD(balanceData.native.usdValue)})</span></div>`;
+                hasBalances = true;
             }
 
-            // Token balances
+            // Token balances (only show tokens with actual balances)
             balanceData.tokens.forEach(token => {
-                const icon = token.symbol === 'USDC' ? '💵' :
-                            token.symbol === 'USDT' ? '💰' :
-                            token.symbol === 'MNDM' ? '⚡' :
-                            token.symbol === 'CDR' ? '👨‍💻' : '🪙';
-                html += `<div style="margin-bottom: 5px;"><strong>${icon} ${token.name}:</strong> ${token.formatted} <span style="color: var(--neon-green);">($${window.realTimeBalanceSystem.formatUSD(token.usdValue)})</span></div>`;
+                if (token.balance > 0) {
+                    const icon = token.symbol === 'USDC' ? '💵' :
+                                token.symbol === 'USDT' ? '💰' :
+                                token.symbol === 'MNDM' ? '⚡' :
+                                token.symbol === 'CDR' ? '👨‍💻' : '🪙';
+                    html += `<div style="margin-bottom: 5px;"><strong>${icon} ${token.name}:</strong> ${token.formatted} <span style="color: var(--neon-green);">($${window.realTimeBalanceSystem.formatUSD(token.usdValue)})</span></div>`;
+                    hasBalances = true;
+                }
             });
 
-            // Total portfolio value
-            if (balanceData.totalUSD > 0) {
+            // Total portfolio value (only show if there are balances)
+            if (hasBalances && balanceData.totalUSD > 0) {
                 html += `<div style="margin-top: 10px; padding-top: 5px; border-top: 1px solid var(--neon-blue);"><strong>💼 Total:</strong> <span style="color: var(--neon-green); font-weight: bold;">$${window.realTimeBalanceSystem.formatUSD(balanceData.totalUSD)}</span></div>`;
+            }
+
+            if (!hasBalances) {
+                html = '<div style="text-align: center; color: var(--neon-blue);">No token balances found</div>';
             }
 
             coinBalances.innerHTML = html;
