@@ -1,7 +1,7 @@
 /**
  * PUMPFUN TOKEN CONFIGURATION & INTEGRATION
  * Complete token integration for pump.fun tokens
- * Supports MANDEM token: GK24fQQQKNF6JMsCd3rLfSr1n2tvr3bCJ7zAgNqxbA7r
+ * Supports MNDM token: GK24fQQQKNF6JMsCd3rLfSr1n2tvr3bCJ7zAgNqxbA7r
  */
 
 class PumpfunTokenConfig {
