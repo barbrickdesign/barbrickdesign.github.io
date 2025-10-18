@@ -2958,14 +2958,19 @@
         }
 
         function addXP(xpAmount, type = 'system_interaction') {
+            // Ensure type is always a string
+            if (typeof type !== 'string') {
+                type = String(type);
+            }
+
             const entry = {
                 id: Date.now(),
                 glyph: getRandomGlyph(),
-                title: getXPTitle(type),
+                title: getXPTitle(type.replace('_', ' ')),
                 description: `Earned ${xpAmount} XP for ${type.replace('_', ' ')}`,
                 xp: xpAmount,
                 swag: Math.floor(xpAmount / 2),
-                mispoints: 0,
+                misspoints: 0,
                 time: new Date().toLocaleTimeString(),
                 type: 'wins',
                 universe: 'MANDALOS'
