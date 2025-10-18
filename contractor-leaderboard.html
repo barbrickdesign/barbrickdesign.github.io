@@ -379,6 +379,271 @@
     <script>
         const paymentSystem = window.contractorPaymentSystem;
         let currentCategory = 'totalEarnings';
+        let isWalletConnected = false;
+        let currentWalletAddress = null;
+        let mndmBalance = 0;
+
+        // Initialize wallet integration
+        window.addEventListener('DOMContentLoaded', async function() {
+            console.log('🏆 Initializing Contractor Leaderboard with Wallet Integration...');
+            
+            // Initialize universal auth
+            if (window.authIntegration) {
+                await window.authIntegration.init({
+                    showUI: false,
+                    onAuthSuccess: handleWalletConnected,
+                    onAuthFail: handleWalletDisconnected
+                });
+            }
+
+            // Initialize demo data and display
+            initializeDemoData();
+            displaySystemStats();
+            displayLeaderboard();
+
+            // Auto-refresh every 30 seconds
+            setInterval(refreshLeaderboard, 30000);
+            
+            console.log('✅ Contractor Leaderboard initialized');
+        });
+
+        // Handle wallet connection
+        async function handleWalletConnected(authInfo) {
+            console.log('🔗 Wallet connected to leaderboard:', authInfo.address);
+            isWalletConnected = true;
+            currentWalletAddress = authInfo.address;
+            
+            // Update UI
+            document.getElementById('walletInfo').textContent = `${authInfo.shortAddress || authInfo.address.slice(0, 8) + '...' + authInfo.address.slice(-4)}`;
+            document.getElementById('walletInfo').style.color = '#00ff99';
+            document.getElementById('connectWalletBtn').style.display = 'none';
+            document.getElementById('contributeAgentBtn').style.display = 'inline-block';
+            
+            // Load MNDM balance
+            await loadMNDMBalance(authInfo.address);
+        }
+
+        // Handle wallet disconnection
+        function handleWalletDisconnected() {
+            console.log('🔌 Wallet disconnected from leaderboard');
+            isWalletConnected = false;
+            currentWalletAddress = null;
+            mndmBalance = 0;
+            
+            // Update UI
+            document.getElementById('walletInfo').textContent = 'Not connected - Click to connect Phantom wallet';
+            document.getElementById('walletInfo').style.color = '#a8b3c7';
+            document.getElementById('mndmBalance').textContent = '0.0000 MNDM';
+            document.getElementById('connectWalletBtn').style.display = 'inline-block';
+            document.getElementById('contributeAgentBtn').style.display = 'none';
+        }
+
+        // Connect Phantom wallet
+        async function connectPhantomWallet() {
+            try {
+                if (window.authIntegration) {
+                    await window.authIntegration.requireAuth();
+                } else {
+                    console.error('Auth integration not available');
+                    alert('Wallet system not available. Please refresh the page.');
+                }
+            } catch (error) {
+                console.error('Failed to connect wallet:', error);
+                alert('Failed to connect wallet. Please try again.');
+            }
+        }
+
+        // Load MNDM balance
+        async function loadMNDMBalance(walletAddress) {
+            try {
+                let balance = '0.0000';
+                
+                // Try to get real MNDM balance
+                if (window.realTimeBalanceSystem) {
+                    const balances = await window.realTimeBalanceSystem.getBalances(walletAddress);
+                    if (balances && balances.tokens) {
+                        const mndmToken = balances.tokens.find(token => token.symbol === 'MNDM');
+                        if (mndmToken && mndmToken.balance > 0) {
+                            balance = mndmToken.formatted;
+                            mndmBalance = mndmToken.balance;
+                        }
+                    }
+                }
+                
+                // Fallback to universal wallet system
+                if (balance === '0.0000' && window.universalWalletSystem) {
+                    const mndmBal = await window.universalWalletSystem.loadMNDMBalance(walletAddress);
+                    if (mndmBal > 0) {
+                        balance = mndmBal.toFixed(4);
+                        mndmBalance = mndmBal;
+                    }
+                }
+                
+                // Fallback to mock balance
+                if (balance === '0.0000' && window.PumpfunTokenConfig) {
+                    const mockBalance = await window.PumpfunTokenConfig.prototype.getTokenBalance(walletAddress);
+                    if (mockBalance > 0) {
+                        balance = mockBalance.toFixed(4);
+                        mndmBalance = mockBalance;
+                    }
+                }
+                
+                document.getElementById('mndmBalance').textContent = `${balance} MNDM`;
+                
+            } catch (error) {
+                console.error('Error loading MNDM balance:', error);
+                document.getElementById('mndmBalance').textContent = 'Error loading';
+            }
+        }
+
+        // Contribute agent using MNDM tokens
+        async function contributeAgent() {
+            if (!isWalletConnected || !currentWalletAddress) {
+                alert('Please connect your wallet first');
+                return;
+            }
+            
+            // Show contribution modal
+            const modal = document.createElement('div');
+            modal.id = 'contributionModal';
+            modal.style.cssText = `
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+                background: rgba(0,0,0,0.8); z-index: 10000; display: flex; 
+                align-items: center; justify-content: center; padding: 20px;
+            `;
+            
+            modal.innerHTML = `
+                <div style="background: linear-gradient(135deg, #0f131a, #1a1f2e); border: 2px solid #ffd700; border-radius: 20px; padding: 30px; max-width: 500px; width: 100%; max-height: 80vh; overflow-y: auto;">
+                    <div style="text-align: center; margin-bottom: 25px;">
+                        <h2 style="color: #ffd700; margin-bottom: 10px;">🤖 Contribute Agent to Leaderboard</h2>
+                        <p style="color: #a8b3c7; font-size: 0.9em;">Support the ecosystem by contributing an AI agent using MNDM tokens</p>
+                    </div>
+                    
+                    <div style="background: rgba(255,215,0,0.1); border: 2px solid rgba(255,215,0,0.3); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span style="color: #ffd700; font-weight: bold;">Your MNDM Balance:</span>
+                            <span style="color: #00ff99; font-weight: bold;">${mndmBalance.toFixed(4)} MNDM</span>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span style="color: #ffd700; font-weight: bold;">Contribution Cost:</span>
+                            <span style="color: #ff6b35; font-weight: bold;">10.0000 MNDM</span>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <label style="color: #66fcf1; font-weight: bold; display: block; margin-bottom: 10px;">Agent Details:</label>
+                        <input type="text" id="agentName" placeholder="Agent Name (e.g., CodeReviewer, DataAnalyzer)" style="width: 100%; padding: 12px; background: rgba(0,0,0,0.5); border: 2px solid #66fcf1; border-radius: 8px; color: #66fcf1; margin-bottom: 10px;" maxlength="50">
+                        
+                        <textarea id="agentDescription" placeholder="Brief description of the agent's capabilities and purpose..." style="width: 100%; padding: 12px; background: rgba(0,0,0,0.5); border: 2px solid #66fcf1; border-radius: 8px; color: #66fcf1; min-height: 80px; resize: vertical;" maxlength="200"></textarea>
+                    </div>
+                    
+                    <div style="display: flex; gap: 10px; justify-content: flex-end;">
+                        <button onclick="this.closest('#contributionModal').remove()" style="padding: 10px 20px; background: rgba(168,179,199,0.2); border: 2px solid #a8b3c7; border-radius: 8px; color: #a8b3c7; cursor: pointer;">Cancel</button>
+                        <button onclick="submitAgentContribution()" style="padding: 10px 20px; background: linear-gradient(135deg, #ffd700, #ff6b35); border: none; border-radius: 8px; color: #000; font-weight: bold; cursor: pointer;">🤖 Contribute Agent</button>
+                    </div>
+                </div>
+            `;
+            
+            document.body.appendChild(modal);
+        }
+
+        // Submit agent contribution
+        async function submitAgentContribution() {
+            const agentName = document.getElementById('agentName').value.trim();
+            const agentDescription = document.getElementById('agentDescription').value.trim();
+            const contributionCost = 10.0; // 10 MNDM
+            
+            if (!agentName || !agentDescription) {
+                alert('Please fill in both agent name and description');
+                return;
+            }
+            
+            if (mndmBalance < contributionCost) {
+                alert(`Insufficient MNDM balance. You need ${contributionCost} MNDM but only have ${mndmBalance.toFixed(4)} MNDM`);
+                return;
+            }
+            
+            try {
+                // Simulate MNDM transaction (in production, this would interact with smart contract)
+                console.log(`🔄 Processing MNDM transaction: ${contributionCost} MNDM for agent "${agentName}"`);
+                
+                // Update local balance
+                mndmBalance -= contributionCost;
+                document.getElementById('mndmBalance').textContent = `${mndmBalance.toFixed(4)} MNDM`;
+                
+                // Add agent to leaderboard system
+                const newAgent = {
+                    wallet: currentWalletAddress,
+                    profile: {
+                        displayName: agentName,
+                        bio: agentDescription,
+                        specialties: ['AI Agent', 'MNDM Contribution'],
+                        skills: ['Artificial Intelligence', 'Blockchain Integration'],
+                        availability: 'active'
+                    }
+                };
+                
+                // Register the contributed agent
+                const agent = paymentSystem.registerContractor(newAgent.wallet, newAgent.profile);
+                
+                // Add contribution project
+                agent.activity.allProjects.push({
+                    id: `AGENT_CONTRIBUTION_${Date.now()}`,
+                    title: `AI Agent: ${agentName}`,
+                    status: 'completed',
+                    realm: 'AI Ecosystem',
+                    startDate: new Date().toISOString(),
+                    estimatedHours: 100, // Represents development effort
+                    actualHours: 100,
+                    completionDate: new Date().toISOString(),
+                    role: 'AI Agent Developer',
+                    description: agentDescription
+                });
+                
+                agent.stats.projectsCompleted++;
+                agent.stats.totalEarnings += 25; // Reward for contribution
+                agent.stats.reputationPoints += 100; // Reputation boost
+                agent.activity.timeContributions.totalHours += 100;
+                
+                paymentSystem.recalculateDripRate(newAgent.wallet);
+                
+                // Close modal and show success
+                document.getElementById('contributionModal').remove();
+                
+                // Show success message
+                const successModal = document.createElement('div');
+                successModal.style.cssText = `
+                    position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+                    background: rgba(0,0,0,0.8); z-index: 10001; display: flex; 
+                    align-items: center; justify-content: center; padding: 20px;
+                `;
+                
+                successModal.innerHTML = `
+                    <div style="background: linear-gradient(135deg, #0f131a, #1a1f2e); border: 2px solid #00ff99; border-radius: 20px; padding: 30px; max-width: 400px; width: 100%; text-align: center;">
+                        <div style="font-size: 3em; margin-bottom: 15px;">✅</div>
+                        <h2 style="color: #00ff99; margin-bottom: 15px;">Agent Contributed Successfully!</h2>
+                        <p style="color: #a8b3c7; margin-bottom: 20px;">
+                            <strong>${agentName}</strong> has been added to the contractor leaderboard.<br>
+                            You received <strong style="color: #ffd700;">+100 Reputation Points</strong> and <strong style="color: #00ff99;">25 SOL Reward</strong>!
+                        </p>
+                        <button onclick="this.closest('div').parentElement.remove()" style="padding: 10px 25px; background: linear-gradient(135deg, #00ff99, #66fcf1); border: none; border-radius: 8px; color: #000; font-weight: bold; cursor: pointer;">Continue</button>
+                    </div>
+                `;
+                
+                document.body.appendChild(successModal);
+                
+                // Refresh leaderboard to show new agent
+                setTimeout(() => {
+                    refreshLeaderboard();
+                }, 1000);
+                
+                console.log('✅ Agent contribution successful:', agentName);
+                
+            } catch (error) {
+                console.error('Failed to contribute agent:', error);
+                alert('Failed to contribute agent. Please try again.');
+            }
+        }
 
         // Initialize demo data
         function initializeDemoData() {
