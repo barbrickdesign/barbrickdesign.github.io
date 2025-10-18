@@ -835,6 +835,9 @@
     <script>
         // Minimal initialization code
         window.addEventListener('DOMContentLoaded', () => {
+            // Update page timestamp on load
+            updatePageTimestamp();
+            
             // Initialize leaderboard after a short delay
             setTimeout(() => {
                 if (typeof initializeLeaderboard === 'function') {
@@ -857,6 +860,22 @@
 
             console.log('🏠 BARBRICKDESIGN Hub loaded successfully');
         });
+
+        // Update page timestamp function
+        function updatePageTimestamp() {
+            const timestampElement = document.getElementById('pageTimestamp');
+            if (timestampElement) {
+                const now = new Date();
+                const formattedTime = now.toLocaleString('en-US', {
+                    month: 'short',
+                    day: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+                timestampElement.textContent = formattedTime;
+            }
+        }
 
         // Placeholder functions for features that may be loaded dynamically
         function initializeLeaderboard() {
