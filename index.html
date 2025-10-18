@@ -372,9 +372,155 @@
             border-top: 2px solid rgba(0,255,255,0.3);
         }
         
+        /* Mobile Layout Fixes - No Overlapping */
         @media (max-width: 768px) {
-            h1 { font-size: 2.5em; }
-            .grid { grid-template-columns: 1fr; }
+            /* Header Layout */
+            header {
+                position: relative;
+                padding: 1.5rem 1rem;
+                margin-bottom: 2rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+                margin-bottom: 0.5rem;
+                line-height: 1.2;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+                margin-bottom: 1.5rem;
+            }
+
+            /* Wallet Button Container - Prevent Overlap */
+            #walletButtonContainer {
+                position: static !important;
+                margin-top: 1rem;
+                display: flex;
+                justify-content: center;
+                width: 100%;
+            }
+
+            /* Page Timestamp */
+            .page-timestamp {
+                position: absolute;
+                top: 10px;
+                right: 10px;
+                font-size: 0.7em;
+                background: rgba(0,0,0,0.7);
+                padding: 4px 8px;
+                border-radius: 8px;
+                z-index: 10;
+            }
+
+            /* Grid Layout */
+            .grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+                padding: 0 1rem;
+            }
+
+            .project-card {
+                padding: 1.5rem;
+                margin-bottom: 1rem;
+            }
+
+            .project-icon {
+                font-size: 3rem;
+            }
+
+            .project-title {
+                font-size: 1.5rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+                margin: 2rem 1rem 1rem 1rem;
+            }
+
+            /* Content Panels */
+            .content-panel {
+                margin: 1rem;
+                padding: 1rem;
+            }
+
+            /* Footer */
+            footer {
+                margin: 1rem;
+                padding: 1.5rem;
+            }
+
+            /* Tutorial Cards */
+            .tutorials-grid {
+                grid-template-columns: 1fr;
+                gap: 1rem;
+                padding: 0 1rem;
+            }
+
+            .tutorial-card {
+                padding: 1rem;
+            }
+
+            /* API Key Input */
+            .tutorials-grid input[type="password"] {
+                width: 100% !important;
+                max-width: 300px;
+            }
+
+            /* Footer Grid */
+            footer > div > div {
+                grid-template-columns: 1fr !important;
+                gap: 1rem;
+            }
+
+            /* Token Economics */
+            .tutorials-grid > div > div {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 0.5rem !important;
+            }
+        }
+
+        /* Extra Small Mobile */
+        @media (max-width: 480px) {
+            header {
+                padding: 1rem 0.5rem;
+            }
+
+            h1 {
+                font-size: 1.8rem;
+            }
+
+            .section-title {
+                font-size: 1.8rem;
+                margin: 1.5rem 0.5rem 1rem 0.5rem;
+            }
+
+            .project-card {
+                padding: 1rem;
+            }
+
+            .project-icon {
+                font-size: 2.5rem;
+            }
+
+            .project-title {
+                font-size: 1.3rem;
+            }
+
+            .content-panel {
+                margin: 0.5rem;
+                padding: 0.8rem;
+            }
+
+            footer {
+                margin: 0.5rem;
+                padding: 1rem;
+            }
+
+            /* Stack footer items vertically */
+            footer > div > div > div {
+                margin-bottom: 1.5rem;
+            }
         }
     </style>
 
