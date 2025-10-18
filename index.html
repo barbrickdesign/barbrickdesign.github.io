@@ -1554,6 +1554,22 @@
             }
         }
 
+        // Handle wallet disconnection
+        async function disconnectWallet() {
+            try {
+                await window.universalWallet.disconnect();
+                updateWalletStatusIndicator(false);
+                
+                // Close panel
+                toggleWalletPanel();
+                
+                console.log('🔌 Wallet disconnected from panel');
+            } catch (error) {
+                console.error('Failed to disconnect wallet:', error);
+                alert('Failed to disconnect wallet: ' + error.message);
+            }
+        }
+
         // Close wallet panel when clicking outside
         document.addEventListener('click', function(event) {
             const toggle = document.getElementById('walletStatusToggle');
